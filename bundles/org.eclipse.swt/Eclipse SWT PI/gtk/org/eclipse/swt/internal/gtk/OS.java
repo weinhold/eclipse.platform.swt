@@ -257,7 +257,7 @@ public static final native boolean GTK_WIDGET_MAPPED(int wid);
 public static final native boolean GTK_WIDGET_VISIBLE(int wid);
 public static final native boolean GTK_WIDGET_DRAWABLE(int wid);
 public static final native boolean GTK_WIDGET_CAN_FOCUS(int wid);
-public static final native boolean GTK_WIDGET_SET_FOCUS(int wid);
+public static final native boolean GTK_WIDGET_HAS_FOCUS(int wid);
 public static final native boolean GTK_WIDGET_HAS_GRAB(int wid);
 
 
@@ -283,6 +283,16 @@ public static final native void gtk_window_resize(int handle, int x, int y);
 
 public static final native boolean gtk_check_menu_item_get_active(int wid);
 public static final native void gtk_check_menu_item_set_active(int wid, boolean active);
+
+/* Containers */
+
+public static final native int eclipse_fixed_new();
+public static final native void eclipse_fixed_get_location(int fixed, int child, int[] loc);
+public static final native void eclipse_fixed_get_size(int fixed, int child, int[] sz);
+public static final native void eclipse_fixed_set_location(int fixed, int child, int x, int y);
+public static final native void eclipse_fixed_set_size(int fixed, int child, int width, int height);
+public static final native void eclipse_fixed_move_above(int fixed, int child, int sibling);
+public static final native void eclipse_fixed_move_below(int fixed, int child, int sibling);
 
 
 /* GDK */
@@ -497,9 +507,7 @@ public static final native int gtk_dialog_new();
 public static final native int gtk_event_box_new();
 public static final native int gtk_editable_get_position(int editable);
 public static final native void gtk_editable_set_position(int editable, int position);
-public static final native int gtk_fixed_new();
 public static final native void gtk_entry_set_editable(int entry, boolean editable);
-public static final native void gtk_fixed_put(int fixed, int widget, short x, short y);
 public static final native int gtk_entry_get_text(int entry);
 public static final native void gtk_entry_set_text(int entry, byte[] text);
 public static final native void gtk_editable_select_region(int editable, int start, int end);
@@ -521,7 +529,6 @@ public static final native void gtk_editable_delete_selection(int editable);
 public static final native int gtk_editable_get_chars(int editable, int start_pos, int end_pos);
 public static final native void gtk_entry_set_visibility(int entry, boolean visible);
 public static final native void gtk_entry_set_max_length(int entry, short max);
-public static final native void gtk_fixed_move(int fixed, int widget, short x, short y);
 public static final native int gtk_frame_new(byte[] label);
 public static final native void gtk_frame_set_shadow_type(int frame, int type);
 public static final native void gtk_frame_set_label(int frame, byte[] label);
