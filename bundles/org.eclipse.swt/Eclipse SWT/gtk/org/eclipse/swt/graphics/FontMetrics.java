@@ -94,7 +94,15 @@ public int getHeight() {
 public int getLeading() {
 	return leading;
 }
-
+public static FontMetrics gtk_new(int gdk_font) {
+	FontMetrics fontMetrics = new FontMetrics();
+	fontMetrics.ascent = OS.GDK_FONT_ASCENT(gdk_font);
+	fontMetrics.descent = OS.GDK_FONT_DESCENT(gdk_font);
+	fontMetrics.averageCharWidth = OS.gdk_char_width(gdk_font, (byte)'a');
+	fontMetrics.leading = 3;
+	fontMetrics.height = fontMetrics.ascent+fontMetrics.descent+3;
+	return fontMetrics;
+}
 /**
  * Returns an integer hash code for the receiver. Any two 
  * objects which return <code>true</code> when passed to 
@@ -108,14 +116,4 @@ public int getLeading() {
 public int hashCode() {
 	return ascent ^ descent ^ averageCharWidth ^ leading ^ height;
 }
-
-static FontMetrics gtk_new(int pango_font_metrics) {
-	FontMetrics answer = new FontMetrics();
-	answer.ascent = OS.pango_font_metrics_get_ascent(pango_font_metrics);
-	answer.descent = OS.pango_font_metrics_get_descent(pango_font_metrics);
-	answer.averageCharWidth = OS.pango_font_metrics_get_approximate_char_width(pango_font_metrics);
-	answer.leading = 1; /* temporary code */
-	return answer;
-}
-
 }
