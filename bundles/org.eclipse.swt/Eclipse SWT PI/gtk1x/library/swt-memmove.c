@@ -86,6 +86,16 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 	}
 }
 
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkCombo_2I
+  (JNIEnv *env, jclass that, jobject dest, jint src)
+{
+	DECL_GLOB(pGlob)
+	if (dest) {
+		cacheGtkComboFids(env, dest, &PGLOB(GtkComboFc));
+		setGtkComboFields(env, dest, src, &PGLOB(GtkComboFc));
+	}
+}
+
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkCList_2I
   (JNIEnv *env, jclass that, jobject dest, jint src)
 {

@@ -244,11 +244,11 @@ int topHandle() {
  * </ul>
  */
 public Rectangle getBounds () {
-	checkWidget();
-	/*GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);*/
-	/* FIXME */
-	return new Rectangle (0, 0, 10, 10);
+	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	/*GtkWidget widget = new GtkWidget (handle);
+	return new Rectangle (widget.alloc_x, widget.alloc_y, widget.alloc_width, widget.alloc_height);*/
+	return new Rectangle(2,2, 15,15);
 }
 /**
  * Returns the control that is used to fill the bounds of
@@ -394,9 +394,10 @@ public String getToolTipText () {
  * </ul>
  */
 public int getWidth () {
-	checkWidget();
-	/* FIXME */
-	return 10;
+	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+
+	return 15;
 }
 void hookEvents () {
 	if ((style & SWT.SEPARATOR) != 0) return;
@@ -729,10 +730,11 @@ public void setToolTipText (String string) {
  * </ul>
  */
 public void setWidth (int width) {
-	checkWidget();
+	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
 	if ((style & SWT.SEPARATOR) == 0) return;
-	/* FIXME */
-	/*Point size = control.computeSize(width, SWT.DEFAULT);
-	control.setSize(size);*/
+	
+	Point size = control.computeSize(width, SWT.DEFAULT);
+	control.setSize(size);
 }
 }

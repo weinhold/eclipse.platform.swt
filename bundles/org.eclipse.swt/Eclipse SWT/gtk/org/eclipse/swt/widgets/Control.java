@@ -134,7 +134,7 @@ void hookEvents () {
 }
 
 abstract void setHandleStyle  ();
-void setInitialSize() { /*UtilFuncs.setZeroSize(topHandle());*/ }
+void setInitialSize() { _setSize(5,5); }
 void configure () {
 	// Do NOT directly use fixed_put in configure():
 	// surprisingly, not all composites have Fixed as their
@@ -441,6 +441,7 @@ public void setSize (int width, int height) {
 	sendEvent(SWT.Resize);
 }
 void _setSize(int width, int height) {
+	System.out.println("Setting size of "+this+" (parent "+parent+") to "+width+"@"+height);
 	OS.eclipse_fixed_set_size(parent.parentingHandle(), topHandle(), width, height);
 }
 

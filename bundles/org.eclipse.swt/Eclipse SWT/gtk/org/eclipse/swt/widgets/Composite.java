@@ -132,6 +132,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	if (wHint != SWT.DEFAULT) size.x = wHint;
 	if (hHint != SWT.DEFAULT) size.y = hHint;
 	Rectangle trim = computeTrim (0, 0, size.x, size.y);
+	System.out.println("computeSize on Composite "+this+" gave "+trim.width+"@"+trim.height);
 	return new Point (trim.width, trim.height);
 }
 

@@ -27,6 +27,7 @@ import org.eclipse.swt.events.*;
  * </p>
  */
 public class Button extends Control {
+	int boxHandle;
 	Image image;
 	String text;
 
@@ -112,6 +113,8 @@ void createHandle (int index) {
 	state |= HANDLE;
 	int bits = SWT.ARROW | SWT.TOGGLE | SWT.CHECK | SWT.RADIO | SWT.PUSH;
 	
+	boxHandle = OS.gtk_event_box_new ();
+	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	switch (style & bits) {
 		case SWT.ARROW:
 			handle = OS.gtk_button_new ();
@@ -138,21 +141,45 @@ void createHandle (int index) {
 
 void setHandleStyle() {}
 
+void configure() {
+	parent._connectChild(topHandle());
+	OS.gtk_container_add (boxHandle, handle);
+}
+
+void showHandle() {
+	OS.gtk_widget_show (boxHandle);
+	OS.gtk_widget_show (handle);
+	OS.gtk_widget_realize (handle);
+}
+
 void hookEvents () {
-/*	super.hookEvents();
+	super.hookEvents();
+	/*
+	* Feature in GTK.  For some reason, when the widget
+	* is a check or radio button, mouse move and key
+	* release events are not signaled.  The fix is to
+	* look for them on the parent.
+	*/
 	if ((style & (SWT.CHECK | SWT.RADIO)) != 0) {
 		int mask = OS.GDK_POINTER_MOTION_MASK | OS.GDK_KEY_RELEASE_MASK;
 		OS.gtk_widget_add_events (boxHandle, mask);
 		signal_connect_after (boxHandle, "motion_notify_event", SWT.MouseMove, 3);
 		signal_connect_after (boxHandle, "key_release_event", SWT.KeyUp, 3);
-	}*/
+	}
 	signal_connect (handle, "clicked", SWT.Selection, 2);
+}
+
+void register () {
+	super.register ();
+	WidgetTable.put (boxHandle, this);	
 }
 
 void createWidget (int index) {
 	super.createWidget (index);
 	text = "";
 }
+
+int topHandle ()  { return boxHandle; }
 
 /**
  * Returns a value which describes the position of the
@@ -447,9 +474,20 @@ int processSelection (int int0, int int1, int int2) {
 	return 0;
 }
 
+void deregister () {
+	super.deregister ();
+	WidgetTable.remove (boxHandle);
+}
+
 void releaseWidget () {
 	super.releaseWidget ();
 	image = null;
 	text = null;
 }
+
+void releaseHandle () {
+	super.releaseHandle ();
+	boxHandle = 0;
+}
+
 }

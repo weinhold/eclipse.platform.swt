@@ -214,7 +214,7 @@ typedef GtkHBox_FID_CACHE *PGtkHBox_FID_CACHE;
 typedef struct GtkCombo_FID_CACHE {
 	int cached;
 	jclass GtkComboClass;
-	jfieldID entry, button, popup, popwin, list, entry_change_id, list_change_id, value_in_list, ok_if_empty, case_sensitive, use_arrows, use_arrows_always, current_button, activate_id;
+	jfieldID entry, list;
 } GtkCombo_FID_CACHE;
 
 typedef GtkCombo_FID_CACHE *PGtkCombo_FID_CACHE;

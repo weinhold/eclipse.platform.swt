@@ -71,7 +71,8 @@ void createHandle (int index) {
 	state |= HANDLE;
 	
 	/* FIXME
-	 * We do not need an event box here, period.
+	 * We do not need an event box here, as event boxes
+	 * have real X windows.
 	 */
 	boxHandle = OS.gtk_event_box_new ();
 	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
@@ -79,15 +80,15 @@ void createHandle (int index) {
 	int orientation = ((style&SWT.VERTICAL)!=0)?
 		OS.GTK_ORIENTATION_VERTICAL : OS.GTK_ORIENTATION_HORIZONTAL;
 	handle = OS.gtk_toolbar_new (orientation, OS.GTK_TOOLBAR_BOTH);
-	OS.gtk_toolbar_set_orientation(handle, orientation);
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+	OS.gtk_toolbar_set_orientation(handle, orientation);
 	
 	tempHandle = OS.eclipse_fixed_new();
 	if (tempHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }	
 
 void setHandleStyle() {
-	/*int relief = ((style&SWT.FLAT)!=0)? OS.GTK_RELIEF_NONE : OS.GTK_RELIEF_NORMAL;
+/*	int relief = ((style&SWT.FLAT)!=0)? OS.GTK_RELIEF_NONE : OS.GTK_RELIEF_NORMAL;
 	OS.gtk_toolbar_set_button_relief(handle, relief);*/
 }
 
@@ -98,21 +99,11 @@ void configure() {
 	OS.gtk_toolbar_insert_widget (handle,tempHandle,new byte[1], new byte[1],0);
 }
 
-/* FIXME */
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	if (layout != null) super.computeSize(wHint, hHint, changed);
-	/*return computeNativeSize (wHint, hHint, changed);*/
-	Point a;
-	if ((style&SWT.VERTICAL) != 0) a = new Point (40, 300); else a = new Point (300,40);
-	return a;
+	return new Point(300,30);
 }
-public Point _getSize () {
-	Point a;
-	if ((style&SWT.VERTICAL) != 0) a = new Point (40, 300); else a = new Point (300,40);
-	return a;
-}
-
 
 int eventHandle () {
 	return boxHandle;
@@ -153,6 +144,14 @@ void _connectChild (int h) {
 	OS.gtk_container_add(tempHandle, h);
 }
 
+
+/*
+ *   ===  GEOMETRY  ===
+ */
+
+void _setSize (int width, int height) {
+	OS.eclipse_fixed_set_size(parent.parentingHandle(), boxHandle, width, height);
+}
 
 
 
@@ -313,13 +312,13 @@ public int indexOf (ToolItem item) {
 	return -1;
 }
 int processResize (int int0, int int1, int int2) {
-/*	ToolItem [] items = getItems ();
+	ToolItem [] items = getItems ();
 	for (int i=0; i<items.length; i++) {
 		Control control = items [i].control;
 		if (control != null && !control.isDisposed ()) {
 			control.setBounds (items [i].getBounds ());
 		}
-	}*/
+	}
 	return 0;
 }
 

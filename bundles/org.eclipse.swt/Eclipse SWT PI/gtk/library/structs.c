@@ -284,21 +284,8 @@ void cacheGtkComboFids(JNIEnv *env, jobject lpGtkCombo, PGtkCombo_FID_CACHE lpCa
 	if (lpCache->cached) return;
 
 	lpCache->GtkComboClass = (*env)->GetObjectClass(env, lpGtkCombo);
-	cacheGtkHBoxFids(env, lpGtkCombo, &PGLOB(GtkHBoxFc));
 	lpCache->entry = (*env)->GetFieldID(env, lpCache->GtkComboClass, "entry", "I");
-	lpCache->button = (*env)->GetFieldID(env, lpCache->GtkComboClass, "button", "I");
-	lpCache->popup = (*env)->GetFieldID(env, lpCache->GtkComboClass, "popup", "I");
-	lpCache->popwin = (*env)->GetFieldID(env, lpCache->GtkComboClass, "popwin", "I");
 	lpCache->list = (*env)->GetFieldID(env, lpCache->GtkComboClass, "list", "I");
-	lpCache->entry_change_id = (*env)->GetFieldID(env, lpCache->GtkComboClass, "entry_change_id", "I");
-	lpCache->list_change_id = (*env)->GetFieldID(env, lpCache->GtkComboClass, "list_change_id", "I");
-	lpCache->value_in_list = (*env)->GetFieldID(env, lpCache->GtkComboClass, "value_in_list", "I");
-	lpCache->ok_if_empty = (*env)->GetFieldID(env, lpCache->GtkComboClass, "ok_if_empty", "I");
-	lpCache->case_sensitive = (*env)->GetFieldID(env, lpCache->GtkComboClass, "case_sensitive", "I");
-	lpCache->use_arrows = (*env)->GetFieldID(env, lpCache->GtkComboClass, "use_arrows", "I");
-	lpCache->use_arrows_always = (*env)->GetFieldID(env, lpCache->GtkComboClass, "use_arrows_always", "I");
-	lpCache->current_button = (*env)->GetFieldID(env, lpCache->GtkComboClass, "current_button", "S");
-	lpCache->activate_id = (*env)->GetFieldID(env, lpCache->GtkComboClass, "activate_id", "I");
 
 	lpCache->cached = 1;
 };
@@ -1111,41 +1098,15 @@ void setGtkCListFields(JNIEnv *env, jobject lpObject, GtkCList *lpGtkCList, GtkC
 void getGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkCombo_FID_CACHE *lpGtkComboFc)
 {
 	DECL_GLOB(pGlob)
-	getGtkHBoxFields(env, lpObject, &lpGtkCombo->hbox, &PGLOB(GtkHBoxFc));
 	lpGtkCombo->entry = (GtkWidget*)(*env)->GetIntField(env, lpObject, lpGtkComboFc->entry);
-	lpGtkCombo->button = (GtkWidget*)(*env)->GetIntField(env, lpObject, lpGtkComboFc->button);
-	lpGtkCombo->popup = (GtkWidget*)(*env)->GetIntField(env, lpObject, lpGtkComboFc->popup);
-	lpGtkCombo->popwin = (GtkWidget*)(*env)->GetIntField(env, lpObject, lpGtkComboFc->popwin);
 	lpGtkCombo->list = (GtkWidget*)(*env)->GetIntField(env, lpObject, lpGtkComboFc->list);
-	lpGtkCombo->entry_change_id = (*env)->GetIntField(env, lpObject, lpGtkComboFc->entry_change_id);
-	lpGtkCombo->list_change_id = (*env)->GetIntField(env, lpObject, lpGtkComboFc->list_change_id);
-	lpGtkCombo->value_in_list = (*env)->GetIntField(env, lpObject, lpGtkComboFc->value_in_list);
-	lpGtkCombo->ok_if_empty = (*env)->GetIntField(env, lpObject, lpGtkComboFc->ok_if_empty);
-	lpGtkCombo->case_sensitive = (*env)->GetIntField(env, lpObject, lpGtkComboFc->case_sensitive);
-	lpGtkCombo->use_arrows = (*env)->GetIntField(env, lpObject, lpGtkComboFc->use_arrows);
-	lpGtkCombo->use_arrows_always = (*env)->GetIntField(env, lpObject, lpGtkComboFc->use_arrows_always);
-	lpGtkCombo->current_button = (*env)->GetShortField(env, lpObject, lpGtkComboFc->current_button);
-	lpGtkCombo->activate_id = (*env)->GetIntField(env, lpObject, lpGtkComboFc->activate_id);
 }
 
 void setGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkCombo_FID_CACHE *lpGtkComboFc)
 {
 	DECL_GLOB(pGlob)
-	setGtkHBoxFields(env, lpObject, &lpGtkCombo->hbox, &PGLOB(GtkHBoxFc));
 	(*env)->SetIntField(env, lpObject, lpGtkComboFc->entry, (jint)lpGtkCombo->entry);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->button, (jint)lpGtkCombo->button);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->popup, (jint)lpGtkCombo->popup);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->popwin, (jint)lpGtkCombo->popwin);
 	(*env)->SetIntField(env, lpObject, lpGtkComboFc->list, (jint)lpGtkCombo->list);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->entry_change_id, (jint)lpGtkCombo->entry_change_id);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->list_change_id, (jint)lpGtkCombo->list_change_id);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->value_in_list, (jint)lpGtkCombo->value_in_list);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->ok_if_empty, (jint)lpGtkCombo->ok_if_empty);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->case_sensitive, (jint)lpGtkCombo->case_sensitive);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->use_arrows, (jint)lpGtkCombo->use_arrows);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->use_arrows_always, (jint)lpGtkCombo->use_arrows_always);
-	(*env)->SetShortField(env, lpObject, lpGtkComboFc->current_button, (jshort)lpGtkCombo->current_button);
-	(*env)->SetIntField(env, lpObject, lpGtkComboFc->activate_id, (jint)lpGtkCombo->activate_id);
 }
 
 void getGtkContainerFields(JNIEnv *env, jobject lpObject, GtkContainer *lpGtkContainer, GtkContainer_FID_CACHE *lpGtkContainerFc)

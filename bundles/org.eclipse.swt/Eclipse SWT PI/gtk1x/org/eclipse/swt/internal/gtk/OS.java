@@ -298,7 +298,7 @@ public static final native void gtk_check_menu_item_set_active(int wid, boolean 
 
 public static final native int eclipse_fixed_new();
 public static final native void eclipse_fixed_get_location(int fixed, int child, int[] loc);
-public static final native void eclipse_fixed_get_size(int fixed, int child, int[] sz);
+public static final native boolean eclipse_fixed_get_size(int fixed, int child, int[] sz);
 public static final native void eclipse_fixed_set_location(int fixed, int child, int x, int y);
 public static final native void eclipse_fixed_set_size(int fixed, int child, int width, int height);
 public static final native void eclipse_fixed_move_above(int fixed, int child, int sibling);
