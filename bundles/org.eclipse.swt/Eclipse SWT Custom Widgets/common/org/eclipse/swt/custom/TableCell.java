@@ -134,6 +134,11 @@ private void onTableMouseDown(Event e) {
 	} else {
 		TableColumn[] columns = table.getColumns();
 		int x = table.getClientArea().x;
+		ScrollBar hbar = table.getHorizontalBar();
+		if (hbar != null) {
+			int selection = hbar.getSelection();
+			x -= selection;
+		}
 		int index = -1;
 		int i = 0;
 		while (i < columns.length && index == -1) {
@@ -181,15 +186,15 @@ private void paint(GC gc) {
 	if (image != null) {
 		Rectangle imageRect = image.getBounds();
 		x += 2; y += 2;
-		width -= 4; height -= 4;
+		width = Math.max(0, width - 4); height = Math.max(0, height - 4);
 		gc.drawImage(image, 0, 0, imageRect.width, imageRect.height, x, y, height, height);
-		x += height; width -= height;
+		x += height; width = Math.max(0, width - height);
 	}
 	if (text != null) {
 		x += 2;
 		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
 		Point extent = gc.textExtent(text);
-		gc.drawText(text, x, y + (height - extent.y)/2, true);
+		gc.drawText(text, x, y + Math.max(0, (height - extent.y)/2), true);
 	}
 }
 
