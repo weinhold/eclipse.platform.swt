@@ -140,7 +140,7 @@ int parentingHandle() { return handle; }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
-	if (layout==null) return computeNativeSize(wHint, hHint, changed);
+	if (layout==null) return computeNativeSize(handle, wHint, hHint, changed);
 
 	Point size = layout.computeSize (this, wHint, hHint, changed);
 	if (size.x == 0) size.x = DEFAULT_WIDTH;

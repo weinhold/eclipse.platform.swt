@@ -41,9 +41,6 @@ public class Table extends Composite {
 	int check, uncheck;
 	int check_width, check_height;
 	public static int MAX_COLUMNS = 32;
-	
-	int fixedHandle;
-
 
 /**
  * Constructs a new instance of this class given its parent
@@ -85,13 +82,25 @@ public Table (Composite parent, int style) {
  */
 
 void createHandle (int index) {
-	state |= HANDLE;	
+	state |= HANDLE;
+
+	boxHandle = OS.gtk_event_box_new();
+	if (boxHandle==0) error(SWT.ERROR_NO_HANDLES);
+	
 	fixedHandle = OS.eclipse_fixed_new();
 	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
+
 	handle = OS.gtk_clist_new (MAX_COLUMNS);
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+
 	scrolledHandle = OS.gtk_scrolled_window_new (0, 0);
 	if (scrolledHandle == 0) error (SWT.ERROR_NO_HANDLES);
+}
+void configure() {
+	parent._connectChild(topHandle());
+	OS.gtk_container_add (boxHandle, fixedHandle);
+	OS.gtk_container_add (fixedHandle, scrolledHandle);
+	OS.gtk_container_add (scrolledHandle, handle);
 }
 void setHandleStyle () {
 	/* Single or Multiple Selection */
@@ -114,28 +123,7 @@ void setHandleStyle () {
 	int vscrollbar_policy = (style & SWT.V_SCROLL) != 0 ? OS.GTK_POLICY_ALWAYS : OS.GTK_POLICY_AUTOMATIC;
 	OS.gtk_scrolled_window_set_policy (scrolledHandle, hscrollbar_policy, vscrollbar_policy);		
 }
-void configure() {
-	parent._connectChild(topHandle());
-	OS.gtk_container_add (fixedHandle, scrolledHandle);
-	OS.gtk_container_add (scrolledHandle, handle);
-}
 
-static int checkStyle (int style) {
-	/*
-	* To be compatible with Windows, force the H_SCROLL
-	* and V_SCROLL style bits.  On Windows, it is not
-	* possible to create a table without scroll bars.
-	*/
-	style |= SWT.H_SCROLL | SWT.V_SCROLL;
-	return checkBits (style, SWT.SINGLE, SWT.MULTI, 0, 0, 0, 0);
-}
-
-public Point computeSize (int wHint, int hHint, boolean changed) {
-	checkWidget ();
-	if (wHint == SWT.DEFAULT) wHint = 200;
-	/* FIXME - the size of scrolled, not table! */
-	return computeNativeSize (wHint, hHint, changed);
-}
 
 void showHandle() {
 	OS.gtk_widget_show (fixedHandle);
@@ -225,10 +213,15 @@ boolean isMyHandle(int h) {
  */
 
 void _setSize(int width, int height) {
-	super._setSize(width, height);
+	OS.eclipse_fixed_set_size(parent.parentingHandle(), topHandle(), width, height);
 	OS.eclipse_fixed_set_size(fixedHandle, scrolledHandle, width, height);
 }
 
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	if (wHint == SWT.DEFAULT) wHint = 200;
+	return computeNativeSize (scrolledHandle, wHint, hHint, changed);
+}
 /**
  * Adds the listener to the collection of listeners who will
  * be notified when the receiver's selection changes, by sending
@@ -1390,4 +1383,13 @@ int processMouseDown (int callData, int arg1, int int2) {
 	return 1;
 }
 
+static int checkStyle (int style) {
+	/*
+	* To be compatible with Windows, force the H_SCROLL
+	* and V_SCROLL style bits.  On Windows, it is not
+	* possible to create a table without scroll bars.
+	*/
+	style |= SWT.H_SCROLL | SWT.V_SCROLL;
+	return checkBits (style, SWT.SINGLE, SWT.MULTI, 0, 0, 0, 0);
+}
 }

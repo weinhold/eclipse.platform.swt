@@ -229,12 +229,12 @@ public Point computeSize (int wHint, int hHint) {
  */
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget();
-	return computeNativeSize (wHint, hHint, changed);	
+	return computeNativeSize (handle, wHint, hHint, changed);	
 }
 
-Point computeNativeSize (int wHint, int hHint, boolean changed) {
+Point computeNativeSize (int h, int wHint, int hHint, boolean changed) {
 	GtkRequisition requisition = new GtkRequisition ();
-	OS.gtk_widget_size_request (handle, requisition);
+	OS.gtk_widget_size_request (h, requisition);
 	int width = wHint == SWT.DEFAULT ? requisition.width : wHint;
 	int height = hHint == SWT.DEFAULT ? requisition.height : hHint;
 	return new Point (width, height);	
