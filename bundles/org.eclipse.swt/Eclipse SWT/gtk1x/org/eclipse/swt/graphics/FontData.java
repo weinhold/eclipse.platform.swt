@@ -308,6 +308,12 @@ void from_os(int fd) {
 	setStyle(swtStyle);
 }
 
+static public FontData gtk_from_os(int handle) {
+	FontData answer = new FontData();
+	answer.from_os(handle);
+	return answer;
+}
+
 /*
  * Create an OS resource (a PangoFontDescription) matching the receiver.
  * These resources must be freed after use.

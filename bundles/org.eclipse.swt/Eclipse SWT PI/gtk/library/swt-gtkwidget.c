@@ -258,6 +258,12 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1widget_1ensure_
 	gtk_widget_ensure_style((GtkWidget*)widget);
 }
 
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1widget_1modify_1font
+  (JNIEnv *env, jclass that, jint widget, jint font)
+{
+	gtk_widget_modify_font((GtkWidget*)widget, (PangoFontDescription*)font);
+}
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1widget_1get_1style
   (JNIEnv *env, jclass that, jint widget)
 {

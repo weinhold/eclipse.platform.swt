@@ -29,8 +29,10 @@ public final class Font {
 	 * (Warning: This field is platform dependent)
 	 */
 	public int handle;
+
 Font() {
 }
+
 /**	 
  * Constructs a new font given a device and font data
  * which describes the desired font's appearance.
@@ -49,18 +51,15 @@ Font() {
  * </ul>
  */
 public Font(Device display, FontData fd) {
-	if (fd == null) error(SWT.ERROR_NULL_ARGUMENT);
-	/* FIXME */
-	String xlfd = fd.getXlfd();
-	byte[] buffer = Converter.wcsToMbcs(null, xlfd, true);
-	handle = OS.gdk_font_load(buffer);
-	if (handle == 0) {/*
-		int hStyle = OS.gtk_widget_get_default_style();
-		GtkStyle gtkStyle = new GtkStyle();
-		OS.memmove(gtkStyle, hStyle, GtkStyle.sizeof);
-		handle = OS.gdk_font_ref(gtkStyle.font);*/
-	}
+	if (fd == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	
+	/* In the current implementation of SWT/GTK, fonts are PangoFontDescriptions.
+	 * Temporarily, when we paint on a drawable, we create a GdkFont, instead of
+	 * using Pango.  This means we don't handle i18n properly.
+	 */
+	handle = fd.to_os();
 }
+
 /**	 
  * Constructs a new font given a device, a font name,
  * the height of the desired font in points, and a font
@@ -83,30 +82,21 @@ public Font(Device display, FontData fd) {
  * </ul>
  */
 public Font(Device display, String fontFamily, int height, int style) {
-	if (fontFamily == null) error(SWT.ERROR_NULL_ARGUMENT);
+	if (fontFamily == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	FontData fd = new FontData(fontFamily, height, style);
-	byte[] buffer = Converter.wcsToMbcs(null, fd.getXlfd(), true);
-	handle = OS.gdk_font_load(buffer);
-	if (handle == 0) {
-		/*int hStyle = OS.gtk_widget_get_default_style();
-		GtkStyle gtkStyle = new GtkStyle();
-		OS.memmove(gtkStyle, hStyle, GtkStyle.sizeof);
-		handle = OS.gdk_font_ref(gtkStyle.font);*/
-		
-		/* Temporary, FIXME */
-		buffer = Converter.wcsToMbcs(null, "fixed", true);
-		handle = OS.gdk_font_load(buffer);
-	}
+	handle = fd.to_os();
 }
+
 /**
  * Disposes of the operating system resources associated with
  * the font. Applications must dispose of all fonts which
  * they allocate.
  */
 public void dispose() {
-	if (handle != 0) OS.gdk_font_unref(handle);
+	if (handle != 0) OS.pango_font_description_free(handle);
 	handle = 0;
 }
+
 /**
  * Compares the argument to the receiver, and returns true
  * if they represent the <em>same</em> object using a class
@@ -121,9 +111,6 @@ public boolean equals(Object object) {
 	if (object == this) return true;
 	if (!(object instanceof Font)) return false;
 	return OS.gdk_font_equal(handle, ((Font)object).handle);
-}
-void error(int code) {
-	throw new SWTError (code);
 }
 
 /**
@@ -140,33 +127,15 @@ void error(int code) {
  */
 public FontData[] getFontData() {
 	if (handle==0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	String name = OS.gdk_font_full_name_get(handle);
-	/* FIXME, what about multiple fonts */
+
 	int nfonts = 1;
+	FontData data = new FontData();
+	data.from_os(handle);
 	FontData[] answer = new FontData[nfonts];
-	for (int i=0; i<nfonts; i++) {
-		FontData data = new FontData();
-		data.setXlfd(name);
-		
-		// Wild guess, 'a' looks average enough
-		data.averageWidth = OS.gdk_char_width(handle, (byte)'a');
-		
-		// Wild guess, a progressive font should probably have A wider than l
-		int widthA = OS.gdk_char_width(handle, (byte)'A');
-		int widthl = OS.gdk_char_width(handle, (byte)'l');
-		if (widthA == widthl) data.spacing = "m";
-			else data.spacing = "p";
-		
-		answer[i] = data;
-	}
+	answer[0] = data;
 	return answer;
 }
 
-public static Font gtk_new(int handle) {
-	Font font = new Font();
-	font.handle = handle;
-	return font;
-}
 /**
  * Returns an integer hash code for the receiver. Any two 
  * objects which return <code>true</code> when passed to 
@@ -180,6 +149,7 @@ public static Font gtk_new(int handle) {
 public int hashCode() {
 	return handle;
 }
+
 /**
  * Returns <code>true</code> if the font has been disposed,
  * and <code>false</code> otherwise.

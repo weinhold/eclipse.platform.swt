@@ -94,7 +94,8 @@ public int getHeight() {
 public int getLeading() {
 	return leading;
 }
-public static FontMetrics gtk_new(int fontHandle) {
+
+public static FontMetrics gtk_new_from_pango_font_description(int fontHandle) {
 	GdkFont f = new GdkFont();
 	OS.memmove (f, fontHandle);
 	

@@ -18,8 +18,8 @@
 
 # JAVA_JNI - Depending on your version of JDK, and where
 # it is installed, your jni.h may be located differently.
-JAVA_JNI = /bluebird/teamswt/swt-builddir/ive/bin/include
-#JAVA_JNI = /opt/IBMvame1.4/ive/bin/include
+#JAVA_JNI = /bluebird/teamswt/swt-builddir/ive/bin/include
+JAVA_JNI = /opt/IBMvame1.4/ive/bin/include
 
 # Whether we want GTK over X or FB
 GTKTARGET = gtk+-2.0
@@ -48,7 +48,7 @@ SWTPI_DLL    = lib$(SWT_PREFIX)-pi-$(OS_PREFIX)-$(SWT_VERSION).so
 
 
 # Compile and link options from pkg-config
-GTKCFLAGS = `pkg-config --cflags $(GTKTARGET)`
+GTKCFLAGS = `pkg-config --cflags $(GTKTARGET)` `pkg-config --cflags pango`
 GTKLIBS = `pkg-config --libs $(GTKTARGET)`
 
 
@@ -67,7 +67,8 @@ make_swt: $(SWT_DLL) $(SWTPI_DLL)
 
 PI_OBJECTS = swt.o swt-gdk.o swt-gdkpixbuf.o \
              swt-gtkcontainers.o swt-gtkcontrols.o swt-gtklists.o swt-gtkmenu.o \
-	     swt-gtkwidget.o swt-gtkwindow.o swt-memmove.o
+	     swt-gtkwidget.o swt-gtkwindow.o swt-pango.o swt-memmove.o \
+	     eclipsefixed.o
 
 $(SWT_DLL): callback.o
 	$(LD) -x -shared \
@@ -88,6 +89,7 @@ CFLAGS = -c -O -s \
 	    -DSWT_VERSION=$(SWT_VERSION) \
 	    -DLINUX -DGTK \
 	    -fpic -fPIC \
+	    $(GTKCFLAGS) \
 	    -I$(JAVA_JNI)
 
 callback.o: callback.c
@@ -125,6 +127,9 @@ swt-gtkwindow.o: swt-gtkwindow.c swt.h
 
 swt-memmove.o: swt-memmove.c swt.h
 	$(CC) $(CFLAGS) $(GTKCFLAGS) swt-memmove.c
+
+eclipsefixed.o: eclipsefixed.c eclipsefixed.h swt.h
+	$(CC) $(CFLAGS) $(GTKCFLAGS) eclipsefixed.c
 
 structs.o: structs.c
 	$(CC) $(CFLAGS) $(GTKCFLAGS) structs.c

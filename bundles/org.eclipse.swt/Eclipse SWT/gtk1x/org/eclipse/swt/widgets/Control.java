@@ -1174,13 +1174,9 @@ public boolean getEnabled () {
  */
 public Font getFont () {
 	checkWidget();
-	return Font.gtk_new(_getFontHandle());
-}
-/*
- * Subclasses should override this, passing a meaningful handle
- */
-int _getFontHandle () {
-	return UtilFuncs.getFont(handle);
+	int fdescr = OS.gtk_widget_get_style(handle);
+	FontData data = FontData.gtk_from_os(fdescr);
+	return new Font(getDisplay(), data);
 }
 
 /**
@@ -1350,7 +1346,7 @@ public int internal_new_GC (GCData data) {
 	int window = OS.GTK_WIDGET_WINDOW(paintHandle());
 	int gc = OS.gdk_gc_new(window);
 	
-	OS.gdk_gc_set_font(gc, _getFontHandle());
+//	OS.gdk_gc_set_font(gc, _getFontHandle());
 	OS.gdk_gc_set_background(gc, _getBackgroundGdkColor());
 	OS.gdk_gc_set_foreground(gc, _getForegroundGdkColor());
 	
@@ -1870,26 +1866,17 @@ public void setFont (Font font) {
 	/* The non-null font case */
 	if (font != null) {
 		if (font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		int fontHandle = OS.gdk_font_ref(font.handle);
-		_setFontHandle(fontHandle);
+		OS.gtk_widget_modify_font(handle, font.handle);
 		return;
 	}
 	
 	/* The font argument is null, revert to default font */
+	/* FIXME */
 /*	GtkStyle style = new GtkStyle();
 	OS.memmove (style, OS.gtk_widget_get_default_style(), GtkStyle.sizeof);
 	int fontHandle = OS.gdk_font_ref(style.font);
 	if (fontHandle==0) error(SWT.ERROR_NO_HANDLES);
 	_setFontHandle(fontHandle);*/
-}
-
-/**
- * Actually set the receiver's font in the OS.
- * Concrete subclasses may override this method to operate
- * on a different handle.
- */
-void _setFontHandle (int f) {
-	UtilFuncs.setFont(handle, f);
 }
 
 /**
