@@ -24,4 +24,10 @@ public class GtkCTreeRow {
 	public short level;
 	public int is_leaf; // bitfield: 1
 	public int expanded; // bitfield: 1
+
+	
+	private GtkCTreeRow() {}
+	public GtkCTreeRow(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

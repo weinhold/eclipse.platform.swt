@@ -21,5 +21,9 @@ public class GtkText extends GtkEditable {
 	public int cursor_pos_x;
 	public int cursor_pos_y;
 	public int cursor_virtual_x;
-	public static final int sizeof = 244;
+	
+	private GtkText() {}
+	public GtkText(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

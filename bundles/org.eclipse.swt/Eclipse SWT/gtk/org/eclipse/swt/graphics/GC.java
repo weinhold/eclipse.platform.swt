@@ -310,7 +310,7 @@ public FontMetrics getFontMetrics() {
 		error(SWT.ERROR_UNSPECIFIED);
 	}
 	GdkFont gdkFont = new GdkFont();
-	OS.memmove(gdkFont, fontHandle, GdkFont.sizeof);
+	OS.memmove(gdkFont, fontHandle);
 	byte [] w = Converter.wcsToMbcs (null, "w", true);
 	return FontMetrics.gtk_new(fontHandle);
 }

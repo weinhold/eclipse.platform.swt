@@ -158,8 +158,7 @@ int createCheckPixmap(boolean checked) {
 		/*
 		 * The box will occupy the whole item width.
 		 */
-		GtkCList clist = new GtkCList ();
-		OS.memmove (clist, handle, GtkCList.sizeof);
+		GtkCList clist = new GtkCList (handle);
 		check_height = clist.row_height-1;
 		check_width = check_height;
 
@@ -542,8 +541,7 @@ public TableItem getItem (int index) {
 public TableItem getItem (Point pt) {
 	checkWidget();
 	
-	GtkCList clist = new GtkCList ();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	int clientX = pt.x;
 	int clientY = pt.y - clist.column_title_area_height;
 	if (clientY <= 0) return null;
@@ -583,8 +581,7 @@ public int getItemCount () {
  */
 public int getItemHeight () {
 	checkWidget();
-	GtkCList clist = new GtkCList ();
-	OS.memmove (clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	return clist.row_height;
 }
 /**
@@ -641,8 +638,7 @@ public TableItem[] getSelection () {
  * Get the selection from the OS.
  */
 private TableItem[] _getNativeSelection () {
-	GtkCList clist = new GtkCList ();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	switch (clist.selection_mode) {
 		case OS.GTK_SELECTION_SINGLE:   return getSelection_single();
 		case OS.GTK_SELECTION_BROWSE:   return getSelection_browse();
@@ -654,8 +650,7 @@ private TableItem[] _getNativeSelection () {
 	return null;
 }
 private TableItem[] getSelection_single () {
-	GtkCList clist = new GtkCList();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList(handle);
 	if (clist.selection==0) return new TableItem[0];
 	int length = OS.g_list_length (clist.selection);
 	if (length == 0) return new TableItem[0];	
@@ -664,8 +659,7 @@ private TableItem[] getSelection_single () {
 }
 private TableItem[] getSelection_browse () {
 	/* same as single */
-	GtkCList clist = new GtkCList();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList(handle);
 	if (clist.selection==0) return new TableItem[0];
 	int length = OS.g_list_length (clist.selection);
 	if (length == 0) return new TableItem[0];	
@@ -673,8 +667,7 @@ private TableItem[] getSelection_browse () {
 	return new TableItem [] {items[index]};
 }
 private TableItem[] getSelection_multiple () {
-	GtkCList clist = new GtkCList();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList(handle);
 	if (clist.selection==0) return new TableItem[0];
 	int length = OS.g_list_length (clist.selection);
 	TableItem [] result = new TableItem [length];
@@ -685,8 +678,7 @@ private TableItem[] getSelection_multiple () {
 	return result;
 }
 private TableItem[] getSelection_extended () {
-	GtkCList clist = new GtkCList();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList(handle);
 	if (clist.selection==0) return new TableItem[0];
 	int length = OS.g_list_length (clist.selection);
 	TableItem [] result = new TableItem [length];
@@ -712,8 +704,7 @@ public int getSelectionCount () {
 	return selection.length;
 }
 private int _getNativeSelectionCount () {
-	GtkCList clist = new GtkCList ();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	int selectionList = clist.selection;
 	if (selectionList==0) return 0;
 	return OS.g_list_length (clist.selection);
@@ -731,8 +722,7 @@ private int _getNativeSelectionCount () {
  */
 public int getSelectionIndex () {
 	checkWidget();
-	GtkCList clist = new GtkCList ();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	int list = clist.selection;
 	if (OS.g_list_length (list) == 0) return -1;
 	return OS.g_list_nth_data (list, 0);
@@ -754,8 +744,7 @@ public int getSelectionIndex () {
  */
 public int [] getSelectionIndices () {
 	checkWidget();
-	GtkCList widget = new GtkCList ();
-	OS.memmove (widget, handle, GtkCList.sizeof);
+	GtkCList widget = new GtkCList (handle);
 	int list = widget.selection;
 	int length = OS.g_list_length (list);
 	int [] indices = new int [length];
@@ -780,8 +769,7 @@ public int [] getSelectionIndices () {
  */
 public boolean isSelected (int index) {
 	checkWidget();
-	GtkCList widget = new GtkCList ();
-	OS.memmove (widget, handle, GtkCList.sizeof);
+	GtkCList widget = new GtkCList (handle);
 	int list = widget.selection;
 	int length = OS.g_list_length (list);
 	for (int i=0; i<length; i++) {
@@ -808,8 +796,7 @@ public boolean isSelected (int index) {
  */
 public int getTopIndex () {
 	checkWidget();
-	GtkCList clist = new GtkCList ();
-	OS.memmove(clist, handle, GtkCList.sizeof);
+	GtkCList clist = new GtkCList (handle);
 	return -clist.voffset / (clist.row_height + 1);
 }
 
@@ -1389,8 +1376,7 @@ int processMouseDown (int callData, int arg1, int int2) {
 	if (button == 3 && menu != null) menu.setVisible (true);
 
 	if ((style&SWT.CHECK) != 0) {
-		GtkCList clist = new GtkCList ();
-		OS.memmove(clist, handle, GtkCList.sizeof);
+		GtkCList clist = new GtkCList (handle);
 		int clientX = where.x;
 		int clientY = where.y - clist.column_title_area_height;
 		if (clientY <= 0) return 1;

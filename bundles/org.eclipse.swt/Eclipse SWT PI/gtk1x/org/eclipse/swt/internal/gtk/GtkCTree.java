@@ -16,4 +16,9 @@ package org.eclipse.swt.internal.gtk;
 public class GtkCTree {
 	public int tree_indent;
 	public int tree_column;
+	
+	private GtkCTree() {}
+	public GtkCTree(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

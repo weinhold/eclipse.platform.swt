@@ -96,7 +96,7 @@ public int getLeading() {
 }
 public static FontMetrics gtk_new(int fontHandle) {
 	GdkFont f = new GdkFont();
-	OS.memmove (f, fontHandle, GdkFont.sizeof);
+	OS.memmove (f, fontHandle);
 	
 	FontMetrics fontMetrics = new FontMetrics();
 	fontMetrics.ascent = f.ascent;

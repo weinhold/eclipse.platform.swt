@@ -18,5 +18,9 @@ public class GtkObject {
 	public int flags;
 	public int ref_count;
 	public int object_data;
-	public static final int sizeof = 16;
+
+	private GtkObject() {}
+	public GtkObject(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

@@ -23,4 +23,9 @@ public class GtkEditable {
 	public int ic;
 	public int ic_attr;
 	public int clipboard_text;
+	
+	private GtkEditable() {}
+	public GtkEditable(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

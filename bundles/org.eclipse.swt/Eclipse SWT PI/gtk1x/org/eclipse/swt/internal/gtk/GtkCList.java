@@ -70,5 +70,9 @@ public class GtkCList {
 	public int sort_type;
 	public int compare;
 	public int sort_column;
-	public static final int sizeof = 252;
+	
+	private GtkCList() {}
+	public GtkCList(int ptr) {
+		OS.memmove(this, ptr);
+	}
 }

@@ -33,11 +33,10 @@ static boolean setLocation(int parentHandle, int handle, int x, int y) {
 	// Moreover, it will post a RESIZE on the queue that will cause
 	// disturbance to all our brother; to avoid that, we temporarily
 	// clear the VISIBLE flag, and do the synchronous update ourselves
-	GtkObject gtkChild = new GtkObject();
-	OS.memmove (gtkChild, handle, GtkObject.sizeof);
+	GtkObject gtkChild = new GtkObject(handle);
 	OS.GTK_WIDGET_UNSET_FLAGS(handle, OS.GTK_VISIBLE);
 	OS.gtk_fixed_move(parentHandle, handle, (short)x, (short)y );
-	OS.memmove(handle, gtkChild, GtkObject.sizeof);
+	OS.memmove(handle, gtkChild);
 	
 
 //	OS.gtk_widget_set_uposition(handle, (short)x, (short)y);

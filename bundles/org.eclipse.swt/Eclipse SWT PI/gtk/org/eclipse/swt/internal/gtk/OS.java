@@ -254,7 +254,7 @@ public static final native boolean GTK_WIDGET_IS_SENSITIVE(int wid);
 public static final native boolean GTK_WIDGET_TOPLEVEL(int wid);
 public static final native boolean GTK_WIDGET_REALISED(int wid);
 public static final native boolean GTK_WIDGET_MAPPED(int wid);
-public static final native boolean GTK_WIDGET_VOSIBLE(int wid);
+public static final native boolean GTK_WIDGET_VISIBLE(int wid);
 public static final native boolean GTK_WIDGET_DRAWABLE(int wid);
 public static final native boolean GTK_WIDGET_CAN_FOCUS(int wid);
 public static final native boolean GTK_WIDGET_SET_FOCUS(int wid);
@@ -675,26 +675,26 @@ public static final native void memmove(int dest, int[] src, int size);
 
 /* Read memmoves */
 public static final native void memmove(GdkVisual dest, int src);
-public static final native void memmove(GdkFont dest, int src, int size);
-public static final native void memmove(GtkStyle dest, int src);
+public static final native void memmove(GdkFont dest, int src);
 public static final native void memmove(GdkColor dest, int src);
 public static final native void memmove(GdkEvent dest, int src);
 public static final native void memmove(GdkEventExpose dest, int src);
 public static final native void memmove(GtkAdjustment dest, int src);
-public static final native void memmove(GtkCList dest, int src, int size);
 public static final native void memmove(GtkCombo dest, int src);
-public static final native void memmove(GtkCTreeRow dest, int src);
-public static final native void memmove(GtkEditable dest, int src, int size);
-public static final native void memmove(GtkObject dest,   int src, int size);
+public static final native void memmove(GtkEditable dest, int src);
+public static final native void memmove(GtkObject dest,   int src);
 public static final native void memmove(GtkWidget dest,   int src);
-public static final native void memmove(GtkCListRow dest, int src, int size);
-public static final native void memmove(GtkCListColumn dest, int src, int size);
-public static final native void memmove(GtkStyleClass dest, int src, int size);
+public static final native void memmove(GtkStyle dest, int src);
+public static final native void memmove(GtkStyleClass dest, int src);
+public static final native void memmove(GtkCListRow dest, int src);
+public static final native void memmove(GtkCListColumn dest, int src);
+public static final native void memmove(GtkCList dest, int src);
+public static final native void memmove(GtkCTreeRow dest, int src);
 
 /* Write memmoves */
 public static final native void memmove(int dest, GtkEditable src, int size);
 public static final native void memmove(int dest, GtkText src, int size);
-public static final native void memmove(int dest, GtkObject src, int size);
+public static final native void memmove(int dest, GtkObject src);
 public static final native void memmove(int dest, GtkStyle src, int size);
 public static final native void memmove(int dest, GtkAdjustment src); // sure needed
 public static final native void memmove(int dest, GtkCListColumn src, int size);

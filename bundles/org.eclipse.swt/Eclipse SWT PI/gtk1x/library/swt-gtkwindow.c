@@ -59,6 +59,18 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1re
 	gtk_window_set_resizable((GtkWindow*)window, (gboolean)resizable);
 }
 
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1move
+  (JNIEnv *env, jclass that, jint window, jint x, jint y)
+{
+	gtk_window_move((GtkWindow*)window, x, y);
+}
+
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1resize
+  (JNIEnv *env, jclass that, jint window, jint width, jint height)
+{
+	gtk_window_resize((GtkWindow*)window, width, height);
+}
+
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1transient_1for
   (JNIEnv *env, jclass that, jint window, jint parent)
 {

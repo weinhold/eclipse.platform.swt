@@ -250,61 +250,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_g_1log_1remove_1hand
 }
 
 
-
-/*
- *  MACROS
- */
-JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1TYPE
-  (JNIEnv *env, jclass that, jint wid)
-{
-	return GTK_WIDGET_TYPE((GtkWidget*)wid);
-}
-
-
-JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1FLAGS
-  (JNIEnv *env, jclass that, jint wid)
-{
-	return (jint) GTK_WIDGET_FLAGS((GtkWidget*)wid);
-}
-
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1SET_1FLAGS
-  (JNIEnv *env, jclass that, jint wid, jint flag)
-{
-	GTK_WIDGET_SET_FLAGS((GtkWidget*)wid, flag);
-}
-
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1UNSET_1FLAGS
-  (JNIEnv *env, jclass that, jint wid, jint flag)
-{
-	GTK_WIDGET_UNSET_FLAGS((GtkWidget*)wid, flag);
-}
-
-JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1NO_1WINDOW
-  (JNIEnv *env, jclass that, jint wid)
-{
-	return (jboolean) GTK_WIDGET_NO_WINDOW((GtkWidget*)wid);
-}
-
-JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1SENSITIVE
-  (JNIEnv *env, jclass that, jint wid)
-{
-	return (jboolean) GTK_WIDGET_SENSITIVE((GtkWidget*)wid);
-}
-
-JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1IS_1SENSITIVE
-  (JNIEnv *env, jclass that, jint wid)
-{
-	return (jboolean) GTK_WIDGET_IS_SENSITIVE((GtkWidget*)wid);
-}
-
-
-
-
-
-
-
-
-
 /*
  *  GtkObject
  */
