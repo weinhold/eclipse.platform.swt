@@ -243,8 +243,7 @@ int processMouseUp (int callData, int arg1, int int2) {
 int processPaint (int callData, int arg1, int int2) {
 	//if (!hooks (SWT.Paint)) return 0;
 
-	GdkEventExpose gdkEvent = new GdkEventExpose ();
-	OS.memmove (gdkEvent, callData, GdkEventExpose.sizeof);
+	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
 	Event event = new Event ();
 	event.count = gdkEvent.count;
 	event.x = gdkEvent.x;  event.y = gdkEvent.y;

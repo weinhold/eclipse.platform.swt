@@ -653,8 +653,7 @@ int processFocusOut(int int0, int int1, int int2) {
 int processPaint (int callData, int int2, int int3) {
 	//if (!hooks (SWT.Paint)) return 1;
 	
-	GdkEventExpose gdkEvent = new GdkEventExpose ();
-	OS.memmove (gdkEvent, callData, GdkEventExpose.sizeof);
+	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
 	Event event = new Event ();
 	event.count = gdkEvent.count;
 	event.x = gdkEvent.x;  event.y = gdkEvent.y;

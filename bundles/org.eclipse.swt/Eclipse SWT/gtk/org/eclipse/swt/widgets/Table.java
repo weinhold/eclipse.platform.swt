@@ -1362,8 +1362,7 @@ int processMouseDown (int callData, int arg1, int int2) {
 	OS.gtk_widget_grab_focus(handle);
 	
 	// First, see if we have a single or double click
-	GdkEventButton gdkEvent = new GdkEventButton ();
-	OS.memmove (gdkEvent, callData, GdkEventButton.sizeof);
+	GdkEvent gdkEvent = new GdkEvent(callData);
 	boolean isDoubleClick = (gdkEvent.type == OS.GDK_2BUTTON_PRESS);
 	
 	// We can't just use the x and y coordinates from the Gdk event,
@@ -1380,9 +1379,15 @@ int processMouseDown (int callData, int arg1, int int2) {
 	}
 	
 	eventType = SWT.MouseDown;
-	sendMouseEvent (eventType, gdkEvent.button, gdkEvent.state, gdkEvent.time, where.x, where.y);
-	if (gdkEvent.button == 3 && menu != null) menu.setVisible (true);
-
+	int[] pMod = new int[1];
+	OS.gdk_event_get_state(callData, pMod);
+	int time = OS.gdk_event_get_time(callData);
+	double[] px = new double[1];
+	double[] py = new double[1];
+	OS.gdk_event_get_coords(callData, px, py);
+	int button = OS.gdk_event_button_get_button(callData);
+	sendMouseEvent (eventType, button, pMod[0], time, (int)(px[0]), (int)(py[0]));
+	if (button == 3 && menu != null) menu.setVisible (true);
 
 	if ((style&SWT.CHECK) != 0) {
 		GtkCList clist = new GtkCList ();

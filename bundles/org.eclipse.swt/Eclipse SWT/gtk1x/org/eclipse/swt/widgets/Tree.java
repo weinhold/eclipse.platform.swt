@@ -611,9 +611,10 @@ int processMouseDown (int callData, int arg1, int int2) {
 	doubleSelected = false;
 	int result = super.processMouseDown (callData, arg1, int2);
 	if ((style & SWT.MULTI) != 0) selected = true;
-	GdkEventButton gdkEvent = new GdkEventButton ();
-	OS.memmove (gdkEvent, callData, GdkEventButton.sizeof);
-	int x = (int) gdkEvent.x, y = (int) gdkEvent.y;	
+	double[] px = new double[1];
+	double[] py = new double[1];
+	OS.gdk_event_get_coords(callData, px, py);
+	int x = (int)(px[0]), y = (int)(py[0]);	
 	if ((style & SWT.CHECK) != 0) {
 		if (!OS.gtk_ctree_is_hot_spot (handle, x, y)) {
 			int [] row = new int [1], column = new int [1];
@@ -648,6 +649,7 @@ int processMouseDown (int callData, int arg1, int int2) {
 			}
 		}
 	}
+	GdkEvent gdkEvent = new GdkEvent(callData);
 	if (gdkEvent.type == OS.GDK_2BUTTON_PRESS) {
 		if (!OS.gtk_ctree_is_hot_spot (handle, x, y)) {
 			int [] row = new int [1], column = new int [1];
@@ -672,9 +674,10 @@ int processMouseUp (int callData, int arg1, int int2) {
 	* that caused the select signal is not included when the select
 	* signal is issued.
 	*/
-	GdkEventButton gdkEvent = new GdkEventButton ();
-	OS.memmove (gdkEvent, callData, GdkEventButton.sizeof);
-	int x = (int) gdkEvent.x, y = (int) gdkEvent.y;
+	double[] px = new double[1];
+	double[] py = new double[1];
+	OS.gdk_event_get_coords(callData, px, py);
+	int x = (int)(px[0]), y = (int)(py[0]);	
 	if (!OS.gtk_ctree_is_hot_spot (handle, x, y)) {
 		if ((style & SWT.SINGLE) != 0) {
 			GtkCList clist = new GtkCList ();
