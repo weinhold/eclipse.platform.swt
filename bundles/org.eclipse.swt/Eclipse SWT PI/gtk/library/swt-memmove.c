@@ -22,18 +22,6 @@
 #include <assert.h>
 
 
-
-/*  ***MEMMOVE***  */
-
-
-
-
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GdkColor_2I
   (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
 {
@@ -50,6 +38,12 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclip
 
 	memmove((void*)dest, (void*)src1, count);
 }
+
+
+
+
+
+
 
 /*
  * Class:	org_eclipse_swt_internal_gtk_OS
@@ -70,23 +64,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 		dest1 = &dest_struct;
 		cacheGdkColorFids(env, dest, &PGLOB(GdkColorFc));
 		setGdkColorFields(env, dest, dest1, &PGLOB(GdkColorFc));
-	}
-}
-
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkDialog_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkDialog dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkDialog_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGtkDialogFids(env, dest, &PGLOB(GtkDialogFc));
-		setGtkDialogFields(env, dest, dest1, &PGLOB(GtkDialogFc));
 	}
 }
 
@@ -809,49 +786,7 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 	}
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkColorSelectionDialog_2I
-  (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkColorSelectionDialog src_struct={0}, *src1 = NULL;
-	if (src) {
-		src1 = &src_struct;
-		cacheGtkColorSelectionDialogFids(env, src, &PGLOB(GtkColorSelectionDialogFc));
-		getGtkColorSelectionDialogFields(env, src, src1, &PGLOB(GtkColorSelectionDialogFc));
-	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkColorSelectionDialog_2I\n");
-#endif
 
-	memmove((void*)dest, (void*)src1, count);
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkColorSelectionDialog_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkColorSelectionDialog dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkColorSelectionDialog_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGtkColorSelectionDialogFids(env, dest, &PGLOB(GtkColorSelectionDialogFc));
-		setGtkColorSelectionDialogFields(env, dest, dest1, &PGLOB(GtkColorSelectionDialogFc));
-	}
-}
 
 /*
  * Class:	org_eclipse_swt_internal_gtk_OS
@@ -1052,94 +987,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_text_inquiry__Lo
   (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
 {
 
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkFileSelection_2I
-  (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkFileSelection src_struct={0}, *src1 = NULL;
-	if (src) {
-		src1 = &src_struct;
-		cacheGtkFileSelectionFids(env, src, &PGLOB(GtkFileSelectionFc));
-		getGtkFileSelectionFields(env, src, src1, &PGLOB(GtkFileSelectionFc));
-	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkFileSelection_2I\n");
-#endif
-
-	memmove((void*)dest, (void*)src1, count);
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkFileSelection_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkFileSelection dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkFileSelection_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGtkFileSelectionFids(env, dest, &PGLOB(GtkFileSelectionFc));
-		setGtkFileSelectionFields(env, dest, dest1, &PGLOB(GtkFileSelectionFc));
-	}
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkFontSelectionDialog_2I
-  (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkFontSelectionDialog src_struct={0}, *src1 = NULL;
-	if (src) {
-		src1 = &src_struct;
-		cacheGtkFontSelectionDialogFids(env, src, &PGLOB(GtkFontSelectionDialogFc));
-		getGtkFontSelectionDialogFields(env, src, src1, &PGLOB(GtkFontSelectionDialogFc));
-	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkFontSelectionDialog_2I\n");
-#endif
-
-	memmove((void*)dest, (void*)src1, count);
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkFontSelectionDialog_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkFontSelectionDialog dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkFontSelectionDialog_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGtkFontSelectionDialogFids(env, dest, &PGLOB(GtkFontSelectionDialogFc));
-		setGtkFontSelectionDialogFields(env, dest, dest1, &PGLOB(GtkFontSelectionDialogFc));
-	}
 }
 
 /*
@@ -1447,50 +1294,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 		dest1 = &dest_struct;
 		cacheGtkFrameFids(env, dest, &PGLOB(GtkFrameFc));
 		setGtkFrameFields(env, dest, dest1, &PGLOB(GtkFrameFc));
-	}
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkWindow_2I
-  (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkWindow src_struct={0}, *src1 = NULL;
-	if (src) {
-		src1 = &src_struct;
-		cacheGtkWindowFids(env, src, &PGLOB(GtkWindowFc));
-		getGtkWindowFields(env, src, src1, &PGLOB(GtkWindowFc));
-	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkWindow_2I\n");
-#endif
-
-	memmove((void*)dest, (void*)src1, count);
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkWindow_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GtkWindow dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkWindow_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGtkWindowFids(env, dest, &PGLOB(GtkWindowFc));
-		setGtkWindowFields(env, dest, dest1, &PGLOB(GtkWindowFc));
 	}
 }
 

@@ -173,9 +173,7 @@ private void createHandle() {
 private void createMessage() {
 	byte[] bytes = Converter.wcsToMbcs (null, getMessage(), true);
 	label = OS.gtk_label_new (bytes);
-	GtkDialog dialog = new GtkDialog();
-	OS.memmove (dialog, handle, GtkDialog.sizeof);
-	OS.gtk_box_pack_start (dialog.vbox, label, true, true, 5); // FIXME should we use container_add??
+	OS.gtk_box_pack_start (OS.GTK_DIALOG_VBOX(handle), label, true, true, 5); // FIXME should we use container_add??
 }
 private void createActionButtons() {	
 	if ((style & SWT.OK) != 0) buttonOK = createButton("OK");
@@ -210,9 +208,7 @@ int createButton(String buttonName) {
 	System.out.println("Creating button "+buttonName);
 	byte[] bytes = Converter.wcsToMbcs (null, buttonName, true);
 	int buttonHandle = OS.gtk_button_new_with_label(bytes);
-	GtkDialog dialog = new GtkDialog();
-	OS.memmove (dialog, handle, GtkDialog.sizeof);
-	OS.gtk_box_pack_start (dialog.action_area, buttonHandle, true, true, 0);
+	OS.gtk_box_pack_start (OS.GTK_DIALOG_ACTION_AREA(handle), buttonHandle, true, true, 0);
 	hookSelection(buttonHandle);
 	return buttonHandle;
 }

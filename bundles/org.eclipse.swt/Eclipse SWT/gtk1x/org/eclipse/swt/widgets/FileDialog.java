@@ -181,8 +181,6 @@ int okFunc (int widget, int callData) {
 public String open () {
 	byte [] titleBytes = Converter.wcsToMbcs (null, title, true);
 	int handle = OS.gtk_file_selection_new (titleBytes);
-	GtkFileSelection dialog = new GtkFileSelection ();
-	OS.memmove (dialog, handle, 0);
 	
 	/* Calculate the fully-specified file name and convert to bytes */
 	StringBuffer stringBuffer = new StringBuffer ();
@@ -225,8 +223,8 @@ public String open () {
 	int okFunc = okCallback.getAddress ();
 	Callback cancelCallback = new Callback (this, "cancelFunc", 2);
 	int cancelFunc = cancelCallback.getAddress ();
-	OS.gtk_signal_connect (dialog.ok_button, clicked, okFunc, handle);
-	OS.gtk_signal_connect (dialog.cancel_button, clicked, cancelFunc, handle);
+	OS.gtk_signal_connect (OS.GTK_FILE_SELECTION_OK_BUTTON(handle), clicked, okFunc, handle);
+	OS.gtk_signal_connect (OS.GTK_FILE_SELECTION_CANCEL_BUTTON(handle), clicked, cancelFunc, handle);
 
 	fileName = null;
 	fullPath = null;

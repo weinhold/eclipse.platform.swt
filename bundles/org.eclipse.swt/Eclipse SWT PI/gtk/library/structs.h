@@ -231,30 +231,6 @@ typedef struct GtkCheckMenuItem_FID_CACHE {
 
 typedef GtkCheckMenuItem_FID_CACHE *PGtkCheckMenuItem_FID_CACHE;
 
-typedef struct GtkWindow_FID_CACHE {
-	int cached;
-	jclass GtkWindowClass;
-	jfieldID title, wmclass_name, wmclass_class, type, focus_widget, default_widget, transient_parent, resize_count, allow_shrink, allow_grow, auto_shrink, handling_resize, position, use_uposition, modal;
-} GtkWindow_FID_CACHE;
-
-typedef GtkWindow_FID_CACHE *PGtkWindow_FID_CACHE;
-
-typedef struct GtkDialog_FID_CACHE {
-	int cached;
-	jclass GtkDialogClass;
-	jfieldID title, wmclass_name, wmclass_class, type, focus_widget, default_widget, transient_parent, resize_count, allow_shrink, allow_grow, auto_shrink, handling_resize, position, use_uposition, modal, vbox, action_area;
-} GtkDialog_FID_CACHE;
-
-typedef GtkDialog_FID_CACHE *PGtkDialog_FID_CACHE;
-
-typedef struct GtkColorSelectionDialog_FID_CACHE {
-	int cached;
-	jclass GtkColorSelectionDialogClass;
-	jfieldID colorsel, main_vbox, ok_button, reset_button, cancel_button, help_button;
-} GtkColorSelectionDialog_FID_CACHE;
-
-typedef GtkColorSelectionDialog_FID_CACHE *PGtkColorSelectionDialog_FID_CACHE;
-
 typedef struct GtkBox_FID_CACHE {
 	int cached;
 	jclass GtkBoxClass;
@@ -277,22 +253,6 @@ typedef struct GtkCombo_FID_CACHE {
 } GtkCombo_FID_CACHE;
 
 typedef GtkCombo_FID_CACHE *PGtkCombo_FID_CACHE;
-
-typedef struct GtkFileSelection_FID_CACHE {
-	int cached;
-	jclass GtkFileSelectionClass;
-	jfieldID dir_list, file_list, selection_entry, selection_text, main_vbox, ok_button, cancel_button, help_button, history_pulldown, history_menu, history_list, fileop_dialog, fileop_entry, fileop_file, cmpl_state, fileop_c_dir, fileop_del_file, fileop_ren_file, button_area, action_area;
-} GtkFileSelection_FID_CACHE;
-
-typedef GtkFileSelection_FID_CACHE *PGtkFileSelection_FID_CACHE;
-
-typedef struct GtkFontSelectionDialog_FID_CACHE {
-	int cached;
-	jclass GtkFontSelectionDialogClass;
-	jfieldID fontsel, main_vbox, action_area, ok_button, apply_button, cancel_button, dialog_width, auto_resize;
-} GtkFontSelectionDialog_FID_CACHE;
-
-typedef GtkFontSelectionDialog_FID_CACHE *PGtkFontSelectionDialog_FID_CACHE;
 
 typedef struct GtkCList_FID_CACHE {
 	int cached;
@@ -425,11 +385,6 @@ void cacheGtkMenuShellFids(JNIEnv *env, jobject lpGtkMenuShell, PGtkMenuShell_FI
 void cacheGtkItemFids(JNIEnv *env, jobject lpGtkItem, PGtkItem_FID_CACHE lpCache);
 void cacheGtkMenuItemFids(JNIEnv *env, jobject lpGtkMenuItem, PGtkMenuItem_FID_CACHE lpCache);
 void cacheGtkCheckMenuItemFids(JNIEnv *env, jobject lpGtkCheckMenuItem, PGtkCheckMenuItem_FID_CACHE lpCache);
-void cacheGtkWindowFids(JNIEnv *env, jobject lpGtkWindow, PGtkWindow_FID_CACHE lpCache);
-void cacheGtkDialogFids(JNIEnv *env, jobject lpGtkDialog, PGtkDialog_FID_CACHE lpCache);
-void cacheGtkColorSelectionDialogFids(JNIEnv *env, jobject lpGtkColorSelectionDialog, PGtkColorSelectionDialog_FID_CACHE lpCache);
-void cacheGtkFileSelectionFids(JNIEnv *env, jobject lpGtkFileSelection, PGtkFileSelection_FID_CACHE lpCache);
-void cacheGtkFontSelectionDialogFids(JNIEnv *env, jobject lpGtkFontSelectionDialog, PGtkFontSelectionDialog_FID_CACHE lpCache);
 void cacheGtkBoxFids(JNIEnv *env, jobject lpGtkBox, PGtkBox_FID_CACHE lpCache);
 void cacheGtkHBoxFids(JNIEnv *env, jobject lpGtkHBox, PGtkHBox_FID_CACHE lpCache);
 void cacheGtkComboFids(JNIEnv *env, jobject lpGtkCombo, PGtkCombo_FID_CACHE lpCache);
@@ -492,16 +447,10 @@ void getGtkCListColumnFields(JNIEnv *env, jobject lpObject, GtkCListColumn *lpGt
 void setGtkCListColumnFields(JNIEnv *env, jobject lpObject, GtkCListColumn *lpGtkCListColumn, GtkCListColumn_FID_CACHE *lpGtkCListColumnFc);
 void getGtkCTreeRowFields(JNIEnv *env, jobject lpObject, GtkCTreeRow *lpGtkCTreeRow, GtkCTreeRow_FID_CACHE *lpGtkCTreeRowFc);
 void setGtkCTreeRowFields(JNIEnv *env, jobject lpObject, GtkCTreeRow *lpGtkCTreeRow, GtkCTreeRow_FID_CACHE *lpGtkCTreeRowFc);
-void getGtkColorSelectionDialogFields(JNIEnv *env, jobject lpObject, GtkColorSelectionDialog *lpGtkColorSelectionDialog, GtkColorSelectionDialog_FID_CACHE *lpGtkColorSelectionDialogFc);
-void setGtkColorSelectionDialogFields(JNIEnv *env, jobject lpObject, GtkColorSelectionDialog *lpGtkColorSelectionDialog, GtkColorSelectionDialog_FID_CACHE *lpGtkColorSelectionDialogFc);
 void getGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkCombo_FID_CACHE *lpGtkComboFc);
 void setGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkCombo_FID_CACHE *lpGtkComboFc);
 void getGtkContainerFields(JNIEnv *env, jobject lpObject, GtkContainer *lpGtkContainer, GtkContainer_FID_CACHE *lpGtkContainerFc);
 void setGtkContainerFields(JNIEnv *env, jobject lpObject, GtkContainer *lpGtkContainer, GtkContainer_FID_CACHE *lpGtkContainerFc);
-void getGtkFileSelectionFields(JNIEnv *env, jobject lpObject, GtkFileSelection *lpGtkFileSelection, GtkFileSelection_FID_CACHE *lpGtkFileSelectionFc);
-void setGtkFileSelectionFields(JNIEnv *env, jobject lpObject, GtkFileSelection *lpGtkFileSelection, GtkFileSelection_FID_CACHE *lpGtkFileSelectionFc);
-void getGtkFontSelectionDialogFields(JNIEnv *env, jobject lpObject, GtkFontSelectionDialog *lpGtkFontSelectionDialog, GtkFontSelectionDialog_FID_CACHE *lpGtkFontSelectionDialogFc);
-void setGtkFontSelectionDialogFields(JNIEnv *env, jobject lpObject, GtkFontSelectionDialog *lpGtkFontSelectionDialog, GtkFontSelectionDialog_FID_CACHE *lpGtkFontSelectionDialogFc);
 void getGtkObjectFields(JNIEnv *env, jobject lpObject, GtkObject *lpGtkObject, GtkObject_FID_CACHE *lpGtkObjectFc);
 void setGtkObjectFields(JNIEnv *env, jobject lpObject, GtkObject *lpGtkObject, GtkObject_FID_CACHE *lpGtkObjectFc);
 void getGtkProgressFields(JNIEnv *env, jobject lpObject, GtkProgress *lpGtkProgress, GtkProgress_FID_CACHE *lpGtkProgressFc);
@@ -516,10 +465,6 @@ void getGtkStyleClassFields(JNIEnv *env, jobject lpObject, GtkStyleClass *lpGtkS
 void setGtkStyleClassFields(JNIEnv *env, jobject lpObject, GtkStyleClass *lpGtkStyleClass, GtkStyleClass_FID_CACHE *lpGtkStyleClassFc);
 void getGtkWidgetFields(JNIEnv *env, jobject lpObject, GtkWidget *lpGtkWidget, GtkWidget_FID_CACHE *lpGtkWidgetFc);
 void setGtkWidgetFields(JNIEnv *env, jobject lpObject, GtkWidget *lpGtkWidget, GtkWidget_FID_CACHE *lpGtkWidgetFc);
-void getGtkWindowFields(JNIEnv *env, jobject lpObject, GtkWindow *lpGtkWindow, GtkWindow_FID_CACHE *lpGtkWindowFc);
-void setGtkWindowFields(JNIEnv *env, jobject lpObject, GtkWindow *lpGtkWindow, GtkWindow_FID_CACHE *lpGtkWindowFc);
-void getGtkDialogFields(JNIEnv *env, jobject lpObject, GtkDialog *lpGtkDialog, GtkDialog_FID_CACHE *lpGtkDialogFc);
-void setGtkDialogFields(JNIEnv *env, jobject lpObject, GtkDialog *lpGtkDialog, GtkDialog_FID_CACHE *lpGtkDialogFc);
 void getGtkCheckMenuItemFields(JNIEnv *env, jobject lpObject, GtkCheckMenuItem *lpGtkCheckMenuItem, GtkCheckMenuItem_FID_CACHE *lpGtkCheckMenuItemFc);
 void setGtkCheckMenuItemFields(JNIEnv *env, jobject lpObject, GtkCheckMenuItem *lpGtkCheckMenuItem, GtkCheckMenuItem_FID_CACHE *lpGtkCheckMenuItemFc);
 void getGtkAdjustmentFields(JNIEnv *env, jobject lpObject, GtkAdjustment *lpGtkAdjustment, GtkAdjustment_FID_CACHE *lpGtkAdjustmentFc);
@@ -558,7 +503,6 @@ extern GtkCListRow_FID_CACHE GtkCListRowFc;
 extern GtkCListColumn_FID_CACHE GtkCListColumnFc;
 extern GtkCTreeRow_FID_CACHE GtkCTreeRowFc;
 extern GtkCTree_FID_CACHE GtkCTreeFc;
-extern GtkColorSelectionDialog_FID_CACHE GtkColorSelectionDialogFc;\
 extern GtkCList_FID_CACHE GtkCListFc;
 extern GtkData_FID_CACHE GtkDataFc;
 extern GtkEditable_FID_CACHE GtkEditableFc;
@@ -568,14 +512,10 @@ extern GtkMenuShell_FID_CACHE GtkMenuShellFc;
 extern GtkMenuItem_FID_CACHE GtkMenuItemFc;
 extern GtkObject_FID_CACHE GtkObjectFc;
 extern GtkWidget_FID_CACHE GtkWidgetFc;
-extern GtkWindow_FID_CACHE GtkWindowFc;
-extern GtkDialog_FID_CACHE GtkDialogFc;
 extern GtkBox_FID_CACHE GtkBoxFc;
 extern GtkHBox_FID_CACHE GtkHBoxFc;
 extern GtkCombo_FID_CACHE GtkComboFc;
-extern GtkFileSelection_FID_CACHE GtkFileSelectionFc;
 extern GtkFrame_FID_CACHE GtkFrameFc;
-extern GtkFontSelectionDialog_FID_CACHE GtkFontSelectionDialogFc;
 extern GtkText_FID_CACHE GtkTextFc;
 extern GtkProgress_FID_CACHE GtkProgressFc;
 extern GtkProgressBar_FID_CACHE GtkProgressBarFc;

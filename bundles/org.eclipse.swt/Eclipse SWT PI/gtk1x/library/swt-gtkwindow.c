@@ -131,6 +131,42 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selectio
 	return rc;
 }
 
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1COLOR_1SELECTION_1DIALOG_1OK_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkColorSelectionDialog*)fsd)->ok_button);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1COLOR_1SELECTION_1DIALOG_1CANCEL_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkColorSelectionDialog*)fsd)->cancel_button);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1COLOR_1SELECTION_1DIALOG_1HELP_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkColorSelectionDialog*)fsd)->help_button);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1COLOR_1SELECTION_1DIALOG_1COLORSEL
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkColorSelectionDialog*)fsd)->colorsel);
+}
+
 
 /*
  * gtk_dialog_*
@@ -140,6 +176,18 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1dialog_1new
   (JNIEnv *env, jclass that)
 {
 	return (jint)gtk_dialog_new();
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1DIALOG_1VBOX
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    return (jint) (((GtkDialog*)fsd)->vbox);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1DIALOG_1ACTION_1AREA
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    return (jint) (((GtkDialog*)fsd)->action_area);
 }
 
 
@@ -193,6 +241,25 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection
 		(*env)->ReleaseByteArrayElements(env, pattern, pattern1, 0);
 	}
 }
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1FILE_1SELECTION_1OK_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkFileSelection*)fsd)->ok_button);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1FILE_1SELECTION_1CANCEL_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bug 70745
+     */
+    return (jint) (((GtkFileSelection*)fsd)->cancel_button);
+}
+
 
 
 /*
