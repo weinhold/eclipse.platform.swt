@@ -144,7 +144,7 @@ void drawSelected(GC gc ) {
 		gc.fillRectangle(x, y - 1, parent.getSize().x - x, height + 1);
 		return;
 	}
-	int extra = CTabFolder2.CURVE_WIDTH/2;
+	int extra = CTabFolder2.CURVE_WIDTH/2 + 4; // +4 to avoid overlapping with text in next tab
 	// draw background
 	int[] shape = null;
 	if (this.parent.onBottom) {
@@ -375,7 +375,7 @@ void drawUnselected(GC gc) {
 	for (int i = 0; i < shape.length/2; i++) {
 		shape2[index] = shape[index++] + (left ? -1 : +1);
 		shape2[index] = shape[index++];
-		if (left) left = parent.onBottom  ? shape[index-1] < y + height - 2 : shape[index-1] > y + 1;
+		if (left && (index + 1 < shape.length)) left = parent.onBottom  ? shape[index-1] < y + height - 2 : shape[index-1] > y + 1;
 	}
 	RGB from = CTabFolder2.borderColor1.getRGB();
 	RGB to = parent.getParent().getBackground().getRGB();
@@ -393,7 +393,7 @@ void drawUnselected(GC gc) {
 	for (int i = 0; i < shape.length/2; i++) {
 		shape3[index] = shape[index++] + (left ? +1 : -1);
 		shape3[index] = shape[index++];
-		if (left) left = parent.onBottom  ? shape[index-1] < y + height - 2 : shape[index-1] > y + 1;
+		if (left && (index + 1 < shape.length)) left = parent.onBottom  ? shape[index-1] < y + height - 2 : shape[index-1] > y + 1;
 	}
 	from = CTabFolder2.borderColor1.getRGB();
 	to = parent.getBackground().getRGB();
