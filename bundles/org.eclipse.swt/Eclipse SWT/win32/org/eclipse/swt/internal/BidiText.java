@@ -65,6 +65,123 @@ public class BidiText {
  *  classBuffer is input/output parameter
  *	order & dx are output parameters
  */
+public static byte[] getRenderInfo_COPY2(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags, int [] offsets) {
+	int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
+	int hHeap = OS.GetProcessHeap();
+	int[] lpCs = new int[8];
+	int cs = OS.GetTextCharset(gc.handle);
+	OS.TranslateCharsetInfo(cs, lpCs, OS.TCI_SRCCHARSET);
+	byte[] textBuffer = Converter.wcsToMbcs(lpCs[1], text, false);
+	int byteCount = textBuffer.length;
+	boolean linkBefore = (flags & LINKBEFORE) == LINKBEFORE;
+	boolean linkAfter = (flags & LINKAFTER) == LINKAFTER;
+
+	GCP_RESULTS result = new GCP_RESULTS();
+	result.lStructSize = GCP_RESULTS.sizeof;
+	result.nGlyphs = byteCount;
+	int lpOrder = result.lpOrder = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
+	int lpDx = result.lpDx = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
+	int lpClass = result.lpClass = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+	int lpGlyphs = result.lpGlyphs = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 2);
+				
+	// set required dwFlags
+	int dwFlags = 0;
+	int glyphFlags = 0;
+	if (((fontLanguageInfo & GCP_REORDER) == GCP_REORDER)) {
+		dwFlags |= GCP_REORDER;
+	}
+	if ((fontLanguageInfo & GCP_LIGATE) == GCP_LIGATE) {
+		dwFlags |= GCP_LIGATE;
+		glyphFlags |= 0;
+	}
+	if ((fontLanguageInfo & GCP_GLYPHSHAPE) == GCP_GLYPHSHAPE) {
+		dwFlags |= GCP_GLYPHSHAPE;
+		if (linkBefore) {
+			glyphFlags |= GCPGLYPH_LINKBEFORE;
+		}		
+		if (linkAfter) {
+			glyphFlags |= GCPGLYPH_LINKAFTER;
+		}
+	}
+	byte[] lpGlyphs2;
+	if (linkBefore || linkAfter) {
+		lpGlyphs2 = new byte[2];
+		lpGlyphs2[0]=(byte)glyphFlags;
+		lpGlyphs2[1]=(byte)(glyphFlags >> 8);
+	}
+	else {
+		lpGlyphs2 = new byte[] {(byte) glyphFlags};
+	}
+	OS.MoveMemory(result.lpGlyphs, lpGlyphs2, lpGlyphs2.length);
+	
+	if ((flags & CLASSIN) == CLASSIN) {
+		// set classification values for the substring
+		dwFlags |= GCP_CLASSIN;
+		OS.MoveMemory(result.lpClass, classBuffer, classBuffer.length);
+	}
+
+	byte[] glyphBuffer = new byte[result.nGlyphs * 2];
+	for (int i=0; i<offsets.length; i+=2) {
+		int offset = offsets [i];
+		int length = offsets [i+1] - offsets [i];
+
+		result.lpOrder = lpOrder + offset * 4;
+		result.lpDx = lpDx + offset * 4;
+		result.lpClass = lpClass + offset;
+		result.lpGlyphs = lpGlyphs + offset * 2;	
+		
+		//BAD?
+		result.nGlyphs = length;
+		byte [] textBuffer2 = new byte [length];
+		System.out.println ("TEXT=" + text + " LENGTH=" + text.length());
+		System.out.println ("OFFSET=" + offset + " LENGTH=" + length);
+		System.arraycopy (textBuffer, offset, textBuffer2, 0, length);
+		OS.GetCharacterPlacement(gc.handle, textBuffer2, textBuffer2.length, 0, result, dwFlags);
+	
+		if (dx != null) {
+			int [] dx2 = new int [length];
+//			OS.MoveMemory(dx, result.lpDx, dx.length * 4);
+			OS.MoveMemory(dx2, result.lpDx, dx2.length * 4);
+			System.arraycopy (dx2, 0, dx, offset, length);
+		}
+		if (order != null) {
+			int [] order2 = new int [length];
+//			OS.MoveMemory(order, result.lpOrder, order.length * 4);
+			OS.MoveMemory(order2, result.lpOrder, order2.length * 4);
+			for (int j=0; j<length; j++) {
+				order2 [j] += offset;
+			}
+			System.arraycopy (order2, 0, order, offset, length);
+		}
+		if (classBuffer != null) {
+			byte [] classBuffer2 = new byte [length];
+//			OS.MoveMemory(classBuffer, result.lpClass, classBuffer.length);
+			OS.MoveMemory(classBuffer2, result.lpClass, classBuffer2.length);
+			System.arraycopy (classBuffer2, 0, classBuffer, offset, length);
+		}
+		byte[] glyphBuffer2 = new byte[result.nGlyphs * 2];
+//		OS.MoveMemory(glyphBuffer, result.lpGlyphs, glyphBuffer.length);
+		OS.MoveMemory(glyphBuffer2, result.lpGlyphs, glyphBuffer2.length);
+		System.arraycopy (glyphBuffer2, 0, glyphBuffer, offset * 2, length * 2);	
+	}
+	
+	for (int j=0; j<glyphBuffer.length; j++) {
+//		System.out.print (glyphBuffer [j] + " ");
+	}
+//	System.out.println (" ");
+	for (int j=0; j<offsets.length; j++) {
+		System.out.print (offsets [j] + " ");
+	}
+	System.out.println (" ");
+			
+	/* Free the memory that was allocated. */
+	OS.HeapFree(hHeap, 0, lpGlyphs);
+	OS.HeapFree(hHeap, 0, lpClass);
+	OS.HeapFree(hHeap, 0, lpDx);	
+	OS.HeapFree(hHeap, 0, lpOrder);	
+	return glyphBuffer;
+}
+
 public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags, int [] offsets) {
 	int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
 	int hHeap = OS.GetProcessHeap();
@@ -125,8 +242,11 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 		int offset = offsets [i];
 		int length = offsets [i+1] - offsets [i];
 
+		//BAD?
 		result.nGlyphs = length;
 		byte [] textBuffer2 = new byte [length];
+//		System.out.println ("TEXT=" + text + " LENGTH=" + text.length());
+//		System.out.println ("OFFSET=" + offset + " LENGTH=" + length);
 		System.arraycopy (textBuffer, offset, textBuffer2, 0, length);
 		OS.GetCharacterPlacement(gc.handle, textBuffer2, textBuffer2.length, 0, result, dwFlags);
 	
@@ -163,11 +283,11 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 	}
 	
 	for (int j=0; j<glyphBuffer.length; j++) {
-		System.out.print (glyphBuffer [j] + " ");
+//		System.out.print (glyphBuffer [j] + " ");
 	}
-	System.out.println (" ");
-	for (int j=0; j<order.length; j++) {
-//		System.out.print (order [j] + " ");
+//	System.out.println (" ");
+	for (int j=0; j<offsets.length; j++) {
+//		System.out.print (offsets [j] + " ");
 	}
 //	System.out.println (" ");
 			

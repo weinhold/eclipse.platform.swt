@@ -623,32 +623,86 @@ public StyledText(Composite parent, int style) {
 	installDefaultLineStyler();
 }
 
-int [] bogus2 (String line) {
-	int lineIndex = 0;
-	int lineOffset = content.getOffsetAtLine(lineIndex);
+int [] bogus2_COPY (String line, int lineOffset) {
+//	int lineIndex = 0;
+//	int lineOffset = content.getOffsetAtLine(lineIndex);
 	StyledTextEvent event = getLineStyleData(lineOffset, line);
 	StyleRange [] styles = new StyleRange [0];
 	if (event != null) {
 		styles = event.styles;
-	}	
-	if (styles.length == 0) return new int [] {0, line.length()};
+	}
+	if (styles.length == 0) {
+		return new int[] { 0, line.length()};
+	}
 	
-	int count = 1;
-	int [] offsets = new int [styles.length * 2 + 2];
+	int[] offsets = new int[styles.length * 2 + 2];
+	int count;
+	if (styles[0].start == 0 && styles[0].length == line.length()) {
+		count = 0;
+	} else {						// create a style range covering the whole line
+									//   to process "holes" between ranges
+		offsets[0] = 0;				// for documentation purposes
+		offsets[1] = line.length();
+		count = 2;
+	}
 	for (int i = 0; i < styles.length; i++) {
-		StyleRange style = styles [i];
+		StyleRange style = styles[i];
 		int styleLineStart = Math.max(style.start - lineOffset, 0);
-		int styleLineEnd = style.start + style.length - lineOffset;
-		
-//		System.out.println (style + " " + styleLineStart + " " + styleLineEnd);
-		
-		if (styleLineStart > offsets [count-1]) {
-			offsets [count] = styleLineStart;
+		int styleLineEnd = Math.max(style.start + style.length - lineOffset, styleLineStart);
+		if (i > 0 && 
+			((styleLineStart >= offsets[count-2] && styleLineStart <= offsets[count-1]) ||
+			 (styleLineEnd >= offsets[count-2] && styleLineEnd <= offsets[count-1])) &&
+			 style.similarTo(styles[i-1])) {
+			offsets[count-2] = Math.min(offsets[count-2], styleLineStart);
+			offsets[count-1] = Math.max(offsets[count-1], styleLineEnd); 
+		} else {
+			offsets[count] = styleLineStart;
+			count++;
+			offsets[count] = styleLineEnd;
 			count++;
 		}
-		offsets [count] = styleLineEnd;
-		count ++;
 	}
+	if (count == offsets.length) 
+		return offsets;
+	int [] result = new int [count];
+	System.arraycopy (offsets, 0, result, 0, count);
+	return result;
+}
+int [] bogus2 (String line, int lineOffset) {
+//	int lineIndex = 0;
+//	int lineOffset = content.getOffsetAtLine(lineIndex);
+	StyledTextEvent event = getLineStyleData(lineOffset, line);
+	StyleRange [] styles = new StyleRange [0];
+	if (event != null) {
+		styles = event.styles;
+	}
+	if (styles.length == 0) {
+		return new int[] {0, line.length()};
+	}
+	
+	int start=0, count = 1;
+	if (styles[0].start == 0 && styles[0].length == line.length()) {
+		start = 1;
+	}
+	int[] offsets = new int[styles.length * 2 + 2];
+	for (int i = start; i < styles.length; i++) {
+		StyleRange style = styles[i];
+		int styleLineStart = Math.max(style.start - lineOffset, 0);
+//		int styleLineEnd = style.start + style.length - lineOffset;
+		int styleLineEnd = Math.max(style.start + style.length - lineOffset, styleLineStart);
+		styleLineEnd = Math.min (styleLineEnd, line.length ());
+		if (i > 0 && styleLineStart == offsets[count - 1] && style.similarTo(styles[i - 1])) {
+			offsets[count-1] = styleLineEnd; 
+		} else {
+			if (styleLineStart > offsets[count - 1]) {
+				offsets[count] = styleLineStart;
+				count++;
+			}	
+			offsets[count] = styleLineEnd;
+			count++;
+		}
+	}
+	//MERGE AT END?
 	if (line.length() > offsets[count-1]) {
 		offsets [count] = line.length();
 		count++;
@@ -919,7 +973,8 @@ void calculateContentWidth(int startLine, int lineCount) {
 	for (int i = startLine; i < stopLine; i++) {
 		line = content.getLine(i);
 		if (isBidi) {
-			StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), null, null, bogus2 (line));
+			int lineOffset = content.getOffsetAtLine (i);
+			StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), null, null, bogus2 (line, lineOffset));
 			contentWidth = Math.max(bidi.getTextWidth() + getCaretWidth(), contentWidth);
 		}
 		else {
@@ -1516,7 +1571,7 @@ void doColumnLeft() {
 		if (event != null) {
 			boldStyles = getBoldRanges(event.styles, lineOffset, lineLength);
 		}
-		bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText));
+		bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText, lineOffset));
 		if (horizontalScrollOffset > 0 || offsetInLine > 0) {
 			if (offsetInLine < lineLength && bidi.isRightToLeft(offsetInLine)) {
 				// advance caret logically if in R2L segment (move visually left)
@@ -1599,7 +1654,7 @@ void doColumnRight() {
 		if (event != null) {
 			boldStyles = getBoldRanges(event.styles, lineOffset, lineLength);
 		}
-		bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText));
+		bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText, lineOffset));
 		if (bidi.getTextWidth() > horizontalScrollOffset + getClientArea().width || offsetInLine < lineLength) {
 			if (bidi.isRightToLeft(offsetInLine) == false && offsetInLine < lineLength) {
 				// advance caret logically if in L2R segment (move visually right)
@@ -2246,7 +2301,7 @@ void drawLine(String line, int lineIndex, int paintY, GC gc, Color widgetBackgro
 	if (isBidi()) {
 		int[] boldStyles = getBoldRanges(styles, lineOffset, lineLength);
 		setLineFont(gc, gc.getFont().getFontData()[0], SWT.NORMAL);
-		bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));		
+		bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, lineOffset));		
 	}
 	event = getLineBackgroundData(lineOffset, line);
 	if (event != null) {
@@ -2603,7 +2658,7 @@ int getCaretOffsetAtX(String line, int lineOffset, int lineXOffset) {
 	}
 	if (isBidi()) {
 		int[] boldStyles = getBoldRanges(styles, lineOffset, line.length());
-		StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));
+		StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, lineOffset));
 		offset = bidi.getCaretOffsetAtX(lineXOffset);
 	}
 	else {	
@@ -3041,7 +3096,7 @@ int getOffsetAtX(String line, int lineOffset, int lineXOffset) {
 	lineXOffset += horizontalScrollOffset;
 	if (isBidi()) {
 		int[] boldStyles = getBoldRanges(styles, lineOffset, line.length());
-		StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));
+		StyledTextBidi bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, lineOffset));
 		offset = bidi.getOffsetAtX(lineXOffset);
 	}		
 	else {
@@ -4615,7 +4670,7 @@ void redrawBidiLines(int firstLine, int offsetInFirstLine, int lastLine, int end
 		styles = event.styles;
 	}	
 	boldStyles = getBoldRanges(styles, firstLineOffset, line.length());
-	bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));
+	bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, firstLineOffset));
 	bidi.redrawRange(this, offsetInFirstLine, Math.min(line.length(), endOffset) - offsetInFirstLine, -horizontalScrollOffset, redrawY, lineHeight);
 	// redraw line break marker (either space or full client area width)
 	// if redraw range extends over more than one line and background should be redrawn
@@ -4646,7 +4701,7 @@ void redrawBidiLines(int firstLine, int offsetInFirstLine, int lastLine, int end
 				styles = null;
 			}
 			boldStyles = getBoldRanges(styles, lastLineOffset, line.length());
-			bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));
+			bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, lastLineOffset));
 			bidi.redrawRange(this, 0, offsetInLastLine, -horizontalScrollOffset, redrawY, lineHeight);
 		}
 	}
@@ -5121,7 +5176,7 @@ void setBidiCaret() {
 	if (event != null) {
 		boldStyles = getBoldRanges(event.styles, lineStartOffset, lineText.length());
 	}
-	bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText));
+	bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText, lineStartOffset));
 	caret = getCaret();
 	if (caret != null) {
 		int caretX = bidi.getCaretPosition(offsetInLine);
@@ -5151,7 +5206,7 @@ void setBidiCaretLocation() {
 	if (event != null) {
 		boldStyles = getBoldRanges(event.styles, lineStartOffset, lineText.length());
 	}
-	bidi = new StyledTextBidi(gc, tabWidth, lineText, boldStyles, boldFont, bogus2 (lineText));
+	bidi = new StyledTextBidi(gc, tabWidth, lineText, boldStyles, boldFont, bogus2 (lineText, lineStartOffset));
 	if (offsetInLine > 0 && bidi.isRightToLeft(offsetInLine - 1) != bidi.isRightToLeft(offsetInLine)) {
 		// continue with previous character type
 		bidi.setKeyboardLanguage(offsetInLine - 1);
@@ -5704,10 +5759,8 @@ public void setStyleRange(StyleRange range) {
 	checkWidget();
 	
 	//BOGUS
-	if (true) redraw ();
-	
-	boolean redrawFirstLine = false;
-	boolean redrawLastLine = false;
+	boolean redrawFirstLine = true;
+	boolean redrawLastLine = true;
 	
 	// this API can not be used if the client is providing the line styles
 	if (userLineStyle) {
@@ -6067,7 +6120,7 @@ void showCursorBidiCaret(int direction) {
 	if (event != null) {
 		boldStyles = getBoldRanges(event.styles, lineStartOffset, lineText.length());
 	}
-	bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText));
+	bidi = new StyledTextBidi(gc, tabWidth, bogus (lineText), boldStyles, boldFont, bogus2 (lineText, lineStartOffset));
 	caret = getCaret();
 	if (caret != null) {
 		int caretX = bidi.getCaretPosition(offsetInLine, direction);
@@ -6203,7 +6256,7 @@ int textWidth(String line, int lineIndex, int length, GC gc) {
 	}
 	if (isBidi()) {
 		int[] boldStyles = getBoldRanges(styles, lineOffset, line.length());
-		bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line));
+		bidi = new StyledTextBidi(gc, tabWidth, bogus (line), boldStyles, boldFont, bogus2 (line, lineOffset));
 	}	
 	return textWidth(line, lineOffset, 0, length, styles, 0, gc, bidi);
 }
