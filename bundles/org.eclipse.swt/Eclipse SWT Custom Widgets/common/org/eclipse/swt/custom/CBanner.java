@@ -206,18 +206,15 @@ private void onPaint(GC gc) {
 	Point size = getSize();
 	// TODO Consider a way to not draw background
 	// under lines
-	gc.setBackground(getBackground());
+	Color background = getBackground();
+	gc.setBackground(background);
 	gc.fillRectangle(0, 0, size.x, size.y);
 	
-	int[] line1 = new int[curve.length+8];
-	int[] line2 = new int[curve.length+8];
+	int[] line1 = new int[curve.length+6];
+	int[] line2 = new int[curve.length+6];
 	int index = 0;
 	int x = curveStart;
 	int y = 0;
-	line1[index] = 0;
-	line2[index++] = 0;
-	line1[index] = size.y - BORDER_STRIPE;
-	line2[index++] = size.y - BORDER_STRIPE + 1;
 	line1[index] = x + 1;
 	line2[index++] = x + 1;
 	line1[index] = size.y - BORDER_STRIPE;
@@ -237,12 +234,19 @@ private void onPaint(GC gc) {
 	line1[index] = 0;
 	line2[index++] = 1;
 	
+	int x1 = Math.max(0, curveStart - 200);
 	Color border2 = new Color(getDisplay(), BORDER2);
+	gc.setForeground(background);
+	gc.setBackground(border2);
+	gc.fillGradientRectangle(x1, size.y - BORDER_STRIPE + 1, curveStart-x1+1, 1, false);
 	gc.setForeground(border2);
 	gc.drawPolyline(line2);
 	border2.dispose();
 	
 	Color border1 = new Color(getDisplay(), BORDER1);
+	gc.setForeground(background);
+	gc.setBackground(border1);
+	gc.fillGradientRectangle(x1, size.y - BORDER_STRIPE, curveStart-x1+1, 1, false);
 	gc.setForeground(border1);
 	gc.drawPolyline(line1);
 	border1.dispose();
