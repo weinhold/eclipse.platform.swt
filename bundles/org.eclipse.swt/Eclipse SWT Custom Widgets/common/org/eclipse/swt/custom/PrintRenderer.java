@@ -137,7 +137,11 @@ protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
 	StyledTextEvent logicalLineEvent = (StyledTextEvent) lineStyles.get(new Integer(logicalLineOffset));
 	
 	if (logicalLineEvent != null) {
-		logicalLineEvent = getLineStyleData(logicalLineEvent, lineOffset, line);
+		StyledTextEvent clone = new StyledTextEvent((StyledTextContent) logicalLineEvent.data);
+		clone.detail = logicalLineEvent.detail;
+		clone.styles = logicalLineEvent.styles;
+		clone.text = logicalLineEvent.text;
+		logicalLineEvent = getLineStyleData(clone, lineOffset, line);
 	}
 	return logicalLineEvent;
 }
