@@ -244,11 +244,11 @@ int topHandle() {
  * </ul>
  */
 public Rectangle getBounds () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	return new Rectangle (widget.alloc_x, widget.alloc_y, widget.alloc_width, widget.alloc_height);
+	checkWidget();
+	/*GtkWidget widget = new GtkWidget ();
+	OS.memmove (widget, handle, GtkWidget.sizeof);*/
+	/* FIXME */
+	return new Rectangle (0, 0, 10, 10);
 }
 /**
  * Returns the control that is used to fill the bounds of
@@ -309,11 +309,8 @@ public Display getDisplay () {
  * </ul>
  */
 public boolean getEnabled () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	return (widget.flags & OS.GTK_SENSITIVE) != 0;     
+	checkWidget();
+	return OS.GTK_WIDGET_SENSITIVE(handle);
 }
 /**
  * Returns the receiver's hot image if it has one, or null
@@ -397,11 +394,9 @@ public String getToolTipText () {
  * </ul>
  */
 public int getWidth () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	return widget.alloc_width;
+	checkWidget();
+	/* FIXME */
+	return 10;
 }
 void hookEvents () {
 	if ((style & SWT.SEPARATOR) != 0) return;

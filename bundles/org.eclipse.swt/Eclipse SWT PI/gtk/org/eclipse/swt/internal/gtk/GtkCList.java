@@ -13,7 +13,7 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public class GtkCList extends GtkContainer {
+public class GtkCList {
 	public short clist_flags;
 	public int row_mem_chunk;
 	public int cell_mem_chunk;

@@ -683,7 +683,6 @@ public static final native void memmove(GdkEventExpose dest, int src);
 public static final native void memmove(GtkAdjustment dest, int src);
 public static final native void memmove(GtkCList dest, int src, int size);
 public static final native void memmove(GtkCombo dest, int src);
-public static final native void memmove(GtkContainer dest, int src, int size);
 public static final native void memmove(GtkCTreeRow dest, int src);
 public static final native void memmove(GtkEditable dest, int src, int size);
 public static final native void memmove(GtkObject dest,   int src, int size);

@@ -314,7 +314,7 @@ int findSibling (int node, int index) {
 	if (node != 0) {
 		int data = OS.g_list_nth_data (node, 0);
 		GtkCTreeRow row = new GtkCTreeRow ();
-		OS.memmove (row, data, GtkCTreeRow.sizeof);
+		OS.memmove (row, data);
 		depth = row.level + 1;
 	}
 	Index = 0;
@@ -384,7 +384,7 @@ int getItemCount (int node) {
 	if (node != 0) {
 		int data = OS.g_list_nth_data (node, 0);
 		GtkCTreeRow row = new GtkCTreeRow ();
-		OS.memmove (row, data, GtkCTreeRow.sizeof);
+		OS.memmove (row, data);
 		depth = row.level + 1;
 	}
 	Count = 0;
@@ -440,7 +440,7 @@ TreeItem [] getItems (int node) {
 	if (node != 0) {
 		int data = OS.g_list_nth_data (node, 0);
 		GtkCTreeRow row = new GtkCTreeRow ();
-		OS.memmove (row, data, GtkCTreeRow.sizeof);
+		OS.memmove (row, data);
 		depth = row.level + 1;
 	}
 	Count = 0;
@@ -622,9 +622,9 @@ int processMouseDown (int callData, int arg1, int int2) {
 				int node = OS.gtk_ctree_node_nth (handle, row [0]);
 				int crow = OS.g_list_nth_data (node, 0);
 				GtkCTreeRow row_data = new GtkCTreeRow ();
-				OS.memmove (row_data, crow, GtkCTreeRow.sizeof);
+				OS.memmove (row_data, crow);
 				GtkCTree ctree = new GtkCTree();
-				OS.memmove (ctree, handle, GtkCTree.sizeof);
+				OS.memmove (ctree, handle);
 				int nX = ctree.hoffset + ctree.tree_indent * row_data.level - 2;
 				int nY = ctree.voffset + (ctree.row_height + 1) * row [0] + 2;
 				int [] unused = new int [1], check_width = new int [1], check_height = new int [1];

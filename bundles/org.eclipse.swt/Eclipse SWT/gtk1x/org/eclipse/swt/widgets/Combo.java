@@ -537,9 +537,10 @@ public String [] getItems () {
  */
 public Point getSelection () {
 	checkWidget ();
-	GtkEditable editable = new GtkEditable();
-	OS.memmove (editable, entryHandle, GtkEditable.sizeof);
-	return new Point (editable.selection_start_pos, editable.selection_end_pos);
+/*	GtkEditable editable = new GtkEditable();
+	OS.memmove (editable, entryHandle, GtkEditable.sizeof);*/
+	/* FIXME */
+	return new Point (0,0);
 }
 
 /**

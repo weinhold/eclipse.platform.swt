@@ -20,14 +20,12 @@ class UtilFuncs {
  */
 
 static Point getLocation (int handle) {
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
+	GtkWidget widget = new GtkWidget (handle);
 	return new Point (widget.alloc_x, widget.alloc_y);
 }
 
 static boolean setLocation(int parentHandle, int handle, int x, int y) {
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
+	GtkWidget widget = new GtkWidget (handle);
 	boolean sameOrigin = (widget.alloc_x == x && widget.alloc_y == y);
 
 	// GtkFixed does not leave us alone.
@@ -59,7 +57,6 @@ static boolean setLocation(int parentHandle, int handle, int x, int y) {
 	alloc.y = (short) y;
 	alloc.width = (short) widget.alloc_width;
 	alloc.height = (short) widget.alloc_height;
-	OS.memmove(handle, widget, GtkWidget.sizeof);
 	OS.gtk_widget_size_allocate(handle, alloc);
 
 	return (!sameOrigin);
@@ -69,8 +66,7 @@ static Point getSize (int handle) {
 	if (handle==0) {
 		SWT.error(SWT.ERROR_UNSPECIFIED);
 	}
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
+	GtkWidget widget = new GtkWidget (handle);
 	return new Point (widget.alloc_width, widget.alloc_height);
 }
 
@@ -87,8 +83,7 @@ static boolean setSize(int handle, int width, int height) {
 	if (width <= 3)  width = 3;
 
 	// first, see if we actually need to change anything
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
+	GtkWidget widget = new GtkWidget (handle);
 	int alloc_width = widget.alloc_width & 0xFFFF;
 	int alloc_height = widget.alloc_height & 0xFFFF;
 	if (alloc_width == width && alloc_height == height) {
