@@ -236,35 +236,63 @@ LRESULT WM_MOUSEWHEEL (int wParam, int lParam) {
 	LRESULT result = super.WM_MOUSEWHEEL (wParam, lParam);
 	if (result != null) return result;
 	
-	// Implement scrolling for Canvas type widgets.
-	// For all native widgets, rely on the native widget to handle WM_MOUSEWHEEL
+	/*
+	* Translate WM_MOUSEWHEEL to WM_VSCROLL.
+	*/
 	if ((state & CANVAS) != 0) {
 		if (verticalBar == null && horizontalBar == null) return LRESULT.ZERO;
-		int wheelDelta = (short)-(wParam >> 16);
-		if (wheelDelta < OS.WHEEL_DELTA) return new LRESULT(0);
-		int[] value = new int[1];
-   		OS.SystemParametersInfo(OS.SPI_GETWHEELSCROLLLINES, 0, value, 0);
-		int increment = value[0] * wheelDelta / OS.WHEEL_DELTA;
-		System.out.println("Scroll canvas by "+increment);
+		if ((wParam & (OS.MK_SHIFT | OS.MK_CONTROL)) != 0) return LRESULT.ZERO;
 		
+		int delta = (short) (wParam >> 16);
+		int code = delta < 0 ? OS.SB_LINEDOWN : OS.SB_LINEUP;
+		delta = Math.abs (delta);
+		if (delta < OS.WHEEL_DELTA) return new LRESULT (0);
+		
+		if (verticalBar != null) {
+//			int position = verticalBar.getSelection();
+//			if (code == OS.SB_LINEUP && position == verticalBar.getMinimum()) return LRESULT.ZERO;
+//			if (code == OS.SB_LINEDOWN && position == verticalBar.getMaximum() - verticalBar.getThumb()) return LRESULT.ZERO;
+			int [] value = new int [1];
+   			OS.SystemParametersInfo (OS.SPI_GETWHEELSCROLLLINES, 0, value, 0);
+			int count = value [0] * delta / OS.WHEEL_DELTA;
+			for (int i=0; i<count; i++) {
+				OS.SendMessage (handle, OS.WM_VSCROLL, code, 0);
+			}
+		} else {
+//			int position = horizontalBar.getSelection();
+//			if (code == OS.SB_LINEUP && position == horizontalBar.getMinimum()) return LRESULT.ZERO;
+//			if (code == OS.SB_LINEDOWN && position == horizontalBar.getMaximum() - horizontalBar.getThumb()) return LRESULT.ZERO;
+			int count = delta / OS.WHEEL_DELTA;
+			for (int i=0; i<count; i++) {
+				OS.SendMessage (handle, OS.WM_HSCROLL, code, 0);
+			}
+		}
 		return LRESULT.ZERO;
 	}
 		
-	// When the native widget scrolls inside the WM_MOUSEWHEEL event, no WM_VSCROLL or WM_HSCROLL event 
-	// is sent and the application does not get notified that the widget has scrolled.  
-	// Check for a change in the scrollbar position and notify the application. 
+	/*
+	* When the native widget scrolls inside WM_MOUSEWHEEL, it
+	* may or may not send a WM_VSCROLL or WM_HSCROLL to do the
+	* actual scrolling.  This depends on the implementation of
+	* each native widget.  In order to ensure that application
+	* code is notified when the scroll bar moves, compare the
+	* scroll bar position before and after the WM_MOUSEWHEEL.
+	* If the native control sends a WM_VSCROLL or WM_HSCROLL,
+	* then the application has already been notified.  If not
+	* explicity send the event.
+	*/
 	int vPosition = verticalBar == null ? 0 : verticalBar.getSelection ();
 	int hPosition = horizontalBar == null ? 0 : horizontalBar.getSelection ();
 	int code = callWindowProc (OS.WM_MOUSEWHEEL, wParam, lParam);
 	if (verticalBar != null) {
-		if (verticalBar.getSelection() != vPosition) {
+		if (verticalBar.getSelection () != vPosition) {
 			Event event = new Event ();
 			event.detail = SWT.DRAG; 
 			verticalBar.sendEvent (SWT.Selection, event);
 		}
 	}
 	if (horizontalBar != null) {
-		if (horizontalBar.getSelection() != hPosition) {
+		if (horizontalBar.getSelection () != hPosition) {
 			Event event = new Event ();
 			event.detail = SWT.DRAG; 
 			horizontalBar.sendEvent (SWT.Selection, event);
@@ -282,8 +310,6 @@ LRESULT WM_SIZE (int wParam, int lParam) {
 }
 
 LRESULT WM_VSCROLL (int wParam, int lParam) {
-	new Error().printStackTrace();
-	
 	LRESULT result = super.WM_VSCROLL (wParam, lParam);
 	if (result != null) return result;
 
