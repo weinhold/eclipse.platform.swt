@@ -677,8 +677,41 @@ public static final native void gtk_window_set_transient_for(int window, int par
 
 public static final native void gtk_widget_reparent(int widget, int new_parent);
 public static final native void gtk_widget_size_allocate(int widget, GtkAllocation allocation);
-public static final native int XListFonts(byte[] pattern, int maxFonts, int[] pnum_fonts);
 
+
+/* Pango */
+public static final native int PANGO_WEIGHT_NORMAL();
+public static final native int PANGO_WEIGHT_BOLD();
+public static final native int PANGO_STYLE_NORMAL();
+public static final native int PANGO_STYLE_ITALIC();
+public static final native int PANGO_STYLE_OBLIQUE();
+public static final native int PANGO_SCALE();
+public static final native int PANGO_STRETCH_NORMAL();
+
+public static final native int PANGO_PIXELS(int dimension);
+
+public static final native int pango_font_description_new();
+public static final native int pango_font_description_from_string(String str);
+public static final native String pango_font_description_to_string(int desc);
+public static final native boolean pango_font_description_equal(int desc1, int desc2);
+public static final native void pango_font_description_free(int desc);
+public static final native String pango_font_description_get_family(int desc);
+public static final native void pango_font_description_set_family(int desc, String style);
+public static final native int pango_font_description_get_size(int desc);
+public static final native void pango_font_description_set_size(int desc, int size);
+public static final native void pango_font_description_set_stretch(int desc, int stretch);
+public static final native int pango_font_description_get_style(int desc);
+public static final native void pango_font_description_set_style(int desc, int weight);
+public static final native int pango_font_description_get_weight(int desc);
+public static final native void pango_font_description_set_weight(int desc, int weight);
+
+
+
+
+
+/* Other */
+
+public static final native int XListFonts(byte[] pattern, int maxFonts, int[] pnum_fonts);
 public static final native int strlen (int str);
 
 
