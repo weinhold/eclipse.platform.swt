@@ -750,6 +750,8 @@ public static final native void memmove(GtkCListRow dest, int src);
 public static final native void memmove(GtkCListColumn dest, int src);
 public static final native void memmove(GtkCList dest, int src);
 public static final native void memmove(GtkCTreeRow dest, int src);
+public static final native void memmove(GtkCTree dest, int src);
+
 
 /* Write memmoves */
 public static final native void memmove(int dest, GtkEditable src, int size);
