@@ -549,7 +549,7 @@ public class StyledText extends Canvas {
 			renderer = null;
 		}
 	}
-	void initializeRenderer(StyledTextContent logicalContent) {
+	void initializeRenderer(StyledTextContent printerContent) {
 		if (printer.startJob("Printing")) {
 			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 			Point dpi = printer.getDPI();
@@ -568,7 +568,7 @@ public class StyledText extends Canvas {
 			gc.setFont(printerFont);			
 			lineEndSpaceWidth = gc.stringExtent(" ").x;
 			renderer = new PrintRenderer(
-				printer, gc, logicalContent, 
+				printer, gc, printerContent, 
 				lineBackgrounds, lineStyles, bidiSegments,
 				printerFont, isBidi(), tabLength, 
 				lineEndSpaceWidth, clientArea.x, clientArea);
