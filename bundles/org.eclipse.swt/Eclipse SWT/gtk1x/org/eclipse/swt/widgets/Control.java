@@ -1470,9 +1470,8 @@ int processKeyUp (int callData, int arg1, int int2) {
 
 int processMouseDown (int callData, int arg1, int int2) {
 	OS.gtk_widget_grab_focus(handle);
-	GdkEvent gdkEvent = new GdkEvent(callData);
 	int eventType = SWT.MouseDown;
-	if (gdkEvent.type == OS.GDK_2BUTTON_PRESS) eventType = SWT.MouseDoubleClick;
+	if (OS.GDK_EVENT_TYPE(callData) == OS.GDK_2BUTTON_PRESS) eventType = SWT.MouseDoubleClick;
 	int[] pMod = new int[1];
 	OS.gdk_event_get_state(callData, pMod);
 	int time = OS.gdk_event_get_time(callData);

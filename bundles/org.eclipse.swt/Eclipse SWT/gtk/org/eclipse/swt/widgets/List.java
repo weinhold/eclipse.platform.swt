@@ -668,16 +668,10 @@ int processSelection (int int0, int int1, int int2) {
 	GtkCList clist = new GtkCList (handle);
 	if (int0 != clist.focus_row) return 0;
 	if ((style & SWT.MULTI) != 0) selected = false;
-	boolean single = true;
-	if (int2 != 0) {
-		GdkEvent gdkEvent = new GdkEvent (int2);
-		single = gdkEvent.type != OS.GDK_2BUTTON_PRESS;
-	}
-	if (single) {
-		postEvent (SWT.Selection);
-	} else {
-		postEvent (SWT.DefaultSelection);
-	}
+	int type = SWT.Selection;
+	if (int2 != 0)
+	  if (OS.GDK_EVENT_TYPE(int2) == OS.GDK_2BUTTON_PRESS) type = SWT.DefaultSelection;
+	postEvent (type);
 	return 0;
 }
 

@@ -312,7 +312,7 @@ public void close () {
 }
 void closeWidget () {
 	Event event = new Event ();
-	event.time = OS.gdk_time_get ();
+	event.time = OS.GDK_CURRENT_TIME();
 	sendEvent (SWT.Close, event);
 	if (event.doit && !isDisposed ()) dispose ();
 }
