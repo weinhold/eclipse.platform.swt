@@ -208,11 +208,12 @@ public class OS {
 	public static final int GTK_PROGRESS_RIGHT_TO_LEFT = 1;
 	public static final int GTK_PROGRESS_BOTTOM_TO_TOP = 2;
 	public static final int GTK_PROGRESS_TOP_TO_BOTTOM = 3;
-	public static final int GTK_TOOLBAR_CHILD_SPACE = 0;
-	public static final int GTK_TOOLBAR_CHILD_BUTTON = 1;
-	public static final int GTK_TOOLBAR_CHILD_TOGGLEBUTTON = 2;
-	public static final int GTK_TOOLBAR_CHILD_RADIOBUTTON = 3;
-	public static final int GTK_TOOLBAR_CHILD_WIDGET = 4;
+
+public static final native int GTK_TOOLBAR_CHILD_SPACE();
+public static final native int GTK_TOOLBAR_CHILD_BUTTON();
+public static final native int GTK_TOOLBAR_CHILD_TOGGLEBUTTON();
+public static final native int GTK_TOOLBAR_CHILD_RADIOBUTTON();
+public static final native int GTK_TOOLBAR_CHILD_WIDGET();
 
 	public static final int G_LOG_FLAG_RECURSION = 1 << 0;
 	public static final int G_LOG_FLAG_FATAL = 1 << 1;
@@ -624,7 +625,7 @@ public static final native void gtk_timeout_remove(int timeout_handler_id);
 public static final native int gtk_text_new(int hadj, int vadj);
 public static final native void gtk_text_set_word_wrap(int text, int word_wrap);
 public static final native int gtk_text_get_length(int text);
-public static final native int gtk_toolbar_new(int orientation, int style);
+public static final native int gtk_toolbar_new();
 public static final native void gtk_toolbar_set_button_relief(int toolbar, int relief);
 public static final native void gtk_toolbar_insert_widget(int toolbar, int widget, byte[] tooltip_text, byte[] tooltip_private_text, int position);
 public static final native void gtk_toolbar_set_orientation(int toolbar, int orientation);

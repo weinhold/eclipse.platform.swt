@@ -1262,27 +1262,46 @@ JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toggle_1but
 	return (jboolean)gtk_toggle_button_get_active((GtkToggleButton*)toggle_button);
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_toolbar_new
- * Signature:	
- */
-JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1new
-  (JNIEnv *env, jclass that, jint orientation, jint style)
-{
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_toolbar_new");
-#endif
 
-/*	return (jint)gtk_toolbar_new((GtkOrientation)orientation, (GtkToolbarStyle)style);*/
+/*
+ * Toolbar
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1TOOLBAR_1CHILD_1SPACE
+  (JNIEnv *env, jclass that)
+{
+  return (jint)GTK_TOOLBAR_CHILD_SPACE;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1TOOLBAR_1CHILD_1BUTTON
+  (JNIEnv *env, jclass that)
+{
+  return (jint)GTK_TOOLBAR_CHILD_BUTTON;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1TOOLBAR_1CHILD_1TOGGLEBUTTON
+  (JNIEnv *env, jclass that)
+{
+  return (jint)GTK_TOOLBAR_CHILD_TOGGLEBUTTON;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1TOOLBAR_1CHILD_1RADIOBUTTON
+  (JNIEnv *env, jclass that)
+{
+  return (jint)GTK_TOOLBAR_CHILD_RADIOBUTTON;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1TOOLBAR_1CHILD_1WIDGET
+  (JNIEnv *env, jclass that)
+{
+  return (jint)GTK_TOOLBAR_CHILD_WIDGET;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1new
+  (JNIEnv *env, jclass that)
+{
 	return (jint)gtk_toolbar_new();
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_toolbar_insert_element
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1insert_1element
   (JNIEnv *env, jclass that, jint toolbar, jint type, jint widget, jbyteArray text, jbyteArray tooltip_text, jbyteArray tooltip_private_text, jint icon, jint callback, jint user_data, jint position)
 {
@@ -1290,9 +1309,6 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1insert
 	jbyte *text1 = NULL;
 	jbyte *tooltip_text1 = NULL;
 	jbyte *tooltip_private_text1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_toolbar_insert_element");
-#endif
 
 	if (text) {
 		text1 = (*env)->GetByteArrayElements(env, text, NULL);
@@ -1316,19 +1332,11 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1insert
 	return rc;
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_toolbar_insert_widget
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1insert_1widget
   (JNIEnv *env, jclass that, jint toolbar, jint widget, jbyteArray tooltip_text, jbyteArray tooltip_private_text, jint position)
 {
 	jbyte *tooltip_text1 = NULL;
 	jbyte *tooltip_private_text1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_toolbar_insert_widget");
-#endif
 
 	if (tooltip_text) {
 		tooltip_text1 = (*env)->GetByteArrayElements(env, tooltip_text, NULL);
