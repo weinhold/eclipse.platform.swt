@@ -35,15 +35,8 @@ public class ToolItem extends Item {
 	 */
 	int boxHandle, arrowHandle;
 	
-	/* For some kinds of items, the native constructor will
-	 * create them already configured / shown.  In that case,
-	 * configure()/show() will do nothing.
-	 */
-	boolean configured=false, shown=false;
-	
 	int currentpixmap;
 	boolean drawHotImage;
-	int position;
 	private int tooltipsHandle;
 
 /**
@@ -79,8 +72,7 @@ public class ToolItem extends Item {
 public ToolItem (ToolBar parent, int style) {
 	super (parent, checkStyle (style));
 	this.parent = parent;
-	position = parent.getItemCount ();
-	createWidget (position);
+	createWidget (parent.getItemCount ());
 }
 /**
  * Constructs a new instance of this class given its parent
@@ -120,7 +112,7 @@ public ToolItem (ToolBar parent, int style, int index) {
 	if (!(0 <= index && index <= count)) {
 		error (SWT.ERROR_ITEM_NOT_ADDED);
 	}
-	position = index;
+	//position = index;
 	createWidget (index);
 }
 /**
@@ -184,8 +176,6 @@ private void _createPushHandle(int index) {
 		0, new byte[1], null, null,
 		0, 0, 0,
 		index);
-	configured=true;
-	shown=true;
 }
 private void _createToggleHandle(int index) {
 	handle = OS.gtk_toolbar_insert_element (parent.handle,
@@ -193,29 +183,20 @@ private void _createToggleHandle(int index) {
 		0, new byte[1], null, null,
 		0, 0, 0,
 		index);
-	configured=true;
-	shown=true;
 }	
 
-
+/* Already done in createHandle() */
 void configure() {
-	// configure is done for non-separators
-	if (configured) return;
+/*	if (configured) return;
 	OS.gtk_toolbar_insert_widget (
 		parent.handle,
 		topHandle(),
 		new byte[1], new byte[1],
 		position);
-	OS.gtk_container_add(boxHandle, handle);
+	OS.gtk_container_add(boxHandle, handle);*/
 }
 
-void showHandle() {
-	if (shown) return;
-	if ((parent.getStyle()&SWT.VERTICAL)!=0) OS.gtk_widget_set_usize(handle, 15, 3);
-		else OS.gtk_widget_set_usize(handle, 3, 15);
-	OS.gtk_widget_show(boxHandle);
-	OS.gtk_widget_show(handle);
-}
+void showHandle() {}
 
 void register() {
 	super.register ();
