@@ -565,17 +565,26 @@ public static final native void gtk_widget_queue_draw(int widget);
 public static final native void gtk_widget_set_style(int widget, int style);
 public static final native void gtk_widget_set_sensitive(int widget, boolean sensitive);
 public static final native void gtk_widget_set_state(int widget, int state);
-public static final native int gtk_window_new(int type);
 public static final native void gtk_widget_size_request(int widget, GtkRequisition requisition);
 public static final native void gtk_widget_set_uposition(int widget, int x, int y);
 public static final native void gtk_widget_set_usize(int widget, int width, int height);
 public static final native void gtk_widget_remove_accelerator(int widget, int accel_group, int accel_key, int accel_mods);
 public static final native void gtk_widget_set_parent(int widget, int parent);
-public static final native void gtk_window_add_accel_group(int window, int accel_group);
-public static final native void gtk_window_set_policy(int window, int allow_shrink, int allow_grow, int auto_shrink);
-public static final native void gtk_window_set_modal(int window, boolean modal);
+
+/* gtk_window_* */
+public static final native int  gtk_window_new(int type);
 public static final native void gtk_window_set_title(int window, byte[] title);
+public static final native void gtk_window_set_policy(int window, int allow_shrink, int allow_grow, int auto_shrink);
+public static final native void gtk_window_set_resizable(int window, boolean resizable);
+public static final native int  gtk_window_get_focus(int window);
+
+
+public static final native void gtk_window_set_modal(int window, boolean modal);
+public static final native void gtk_window_add_accel_group(int window, int accel_group);
 public static final native void gtk_window_set_transient_for(int window, int parent);
+
+
+
 public static final native void gtk_widget_reparent(int widget, int new_parent);
 public static final native void gtk_widget_size_allocate(int widget, GtkAllocation allocation);
 public static final native int XListFonts(byte[] pattern, int maxFonts, int[] pnum_fonts);
