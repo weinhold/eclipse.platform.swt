@@ -344,7 +344,7 @@ public void setImage (Image image) {
 		pixmap = image.pixmap;
 		mask = image.mask;
 	}
-	int window = OS.GTK_WIDGET_WINDOW(topHandle);
+	int window = OS.GTK_WIDGET_WINDOW(topHandle());
 	OS.gdk_window_set_icon (window, 0, pixmap, mask);
 }
 /**

@@ -28,7 +28,7 @@ import org.eclipse.swt.graphics.*;
  * @see Canvas
  */
 public class Composite extends Scrollable {
-	int topHandle, eventBoxHandle, fixedHandle, radioHandle;
+	int radioHandle;
 	Layout layout;
 
 /*
@@ -74,29 +74,17 @@ public Composite (Composite parent, int style) {
 void createHandle (int index) {
 	state |= HANDLE | CANVAS;
 	
-	topHandle = OS.gtk_event_box_new();
-	if (topHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	
 	scrolledHandle = OS.gtk_scrolled_window_new(0,0);
 	if (scrolledHandle == 0) error (SWT.ERROR_NO_HANDLES);
-
-	eventBoxHandle = OS.gtk_event_box_new();
-	if (eventBoxHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 	
-	fixedHandle = OS.gtk_fixed_new ();
-	if (fixedHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	
-	handle = OS.gtk_drawing_area_new();
+	handle = OS.eclipse_fixed_new();
 	if (handle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 	OS.GTK_WIDGET_SET_FLAGS(handle, OS.GTK_CAN_FOCUS);
 }
 
 void configure() {
-	_connectParent();
-	OS.gtk_container_add(topHandle, scrolledHandle);
-	_fillBin(scrolledHandle, eventBoxHandle);
-	OS.gtk_container_add(eventBoxHandle, fixedHandle);
-	OS.gtk_fixed_put(fixedHandle, handle, (short)0,(short)0);
+	parent._connectChild(scrolledHandle);
+	OS.gtk_container_add(scrolledHandle, handle);
 }
 
 void setHandleStyle() {
@@ -104,58 +92,12 @@ void setHandleStyle() {
 }
 
 void showHandle() {
-	OS.gtk_widget_realize (topHandle);
-	OS.gtk_widget_show_now(topHandle);
-	
-	OS.gtk_widget_show (scrolledHandle);
-	
-	OS.gtk_widget_realize (eventBoxHandle);
-	OS.gtk_widget_show_now(eventBoxHandle);
-		
-	OS.gtk_widget_realize (fixedHandle);
-	OS.gtk_widget_show_now(fixedHandle);
-		
+	OS.gtk_widget_show_now (scrolledHandle);
 	OS.gtk_widget_realize (handle);
 	OS.gtk_widget_show_now (handle);
 }
-
-void register () {
-	super.register ();
-	if (topHandle != 0) WidgetTable.put (topHandle, this);		
-	if (eventBoxHandle != 0) WidgetTable.put (eventBoxHandle, this);
-	if (fixedHandle != 0) WidgetTable.put (fixedHandle, this);
-}
-
-void deregister () {
-	super.deregister ();
-	if (topHandle != 0) WidgetTable.remove (topHandle);
-	if (eventBoxHandle != 0) WidgetTable.remove (eventBoxHandle);
-	if (fixedHandle != 0) WidgetTable.remove (fixedHandle);
-}
-
-int topHandle() {
-	return topHandle;
-}
-
-int parentingHandle() {
-	return fixedHandle;
-}
-
-/**
- * Answer whether the argument points to an OS widget that is
- * implementing the receiver, i.e., one of my own handles
- */
-boolean isMyHandle(int h) {
-	if (h==topHandle) return true;
-	if (h==eventBoxHandle) return true;
-	if (h==scrolledHandle) return true;
-	if (h==fixedHandle)  return true;
-	if (h==handle)       return true;
-	if (h==radioHandle)       return true;
-	return false;
-}
-
-
+int topHandle() { return scrolledHandle; }
+int parentingHandle() { return handle; }
 
 
 /*
@@ -171,14 +113,6 @@ public void setBounds (int x, int y, int width, int height) {
 public void setSize (int width, int height) {
 	super.setSize(width, height);
 	layout();
-}
-
-boolean _setSize(int width, int height) {
-	boolean differentExtent = UtilFuncs.setSize (topHandle(), width,height);
-	Point clientSize = UtilFuncs.getSize(fixedHandle);
-	OS.gtk_drawing_area_size(handle, width, height);
-	UtilFuncs.setSize (handle, clientSize.x, clientSize.y);
-	return differentExtent;
 }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
@@ -260,15 +194,8 @@ public Control [] getTabList () {
  * </ul>
  */
 public void setLayout (Layout layout) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	this.layout = layout;
-}
-
-int _gdkWindow() {
-	int windowHandle = _gdkWindow(handle);
-	if (windowHandle==0) error(SWT.ERROR_UNSPECIFIED);
-	return windowHandle;
 }
 
 /**
@@ -330,19 +257,9 @@ Control _childFromHandle(int h) {
 }
 
 public Rectangle getClientArea () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-
-	return _getClientArea ();
-}
-
-public Rectangle _getClientArea () {
-	Point size = _getClientAreaSize ();
-	return new Rectangle (0, 0, size.x, size.y);
-}
-
-Point _getClientAreaSize () {
-	return UtilFuncs.getSize(handle);
+	checkWidget();
+	/* FIXME */
+	return getBounds();
 }
 
 
@@ -407,12 +324,8 @@ int radioGroup() {
 }
 
 public void redraw () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-//	Point size = _getSize();
-//	GtkWidget widget = new GtkWidget(handle);
-//	_redraw(0, 0, size.x, size.y, true);
-OS.gtk_widget_queue_draw(handle);
+	checkWidget();
+	OS.gtk_widget_queue_draw(paintHandle());
 }
 
 void _initializeRadioGroup() {
@@ -423,7 +336,7 @@ void _initializeRadioGroup() {
  * Adopt the widget h as our child.
  */
 void _connectChild (int h) {
-	OS.gtk_fixed_put (parentingHandle(), h, (short)0, (short)0);
+	OS.gtk_container_add (parentingHandle(), h);
 }
 
 void releaseChildren () {
@@ -443,7 +356,7 @@ void releaseWidget () {
 }
 void releaseHandle () {
 	super.releaseHandle ();
-	topHandle =  eventBoxHandle =  fixedHandle = radioHandle = 0;
+	radioHandle = 0;
 }
 
 int processMouseDown (int callData, int arg1, int int2) {

@@ -1353,13 +1353,14 @@ int processMouseDown (int callData, int arg1, int int2) {
 	
 	// We can't just use the x and y coordinates from the Gdk event,
 	// because the actual items are drawn on a special X window
-	Point where = _gdkWindowGetPointer();
+	int[] ppx = new int[1], ppy = new int[1];
+	OS.gdk_window_get_pointer(_gdkWindow(), ppx, ppy, 0);	
 	int eventType;
 	if (isDoubleClick) {
 		eventType = SWT.MouseDoubleClick;
 		Event event = new Event ();
 		event.item=itemBeingSelected;
-		event.x = where.x; event.y = where.y;	
+		event.x = ppx[0]; event.y = ppy[0];	
 		sendEvent (SWT.DefaultSelection, event);
 		return 1;
 	}
@@ -1377,8 +1378,8 @@ int processMouseDown (int callData, int arg1, int int2) {
 
 	if ((style&SWT.CHECK) != 0) {
 		GtkCList clist = new GtkCList (handle);
-		int clientX = where.x;
-		int clientY = where.y - clist.column_title_area_height;
+		int clientX = ppx[0];
+		int clientY = ppy[0] - clist.column_title_area_height;
 		if (clientY <= 0) return 1;
 		int[] row = new int[1], column = new int[1];
 		row[0] = -1;

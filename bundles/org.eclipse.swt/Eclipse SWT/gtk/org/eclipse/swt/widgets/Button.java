@@ -142,7 +142,7 @@ void createHandle (int index) {
 void setHandleStyle() {}
 
 void configure() {
-	_connectParent();
+	parent._connectChild(topHandle());
 	OS.gtk_container_add (boxHandle, handle);
 }
 
@@ -153,20 +153,14 @@ void showHandle() {
 }
 
 void hookEvents () {
-	super.hookEvents();
-	/*
-	* Feature in GTK.  For some reason, when the widget
-	* is a check or radio button, mouse move and key
-	* release events are not signaled.  The fix is to
-	* look for them on the parent.
-	*/
+/*	super.hookEvents();
 	if ((style & (SWT.CHECK | SWT.RADIO)) != 0) {
 		int mask = OS.GDK_POINTER_MOTION_MASK | OS.GDK_KEY_RELEASE_MASK;
 		OS.gtk_widget_add_events (boxHandle, mask);
 		signal_connect_after (boxHandle, "motion_notify_event", SWT.MouseMove, 3);
 		signal_connect_after (boxHandle, "key_release_event", SWT.KeyUp, 3);
 	}
-	signal_connect (handle, "clicked", SWT.Selection, 2);
+	signal_connect (handle, "clicked", SWT.Selection, 2);*/
 }
 
 void register () {

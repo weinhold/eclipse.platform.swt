@@ -104,7 +104,7 @@ void configure() {
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
-	int width = _computeSize(wHint, hHint, changed).x;
+	int width = computeNativeSize(wHint, hHint, changed).x;
 	int height = 0;
 	Point size;
 	if (layout != null) {

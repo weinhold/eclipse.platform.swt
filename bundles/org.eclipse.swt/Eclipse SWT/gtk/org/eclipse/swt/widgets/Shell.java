@@ -92,7 +92,7 @@ import org.eclipse.swt.events.*;
  */
 public class Shell extends Decorations {
 	Display display;
-	int vboxHandle;
+	int shellHandle, vboxHandle;
 	int modal;
 	int accelGroup;
 	Rectangle lastClientArea;
@@ -294,9 +294,7 @@ public void addShellListener (ShellListener listener) {
 	addListener (SWT.Activate, typedListener);
 	addListener (SWT.Deactivate, typedListener);
 }
-void bringToTop () {
-//	OS.gtk_window_activate_focus (shellHandle);
-}
+
 /**
  * Requests that the window manager close the receiver in
  * the same way it would be closed when the user clicks on
@@ -327,53 +325,42 @@ void closeWidget () {
 
 void createHandle (int index) {
 	state |= HANDLE;
-	topHandle = OS.gtk_window_new((parent==null)? OS.GTK_WINDOW_TOPLEVEL:OS.GTK_WINDOW_DIALOG);
-	if (topHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	if (parent!=null) OS.gtk_window_set_transient_for(topHandle, parent.topHandle());
+	shellHandle = OS.gtk_window_new((parent==null)? OS.GTK_WINDOW_TOPLEVEL:OS.GTK_WINDOW_DIALOG);
+	if (shellHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+	if (parent!=null) OS.gtk_window_set_transient_for(shellHandle, parent.topHandle());
 	
 	vboxHandle = OS.gtk_vbox_new(false,0);
 	if (vboxHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	eventBoxHandle = OS.gtk_event_box_new ();
-	if (eventBoxHandle == 0) error (SWT.ERROR_NO_HANDLES);
-	fixedHandle = OS.gtk_fixed_new ();
-	if (fixedHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	handle = OS.gtk_drawing_area_new();
+
+	handle = OS.eclipse_fixed_new();
 	if (handle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+
 	accelGroup = OS.gtk_accel_group_new ();
-	OS.gtk_window_add_accel_group (topHandle, accelGroup);
-	OS.gtk_window_set_title (topHandle, new byte [1]);
+	OS.gtk_window_add_accel_group (shellHandle, accelGroup);
+	OS.gtk_window_set_title (shellHandle, new byte [1]);
 }
 
 void configure () {
-	OS.gtk_container_add (topHandle, vboxHandle);
-	OS.gtk_box_pack_end(vboxHandle, eventBoxHandle, true,true,0);
-	OS.gtk_container_add (eventBoxHandle, fixedHandle);
-	OS.gtk_fixed_put(fixedHandle, handle, (short)0,(short)0);
+	OS.gtk_container_add (shellHandle, vboxHandle);
+	OS.gtk_box_pack_end(vboxHandle, handle, true,true,0);
 }
 
 void showHandle() {
-	OS.gtk_widget_realize (topHandle);  // careful: NOT show
+	OS.gtk_widget_realize (shellHandle);  // careful: NOT show
 	_setStyle();
 	
 	OS.gtk_widget_realize (vboxHandle);
 	OS.gtk_widget_show_now (vboxHandle);
-
-	OS.gtk_widget_realize (eventBoxHandle);
-	OS.gtk_widget_show_now (eventBoxHandle);
-	
-	OS.gtk_widget_realize  (fixedHandle);
-	OS.gtk_widget_show_now (fixedHandle);
-
 	OS.gtk_widget_realize (handle);
 	OS.gtk_widget_show_now (handle);
 }
 
 void hookEvents () {
-	super.hookEvents ();
-	signal_connect(topHandle, "map_event",     SWT.Deiconify, 3);
-	signal_connect(topHandle, "unmap_event",   SWT.Iconify, 3);
-	signal_connect(topHandle, "size_allocate", SWT.Resize, 3);
-	signal_connect(topHandle, "delete_event",  SWT.Dispose, 3);
+/*	super.hookEvents ();
+	signal_connect(shellHandle, "map_event",     SWT.Deiconify, 3);
+	signal_connect(shellHandle, "unmap_event",   SWT.Iconify, 3);
+	signal_connect(shellHandle, "size_allocate", SWT.Resize, 3);
+	signal_connect(shellHandle, "delete_event",  SWT.Dispose, 3);*/
 }
 
 void register () {
@@ -386,7 +373,7 @@ private void _setStyle() {
 	   ((style&SWT.PRIMARY_MODAL)     != 0) ||
 	   ((style&SWT.APPLICATION_MODAL) != 0) ||
 	   ((style&SWT.SYSTEM_MODAL)      != 0));
-	OS.gtk_window_set_modal(topHandle, modal);
+	OS.gtk_window_set_modal(shellHandle, modal);
 	
 	int decorations = 0;
 	if ((style & SWT.NO_TRIM) == 0) {
@@ -404,28 +391,17 @@ private void _setStyle() {
 		 */
 		if ((style & SWT.RESIZE) != 0) decorations |= OS.GDK_DECOR_BORDER;
 	}
-	OS.gdk_window_set_decorations(OS.GTK_WIDGET_WINDOW(topHandle), decorations);
+	OS.gdk_window_set_decorations(OS.GTK_WIDGET_WINDOW(shellHandle), decorations);
 }
 
-void _connectChild (int h) {
-	OS.gtk_fixed_put (fixedHandle, h, (short)0, (short)0);
-}
+int topHandle () { return shellHandle; }
 
-int topHandle () {
-	return topHandle;
-}
-
-int parentingHandle() {
-	return fixedHandle;
-}
+int parentingHandle() {	return handle; }
 
 boolean isMyHandle(int h) {
-	if (h == topHandle)    return true;
+	if (h == shellHandle)    return true;
 	if (h == vboxHandle)     return true;
-	if (h == eventBoxHandle) return true;
-	if (h == fixedHandle)    return true;
-	if (h == handle)         return true;
-	return false;
+	return super.isMyHandle(h);
 }
 
 
@@ -435,7 +411,7 @@ boolean isMyHandle(int h) {
 
 public Point _getLocation() {
 	int [] x = new int [1], y = new int [1];
-	OS.gtk_window_get_position(topHandle, x,y);
+/*	OS.gtk_window_get_position(shellHandle, x,y);*/
 	return new Point(x[0], y[0]);
 }
 
@@ -444,27 +420,25 @@ public Point _getSize() {
 }
 
 public Rectangle _getClientArea () {
-	Point clientSize = UtilFuncs.getSize(eventBoxHandle);
-	return new Rectangle (0, 0, clientSize.x, clientSize.y);
+	/* FIXME */
+	return new Rectangle (0, 0, 100,100);
 }
 
-boolean _setSize(int width, int height) {
-	OS.gtk_signal_handler_block_by_data (topHandle, SWT.Resize);
-	OS.gtk_window_resize(topHandle, width, height);
-	OS.gtk_signal_handler_unblock_by_data (topHandle, SWT.Resize);
-	return true;
+void _setSize(int width, int height) {
+	OS.gtk_signal_handler_block_by_data (shellHandle, SWT.Resize);
+	OS.gtk_window_resize(shellHandle, width, height);
+	OS.gtk_signal_handler_unblock_by_data (shellHandle, SWT.Resize);
 }
 
-boolean _setLocation (int x, int y) {
-	OS.gtk_window_move(topHandle, x, y);
-	return true;
+void _setLocation (int x, int y) {
+	OS.gtk_window_move(shellHandle, x, y);
 }
 
 void setInitialSize() {
 	int width  = OS.gdk_screen_width () * 5 / 8;
 	int height = OS.gdk_screen_height () * 5 / 8;
 	_setSize(width, height);
-	OS.gtk_window_set_policy (topHandle, 1,1,0);
+	OS.gtk_window_set_policy (shellHandle, 1,1,0);
 }
 
 /*
@@ -496,7 +470,7 @@ public Display getDisplay () {
  */
 Control getFocusControl() {
 	checkWidget();
-	int answer = OS.gtk_window_get_focus(topHandle);
+	int answer = OS.gtk_window_get_focus(shellHandle);
 	return (Control)this.getDisplay().findWidget(answer);
 }
 
@@ -775,21 +749,20 @@ public void setModal (int modal) {
 }
 
 public void setText (String string) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	super.setText (string);
 	byte [] buffer = Converter.wcsToMbcs (null, string, true);
-	OS.gtk_window_set_title (topHandle, buffer);
+	OS.gtk_window_set_title (shellHandle, buffer);
 }
 public void setVisible (boolean visible) {
 	checkWidget();
 	if (visible) {
-		OS.gtk_widget_show_now (topHandle);
+		OS.gtk_widget_show_now (shellHandle);
 		display.update();
 		sendEvent (SWT.Show);
 	} else {	
-		OS.gtk_widget_hide (topHandle);
+		OS.gtk_widget_hide (shellHandle);
 		sendEvent (SWT.Hide);
 	}
 }

@@ -296,11 +296,6 @@ void configure () {
 	OS.gtk_fixed_put (padHandle, handle, (short)0, (short)0);
 }
 
-public Point computeSize (int wHint, int hHint, boolean changed) {
-	checkWidget ();
-	return _computeSize(wHint, hHint, changed);
-}
-
 void showHandle() {
 	OS.gtk_widget_show(eventBoxHandle);
 	OS.gtk_widget_show(padHandle);
