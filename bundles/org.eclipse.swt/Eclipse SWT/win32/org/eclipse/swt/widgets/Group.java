@@ -240,6 +240,10 @@ LRESULT WM_LBUTTONDBLCLK (int wParam, int lParam) {
 }
 
 LRESULT WM_LBUTTONDOWN (int wParam, int lParam) {
+	Event event = new Event();
+	event.item = this;
+	notifyParentListeners(SWT.Activate, event);
+	
 	/*
 	* Feature in Windows.  When the user clicks on the group
 	* box label, the group box takes focus.  This is unwanted.

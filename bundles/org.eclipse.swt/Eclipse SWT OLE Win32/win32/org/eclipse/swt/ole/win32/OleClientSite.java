@@ -1322,4 +1322,9 @@ private SIZE xFormPixelsToHimetric(SIZE aSize) {
 	size.cy = cy;
 	return size;
 }
+void onClientMouseDown(int message, int lParam, int wParam) {
+	Event event = new Event();
+	event.item = this;
+	notifyParentListeners(SWT.Activate, event);
+}
 }

@@ -1944,6 +1944,10 @@ LRESULT WM_LBUTTONDBLCLK (int wParam, int lParam) {
 }
 
 LRESULT WM_LBUTTONDOWN (int wParam, int lParam) {
+	Event event = new Event();
+	event.item = this;
+	notifyParentListeners(SWT.Activate, event);
+	
 	/*
 	* Feature in Windows.  For some reason, capturing
 	* the mouse after processing the mouse event for the
@@ -2099,6 +2103,11 @@ LRESULT WM_RBUTTONDBLCLK (int wParam, int lParam) {
 }
 
 LRESULT WM_RBUTTONDOWN (int wParam, int lParam) {
+	
+	Event event = new Event();
+	event.item = this;
+	notifyParentListeners(SWT.Activate, event);
+	
 	/*
 	* Feature in Windows.  For some reason, capturing
 	* the mouse after processing the mouse event for the
