@@ -512,9 +512,7 @@ Control findControl(int h) {
 	if (w instanceof Control) return (Control)w;
 
 	/* w is something like an Item.  Go for the parent */
-	GtkWidget widget = new GtkWidget();
-	OS.memmove(widget, h, GtkWidget.sizeof);
-	return findControl(widget.parent);
+	return findControl(OS.GTK_WIDGET_PARENT(h));
 }
 
 /**

@@ -195,9 +195,7 @@ private void showHandle() {
 	
 	int decor = 0;
 	if (hasTitle) decor |= OS.GDK_DECOR_TITLE;
-	GtkWidget widget = new GtkWidget();
-	OS.memmove(widget, handle, GtkWidget.sizeof);
-	int gdkWindow = widget.window;
+	int gdkWindow = OS.GTK_WIDGET_WINDOW(handle);
 	OS.gdk_window_set_decorations(gdkWindow, decor);
 	if (hasTitle) {
 		byte[] bytes = Converter.wcsToMbcs (null, title, true);

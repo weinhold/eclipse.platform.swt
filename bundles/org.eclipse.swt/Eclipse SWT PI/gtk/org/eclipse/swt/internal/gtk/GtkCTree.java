@@ -13,8 +13,7 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public class GtkCTree extends GtkCList {
+public class GtkCTree {
 	public int tree_indent;
 	public int tree_column;
-	public static final int sizeof = 276;
 }

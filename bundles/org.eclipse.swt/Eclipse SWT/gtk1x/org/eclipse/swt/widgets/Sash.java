@@ -83,9 +83,7 @@ private void createCursor() {
 	int cursorType = ((style&SWT.VERTICAL)!=0)?
 		OS.GDK_SB_H_DOUBLE_ARROW:OS.GDK_SB_V_DOUBLE_ARROW;
 	cursor = OS.gdk_cursor_new(cursorType);
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove(widget, handle, GtkWidget.sizeof);
-	OS.gdk_window_set_cursor(widget.window, cursor);
+	OS.gdk_window_set_cursor(OS.GTK_WIDGET_WINDOW(handle), cursor);
 }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
@@ -165,7 +163,7 @@ public void removeSelectionListener(SelectionListener listener) {
 }
 
 int processMouseDown (int callData, int arg1, int int2) {
-	OS.gtk_grab_add(handle);
+/*	OS.gtk_grab_add(handle);
 	dragging = true;
 	int button = OS.gdk_event_button_get_button(callData);
 	if (button != 1) return 0;
@@ -185,13 +183,13 @@ int processMouseDown (int callData, int arg1, int int2) {
 	event.time = OS.gdk_event_get_time(callData);
 	event.x = lastX;  event.y = lastY;
 	event.width = width;  event.height = height;
-	sendEvent (SWT.MouseDown, event);
+	sendEvent (SWT.MouseDown, event);*/
 	return 0;
 }
 
 int processMouseMove (int callData, int arg1, int int2) {
 	if (!dragging) return 0;
-	GtkWidget gtkwidget =  new GtkWidget();
+/*	GtkWidget gtkwidget =  new GtkWidget();
 	OS.memmove(gtkwidget, handle, GtkWidget.sizeof);
 	int border = 0, width = gtkwidget.alloc_width+border*2, height = gtkwidget.alloc_height+border*2;
 	int x = gtkwidget.alloc_x - border,  y = gtkwidget.alloc_y - border;
@@ -216,12 +214,12 @@ int processMouseMove (int callData, int arg1, int int2) {
 			newY = Math.min (Math.max (0, y + (last_root_y-start_root_y)  - startY ), parentHeight - height);
 	}
 	if ((newX == lastX) && (newY == lastY)) return 0;
-	drawBand(newX, newY, width, height);
+	drawBand(newX, newY, width, height);*/
 	return 0;
 }
 
 int processMouseUp (int callData, int arg1, int int2) {
-	int button = OS.gdk_event_button_get_button(callData);
+/*	int button = OS.gdk_event_button_get_button(callData);
 	if (button != 1) return 0;
 	if (!dragging) return 0;
 	GtkWidget gtkwidget =  new GtkWidget();
@@ -257,7 +255,7 @@ int processMouseUp (int callData, int arg1, int int2) {
 	drawBand(newX, newY, width, height);
 	drawing = false;
 	OS.gtk_grab_remove(handle);
-	sendEvent (SWT.Selection, event);
+	sendEvent (SWT.Selection, event);*/
 	return 0;
 }
 /*
@@ -285,14 +283,14 @@ int processMouseEnter (int callData, int arg1, int int2) {
 }
 */
 int processMouseExit (int callData, int arg1, int int2) {
-	GtkWidget gtkwidget =  new GtkWidget();
+/*	GtkWidget gtkwidget =  new GtkWidget();
 	OS.memmove(gtkwidget, handle, GtkWidget.sizeof);
 	int border = 0, width = gtkwidget.alloc_width+border*2, height = gtkwidget.alloc_height+border*2;
 	Event event = new Event ();
 	event.time = OS.gdk_event_get_time(callData);
 	event.x = lastX;  event.y = lastY;
 	event.width = width;  event.height = height;
-	sendEvent (SWT.MouseExit, event);
+	sendEvent (SWT.MouseExit, event);*/
 	return 0;
 	
 }
@@ -301,9 +299,7 @@ void drawBand (int x, int y, int width, int height) {
 	if (x == drawX && y == drawY) return;
 	Display display= parent.getDisplay ();
 	if (display == null) return;
-	GtkWidget gtkwidget =  new GtkWidget();
-	OS.memmove(gtkwidget, parent.topHandle(), GtkWidget.sizeof);
-	int window = gtkwidget.window;
+	int window = OS.GTK_WIDGET_WINDOW(parent.topHandle());
 	if (window == 0) return;
 	byte [] bits = {-86, 0, 85, 0, -86, 0, 85, 0, -86, 0, 85, 0, -86, 0, 85, 0};
 	int stipplePixmap = OS.gdk_bitmap_create_from_data (window, bits, 8, 8);

@@ -13,7 +13,6 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public class GtkBin extends GtkContainer {
+public class GtkBin {
 	public int child;
-	public static final int sizeof = 64;
 }

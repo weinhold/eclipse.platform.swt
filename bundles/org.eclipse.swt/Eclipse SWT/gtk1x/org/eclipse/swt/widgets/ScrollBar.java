@@ -268,9 +268,8 @@ public int getSelection () {
  */
 public Point getSize () {
 	checkWidget ();
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	return new Point (widget.alloc_width, widget.alloc_height);
+	/* FIXME - NOT_IMPLEMENTED.  We can no longer look at the allocation. */
+	return new Point (10,10);
 }
 
 /**

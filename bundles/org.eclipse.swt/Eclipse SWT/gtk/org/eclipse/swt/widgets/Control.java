@@ -473,9 +473,7 @@ boolean _setSize(int width, int height) { return UtilFuncs.setSize(topHandle(), 
  */
 public void moveAbove (Control control) {
 	checkWidget();
-	GtkWidget widget = new GtkWidget();
-	OS.memmove (widget, topHandle(), GtkWidget.sizeof);
-	int topGdkWindow = widget.window;
+	int topGdkWindow = OS.GTK_WIDGET_WINDOW(topHandle());
 	if (topGdkWindow!=0) OS.gdk_window_raise (topGdkWindow);
 }
 
@@ -498,9 +496,7 @@ public void moveAbove (Control control) {
  */
 public void moveBelow (Control control) {
 	checkWidget();
-	GtkWidget widget = new GtkWidget();
-	OS.memmove (widget, topHandle(), GtkWidget.sizeof);
-	int topGdkWindow = widget.window;
+	int topGdkWindow = OS.GTK_WIDGET_WINDOW(topHandle());
 	if (topGdkWindow!=0) OS.gdk_window_lower (topGdkWindow);
 }
 
@@ -1082,15 +1078,7 @@ public void removeTraverseListener(TraverseListener listener) {
  * Return (GTKWIDGET)h->window.
  */
 final int _gdkWindow(int h) {
-	/* Temporary code.
-	 * This check is not necessary as the (internal) callers
-	 * always make sure h!=0.
-	 */
-	if (h==0) error(SWT.ERROR_CANNOT_BE_ZERO);
-	
-	GtkWidget widget = new GtkWidget();
-	OS.memmove (widget, h, GtkWidget.sizeof);
-	return widget.window;
+	return OS.GTK_WIDGET_WINDOW(h);
 }
 
 int _gdkWindow() {
@@ -1397,17 +1385,15 @@ public int internal_new_GC (GCData data) {
 	if (paintHandle() == 0) error(SWT.ERROR_UNSPECIFIED);
 	
 	// Create the GC with default values for this control
-	GtkWidget w = new GtkWidget();
-	OS.memmove (w, paintHandle(), GtkWidget.sizeof);
 
-	if (w.window == 0) error(SWT.ERROR_UNSPECIFIED);
-	int gc = OS.gdk_gc_new(w.window);
+	int window = OS.GTK_WIDGET_WINDOW(paintHandle());
+	int gc = OS.gdk_gc_new(window);
 	
 	OS.gdk_gc_set_font(gc, _getFontHandle());
 	OS.gdk_gc_set_background(gc, _getBackgroundGdkColor());
 	OS.gdk_gc_set_foreground(gc, _getForegroundGdkColor());
 	
-	data.drawable = w.window;
+	data.drawable = window;
 	return gc;
 }
 
@@ -1858,9 +1844,7 @@ public void setCapture (boolean capture) {
  */
 public void setCursor (Cursor cursor) {
 	checkWidget();
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, paintHandle(), GtkWidget.sizeof);
-	int window = widget.window;
+	int window = OS.GTK_WIDGET_WINDOW(paintHandle());
 	if (window == 0) return;
 	int hCursor = 0;
 	if (cursor != null) hCursor = cursor.handle;

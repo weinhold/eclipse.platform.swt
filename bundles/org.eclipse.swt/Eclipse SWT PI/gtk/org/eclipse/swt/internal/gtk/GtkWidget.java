@@ -13,19 +13,15 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public class GtkWidget extends GtkObject {
-	public short private_flags;
-	public byte state;
-	public byte saved_state;
-	public int name;
-	public int style;
-	public short req_width;
-	public short req_height;
+public class GtkWidget {
 	public short alloc_x;
 	public short alloc_y;
 	public short alloc_width;
 	public short alloc_height;
-	public int window;
-	public int parent;
-	public static final int sizeof = 48;
+	
+	private GtkWidget() {}
+	public  GtkWidget(int ptr) {
+		OS.memmove(this, ptr);
+		
+	}
 }

@@ -366,7 +366,7 @@ void _connectChild (int h) {
 }
 
 Point _getClientAreaSize () {
-	return UtilFuncs.getSize(fixedHandle);
+	return _getSize();
 }
 
 boolean _setSize(int width, int height) {

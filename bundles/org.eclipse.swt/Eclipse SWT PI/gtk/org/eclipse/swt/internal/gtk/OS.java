@@ -225,6 +225,8 @@ public class OS {
 	public static final int G_LOG_LEVEL_MASK = ~(G_LOG_FLAG_RECURSION | G_LOG_FLAG_FATAL);
 
 
+
+
 /*
  *         Native methods.
  */
@@ -240,14 +242,27 @@ public static final native boolean gtk_init_check(int[] argc, int[] argv);
 
 
 
-
+/* GtkWidget */
 public static final native int GTK_WIDGET_FLAGS(int wid);
 public static final native void GTK_WIDGET_SET_FLAGS(int wid,int flag);
 public static final native void GTK_WIDGET_UNSET_FLAGS(int wid,int flag);
+public static final native int GTK_WIDGET_WINDOW(int wid);
+public static final native int GTK_WIDGET_PARENT(int wid);
 public static final native boolean GTK_WIDGET_NO_WINDOW(int wid);
-public static final native void gdk_rgb_init();
 public static final native boolean GTK_WIDGET_SENSITIVE(int wid);
 public static final native boolean GTK_WIDGET_IS_SENSITIVE(int wid);
+public static final native boolean GTK_WIDGET_TOPLEVEL(int wid);
+public static final native boolean GTK_WIDGET_REALISED(int wid);
+public static final native boolean GTK_WIDGET_MAPPED(int wid);
+public static final native boolean GTK_WIDGET_VOSIBLE(int wid);
+public static final native boolean GTK_WIDGET_DRAWABLE(int wid);
+public static final native boolean GTK_WIDGET_CAN_FOCUS(int wid);
+public static final native boolean GTK_WIDGET_SET_FOCUS(int wid);
+public static final native boolean GTK_WIDGET_HAS_GRAB(int wid);
+
+
+/* GtkWindow and Dialogs */
+
 public static final native int GTK_FONT_SELECTION_DIALOG_OK_BUTTON(int handle);
 public static final native int GTK_FONT_SELECTION_DIALOG_CANCEL_BUTTON(int handle);
 public static final native int GTK_FILE_SELECTION_OK_BUTTON(int handle);
@@ -258,8 +273,23 @@ public static final native int GTK_COLOR_SELECTION_HELP_BUTTON(int handle);
 public static final native int GTK_COLOR_SELECTION_COLORSEL(int handle);
 public static final native int GTK_DIALOG_ACTION_AREA(int handle);
 public static final native int GTK_DIALOG_VBOX(int handle);
+public static final native void gtk_window_get_position(int handle, int[] x, int[] y);
+public static final native void gtk_window_get_size(int handle, int[] x, int[] y);
+public static final native void gtk_window_move(int handle, int x, int y);
+public static final native void gtk_window_resize(int handle, int x, int y);
 
-public static final native void memmove(GtkStyleClass dest, int src, int size);
+
+/* Menus */
+
+public static final native boolean gtk_check_menu_item_get_active(int wid);
+public static final native void gtk_check_menu_item_set_active(int wid, boolean active);
+
+
+/* GDK */
+
+public static final native void gdk_rgb_init();
+
+
 public static final native void gtk_signal_handler_block_by_data(int object, int data);
 public static final native void gtk_signal_handler_unblock_by_data(int object, int data);
 public static final native int gtk_object_get_data_by_id(int object, int data_id);
@@ -414,7 +444,6 @@ public static final native void gtk_clist_freeze(int clist);
 public static final native void gtk_clist_get_pixtext(int clist, int row, int column, int[] text, int[] spacing, int[] pixmap, int[] mask);
 public static final native void gtk_check_menu_item_set_show_toggle(int menu_item, boolean always);
 public static final native void gtk_clist_column_titles_passive(int clist);
-public static final native void gtk_check_menu_item_set_active(int check_menu_item, boolean is_active);
 public static final native int gtk_clist_insert(int clist, int row, int[] text);
 public static final native int gtk_clist_new(int columns);
 public static final native void gtk_clist_set_selection_mode(int clist, int mode);
@@ -655,12 +684,13 @@ public static final native void memmove(GtkAdjustment dest, int src);
 public static final native void memmove(GtkCList dest, int src, int size);
 public static final native void memmove(GtkCombo dest, int src);
 public static final native void memmove(GtkContainer dest, int src, int size);
-public static final native void memmove(GtkCTreeRow dest, int src, int size);
+public static final native void memmove(GtkCTreeRow dest, int src);
 public static final native void memmove(GtkEditable dest, int src, int size);
 public static final native void memmove(GtkObject dest,   int src, int size);
-public static final native void memmove(GtkWidget dest,   int src, int size);
+public static final native void memmove(GtkWidget dest,   int src);
 public static final native void memmove(GtkCListRow dest, int src, int size);
 public static final native void memmove(GtkCListColumn dest, int src, int size);
+public static final native void memmove(GtkStyleClass dest, int src, int size);
 
 /* Write memmoves */
 public static final native void memmove(int dest, GtkEditable src, int size);

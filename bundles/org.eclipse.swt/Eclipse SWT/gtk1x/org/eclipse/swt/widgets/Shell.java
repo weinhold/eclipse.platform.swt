@@ -404,12 +404,7 @@ private void _setStyle() {
 		 */
 		if ((style & SWT.RESIZE) != 0) decorations |= OS.GDK_DECOR_BORDER;
 	}
-	GtkWidget widget = new GtkWidget();
-	OS.memmove(widget, topHandle, GtkWidget.sizeof);
-	int w = widget.window;
-	// PANIC - this must absolutely never happen, so it's not NO_HANDLES actually
-	if (w == 0) error(SWT.ERROR_NO_HANDLES);
-	OS.gdk_window_set_decorations(w, decorations);
+	OS.gdk_window_set_decorations(OS.GTK_WIDGET_WINDOW(topHandle), decorations);
 }
 
 void _connectChild (int h) {
@@ -439,15 +434,13 @@ boolean isMyHandle(int h) {
  */
 
 public Point _getLocation() {
-	GtkWidget widget = new GtkWidget();
-	OS.memmove (widget, topHandle, GtkWidget.sizeof);
 	int [] x = new int [1], y = new int [1];
-	OS.gdk_window_get_origin(widget.window, x,y);
+	OS.gtk_window_get_position(topHandle, x,y);
 	return new Point(x[0], y[0]);
 }
 
 public Point _getSize() {
-	return UtilFuncs.getSize(vboxHandle);
+	return new Point(100,100); // FIXME
 }
 
 public Rectangle _getClientArea () {
@@ -456,30 +449,14 @@ public Rectangle _getClientArea () {
 }
 
 boolean _setSize(int width, int height) {
-	/*
-	 * API deficiency in GTK 1.2 - lacking gtk_window_resize.
-	 * We work around this by directly resizing the X window.
-	 * 
-	 * First, we find out the GDK handle.
-	 */
-	GtkWidget gtkWidget = new GtkWidget();
-	OS.memmove(gtkWidget, topHandle, GtkWidget.sizeof);
-
 	OS.gtk_signal_handler_block_by_data (topHandle, SWT.Resize);
-	OS.gdk_window_resize(gtkWidget.window, width, height);
-	UtilFuncs.setSize(vboxHandle, width, height);
-	Point sz = UtilFuncs.getSize(eventBoxHandle);
-	UtilFuncs.setSize(fixedHandle, sz.x, sz.y);
-	UtilFuncs.setSize(handle, sz.x, sz.y);
+	OS.gtk_window_resize(topHandle, width, height);
 	OS.gtk_signal_handler_unblock_by_data (topHandle, SWT.Resize);
-
 	return true;
 }
 
 boolean _setLocation (int x, int y) {
-	GtkWidget gtkWidget = new GtkWidget();
-	OS.memmove(gtkWidget, topHandle, GtkWidget.sizeof);
-	OS.gdk_window_move(gtkWidget.window, x, y);
+	OS.gtk_window_move(topHandle, x, y);
 	return true;
 }
 
@@ -773,10 +750,13 @@ public void setMinimized (boolean minimized) {
 	
 	/*
 	 * At least we can force a deiconify
+	 * 
+	 * FIXME We now have it!!!
+	 * 
 	 */
-	GtkWidget w = new GtkWidget();
+/*	GtkWidget w = new GtkWidget();
 	OS.memmove(w, topHandle, w.sizeof);
-	OS.gdk_window_show(w.window);
+	OS.gdk_window_show(w.window);*/
 }
 
 /**

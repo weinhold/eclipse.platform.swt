@@ -164,11 +164,9 @@ void deregister () {
  * @see #computeTrim
  */
 public Rectangle getClientArea () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	return new Rectangle (0, 0, widget.alloc_width, widget.alloc_height);
+	checkWidget();
+	/* FIXME.  Why do we do it here, in the first place?  Scrollable is abstract... */
+	return new Rectangle (0, 0, 10, 10);
 }
 /**
  * Returns the receiver's horizontal scroll bar if it has

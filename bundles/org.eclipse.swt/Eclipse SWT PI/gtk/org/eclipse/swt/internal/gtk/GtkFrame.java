@@ -20,5 +20,4 @@ public class GtkFrame extends GtkBin {
 	public short label_height;
 	public float label_xalign;
 	public float label_yalign;
-	public static final int sizeof = 84;
 }
