@@ -258,6 +258,10 @@ public void addCTabFolderListener(CTabFolderListener listener) {
 	showClose = true;
 	layoutItems();
 }
+void onClientAreaChange() {
+	oldArea = null;
+	notifyListeners(SWT.Resize, new Event());
+}
 private void closeNotify(CTabItem item, int time) {
 	if (item == null) return;
 	
@@ -373,7 +377,11 @@ private void createCloseBar() {
 	Color background = getBackground();
 	closeBar = new ToolBar(this, SWT.FLAT);
 	closeBar.setVisible(false);
-	closeBar.setBackground(background);
+	if (gradientColors != null && gradientColors.length > 0) {
+		closeBar.setBackground(gradientColors[gradientColors.length - 1]);
+	} else {
+		closeBar.setBackground(background);
+	}
 	ToolItem closeItem = new ToolItem(closeBar, SWT.PUSH);
 	
 	inactiveCloseBar = new ToolBar(this, SWT.FLAT);
@@ -655,13 +663,7 @@ public int indexOf(CTabItem item) {
 	}
 	return -1;
 }
-/**
- * 'item' has changed.
- */
-void itemChanged(CTabItem item) {								
-	layoutItems();
-	redrawTabArea(-1);
-}
+
 private void layoutButtons() {
 	
 	updateArrowBar();
@@ -710,7 +712,7 @@ private void layoutButtons() {
 /**
  * Layout the items and store the client area size.
  */
-private void layoutItems() {
+ void layoutItems() {
 	if (isDisposed()) return;
 
 	Rectangle area = super.getClientArea();
@@ -1134,14 +1136,18 @@ public void setBorderVisible(boolean show) {
 	} else {
 		borderBottom = borderTop = borderLeft = borderRight = 0;
 	}
-	layoutItems();
-	redraw();
+	onClientAreaChange();
 }
 public void setFont(Font font) {
 	if (font != null && font.equals(getFont())) return;
-	super.setFont(font);	
-	layoutItems();
-	redrawTabArea(-1);
+	int oldHeight = getTabHeight();
+	super.setFont(font);
+	if (oldHeight != getTabHeight()){
+		onClientAreaChange();
+	} else {
+		layoutItems();
+		redraw();
+	}
 }
 public void setSelectionForeground (Color color) {
 	if (selectionForeground == color) return;
@@ -1186,6 +1192,13 @@ public void setSelection(int index) {
 	if (showClose) {
 		inactiveCloseBar.setVisible(false);
 		inactiveItem = null;
+		if (arrowBar.isVisible()) {
+			Rectangle arrowRect = arrowBar.getBounds();
+			arrowRect.width += borderRight;
+			closeBar.setVisible(!arrowRect.contains(closeBar.getLocation()));
+		} else {
+			closeBar.setVisible(true);
+		}
 	}
 	
 	int oldIndex = selectedIndex;
@@ -1468,10 +1481,12 @@ private void onTraverse (Event event) {
 			break;
 		case SWT.TRAVERSE_MNEMONIC:
 			event.doit = onMnemonic(event);
+			if (event.doit) event.detail = SWT.TRAVERSE_NONE;
 			break;
 		case SWT.TRAVERSE_PAGE_NEXT:
 		case SWT.TRAVERSE_PAGE_PREVIOUS:
 			event.doit = onPageTraversal(event);
+			if (event.doit) event.detail = SWT.TRAVERSE_NONE;
 			break;
 	}
 }
@@ -1551,7 +1566,6 @@ public void setTabHeight(int height) {
 	}
 	if (fixedTabHeight == height) return;
 	fixedTabHeight = height;
-	layoutItems();
-	redrawTabArea(-1);
+	onClientAreaChange();
 }
 }
