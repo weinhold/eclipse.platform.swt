@@ -95,12 +95,6 @@ void configure() {
 	OS.gtk_container_add(fixedHandle, handle);
 }
 
-public Point computeSize (int wHint, int hHint, boolean changed) {
-	checkWidget ();
-	if (layout != null) super.computeSize(wHint, hHint, changed);
-	return new Point(300,30);
-}
-
 void showHandle() {
 	OS.gtk_widget_show (boxHandle);
 	OS.gtk_widget_show (handle);
@@ -113,6 +107,10 @@ void register() {
 
 void deregister() {
 	super.deregister ();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
 }
 
 int topHandle() { return boxHandle; }
@@ -131,6 +129,11 @@ void _setSize (int width, int height) {
 	OS.eclipse_fixed_set_size(fixedHandle, handle, width, height);
 }
 
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	if (layout != null) super.computeSize(wHint, hHint, changed);
+	return new Point(300,30);
+}
 
 
 /**
@@ -283,20 +286,6 @@ public int indexOf (ToolItem item) {
 		if (item == items[i]) return i;
 	}
 	return -1;
-}
-int processResize (int int0, int int1, int int2) {
-	ToolItem [] items = getItems ();
-	for (int i=0; i<items.length; i++) {
-		Control control = items [i].control;
-		if (control != null && !control.isDisposed ()) {
-			control.setBounds (items [i].getBounds ());
-		}
-	}
-	return 0;
-}
-
-void releaseHandle () {
-	super.releaseHandle ();
 }
 
 void releaseWidget () {
