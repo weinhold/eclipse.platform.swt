@@ -108,6 +108,7 @@ public class CTabFolder2 extends Composite {
 	
 	/* Color appearance */
 	Image backgroundImage;
+	boolean tiled;
 	Color[] gradientColors;
 	int[] gradientPercents;
 	boolean gradientVertical;
@@ -773,7 +774,7 @@ void drawBorder(GC gc) {
 		// draw line
 		antialias(shape, 
 				  borderColor1.getRGB(),  
-				  selectionBackground == null ? getBackground().getRGB() : selectionBackground.getRGB(), 
+				  selectionBackground.getRGB(), 
 				  single ? getBackground().getRGB() : getParent().getBackground().getRGB(),
 				  gc);
 		gc.setForeground(borderColor1);
@@ -967,10 +968,14 @@ void draw3DBorder(GC gc) {
 			gc.drawLine(x1, y1, x2, y1); //top
 			x1 = 1;
 			x2 = size.x - 1;
-			y1 = 1;
+			y1 = size.y - borderBottom - tabHeight - HIGHLIGHT_HEADER;
 			y2 = size.y - borderBottom - tabHeight - 1;
 			int[] shape = new int[] {x1,y1, x2,y1, x2,y2, x1,y2};
 			drawSelectionBackground(gc, shape);
+			gc.setForeground(selectionBackground);
+			for (int i = 0; i < HIGHLIGHT_MARGIN; i++) {
+				gc.drawPolyline(new int[] {x1+i, y1-1, x1+i, 1+i, x2-1-i, 1+i, x2-1-i, y1});
+			}
 		} else { // on top and border showing
 			if (!single) {
 				gc.setBackground(parentBackground);
@@ -990,9 +995,13 @@ void draw3DBorder(GC gc) {
 			x1 = 1;
 			x2 = size.x - 1;
 			y1 = borderTop + tabHeight + 1;
-			y2 = size.y - 1;
+			y2 = borderTop + tabHeight + HIGHLIGHT_HEADER;
 			int[] shape = new int[] {x1,y1, x2,y1, x2,y2, x1,y2};
 			drawSelectionBackground(gc, shape);
+			gc.setForeground(selectionBackground);
+			for (int i = 0; i < HIGHLIGHT_MARGIN; i++) {
+				gc.drawPolyline(new int[] {x1+i, y2, x1+i, size.y-2-i, x2-1-i, size.y-2-i, x2-1-i, y2-1});
+			}
 		}
 	}
 }
@@ -1190,80 +1199,112 @@ void drawMinimize(GC gc) {
 	}
 }
 void drawSelectionBackground(GC gc, int[] shape) {
-	if (backgroundImage != null) {
-		Point size = getSize();
-		// draw the background image in shape
-		Region clipping = new Region();
-		gc.getClipping(clipping);
-		Region region = new Region();
-		region.add(shape);
-		gc.setClipping(region);
-		gc.setBackground(selectionBackground);
-		gc.fillRectangle(0, 0, size.x, size.y);
-		// tile image to fill space
-		Rectangle imageRect = backgroundImage.getBounds();
-		int xPos = 0;
-		while (xPos < size.x) {
-			int yPos = 0;
-			while (yPos < size.y) {
-				gc.drawImage(backgroundImage, xPos, yPos);
-				yPos += imageRect.height;
-			}
-			xPos += imageRect.width;
-		}
-		gc.setClipping(clipping);
-		clipping.dispose();
-		region.dispose();
-	} else if (gradientColors != null) {
-		Point size = getSize();
-		// draw a gradient in shape
-		Region clipping = new Region();
-		gc.getClipping(clipping);
-		Region region = new Region();
-		region.add(shape);
-		gc.setClipping(region);
+	Point size = getSize();
+	int height = tabHeight + HIGHLIGHT_HEADER; 
+	int y = onBottom ? size.y - borderBottom - height : borderTop;
+	int x = 0;
+	int width = size.x;
+	if (borderLeft > 0) {
+		x += 1; width -= 2;
+	}
+	
+	Region clipping = new Region();
+	gc.getClipping(clipping);
+	Region region = new Region();
+	region.add(shape);
+	gc.setClipping(region);
 		
+	if (backgroundImage != null) {
+		// draw the background image in shape
+		gc.setBackground(selectionBackground);
+		gc.fillRectangle(x, y, width, height);
+		Rectangle imageRect = backgroundImage.getBounds();
+		if (tiled) {
+			// tile image to fill space
+			int xPos = x;
+			while (xPos < x+width) {
+				int yPos = y;
+				while (yPos < y+height) {
+					gc.drawImage(backgroundImage, xPos, yPos);
+					yPos += imageRect.height;
+				}
+				xPos += imageRect.width;
+			}
+		} else {
+			gc.drawImage(backgroundImage, imageRect.x, imageRect.y, imageRect.width, imageRect.height, x, y, width, height);
+		
+		}
+	} else if (gradientColors != null) {
+		// draw gradient
 		if (gradientColors.length == 1) {
 			Color background = gradientColors[0] != null ? gradientColors[0] : selectionBackground;
 			gc.setBackground(background);
-			gc.fillRectangle(0, 0, size.x, size.y);
+			gc.fillRectangle(x, y, width, height);
 		} else {
-			Color background = selectionBackground;
-			Color lastColor = gradientColors[0];
-			if (lastColor == null) lastColor = background;
-			int pos = 0;
-			for (int i = 0; i < gradientPercents.length; ++i) {
-				gc.setForeground(lastColor);
-				lastColor = gradientColors[i + 1];
-				if (lastColor == null) lastColor = background;
-				gc.setBackground(lastColor);
-				if (gradientVertical) {
-					int gradientHeight = (gradientPercents[i] * size.y / 100) - pos;
-					gc.fillGradientRectangle(0, pos, size.x, gradientHeight, true);
-					pos += gradientHeight;
+			if (gradientVertical) {
+				if (onBottom) {
+					int pos = 0;
+					if (gradientPercents[gradientPercents.length - 1] < 100) {
+						pos = gradientPercents[gradientPercents.length - 1] * height / 100;
+						gc.setBackground(selectionBackground);
+						gc.fillRectangle(x, y, width, pos);
+					}
+					Color lastColor = gradientColors[gradientColors.length-1];
+					if (lastColor == null) lastColor = selectionBackground;
+					for (int i = gradientPercents.length-1; i >= 0; i--) {
+						gc.setForeground(lastColor);
+						lastColor = gradientColors[i];
+						if (lastColor == null) lastColor = selectionBackground;
+						gc.setBackground(lastColor);
+						int gradientHeight = gradientPercents[i] * height / 100;
+						gc.fillGradientRectangle(x, y+pos, width, gradientHeight, true);
+						pos += gradientHeight;
+					}
 				} else {
-					int gradientWidth = (gradientPercents[i] * size.x / 100) - pos;
-					gc.fillGradientRectangle(pos, 0, gradientWidth, size.y, false);
+					Color lastColor = gradientColors[0];
+					if (lastColor == null) lastColor = selectionBackground;
+					int pos = 0;
+					for (int i = 0; i < gradientPercents.length; i++) {
+						gc.setForeground(lastColor);
+						lastColor = gradientColors[i + 1];
+						if (lastColor == null) lastColor = selectionBackground;
+						gc.setBackground(lastColor);
+						int gradientHeight = gradientPercents[i] * height / 100;
+						gc.fillGradientRectangle(x, y+pos, width, gradientHeight, true);
+						pos += gradientHeight;
+					}
+					if (pos < height) {
+						gc.setBackground(selectionBackground);
+						gc.fillRectangle(x, pos, width, height-pos);
+					}
+				}
+			} else { //horizontal gradient
+				Color lastColor = gradientColors[0];
+				if (lastColor == null) lastColor = selectionBackground;
+				int pos = 0;
+				for (int i = 0; i < gradientPercents.length; ++i) {
+					gc.setForeground(lastColor);
+					lastColor = gradientColors[i + 1];
+					if (lastColor == null) lastColor = selectionBackground;
+					gc.setBackground(lastColor);
+					int gradientWidth = (gradientPercents[i] * width / 100) - pos;
+					gc.fillGradientRectangle(x+pos, y, gradientWidth, height, false);
 					pos += gradientWidth;
 				}
-			}
-			if (gradientVertical && pos < size.y) {
-				gc.setBackground(getBackground());
-				gc.fillRectangle(0, pos, size.x, size.y - pos);
-			}
-			if (!gradientVertical && pos < size.x) {
-				gc.setBackground(getBackground());
-				gc.fillRectangle(pos, 0, size.x - pos, size.y);
+				if (pos < width) {
+					gc.setBackground(selectionBackground);
+					gc.fillRectangle(x+pos, y, width-pos, height);
+				}
 			}
 		}
-		gc.setClipping(clipping);
-		clipping.dispose();
-		region.dispose();
 	} else {
 		// draw a solid background using selectionBackground in shape
 		gc.setBackground(selectionBackground);
-		gc.fillPolygon(shape);
+		gc.fillRectangle(x, y, width, height);
 	}
+	gc.setClipping(clipping);
+	clipping.dispose();
+	region.dispose();
 }
 public Rectangle getClientArea() {
 	checkWidget();
@@ -2038,6 +2079,10 @@ boolean onPageTraversal(Event event) {
 	return true;
 }
 void onPaint(Event event) {
+event.gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_GREEN));
+Point s = getSize();
+event.gc.fillRectangle(-10, -10, s.x+20, s.y+20);
+	
 	Font font = getFont();
 	if (oldFont == null || !oldFont.equals(font)) {
 		// handle case where  default font changes
@@ -2232,7 +2277,7 @@ void onPaint(Event event) {
 	int height = size.y - borderTop - borderBottom - tabHeight - HIGHLIGHT_HEADER;
 	int x = xClient - marginWidth;
 	int y = yClient - marginHeight;
-	gc.setForeground(background);
+	gc.setBackground(background);
 	gc.fillRectangle(x, y, width, height);
 	
 	gc.setForeground(getForeground());
@@ -3028,6 +3073,7 @@ public void setSelectionBackground(Color[] colors, int[] percents, boolean verti
 		gradientColors = null;
 		gradientPercents = null;
 		gradientVertical = false;
+		setSelectionBackground((Color)null);
 	} else {
 		gradientColors = new Color[colors.length];
 		for (int i = 0; i < colors.length; ++i) {
@@ -3038,6 +3084,7 @@ public void setSelectionBackground(Color[] colors, int[] percents, boolean verti
 			gradientPercents[i] = percents[i];
 		}
 		gradientVertical = vertical;
+		setSelectionBackground(gradientColors[gradientColors.length-1]);
 	}
 
 	// Refresh with the new settings
@@ -3045,7 +3092,8 @@ public void setSelectionBackground(Color[] colors, int[] percents, boolean verti
 }
 
 /**
- * Set the image to be drawn in the background of the selected tab.
+ * Set the image to be drawn in the background of the selected tab.  Image
+ * is stretched or compressed to cover entire selection tab area.
  * 
  * @param image the image to be drawn in the background
  * 
@@ -3055,12 +3103,27 @@ public void setSelectionBackground(Color[] colors, int[] percents, boolean verti
  * </ul>
  */
 public void setSelectionBackground(Image image) {
+	setSelectionBackground(image, false);
+}
+/**
+ * Set the image to be drawn in the background of the selected tab area.
+ * 
+ * @param image the image to be drawn in the background
+ * @param tile if true the image is tiled over the selection tab area, otherwise the image is stretched/compressed
+ * 
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ */
+public void setSelectionBackground(Image image, boolean tile) {
 	checkWidget();
-	if (image == backgroundImage) return;
+	if (image == backgroundImage && tiled == tile) return;
 	if (image != null) {
 		gradientColors = null;
 		gradientPercents = null;
 	}
+	tiled = tile;
 	backgroundImage = image;
 	if (selectedIndex > -1) redraw();
 }
