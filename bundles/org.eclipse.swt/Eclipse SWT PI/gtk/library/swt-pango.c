@@ -169,3 +169,50 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1font_1descrip
 {
    pango_font_description_set_weight((PangoFontDescription*)descr, weight);
 }
+
+/* contexts */
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1context_1new
+  (JNIEnv *env, jclass that)
+{
+   return (jint)pango_context_new();
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1context_1get_1font_1description
+  (JNIEnv *env, jclass that, jint context)
+{
+   return (jint)pango_context_get_font_description((PangoContext*)context);
+}
+
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1context_1set_1font_1description
+  (JNIEnv *env, jclass that, jint context, jint descr)
+{
+   pango_context_set_font_description((PangoContext*)context, (PangoFontDescription*)descr);
+}
+
+JNIEXPORT int JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1context_1get_1metrics
+  (JNIEnv *env, jclass that, jint context, jint descr)
+{
+   return (jint)pango_context_get_metrics((PangoContext*)context, (PangoFontDescription*)descr, NULL);
+}
+
+/* metrics */
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1font_1metrics_1get_1ascent
+  (JNIEnv *env, jclass that, jint metrics)
+{
+   return (jint)pango_font_metrics_get_ascent((PangoFontMetrics*)metrics);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1font_1metrics_1get_1descent
+  (JNIEnv *env, jclass that, jint metrics)
+{
+   return (jint)pango_font_metrics_get_descent((PangoFontMetrics*)metrics);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_pango_1font_1metrics_1get_1approximate_1char_1width
+  (JNIEnv *env, jclass that, jint metrics)
+{
+   return (jint)pango_font_metrics_get_approximate_char_width((PangoFontMetrics*)metrics);
+}
+

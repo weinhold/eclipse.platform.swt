@@ -29,11 +29,16 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1TYPE
 	return GTK_WIDGET_TYPE((GtkWidget*)wid);
 }
 
-
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1FLAGS
   (JNIEnv *env, jclass that, jint wid)
 {
 	return (jint) GTK_WIDGET_FLAGS((GtkWidget*)wid);
+}
+
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1HAS_1FOCUS
+  (JNIEnv *env, jclass that, jint wid)
+{
+	return (jboolean) GTK_WIDGET_HAS_FOCUS((GtkWidget*)wid);
 }
 
 /* Temporary code.  These private fields should not be accessed at all. */

@@ -116,16 +116,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 	}
 }
 
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkContainer_2I
-  (JNIEnv *env, jclass that, jobject dest, jint src)
-{
-	DECL_GLOB(pGlob)
-	if (dest) {
-		cacheGtkContainerFids(env, dest, &PGLOB(GtkContainerFc));
-		setGtkContainerFields(env, dest, src, &PGLOB(GtkContainerFc));
-	}
-}
-
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkRequisition_2I
   (JNIEnv *env, jclass that, jobject dest, jint src)
 {
@@ -143,16 +133,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 	if (dest) {
 		cacheGtkStyleFids(env, dest, &PGLOB(GtkStyleFc));
 		setGtkStyleFields(env, dest, src, &PGLOB(GtkStyleFc));
-	}
-}
-
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkWidget_2I
-  (JNIEnv *env, jclass that, jobject dest, jint src)
-{
-	DECL_GLOB(pGlob)
-	if (dest) {
-		cacheGtkWidgetFids(env, dest, &PGLOB(GtkWidgetFc));
-		setGtkWidgetFields(env, dest, src, &PGLOB(GtkWidgetFc));
 	}
 }
 
