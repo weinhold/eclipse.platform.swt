@@ -328,12 +328,13 @@ class TreeTab extends ScrollableTab {
 		}
 		if (typeName.equals("[Lorg.eclipse.swt.widgets.TreeItem;")) {
 			String[] values = value.split(",");
-			Object[] parameters = new Object[values.length];
+			TreeItem[] items = new TreeItem[values.length];
 			for (int i = 0; i < values.length; i++) {
 				TreeItem item = findItem(values[i], ((Tree) control).getItems());
 				if (item == null) break;
-				parameters[i] = item;				
+				items[i] = item;				
 			}
+			return new Object[] {items};
 		}
 		return super.parametersForType(typeName, value, control);
 	}
