@@ -164,7 +164,7 @@ public class CTabFolder2 extends Composite {
 
 	static final int SELECTION_FOREGROUND = SWT.COLOR_TITLE_FOREGROUND;
 	static final int SELECTION_BACKGROUND = SWT.COLOR_TITLE_BACKGROUND;
-	static final int BORDER_COLOR = SWT.COLOR_LIST_SELECTION;
+	static final int BORDER_COLOR = SWT.COLOR_WIDGET_DARK_SHADOW;
 	static final int FOREGROUND = SWT.COLOR_TITLE_INACTIVE_FOREGROUND;
 	static final int BACKGROUND = SWT.COLOR_TITLE_INACTIVE_BACKGROUND;
 
@@ -2606,20 +2606,22 @@ boolean updateTabHeight(int oldHeight){
 		for (int i = 0; i < curve.length/2; i++) {
 			if (curve[2*i+1] > tabHeight) {
 				index = i;
+			} else {
+				break;
 			}
 		}
 		if (index > 0) {
 			int[] newCurve = new int[curve.length - 2*(index-1)];
 			System.arraycopy(curve, 2*(index-1), newCurve, 0, newCurve.length);
 			curve = newCurve;
-		}
+		}	
 	} else {
 		curve = bezier(0, 0,
 		               CURVE_LEFT, 0, 
 		               CURVE_WIDTH-CURVE_RIGHT, tabHeight-SELECTION_BORDER + 2,
 		               CURVE_WIDTH, tabHeight-SELECTION_BORDER + 2,
 		               CURVE_WIDTH);
-	// workaround to get rid of blip at end of bezier
+		// workaround to get rid of blip at end of bezier
 		int index = -1;
 		for (int i = 0; i < curve.length/2; i++) {
 			if (curve[2*i+1] > tabHeight-SELECTION_BORDER) {
