@@ -436,9 +436,11 @@ public class StyledText extends Canvas {
 	}
 	class Printing implements Runnable {
 		Printer printer;
-		Rectangle clientArea;
 		PrintRenderer renderer;
-		Hashtable printerColors = new Hashtable();
+		StyledTextContent printerContent;
+		Rectangle clientArea;
+		FontData displayFontData;
+		Hashtable printerColors;
 		Hashtable lineBackgrounds = new Hashtable();
 		Hashtable lineStyles = new Hashtable();
 		Hashtable bidiSegments = new Hashtable();		
@@ -461,9 +463,9 @@ public class StyledText extends Canvas {
 			startPage = data.startPage;
 			endPage = data.endPage;
 		}	
-		StyledTextContent printerContent = copyContent(parent.getContent());
+		displayFontData = getFont().getFontData()[0];
+		copyContent(parent.getContent());
 		cacheLineData(printerContent);
-		initializeRenderer(printerContent);
 	}
 	void cacheBidiSegments(int lineOffset, String line) {
 		int[] segments = getBidiSegments(lineOffset, line);
@@ -476,7 +478,6 @@ public class StyledText extends Canvas {
 		StyledTextEvent event = getLineBackgroundData(lineOffset, line);
 		
 		if (event != null) {
-			event.lineBackground = getPrinterColor(event.lineBackground);
 			lineBackgrounds.put(new Integer(lineOffset), event);
 		}
 	}
@@ -496,27 +497,14 @@ public class StyledText extends Canvas {
 		StyledTextEvent event = getLineStyleData(lineOffset, line);
 		
 		if (event != null) {
-			for (int i = 0; i < event.styles.length; i++) {
-				StyleRange style = event.styles[i];
-				Color printerBackground = getPrinterColor(style.background);
-				Color printerForeground = getPrinterColor(style.foreground);
-				
-				if (printerBackground != style.background || 
-					printerForeground != style.foreground) {
-					style = (StyleRange) style.clone();
-					style.background = printerBackground;
-					style.foreground = printerForeground;
-					event.styles[i] = style;
-				}
-			}
 			lineStyles.put(new Integer(lineOffset), event);
 		}
 	}
-	StyledTextContent copyContent(StyledTextContent original) {
-		StyledTextContent copy = new DefaultContent();
+	void copyContent(StyledTextContent original) {
 		int lineCount = original.getLineCount();
 		int insertOffset = 0;
 
+		printerContent = new DefaultContent();
 		for (int i = 0; i < original.getLineCount(); i++) {
 			int insertEndOffset;
 			if (i < original.getLineCount() - 1) {
@@ -525,10 +513,9 @@ public class StyledText extends Canvas {
 			else {
 				insertEndOffset = original.getCharCount();
 			}
-			copy.replaceTextRange(insertOffset, 0, original.getTextRange(insertOffset, insertEndOffset - insertOffset));
+			printerContent.replaceTextRange(insertOffset, 0, original.getTextRange(insertOffset, insertEndOffset - insertOffset));
 			insertOffset = insertEndOffset;
 		}
-		return copy;
 	}
 	void dispose() {
 		if (printerColors != null) {
@@ -549,30 +536,27 @@ public class StyledText extends Canvas {
 			renderer = null;
 		}
 	}
-	void initializeRenderer(StyledTextContent printerContent) {
-		if (printer.startJob("Printing")) {
-			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-			Point dpi = printer.getDPI();
-			FontData displayFontData = getFont().getFontData()[0];
-			Font printerFont = new Font(printer, displayFontData.getName(), displayFontData.getHeight(), SWT.NORMAL);
-			
-			clientArea = printer.getClientArea();
-			// one inch margin around text
-			clientArea.x = dpi.x + trim.x; 				
-			clientArea.y = dpi.y + trim.y;
-			clientArea.width -= (clientArea.x + trim.width);
-			clientArea.height -= (clientArea.y + trim.height);
-			
-			gc = new GC(printer);
-			gc.setFont(printerFont);			
-			renderer = new PrintRenderer(
-				printer, gc, printerContent, 
-				lineBackgrounds, lineStyles, bidiSegments,
-				printerFont, isBidi(), tabLength, clientArea);
-			pageSize = clientArea.height / renderer.getLineHeight();
-			startLine = (startPage - 1) * pageSize;
-			endLine = endPage * pageSize;
-		}
+	void initializeRenderer() {
+		Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+		Point dpi = printer.getDPI();
+		Font printerFont = new Font(printer, displayFontData.getName(), displayFontData.getHeight(), SWT.NORMAL);
+		
+		clientArea = printer.getClientArea();
+		// one inch margin around text
+		clientArea.x = dpi.x + trim.x; 				
+		clientArea.y = dpi.y + trim.y;
+		clientArea.width -= (clientArea.x + trim.width);
+		clientArea.height -= (clientArea.y + trim.height);
+		
+		gc = new GC(printer);
+		gc.setFont(printerFont);			
+		renderer = new PrintRenderer(
+			printer, gc, printerContent, 
+			lineBackgrounds, lineStyles, bidiSegments,
+			printerFont, isBidi(), tabLength, clientArea);
+		pageSize = clientArea.height / renderer.getLineHeight();
+		startLine = (startPage - 1) * pageSize;
+		endLine = endPage * pageSize;
 	}
 	Color getPrinterColor(Color color) {
 		Color printerColor = null;
@@ -586,17 +570,49 @@ public class StyledText extends Canvas {
 		}
 		return printerColor;
 	}
+	void createPrinterColors() {
+		Iterator values = lineBackgrounds.values().iterator();
+
+		printerColors = new Hashtable();
+		while (values.hasNext()) {
+			StyledTextEvent event = (StyledTextEvent) values.next();
+			event.lineBackground = getPrinterColor(event.lineBackground);
+		}
+		
+		values = lineStyles.values().iterator();
+		while (values.hasNext()) {
+			StyledTextEvent event = (StyledTextEvent) values.next();
+
+			for (int i = 0; i < event.styles.length; i++) {
+				StyleRange style = event.styles[i];
+				Color printerBackground = getPrinterColor(style.background);
+				Color printerForeground = getPrinterColor(style.foreground);
+				
+				if (printerBackground != style.background || 
+					printerForeground != style.foreground) {
+					style = (StyleRange) style.clone();
+					style.background = printerBackground;
+					style.foreground = printerForeground;
+					event.styles[i] = style;
+				}
+			}
+		}		
+	}
+	
 	public void run() {
-		if (renderer != null) {
+		if (printer.startJob("Printing")) {
+			createPrinterColors();
+			initializeRenderer();
 			print();
 			dispose();
+			printer.endJob();			
 		}
 	}
 	void print() {
+		StyledTextContent content = renderer.getContent();
 		FontData printerFontData = gc.getFont().getFontData()[0];
 		Color background = gc.getBackground();
 		Color foreground = gc.getForeground();
-		StyledTextContent content = renderer.getContent();
 		int lineHeight = renderer.getLineHeight();
 		int lineCount = content.getLineCount();
 		int paintY = clientArea.y;
@@ -623,7 +639,6 @@ public class StyledText extends Canvas {
 		if (paintY > clientArea.y && paintY <= clientArea.y + clientArea.height) {
 			printer.endPage();
 		}
-		printer.endJob();
 	}	
 	}
 	/**

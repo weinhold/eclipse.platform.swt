@@ -39,7 +39,10 @@ PrintRenderer(
 	// wrapLines requires tab width to be known	
 	content.wrapLines();
 }
-	
+protected void dispose() {
+	content = null;
+	super.dispose();
+}
 protected void disposeGC(GC gc) {
 	// we didn't create the GC so don't dispose it
 }
