@@ -36,7 +36,7 @@ public class CTabItem2 extends Item {
 	static final int LEFT_MARGIN = 6;
 	static final int RIGHT_MARGIN = 6;
 	static final int TOP_MARGIN = 1;
-	static final int BOTTOM_MARGIN = TOP_MARGIN + CTabFolder2.SELECTION_BORDER;
+	static final int BOTTOM_MARGIN = 2;
 	static final int INTERNAL_SPACING = 2;
 	static final int FLAGS = SWT.DRAW_TRANSPARENT | SWT.DRAW_MNEMONIC;
 	static final String ellipsis = "..."; //$NON-NLS-1$
@@ -200,7 +200,7 @@ void drawSelected(GC gc ) {
 	if (image != null) {
 		Rectangle imageBounds = image.getBounds();
 		int imageX = xDraw;
-		int imageHeight = Math.min(height - 2*TOP_MARGIN, imageBounds.height);
+		int imageHeight = imageBounds.height;
 		int imageY = y;
 		if (parent.onBottom) {
 			imageY+= BOTTOM_MARGIN + (height - TOP_MARGIN - BOTTOM_MARGIN - imageHeight) / 2;
@@ -431,7 +431,7 @@ int preferredHeight(GC gc) {
 	int h = (image == null) ? 0 : image.getBounds().height;
 	String text = getText();
 	h = Math.max(h, gc.textExtent(text, FLAGS).y);
-	return h + TOP_MARGIN + BOTTOM_MARGIN;
+	return h + TOP_MARGIN + BOTTOM_MARGIN + CTabFolder2.SELECTION_BORDER;
 }
 int preferredWidth(GC gc, boolean isSelected) {
 	int w = 0;
