@@ -26,4 +26,9 @@ public class GdkEventMotion extends GdkEvent {
 	public int deviceid;
 	public long x_root;
 	public long y_root;
+
+	private GdkEventMotion() {};
+	public  GdkEventMotion(int ptr) {
+		OS.memmove(this, ptr, 0);
+	}
 }

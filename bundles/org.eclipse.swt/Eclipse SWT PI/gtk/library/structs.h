@@ -47,14 +47,6 @@ typedef struct GdkColor_FID_CACHE {
 
 typedef GdkColor_FID_CACHE *PGdkColor_FID_CACHE;
 
-typedef struct GdkEventKey_FID_CACHE {
-	int cached;
-	jclass GdkEventKeyClass;
-	jfieldID type, window, send_event, time, state, keyval, length, string;
-} GdkEventKey_FID_CACHE;
-
-typedef GdkEventKey_FID_CACHE *PGdkEventKey_FID_CACHE;
-
 typedef struct GdkEventButton_FID_CACHE {
 	int cached;
 	jclass GdkEventButtonClass;
@@ -363,7 +355,6 @@ typedef GtkCTree_FID_CACHE *PGtkCTree_FID_CACHE;
 /* ----------- cache function prototypes  ----------- */
 
 void cacheGdkColorFids(JNIEnv *env, jobject lpGdkColor, PGdkColor_FID_CACHE lpCache);
-void cacheGdkEventKeyFids(JNIEnv *env, jobject lpGdkEventKey, PGdkEventKey_FID_CACHE lpCache);
 void cacheGdkEventButtonFids(JNIEnv *env, jobject lpGdkEventButton, PGdkEventButton_FID_CACHE lpCache);
 void cacheGdkEventMotionFids(JNIEnv *env, jobject lpGdkEventMotion, PGdkEventMotion_FID_CACHE lpCache);
 void cacheGdkEventExposeFids(JNIEnv *env, jobject lpGdkEventExpose, PGdkEventExpose_FID_CACHE lpCache);
@@ -413,8 +404,6 @@ void cacheGtkCTreeFids(JNIEnv *env, jobject lpGtkCTree, PGtkCTree_FID_CACHE lpCa
  */
 void getGdkColorFields(JNIEnv *env, jobject lpObject, GdkColor *lpGdkColor, GdkColor_FID_CACHE *lpGdkColorFc);
 void setGdkColorFields(JNIEnv *env, jobject lpObject, GdkColor *lpGdkColor, GdkColor_FID_CACHE *lpGdkColorFc);
-void getGdkEventKeyFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventKey_FID_CACHE *lpGdkEventKeyFc);
-void setGdkEventKeyFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventKey_FID_CACHE *lpGdkEventKeyFc);
 void getGdkEventButtonFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventButton_FID_CACHE *lpGdkEventButtonFc);
 void setGdkEventButtonFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventButton_FID_CACHE *lpGdkEventButtonFc);
 void getGdkEventMotionFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventMotion_FID_CACHE *lpGdkEventMotionFc);
@@ -483,7 +472,6 @@ void getGtkCTreeFields(JNIEnv *env, jobject lpObject, GtkCTree *lpGtkCTree, GtkC
 void setGtkCTreeFields(JNIEnv *env, jobject lpObject, GtkCTree *lpGtkCTree, GtkCTree_FID_CACHE *lpGtkCTreeFc);
 
 extern GdkColor_FID_CACHE GdkColorFc;
-extern GdkEventKey_FID_CACHE GdkEventKeyFc;
 extern GdkEventButton_FID_CACHE GdkEventButtonFc;
 extern GdkEventMotion_FID_CACHE GdkEventMotionFc;
 extern GdkEventExpose_FID_CACHE GdkEventExposeFc;

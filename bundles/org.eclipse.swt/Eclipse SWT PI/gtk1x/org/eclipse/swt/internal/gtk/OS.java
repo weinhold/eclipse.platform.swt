@@ -308,8 +308,21 @@ public static final native boolean gdk_color_white(int colormap, GdkColor color)
 public static final native int gdk_image_get(int window, int x, int y, int width, int height);
 public static final native int gdk_image_get_pixel(int image, int x, int y);
 public static final native void gdk_gc_set_exposures(int gc, boolean exposures);
+
+
+/*
+ * GdkEvents
+ */
 public static final native int gdk_event_get_graphics_expose(int window);
 public static final native void gdk_event_free(int event);
+public static final native int gdk_event_get_time(int event);
+public static final native boolean gdk_event_get_state(int event, int[] pmod);
+public static final native boolean gdk_event_get_coords(int event, int px, int py);
+public static final native int gdk_event_key_get_keyval(int event);
+public static final native int gdk_event_key_get_length(int event);
+public static final native int gdk_event_key_get_string(int event);
+
+
 public static final native void gdk_flush();
 public static final native void gdk_beep();
 public static final native void gdk_color_free(GdkColor color);
@@ -611,7 +624,6 @@ public static final native void memmove(int dest, byte[] src, int size);
 public static final native void memmove(GdkColor dest, int src, int size);
 public static final native void memmove(GdkEventButton dest, int src, int size);
 public static final native void memmove(GdkEventExpose dest, int src, int size);
-public static final native void memmove(GdkEventKey dest, int src, int size);
 public static final native void memmove(GdkEventMotion dest, int src, int size);
 public static final native void memmove(int dest, int[] src, int size);
 public static final native void memmove(GdkVisual dest, int src, int size);
@@ -637,7 +649,6 @@ public static final native void memmove(int dest, GtkObject src, int size);
 public static final native void memmove(int dest, GdkColor src, int size);
 public static final native void memmove(int dest, GdkEventButton src, int size);
 public static final native void memmove(int dest, GdkEventExpose src, int size);
-public static final native void memmove(int dest, GdkEventKey src, int size);
 public static final native void memmove(int dest, GdkEventMotion src, int size);
 public static final native void memmove(int dest, GdkGCValues src, int size);
 public static final native void memmove(int dest, GdkRectangle src, int size);

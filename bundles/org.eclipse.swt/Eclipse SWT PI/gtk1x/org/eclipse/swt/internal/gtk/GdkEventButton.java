@@ -13,17 +13,17 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public class GdkEventButton extends GdkEvent {
+public final class GdkEventButton extends GdkEvent {
 	public int time;
-	public long x;
-	public long y;
-	public long pressure;
-	public long xtilt;
-	public long ytilt;
+	public double x;
+	public double y;
 	public int state;
 	public int button;
-	public int source;
-	public int deviceid;
-	public long x_root;
-	public long y_root;
+	public double x_root;
+	public double y_root;
+	
+	private GdkEventButton() {};
+	public  GdkEventButton(int ptr) {
+		OS.memmove(this, ptr, 0);
+	}
 }

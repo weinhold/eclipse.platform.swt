@@ -86,50 +86,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
  * Method:	memmove
  * Signature:	
  */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GdkEventKey_2I
-  (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GdkEvent src_struct={0}, *src1 = NULL;
-	if (src) {
-		src1 = &src_struct;
-		cacheGdkEventKeyFids(env, src, &PGLOB(GdkEventKeyFc));
-		getGdkEventKeyFields(env, src, src1, &PGLOB(GdkEventKeyFc));
-	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GdkEventKey_2I\n");
-#endif
-
-	memmove((void*)dest, (void*)src1, count);
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GdkEventKey_2II
-  (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
-{
-	DECL_GLOB(pGlob)
-	GdkEvent dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GdkEventKey_2II\n");
-#endif
-
-	memmove((void*)&dest_struct, (void*)src, count);
-	if (dest) {
-		dest1 = &dest_struct;
-		cacheGdkEventKeyFids(env, dest, &PGLOB(GdkEventKeyFc));
-		setGdkEventKeyFields(env, dest, dest1, &PGLOB(GdkEventKeyFc));
-	}
-}
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GdkEventButton_2I
   (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
 {

@@ -20,7 +20,6 @@
 
 /* Globals */
 GdkColor_FID_CACHE GdkColorFc;
-GdkEventKey_FID_CACHE GdkEventKeyFc;
 GdkEventButton_FID_CACHE GdkEventButtonFc;
 GdkEventMotion_FID_CACHE GdkEventMotionFc;
 GdkEventExpose_FID_CACHE GdkEventExposeFc;
@@ -83,23 +82,6 @@ void cacheGdkColorFids(JNIEnv *env, jobject lpGdkColor, PGdkColor_FID_CACHE lpCa
 	lpCache->red = (*env)->GetFieldID(env, lpCache->GdkColorClass, "red", "S");
 	lpCache->green = (*env)->GetFieldID(env, lpCache->GdkColorClass, "green", "S");
 	lpCache->blue = (*env)->GetFieldID(env, lpCache->GdkColorClass, "blue", "S");
-	lpCache->cached = 1;
-};
-
-void cacheGdkEventKeyFids(JNIEnv *env, jobject lpGdkEventKey, PGdkEventKey_FID_CACHE lpCache)
-{
-	if (lpCache->cached) return;
-
-	lpCache->GdkEventKeyClass = (*env)->GetObjectClass(env, lpGdkEventKey);
-
-	lpCache->type = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "type", "I");
-	lpCache->window = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "window", "I");
-	lpCache->send_event = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "send_event", "B");
-	lpCache->time = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "time", "I");
-	lpCache->state = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "state", "I");
-	lpCache->keyval = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "keyval", "I");
-	lpCache->length = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "length", "I");
-	lpCache->string = (*env)->GetFieldID(env, lpCache->GdkEventKeyClass, "string", "I");
 	lpCache->cached = 1;
 };
 
@@ -1009,32 +991,6 @@ void setGdkColorFields(JNIEnv *env, jobject lpObject, GdkColor *lpGdkColor, GdkC
 	(*env)->SetShortField(env, lpObject, lpGdkColorFc->red, (jshort)lpGdkColor->red);
 	(*env)->SetShortField(env, lpObject, lpGdkColorFc->green, (jshort)lpGdkColor->green);
 	(*env)->SetShortField(env, lpObject, lpGdkColorFc->blue, (jshort)lpGdkColor->blue);
-}
-
-void getGdkEventKeyFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventKey_FID_CACHE *lpGdkEventKeyFc)
-{
-	GdkEventKey *lpGdkEventKey = (GdkEventKey*)lpGdkEvent;
-	lpGdkEventKey->type = (*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->type);
-	lpGdkEventKey->window = (GdkWindow*)(*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->window);
-	lpGdkEventKey->send_event = (*env)->GetByteField(env, lpObject, lpGdkEventKeyFc->send_event);
-	lpGdkEventKey->time = (*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->time);
-	lpGdkEventKey->state = (*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->state);
-	lpGdkEventKey->keyval = (*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->keyval);
-	lpGdkEventKey->length = (*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->length);
-	lpGdkEventKey->string = (char*)(*env)->GetIntField(env, lpObject, lpGdkEventKeyFc->string);
-}
-
-void setGdkEventKeyFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventKey_FID_CACHE *lpGdkEventKeyFc)
-{
-	GdkEventKey *lpGdkEventKey = (GdkEventKey*)lpGdkEvent;
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->type, (jint)lpGdkEventKey->type);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->window, (jint)lpGdkEventKey->window);
-	(*env)->SetByteField(env, lpObject, lpGdkEventKeyFc->send_event, (jbyte)lpGdkEventKey->send_event);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->time, (jint)lpGdkEventKey->time);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->state, (jint)lpGdkEventKey->state);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->keyval, (jint)lpGdkEventKey->keyval);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->length, (jint)lpGdkEventKey->length);
-	(*env)->SetIntField(env, lpObject, lpGdkEventKeyFc->string, (jint)lpGdkEventKey->string);
 }
 
 void getGdkEventButtonFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventButton_FID_CACHE *lpGdkEventButtonFc)
