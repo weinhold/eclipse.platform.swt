@@ -19,7 +19,7 @@
 # JAVA_JNI - Depending on your version of JDK, and where
 # it is installed, your jni.h may be located differently.
 JAVA_JNI = /bluebird/teamswt/swt-builddir/ive/bin/include
-#IVE_HOME   = /opt/IBMvame1.4/ive/bin/include
+#JAVA_JNI = /opt/IBMvame1.4/ive/bin/include
 
 # Whether we want GTK over X or FB
 GTKTARGET = gtk+-2.0
