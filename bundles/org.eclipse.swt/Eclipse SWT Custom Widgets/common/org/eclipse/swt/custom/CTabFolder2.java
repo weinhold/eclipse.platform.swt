@@ -2991,6 +2991,9 @@ public void setStyle(int style) {
 				if (i != selectedIndex && items[i].closeImageState == NORMAL) {
 					items[i].closeImageState = NONE;
 				}
+				if (i == selectedIndex && items[i].closeImageState == NONE) {
+					items[i].closeImageState = NORMAL;
+				}
 			}
 			changed = true;
 		}
