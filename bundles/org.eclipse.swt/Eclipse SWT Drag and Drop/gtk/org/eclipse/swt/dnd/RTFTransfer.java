@@ -53,7 +53,7 @@ public static RTFTransfer getInstance () {
  */
 public void javaToNative (Object object, TransferData transferData){
 	if (object == null || !(object instanceof String)) return;
-	byte [] buffer = Converter.wcsToMbcs (null, (String)object, true);
+	byte [] buffer = Converter.wcsToMbcs(null, (String)object, true);
 	super.javaToNative(buffer, transferData);
 }
 /**
@@ -68,7 +68,7 @@ public Object nativeToJava(TransferData transferData){
 	if (transferData.length <=0) transferData.length = OS.strlen(transferData.pValue);
 	byte[] buffer = (byte[]) super.nativeToJava(transferData);
 	if (buffer == null) return null;
-	char [] unicode = Converter.mbcsToWcs (null, buffer);
+	char [] unicode = Converter.mbcsToWcs(null, buffer);
 	return new String (unicode);
 }
 protected String[] getTypeNames(){

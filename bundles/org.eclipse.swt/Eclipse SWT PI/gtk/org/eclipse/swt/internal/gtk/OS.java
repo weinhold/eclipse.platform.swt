@@ -18,42 +18,7 @@ import org.eclipse.swt.internal.Library;
 public class OS {
 	static {
 		Library.loadLibrary("swt-pi");
-	}
-	
-	/* DRAG DROP SUPPORT - MOVE TO APPROPRIATE PLACE LATER */	
-//	public static final native void gtk_drag_source_set(int widget, int start_button_mask, int targets, int n_targets, int actions);
-//	public static final native void gtk_drag_source_unset(int widget);	
-//	public static final native void gtk_drag_dest_set(int widget, int flags, int targets, int n_targets, int actions);	
-//	public static final native void gtk_drag_dest_unset(int widget);		
-//	public static final native void gdk_drag_abort(int context, int time);
-//	public static final native void gtk_drag_finish(int context, boolean sucess, boolean del, int time);	
-//	public static final native int gtk_drag_dest_find_target(int widget, int context, int target_list);	
-//	static final native void memmove(GdkDragContext dest, int src);		
-//	public static final native void memmove(int dest, GdkDragContext src);					
-//	public static final int    GDK_ACTION_DEFAULT = 1 << 0;
-//	public static final int    GDK_ACTION_COPY    = 1 << 1;
-//	public static final int    GDK_ACTION_MOVE    = 1 << 2;
-//	public static final int    GDK_ACTION_LINK    = 1 << 3;
-//	public static final int    GDK_ACTION_PRIVATE = 1 << 4;
-//	public static final int    GDK_ACTION_ASK     = 1 << 5;	
-//	public static final int    GTK_DEST_DEFAULT_MOTION     = 1 << 0; /* respond to "drag_motion" */
-//    public static final int    GTK_DEST_DEFAULT_HIGHLIGHT  = 1 << 1; /* auto-highlight */
-//    public static final int    GTK_DEST_DEFAULT_DROP       = 1 << 2; /* respond to "drag_drop" */
-//    public static final int    GTK_DEST_DEFAULT_ALL        = 0x07;		
-		
-		
-	/* CLIPBOARD SUPPORT - MOVE TO APPROPRIATE PLACE LATER */	
-	public static final native int gtk_clipboard_get( int selection );
-	public static final native boolean gtk_clipboard_set_with_data (int clipboard, int targets, int n_targets, int get_func, int clear_func, int user_data);
-	public static final native int gtk_clipboard_wait_for_contents (int clipboard, int target);			
-	public static final native void gtk_selection_data_set(int selection_data, int type, int format, int data, int length);
-
-	public static final native int gtk_clipboard_clear( int clipboard );
-	public static final native int gtk_selection_data_free( int selection_data );
-	public static final native void memmove(int dest, GtkTargetEntry src);
-	public static final native void memmove(GtkTargetEntry dest, int src);
-	public static final native void memmove(GtkSelectionData dest, int src);
-	public static final native int GDK_POINTER_TO_ATOM(int ptr);
+	}		
 		
 	public static final int GDK_NONE = 0;
 	
@@ -973,4 +938,14 @@ public static final native void gtk_clist_set_row_height(int clist, int height);
 public static final native boolean gdk_event_focus_get_in(int event);
 public static final native void gdk_window_set_back_pixmap(int window, int pixmap, boolean parent_relative);
 public static final native void gdk_window_set_override_redirect(int window, boolean override_redirect);
+
+/* Clipoard */
+public static final native int gtk_clipboard_clear( int clipboard );
+public static final native int gtk_clipboard_get( int selection );
+public static final native boolean gtk_clipboard_set_with_data (int clipboard, int targets, int n_targets, int get_func, int clear_func, int user_data);
+public static final native int gtk_clipboard_wait_for_contents (int clipboard, int target);			
+public static final native int gtk_selection_data_free( int selection_data );
+public static final native void gtk_selection_data_set(int selection_data, int type, int format, int data, int length);	
+public static final native void memmove(int dest, GtkTargetEntry src);
+public static final native void memmove(GtkSelectionData dest, int src);
 }

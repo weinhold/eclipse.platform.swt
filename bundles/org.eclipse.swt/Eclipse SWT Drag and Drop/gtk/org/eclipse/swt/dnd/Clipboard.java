@@ -20,10 +20,10 @@ public class Clipboard {
 	Display display;
 	Callback getFunc;
 	Callback clearFunc;
-	
 	int pGtkClipboard;
 	
-	/* Hold the reference for the data and transfer to be used in the callback */
+	/* Data is not flushed to the clipboard immediately.
+	 * This class will remember the data and provide it when requested. */
 	Object[] data;
 	Transfer[] dataTypes;
 
@@ -39,11 +39,8 @@ public Clipboard(Display display) {
 		SWT.error(SWT.ERROR_THREAD_INVALID_ACCESS);
 	}
 	this.display = display;
-
-	//Setting callbacks
 	getFunc = new Callback( this, "getFunc", 4);
 	clearFunc = new Callback( this, "clearFunc", 2);
-	
 	pGtkClipboard = OS.gtk_clipboard_get(OS.GDK_NONE);
 }
 
@@ -72,7 +69,9 @@ public void dispose () {
 	if (clearFunc != null) clearFunc.dispose();
 	clearFunc = null;
 }
+
 public Object getContents(Transfer transfer) {
+	if (transfer == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	int selection_data = 0;
 	int[] typeIds = transfer.getTypeIds();
 	for (int i = 0; i < typeIds.length; i++) {
@@ -93,11 +92,8 @@ public Object getContents(Transfer transfer) {
 }
 
 /**
- * This function provides the data to the clipboard.
- * Because of the callback mechanism, the data in the clipboard
- * will not be available  when this object is disposed
- * (just if the data was set in the clipboard by app who owns 
- *  this Clipboard object)
+ * This function provides the data to the clipboard on request.
+ * When this clipboard is disposed, the data will no longer be available.
  */
 int getFunc( int clipboard, int selection_data, int info, int user_data_or_owner){
 	if (selection_data == 0) return 0;
@@ -140,7 +136,7 @@ public void setContents(Object[] data, Transfer[] dataTypes){
 			int pName = OS.g_malloc(buffer.length);
 			OS.memmove(pName, buffer, buffer.length);
 			entry.target = pName;
-			GtkTargetEntry[] tmp = new  GtkTargetEntry [entries.length + 1];
+			GtkTargetEntry[] tmp = new GtkTargetEntry [entries.length + 1];
 			System.arraycopy(entries, 0, tmp, 0, entries.length);
 			tmp[entries.length] = entry;
 			entries = tmp;				
@@ -159,15 +155,13 @@ public void setContents(Object[] data, Transfer[] dataTypes){
 
 	boolean result = OS.gtk_clipboard_set_with_data(pGtkClipboard, pTargetsList, entries.length, getFunc.getAddress(), clearFunc.getAddress(), 0);
 
-	if ( entries != null ) {
-		for (int i = 0; i < entries.length; i++) {
-			GtkTargetEntry entry = entries[i];
-			if( entry.target != 0) OS.g_free(entry.target);
-		}
+	for (int i = 0; i < entries.length; i++) {
+		GtkTargetEntry entry = entries[i];
+		if( entry.target != 0) OS.g_free(entry.target);
 	}
 	if (pTargetsList != 0) OS.g_free(pTargetsList);
 	
-	if (!result)  DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
+	if (!result) DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
 }
 /*
  * Note: getAvailableTypeNames is a tool for writing a Transfer sub-class only.  It should

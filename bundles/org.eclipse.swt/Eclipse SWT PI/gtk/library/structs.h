@@ -372,7 +372,5 @@ extern GtkStyle_FID_CACHE GtkStyleFc;
 extern GtkStyleClass_FID_CACHE GtkStyleClassFc;
 extern GtkSelectionData_FID_CACHE GtkSelectionDataFc;
 extern GtkTargetEntry_FID_CACHE GtkTargetEntryFc;
-extern GdkDragContext_FID_CACHE GdkDragContextFc;
-
 
 #endif // INC_structs_H

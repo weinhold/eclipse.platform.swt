@@ -21,7 +21,4 @@ public class GtkTargetEntry {
 	
 	public GtkTargetEntry(){
 	}
-	public GtkTargetEntry(int ptr){
-		OS.memmove(this, ptr);
-	}
 }

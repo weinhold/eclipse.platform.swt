@@ -21,7 +21,7 @@ public class GtkSelectionData {
 	public int  data;  
 	public int  length;
 
-	public GtkSelectionData(){
+	private GtkSelectionData(){
 	}
 	public GtkSelectionData(int ptr){
 		OS.memmove(this, ptr);
