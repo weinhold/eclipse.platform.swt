@@ -462,39 +462,38 @@ public class StyledText extends Canvas {
 			endPage = data.endPage;
 		}	
 		StyledTextContent printerContent = copyContent(parent.getContent());
-		cacheLineData(logicalContent, printerContent);
+		cacheLineData(printerContent);
 		initializeRenderer(printerContent);
 	}
-	void cacheBidiSegments(int originalLineOffset, int lineOffset, String line) {
-		int[] segments = getBidiSegments(originalLineOffset, line);
+	void cacheBidiSegments(int lineOffset, String line) {
+		int[] segments = getBidiSegments(lineOffset, line);
 		
 		if (segments != null) {
 			bidiSegments.put(new Integer(lineOffset), segments);
 		}
 	}
-	void cacheLineBackground(int originalLineOffset, int lineOffset, String line) {
-		StyledTextEvent event = getLineBackgroundData(originalLineOffset, line);
+	void cacheLineBackground(int lineOffset, String line) {
+		StyledTextEvent event = getLineBackgroundData(lineOffset, line);
 		
 		if (event != null) {
 			event.lineBackground = getPrinterColor(event.lineBackground);
 			lineBackgrounds.put(new Integer(lineOffset), event);
 		}
 	}
-	void cacheLineData(StyledTextContent originalContent, StyledTextContent printerContent) {	
+	void cacheLineData(StyledTextContent printerContent) {	
 		for (int i = 0; i < printerContent.getLineCount(); i++) {
-			int originalLineOffset = originalContent.getOffsetAtLine(i);			
 			int lineOffset = printerContent.getOffsetAtLine(i);
 			String line = printerContent.getLine(i);
 	
-			cacheLineBackground(originalLineOffset, lineOffset, line);
-			cacheLineStyle(originalLineOffset, lineOffset, line);
+			cacheLineBackground(lineOffset, line);
+			cacheLineStyle(lineOffset, line);
 			if (isBidi()) {
-				cacheBidiSegments(originalLineOffset, lineOffset, line);
+				cacheBidiSegments(lineOffset, line);
 			}
 		}
 	}
-	void cacheLineStyle(int originalLineOffset, int lineOffset, String line) {
-		StyledTextEvent event = getLineStyleData(originalLineOffset, line);
+	void cacheLineStyle(int lineOffset, String line) {
+		StyledTextEvent event = getLineStyleData(lineOffset, line);
 		
 		if (event != null) {
 			for (int i = 0; i < event.styles.length; i++) {
@@ -612,28 +611,17 @@ public class StyledText extends Canvas {
 		if (startPage == 1) {
 			printer.startPage();
 		}			
-		for (int i = 0; i < lineCount; i++, paintY += lineHeight) {
+		for (int i = startLine; i < lineCount && i < endLine; i++, paintY += lineHeight) {
 			String line = content.getLine(i);
 			
 			if (paintY + lineHeight > clientArea.y + clientArea.height) {
-				if (currentPage >= startPage) {
-					printer.endPage();
-				}
-				paintY = clientArea.y;
+				printer.endPage();
+				printer.startPage();
 				currentPage++;
-				if (currentPage > endPage) {
-					break;
-				}
-				if (currentPage >= startPage) {
-					printer.startPage();
-				}
+				paintY = clientArea.y;
 			}
-			if (currentPage >= startPage) {
-				renderer.drawLine(
-					line, i, paintY, gc, 
-					background, foreground, 
-					printerFontData, false);
-			}
+			renderer.drawLine(
+				line, i, paintY, gc, background, foreground, printerFontData, false);
 		}
 		if (paintY > clientArea.y && paintY <= clientArea.y + clientArea.height) {
 			printer.endPage();
@@ -1259,6 +1247,9 @@ public StyledText(Composite parent, int style) {
 	if ((style & SWT.READ_ONLY) != 0) {
 		setEditable(false);
 	}
+	if ((style & SWT.BORDER) == 0 || (style & SWT.SINGLE) == 0) {
+		leftMargin = topMargin = rightMargin = bottomMargin = 0;
+	}
 	clipboard = new Clipboard(display);
 	installDefaultContent();
 	initializeFonts();
@@ -1284,9 +1275,6 @@ public StyledText(Composite parent, int style) {
 			}
 		};
 		StyledTextBidi.addLanguageListener(this, runnable);
-	}
-	if ((style & SWT.BORDER) == 0 || (style & SWT.SINGLE) == 0) {
-		leftMargin = topMargin = rightMargin = bottomMargin = 0;
 	}
 	// set the caret width, the height of the caret will default to the line height
 	calculateScrollBars();
@@ -3392,60 +3380,7 @@ LineCache getLineCache(StyledTextContent content) {
  * 	line start and end after line end
  */
 StyledTextEvent getLineStyleData(int lineOffset, String line) {
-	StyledTextEvent event = sendLineEvent(LineGetStyle, lineOffset, line);
-	
-	if (event != null) {
-		if (event.styles != null && wordWrap) {
-			event.styles = renderer.getVisualLineStyleData(event.styles, lineOffset, line.length());
-		}
-		if (event.styles == null) {
-			event.styles = new StyleRange[0];
-		}
-		else
-		if (isBidi()) {
-			GC gc = new GC(this);
-			if (StyledTextBidi.isLigated(gc)) {
-				// Check for ligatures that are partially styled, if one is found
-				// automatically apply the style to the entire ligature.
-				// Since ligatures can't extend over multiple lines (they aren't 
-				// ligatures if they are separated by a line delimiter) we can ignore
-				// style starts or ends that are not on the current line.
-				// Note that there is no need to deal with segments when checking for
-				// the ligatures.
-				int lineLength = line.length();
-				StyledTextBidi bidi = new StyledTextBidi(gc, line, new int[] {0, lineLength});
-				for (int i=0; i<event.styles.length; i++) {
-					StyleRange range = event.styles[i];
-					StyleRange newRange = null;
-					int relativeStart = range.start - lineOffset;
-					if (relativeStart >= 0) {
-						int startLigature = bidi.getLigatureStartOffset(relativeStart);
-						if (startLigature != relativeStart) {
-							newRange = (StyleRange) range.clone();
-							range = event.styles[i] = newRange;
-							range.start = range.start - (relativeStart - startLigature);
-							range.length = range.length + (relativeStart - startLigature);
-						}
-					}
-					int rangeEnd = range.start + range.length;
-					int relativeEnd = rangeEnd - lineOffset - 1;
-					if (relativeEnd < lineLength) {
-						int endLigature = bidi.getLigatureEndOffset(relativeEnd);
-						if (endLigature != relativeEnd) {
-							if (newRange == null) {
-								newRange = (StyleRange) range.clone();
-								range = event.styles[i] = newRange;
-							}
-							range.length = range.length + (endLigature - relativeEnd);
-						}
-					}
-		        }
-		    }
-		    gc.dispose();
-		}
-		return event;
-	}
-	return null;
+	return sendLineEvent(LineGetStyle, lineOffset, line);
 }
 /**
  * Returns the x, y location of the upper left corner of the character 

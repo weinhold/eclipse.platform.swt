@@ -65,7 +65,12 @@ protected int getHorizontalPixel() {
  * @see AbstractRenderer#getBidiSegments
  */
 protected int[] getBidiSegments(int lineOffset, String lineText) {	
-	return (int []) bidiSegments.get(new Integer(lineOffset));
+	int[] segments = (int []) bidiSegments.get(new Integer(lineOffset));
+	
+	if (segments == null) {
+		segments = new int[] {0, lineText.length()};
+	}
+	return segments;
 }
 /**
  */
@@ -85,7 +90,12 @@ protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
  * @see AbstractRenderer#getLineStyleData
  */
 protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
-	return (StyledTextEvent) lineStyles.get(new Integer(lineOffset));
+	StyledTextEvent logicalLineEvent = (StyledTextEvent) lineStyles.get(new Integer(lineOffset));
+	
+	if (logicalLineEvent != null) {
+		logicalLineEvent = getLineStyleData(logicalLineEvent, lineOffset, line);
+	}
+	return logicalLineEvent;
 }
 protected Point getSelection() {
 	return new Point(0, 0);
@@ -97,6 +107,9 @@ protected Point getSelection() {
  */
 protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	return styles;
+}
+protected boolean getWordWrap() {
+	return true;
 }
 protected boolean isFullLineSelection() {
 	return false;

@@ -449,6 +449,71 @@ int getLineHeight() {
  * @return line style data for the given line. Styles may start before 
  * 	line start and end after line end
  */
+StyledTextEvent getLineStyleData(StyledTextEvent event, int lineOffset, String line) {
+	int lineLength = line.length();
+	
+	if (event.styles != null && getWordWrap()) {
+		event.styles = getVisualLineStyleData(event.styles, lineOffset, lineLength);
+	}
+	if (event.styles == null) {
+		event.styles = new StyleRange[0];
+	}
+	else
+	if (isBidi()) {
+		GC gc = getGC();
+		if (StyledTextBidi.isLigated(gc)) {
+			// Check for ligatures that are partially styled, if one is found
+			// automatically apply the style to the entire ligature.
+			// Since ligatures can't extend over multiple lines (they aren't 
+			// ligatures if they are separated by a line delimiter) we can ignore
+			// style starts or ends that are not on the current line.
+			// Note that there is no need to deal with segments when checking for
+			// the ligatures.
+			StyledTextBidi bidi = new StyledTextBidi(gc, line, new int[] {0, lineLength});
+			for (int i=0; i<event.styles.length; i++) {
+				StyleRange range = event.styles[i];
+				StyleRange newRange = null;
+				int relativeStart = range.start - lineOffset;
+				if (relativeStart >= 0) {
+					int startLigature = bidi.getLigatureStartOffset(relativeStart);
+					if (startLigature != relativeStart) {
+						newRange = (StyleRange) range.clone();
+						range = event.styles[i] = newRange;
+						range.start = range.start - (relativeStart - startLigature);
+						range.length = range.length + (relativeStart - startLigature);
+					}
+				}
+				int rangeEnd = range.start + range.length;
+				int relativeEnd = rangeEnd - lineOffset - 1;
+				if (relativeEnd < lineLength) {
+					int endLigature = bidi.getLigatureEndOffset(relativeEnd);
+					if (endLigature != relativeEnd) {
+						if (newRange == null) {
+							newRange = (StyleRange) range.clone();
+							range = event.styles[i] = newRange;
+						}
+						range.length = range.length + (endLigature - relativeEnd);
+					}
+				}
+	        }
+	    }
+	    disposeGC(gc);
+	}
+	return event;
+}
+/**
+ * Returns the line style data for the given line or null if there is 
+ * none. If there is a LineStyleListener but it does not set any styles, 
+ * the StyledTextEvent.styles field will be initialized to an empty 
+ * array.
+ * <p>
+ * 
+ * @param lineOffset offset of the line start relative to the start of 
+ * 	the content.
+ * @param line line to get line styles for
+ * @return line style data for the given line. Styles may start before 
+ * 	line start and end after line end
+ */
 protected abstract StyledTextEvent getLineStyleData(int lineOffset, String line);
 protected abstract Point getSelection();
 /**
@@ -539,6 +604,7 @@ StyleRange[] getVisualLineStyleData(StyleRange[] logicalStyles, int lineOffset, 
 	}
 	return logicalStyles;
 }
+protected abstract boolean getWordWrap();
 /**
  * Temporary until SWT provides this
  */

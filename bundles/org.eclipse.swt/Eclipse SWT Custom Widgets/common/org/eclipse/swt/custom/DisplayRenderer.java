@@ -148,7 +148,12 @@ protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
  * @see AbstractRenderer#getLineStyleData
  */
 protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
-	return parent.getLineStyleData(lineOffset, line);
+	StyledTextEvent logicalLineEvent = parent.getLineStyleData(lineOffset, line);
+	
+	if (logicalLineEvent != null) {
+		logicalLineEvent = getLineStyleData(logicalLineEvent, lineOffset, line);
+	}
+	return logicalLineEvent;
 }
 protected Point getSelection() {
 	return parent.internalGetSelection();
@@ -369,6 +374,9 @@ protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	styles = new StyleRange[newStyles.size()];
 	newStyles.copyInto(styles);
 	return styles;
+}
+protected boolean getWordWrap() {
+	return parent.getWordWrap();
 }
 protected boolean isFullLineSelection() {
 	return (parent.getStyle() & SWT.FULL_SELECTION) != 0;
