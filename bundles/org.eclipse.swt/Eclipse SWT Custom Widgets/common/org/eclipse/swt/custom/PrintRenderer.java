@@ -3,29 +3,45 @@ package org.eclipse.swt.custom;
  * (c) Copyright IBM Corp. 2002.
  * All Rights Reserved
  */
-
 import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText.*;
 import org.eclipse.swt.graphics.*;
 
 /**
- * Created by StyledText to handle a single invalidate (i.e., Paint event).
+ * A PrintRenderer renders the content of a StyledText widget on 
+ * a printer device.
  */
-class PrintRenderer extends AbstractRenderer {
-	StyledTextContent logicalContent;
-	WrappedContent content;
-	Rectangle clientArea;
-	GC gc;
-	Hashtable lineBackgrounds;
-	Hashtable lineStyles;
-	Hashtable bidiSegments;	
+class PrintRenderer extends StyledTextRenderer {
+	StyledTextContent logicalContent;		// logical, unwrapped, content
+	WrappedContent content;					// wrapped content
+	Rectangle clientArea;					// printer client area
+	GC gc;									// printer GC, there can be only one GC for each printer device
+	Hashtable lineBackgrounds;				// line background colors used during rendering
+	Hashtable lineStyles;					// line styles colors used during rendering
+	Hashtable bidiSegments;			 		// bidi segments used during rendering on bidi platforms
 	
+/**
+ * Creates an instance of <class>PrintRenderer</class>.
+ * </p>
+ * @param device Device to render on
+ * @param regularFont Font to use for regular (non-bold) text.
+ * @param isBidi true=bidi platform, false=no bidi platform.
+ * @param gc printer GC to use for rendering. There can be only one GC for 
+ * 	each printer device at any given time.
+ * @param logicalContent StyledTextContent to print.
+ * @param lineBackgrounds line background colors to use during rendering.
+ * @param lineStyles line styles colors to use during rendering.
+ * @param bidiSegments bidi segments to use during rendering on bidi platforms.
+ * @param leftMargin margin to the left of the text.
+ * @param tabLength length in characters of a tab character
+ * @param clientArea the printer client area.
+ */
 PrintRenderer(
-		Device device, GC gc, StyledTextContent logicalContent, 
-		Hashtable lineBackgrounds, Hashtable lineStyles, Hashtable bidiSegments,
-		Font regularFont, boolean isBidi, int tabLength, Rectangle clientArea) {
+		Device device, Font regularFont, boolean isBidi, GC gc, 
+		StyledTextContent logicalContent, Hashtable lineBackgrounds, 
+		Hashtable lineStyles, Hashtable bidiSegments,
+		int tabLength, Rectangle clientArea) {
 	super(device, regularFont, isBidi, clientArea.x);
 	this.logicalContent = logicalContent;
 	this.lineBackgrounds = lineBackgrounds;
@@ -39,39 +55,42 @@ PrintRenderer(
 	// wrapLines requires tab width to be known	
 	content.wrapLines();
 }
+/**
+ * Disposes the resource created by the receiver.
+ */
 protected void dispose() {
 	content = null;
 	super.dispose();
 }
+/**
+ * Do nothing. PrintRenderer does not create GCs.
+ * @see StyledTextRenderer#disposeGC
+ */
 protected void disposeGC(GC gc) {
-	// we didn't create the GC so don't dispose it
 }
 /** 
  * Do not print the selection.
- * <p>
- * @see AbstractRenderer#drawLineSelectionBackground
+ * @see StyledTextRenderer#drawLineSelectionBackground
  */
 protected void drawLineSelectionBackground(String line, int lineOffset, StyleRange[] styles, int paintY, GC gc, FontData currentFont, StyledTextBidi bidi) {
-	// do nothing
 }
 /**
- */
-protected Rectangle getClientArea() {
-	return clientArea;
-}
-protected GC getGC() {
-	return gc;
-}
-protected int getHorizontalPixel() {
-	return 0;
-}
-private int getLogicalLineOffset(int visualLineOffset) {
-	int logicalLineIndex = logicalContent.getLineAtOffset(visualLineOffset);
-	
-	return logicalContent.getOffsetAtLine(logicalLineIndex);
-}
-/**
- * @see AbstractRenderer#getBidiSegments
+ * Returns from cache the text segments that should be treated as 
+ * if they had a different direction than the surrounding text.
+ * </p>
+ *
+ * @param lineOffset offset of the first character in the line. 
+ * 	0 based from the beginning of the document.
+ * @param line text of the line to specify bidi segments for
+ * @return text segments that should be treated as if they had a
+ * 	different direction than the surrounding text. Only the start 
+ * 	index of a segment is specified, relative to the start of the 
+ * 	line. Always starts with 0 and ends with the line length. 
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_INVALID_ARGUMENT - if the segment indices returned 
+ * 		by the listener do not start with 0, are not in ascending order,
+ * 		exceed the line length or have duplicates</li>
+ * </ul>
  */
 protected int[] getBidiSegments(int lineOffset, String lineText) {
 	int lineLength = lineText.length();
@@ -116,15 +135,68 @@ protected int[] getBidiSegments(int lineOffset, String lineText) {
 	return segments;
 }
 /**
+ * Returns the client area to print in.
+ * </p>
+ * @return the visible client area that can be used for rendering.
+ * @see StyledTextRenderer#getClientArea
+ */
+protected Rectangle getClientArea() {
+	return clientArea;
+}
+/**
+ * Returns the <class>StyledTextContent</class> to use for line offset
+ * calculations.
+ * </p>
+ * @return the <class>StyledTextContent</class> to use for line offset
+ * calculations.
  */
 protected StyledTextContent getContent() {
 	return content;
 }
-protected int getLastCaretDirection() {
-	return SWT.RIGHT;
+/**
+ * Returns the printer GC to use for rendering and measuring.
+ * </p>
+ * @return the printer GC to use for rendering and measuring.
+ */
+protected GC getGC() {
+	return gc;
 }
 /**
- * @see AbstractRenderer#getLineBackgroundData
+ * Returns 0. Scrolling does not affect printing. Text is wrapped
+ * for printing.
+ * </p>
+ * @return 0
+ * @see StyledTextRenderer#getHorizontalPixel
+ */
+protected int getHorizontalPixel() {
+	return 0;
+}
+/**
+ * Returns the start offset of the line at the given offset.
+ * </p>
+ * @param visualLineOffset an offset that may be anywhere within a 
+ * 	line.
+ * @return the start offset of the line at the given offset, 
+ * 	relative to the start of the document.
+ */
+private int getLogicalLineOffset(int visualLineOffset) {
+	int logicalLineIndex = logicalContent.getLineAtOffset(visualLineOffset);
+	
+	return logicalContent.getOffsetAtLine(logicalLineIndex);
+}
+/**
+ * Return ST.COLUMN_NEXT. Caret direction is irrelevant for 
+ * printing since there is no caret.
+ * </p>
+ * @return ST.COLUMN_NEXT
+ * @see StyledTextRenderer#getLastCaretDirection
+ */
+protected int getLastCaretDirection() {
+	return ST.COLUMN_NEXT;
+}
+/**
+ * Return cached line background data.
+ * @see StyledTextRenderer#getLineBackgroundData
  */
 protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
 	int logicalLineOffset = getLogicalLineOffset(lineOffset);
@@ -132,7 +204,8 @@ protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
 	return (StyledTextEvent) lineBackgrounds.get(new Integer(logicalLineOffset));
 }
 /**
- * @see AbstractRenderer#getLineStyleData
+ * Return cached line style background data.
+ * @see StyledTextRenderer#getLineStyleData
  */
 protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
 	int logicalLineOffset = getLogicalLineOffset(lineOffset);
@@ -147,20 +220,40 @@ protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
 	}
 	return logicalLineEvent;
 }
+/** 
+ * Selection is not printed.
+ * </p>
+ * @return Point(0,0)
+ * @see StyledTextRenderer#getSelection
+ */
 protected Point getSelection() {
 	return new Point(0, 0);
 }
 /**
- * Do not print the selection.
+ * Do not print the selection. Returns the styles that were passed into
+ * the method without modifications.
  * <p>
- * @see AbstractRenderer#getSelectionLineStyles
+ * @return the same styles that were passed into the method.
+ * @see StyledTextRenderer#getSelectionLineStyles
  */
 protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	return styles;
 }
+/**
+ * Printed content is always wrapped.
+ * </p>
+ * @return true
+ * @see StyledTextRenderer#getWordWrap
+ */
 protected boolean getWordWrap() {
 	return true;
 }
+/**
+ * Selection is not printed. Returns false.
+ * <p>
+ * @return false
+ * @see StyledTextRenderer#isFullLineSelection
+ */
 protected boolean isFullLineSelection() {
 	return false;
 }

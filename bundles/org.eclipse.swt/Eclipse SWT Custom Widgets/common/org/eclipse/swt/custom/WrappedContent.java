@@ -30,7 +30,7 @@ class WrappedContent implements StyledTextContent {
 	final static int WRAP_LINE_LENGTH = 0;
 	final static int WRAP_LINE_WIDTH = 1;
 	    
-    AbstractRenderer renderer;
+    StyledTextRenderer renderer;
 	StyledTextContent logicalContent;
 	int[][] visualLines; 				 // start and length of each visual line
 	int visualLineCount = 0;
@@ -38,12 +38,12 @@ class WrappedContent implements StyledTextContent {
 /**
  * Create a new instance.
  * 
- * @param styledText StyledText widget that displays the lines
- * 	wrapped by the new instance.
+ * @param renderer <class>StyledTextRenderer</class> that renders 
+ * 	the lines wrapped by the new instance.
  * @param logicalContent StyledTextContent that provides the line 
  * 	data.
  */
-WrappedContent(AbstractRenderer renderer, StyledTextContent logicalContent) {
+WrappedContent(StyledTextRenderer renderer, StyledTextContent logicalContent) {
     this.renderer = renderer;
     this.logicalContent = logicalContent;
 }

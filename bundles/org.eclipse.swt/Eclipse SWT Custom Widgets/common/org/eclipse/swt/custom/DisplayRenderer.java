@@ -11,22 +11,50 @@ import org.eclipse.swt.custom.StyledText.*;
 import org.eclipse.swt.graphics.*;
 
 /**
- * Created by StyledText to handle a single invalidate (i.e., Paint event).
+ * A DisplayRenderer renders the content of a StyledText widget on 
+ * a display device.
  */
-class DisplayRenderer extends AbstractRenderer {
-	private StyledText parent;
+class DisplayRenderer extends StyledTextRenderer {
+	private StyledText parent;			// used to get content and styles during rendering
 	
-DisplayRenderer(Device device, Font regularFont, StyledText parent, boolean isBidi, int tabLength, int leftMargin) {
+/**
+ * Creates an instance of <class>DisplayRenderer</class>.
+ * </p>
+ * @param device Device to render on
+ * @param regularFont Font to use for regular (non-bold) text
+ * @param isBidi true=bidi platform, false=no bidi platform
+ * @param leftMargin margin to the left of the text
+ * @param parent <class>StyledText</class> widget to render
+ * @param tabLength length in characters of a tab character
+ */
+DisplayRenderer(Device device, Font regularFont, boolean isBidi, int leftMargin, StyledText parent, int tabLength) {
 	super(device, regularFont, isBidi, leftMargin);
 	this.parent = parent;
 	calculateLineHeight();
 	setTabLength(tabLength);
 }
+/**
+ * Dispose the specified GC.
+ * </p>
+ * @param gc GC to dispose.
+ */
 protected void disposeGC(GC gc) {
 	gc.dispose();
 }
 /** 
- * @see AbstractRenderer#drawLineSelectionBackground
+ * Draws the background of the line selection.
+ * </p>
+ *
+ * @param line the line to draw
+ * @param lineOffset offset of the first character in the line.
+ * 	Relative to the start of the document.
+ * @param styles line styles
+ * @param paintY y location to draw at
+ * @param gc GC to draw on
+ * @param currentFont the font currently set in gc. Cached for 
+ * 	better performance.
+ * @param bidi the bidi object to use for measuring and rendering 
+ * 	text in bidi locales. null when not in bidi mode.
  */
 protected void drawLineSelectionBackground(String line, int lineOffset, StyleRange[] styles, int paintY, GC gc, FontData currentFont, StyledTextBidi bidi) {
 	Point selection = parent.internalGetSelection();
@@ -114,38 +142,80 @@ protected void drawLineSelectionBackground(String line, int lineOffset, StyleRan
 	gc.fillRectangle(paintX - horizontalScrollOffset + leftMargin, paintY, selectionBackgroundWidth, lineHeight);
 }
 /**
- * @see AbstractRenderer#getBidiSegments
+ * Returns the text segments that should be treated as if they 
+ * had a different direction than the surrounding text.
+ * </p>
+ *
+ * @param lineOffset offset of the first character in the line. 
+ * 	0 based from the beginning of the document.
+ * @param line text of the line to specify bidi segments for
+ * @return text segments that should be treated as if they had a
+ * 	different direction than the surrounding text. Only the start 
+ * 	index of a segment is specified, relative to the start of the 
+ * 	line. Always starts with 0 and ends with the line length. 
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_INVALID_ARGUMENT - if the segment indices returned 
+ * 		by the listener do not start with 0, are not in ascending order,
+ * 		exceed the line length or have duplicates</li>
+ * </ul>
  */
 protected int[] getBidiSegments(int lineOffset, String lineText) {
 	return parent.getBidiSegments(lineOffset, lineText);
 }
 /**
+ * Returns the visible client area that can be used for rendering.
+ * </p>
+ * @return the visible client area that can be used for rendering.
  */
 protected Rectangle getClientArea() {
 	return parent.getClientArea();
 }
 /**
+ * Returns the <class>StyledTextContent</class> to use for line offset
+ * calculations.
+ * </p>
+ * @return the <class>StyledTextContent</class> to use for line offset
+ * calculations.
  */
 protected StyledTextContent getContent() {
 	return parent.internalGetContent();
 }
+/**
+ * Returns a new GC to use for rendering and measuring.
+ * When the GC is no longer used it needs to be disposed by 
+ * calling disposeGC.
+ * </p>
+ * @return the GC to use for rendering and measuring.
+ * @see disposeGC
+ */
 protected GC getGC() {
 	return new GC(parent);
 }
+/**
+ * Returns the horizontal scroll position.
+ * </p>
+ * @return the horizontal scroll position.
+ */
 protected int getHorizontalPixel() {
 	return parent.internalGetHorizontalPixel();
 }
+/**
+ * Returns the most recent caret direction.
+ * Used for measuring caret positions.
+ * </p>
+ * @return the most recent caret direction.
+ */
 protected int getLastCaretDirection() {
 	return parent.internalGetLastCaretDirection();
 }
 /**
- * @see AbstractRenderer#getLineBackgroundData
+ * @see StyledTextRenderer#getLineBackgroundData
  */
 protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
 	return parent.getLineBackgroundData(lineOffset, line);
 }
 /**
- * @see AbstractRenderer#getLineStyleData
+ * @see StyledTextRenderer#getLineStyleData
  */
 protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
 	StyledTextEvent logicalLineEvent = parent.getLineStyleData(lineOffset, line);
@@ -155,13 +225,15 @@ protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
 	}
 	return logicalLineEvent;
 }
+/**
+ * @see StyledTextRenderer#getSelection
+ */
 protected Point getSelection() {
 	return parent.internalGetSelection();
 }
 /**
  * Returns the background color to be used for rendering selected text.
  * <p>
- *
  * @return background color to be used for rendering selected text
  */
 private Color getSelectionBackground() {
@@ -170,14 +242,13 @@ private Color getSelectionBackground() {
 /**
  * Returns the foreground color to be used for rendering selected text.
  * <p>
- *
  * @return foreground color to be used for rendering selected text
  */
 private Color getSelectionForeground() {
 	return getDevice().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
 }
 /**
- * @see AbstractRenderer#getSelectionLineStyles
+ * @see StyledTextRenderer#getSelectionLineStyles
  */
 /*
 Pseudo code for getSelectionLineStyles
@@ -375,9 +446,15 @@ protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	newStyles.copyInto(styles);
 	return styles;
 }
+/**
+ * @see StyledTextRenderer#getWordWrap
+ */
 protected boolean getWordWrap() {
 	return parent.getWordWrap();
 }
+/**
+ * @see StyledTextRenderer#isFullLineSelection
+ */
 protected boolean isFullLineSelection() {
 	return (parent.getStyle() & SWT.FULL_SELECTION) != 0;
 }
