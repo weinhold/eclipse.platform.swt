@@ -91,37 +91,6 @@ public class DragSource extends Widget {
 	
 	private int dataEffect;
 
-/*	
-	static {
-		String[] cfstr = new String[] {"Shell IDList Array",
-			                           "Shell Object Offsets",
-			                           "Net Resource",
-			                           "FileGroupDescriptor",
-			                           "FileGroupDescriptorW",
-			                           "FileContents",
-			                           "FileName",
-			                           "FileNameW",
-			                           "PrinterFriendlyName",
-			                           "FileNameMap",
-			                           "FileNameMapW",
-			                           "UniformResourceLocator",
-			                           "Preferred DropEffect",
-			                           "Performed DropEffect",
-			                           "Paste Succeeded",
-			                           "InShellDragLoop",
-			                           "DragContext",
-			                           "MountedVolume",
-			                           "PersistedDataObject",
-			                           "TargetCLSID",
-			                           "Logical Performed DropEffect"};
-
-		for (int i = 0; i < cfstr.length; i++) {
-			int id = Transfer.registerType(cfstr[i]);
-			System.out.println(cfstr[i]+" "+id);
-		}
-	}
-*/
-	
 /**
  * Creates a new <code>DragSource</code> to handle dragging from the specified <code>Control</code>.
  * 
@@ -139,22 +108,28 @@ public DragSource(Control control, int style) {
 	
 	createCOMInterfaces();
 
-	this.AddRef();
+	AddRef();
 
 	controlListener = new Listener () {
 		public void handleEvent (Event event) {
 			if (event.type == SWT.Dispose){
-				DragSource.this.dispose();
+				dispose();
 			}
 			if (event.type == SWT.DragDetect) {
-				DragSource.this.drag();
+				Runnable runnable = new Runnable() {
+					public void run() {
+						if (isDisposed()) return;
+						drag();
+					}
+				};
+				getDisplay().asyncExec(runnable);
 			}
 		}
 	};
 	control.addListener (SWT.Dispose, controlListener);
 	control.addListener (SWT.DragDetect, controlListener);
 	
-	this.addListener(SWT.Dispose, new Listener() {
+	addListener(SWT.Dispose, new Listener() {
 		public void handleEvent(Event e) {
 			onDispose();
 		}
@@ -229,20 +204,6 @@ private void onDispose () {
 	
 	transferAgents = null;
 }
-private int opToOs(int operation) {
-	int osOperation = 0;
-	if ((operation & DND.DROP_COPY) != 0){
-		osOperation |= COM.DROPEFFECT_COPY;
-	}
-	if ((operation & DND.DROP_LINK) != 0) {
-		osOperation |= COM.DROPEFFECT_LINK;
-	}
-	if ((operation & DND.DROP_MOVE) != 0) {
-		osOperation |= COM.DROPEFFECT_MOVE;
-	}
-	return osOperation;
-}
-
 private int osToOp(int osOperation){
 	int operation = 0;
 	if ((osOperation & COM.DROPEFFECT_COPY) != 0){
@@ -272,7 +233,6 @@ private void disposeCOMInterfaces() {
 	iDataObject = null;
 }
 private void drag() {
-	
 	if (transferAgents == null || getStyle() == 0) return;
 	
 	DNDEvent event = new DNDEvent();
@@ -328,16 +288,9 @@ private int EnumFormatEtc(int dwDirection, int ppenumFormatetc) {
 	enumFORMATETC.AddRef();
 	
 	FORMATETC[] formats = new FORMATETC[allowedDataTypes.length];
-	//FORMATETC[] formats = new FORMATETC[allowedDataTypes.length + 2];
 	for (int i = 0; i < formats.length; i++){
 		formats[i] = allowedDataTypes[i].formatetc;
 	}
-	//FORMATETC formatetc = new FORMATETC();
-	//formatetc.cfFormat = CFSTR_LOGICALPERFORMEDDROPEFFECT;
-	//formats[allowedDataTypes.length] = formatetc;
-	//formatetc = new FORMATETC();
-	//formatetc.cfFormat = CFSTR_PERFERREDDROPEFFECT;
-	//formats[allowedDataTypes.length + 1] = formatetc;
 	enumFORMATETC.setFormats(formats);
 	
 	COM.MoveMemory(ppenumFormatetc, new int[] {enumFORMATETC.getAddress()}, 4);
@@ -365,36 +318,6 @@ private int GetData(int pFormatetc, int pmedium) {
 	TransferData transferData = new TransferData();
 	transferData.formatetc = new FORMATETC();
 	COM.MoveMemory(transferData.formatetc, pFormatetc, FORMATETC.sizeof);
-/*	if (transferData.formatetc.cfFormat == CFSTR_PERFERREDDROPEFFECT) {
-		int preferredEffect = DND.DROP_NONE;
-		int style = getStyle();
-		if ((style & DND.DROP_LINK) != 0) {
-			preferredEffect = DND.DROP_LINK;
-		}
-		if ((style & DND.DROP_COPY) != 0) {
-			preferredEffect = DND.DROP_COPY;
-		}
-		if ((style & DND.DROP_MOVE) != 0) {
-			preferredEffect = DND.DROP_MOVE;
-		}
-		transferData.stgmedium = new STGMEDIUM();
-		transferData.stgmedium.tymed = COM.TYMED_HGLOBAL;
-		int ptr = OS.GlobalAlloc(COM.GMEM_FIXED | COM.GMEM_ZEROINIT, 4);
-		OS.MoveMemory(ptr, new int[] {opToOs(preferredEffect)}, 4);
-		transferData.stgmedium.unionField = ptr;
-		return OLE.S_OK;
-	}
-	if (transferData.formatetc.cfFormat == CFSTR_LOGICALPERFORMEDDROPEFFECT) {
-		int logicalEffect = dataEffect;
-		if (dataEffect == DND.DROP_TARGET_MOVE) logicalEffect = DND.DROP_MOVE;
-		transferData.stgmedium = new STGMEDIUM();
-		transferData.stgmedium.tymed = COM.TYMED_HGLOBAL;
-		int ptr = OS.GlobalAlloc(COM.GMEM_FIXED | COM.GMEM_ZEROINIT, 4);
-		OS.MoveMemory(ptr, new int[] {opToOs(logicalEffect)}, 4);
-		transferData.stgmedium.unionField = ptr;
-		return OLE.S_OK;
-	}
-*/
 	transferData.type = transferData.formatetc.cfFormat;
 	transferData.stgmedium = new STGMEDIUM();
 	transferData.result = COM.E_FAIL;
@@ -461,12 +384,7 @@ private int QueryGetData(int pFormatetc) {
 	transferData.formatetc = new FORMATETC();
 	COM.MoveMemory(transferData.formatetc, pFormatetc, FORMATETC.sizeof);
 	transferData.type = transferData.formatetc.cfFormat;
-	
-//	if (transferData.formatetc.cfFormat == CFSTR_PERFERREDDROPEFFECT || 
-//	    transferData.formatetc.cfFormat == CFSTR_LOGICALPERFORMEDDROPEFFECT) {
-//		return COM.S_OK;
-//	}
-	
+
 	// is this type supported by the transfer agent?
 	for (int i = 0; i < transferAgents.length; i++){
 		if (transferAgents[i].isSupportedType(transferData))
