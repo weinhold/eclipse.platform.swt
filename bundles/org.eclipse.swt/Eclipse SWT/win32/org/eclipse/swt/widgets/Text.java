@@ -24,7 +24,6 @@ import org.eclipse.swt.events.*;
  * </p>
  * IMPORTANT: This class is <em>not</em> intended to be subclassed.
  */
-
 public class Text extends Scrollable {
 	int tabs, oldStart, oldEnd;
 	boolean doubleClick, ignoreVerify, ignoreCharacter;
@@ -37,19 +36,46 @@ public class Text extends Scrollable {
 	* to stop the compiler from inlining.
 	*/
 	static {
-		LIMIT = IsWinNT ? 0x7FFFFFFF : 0x7FFF;
+		LIMIT = OS.IsWinNT ? 0x7FFFFFFF : 0x7FFF;
 		DELIMITER = "\r\n";
 	}
 	
 	static final int EditProc;
-	static final byte [] EditClass = Converter.wcsToMbcs (0, "EDIT\0", false);
+	static final TCHAR EditClass = new TCHAR (0, "EDIT", true);
 	static {
-		WNDCLASSEX lpWndClass = new WNDCLASSEX ();
-		lpWndClass.cbSize = WNDCLASSEX.sizeof;
-		OS.GetClassInfoEx (0, EditClass, lpWndClass);
+		WNDCLASS lpWndClass = new WNDCLASS ();
+		OS.GetClassInfo (0, EditClass, lpWndClass);
 		EditProc = lpWndClass.lpfnWndProc;
 	}
 
+/**
+ * Constructs a new instance of this class given its parent
+ * and a style value describing its behavior and appearance.
+ * <p>
+ * The style value is either one of the style constants defined in
+ * class <code>SWT</code> which is applicable to instances of this
+ * class, or must be built by <em>bitwise OR</em>'ing together 
+ * (that is, using the <code>int</code> "|" operator) two or more
+ * of those <code>SWT</code> style constants. The class description
+ * for all SWT widget classes should include a comment which
+ * describes the style constants which are applicable to the class.
+ * </p>
+ *
+ * @param parent a composite control which will be the parent of the new instance (cannot be null)
+ * @param style the style of control to construct
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the parent is null</li>
+ * </ul>
+ * @exception SWTException <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the parent</li>
+ *    <li>ERROR_INVALID_SUBCLASS - if this class is not an allowed subclass</li>
+ * </ul>
+ *
+ * @see SWT
+ * @see Widget#checkSubclass
+ * @see Widget#getStyle
+ */
 public Text (Composite parent, int style) {
 	super (parent, checkStyle (style));
 }
@@ -175,7 +201,7 @@ public void append (String string) {
 		if (string == null) return;
 	}
 	OS.SendMessage (handle, OS.EM_SETSEL, length, length);
-	byte [] buffer = Converter.wcsToMbcs (0, string, true);
+	TCHAR buffer = new TCHAR (getCodePage (), string, true);
 	OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 	OS.SendMessage (handle, OS.EM_SCROLLCARET, 0, 0);
 }
@@ -217,8 +243,8 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 		rect.right = wHint;
 	}
 	String text = getText ();
-	byte [] buffer = Converter.wcsToMbcs (0, text, false);
-	OS.DrawText (hDC, buffer, buffer.length, rect, flags);
+	TCHAR buffer = new TCHAR (getCodePage (), text, false);
+	OS.DrawText (hDC, buffer, buffer.length (), rect, flags);
 	width = rect.right - rect.left;
 	if ((style & SWT.WRAP) != 0 && hHint == SWT.DEFAULT) {
 		int newHeight = rect.bottom - rect.top;
@@ -230,6 +256,11 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	if (height == 0) height = DEFAULT_HEIGHT;
 	if (wHint != SWT.DEFAULT) width = wHint;
 	if (hHint != SWT.DEFAULT) height = hHint;
+
+	/* Calculate the margin width */
+	int margins = OS.SendMessage(handle, OS.EM_GETMARGINS, 0, 0);
+	int marginWidth = (margins & 0xFFFF) + ((margins >> 16) & 0xFFFF);
+	width += marginWidth;
 	
 	/*
 	* Bug in Windows.  For some reason, despite the fact
@@ -245,7 +276,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	}
 
 	/*
-	* The preferred size of a single-line text widget
+	* The preferred height of a single-line text widget
 	* has been hand-crafted to be the same height as
 	* the single-line text widget in an editable combo
 	* box.
@@ -353,7 +384,6 @@ public int getCaretLineNumber () {
  */
 public Point getCaretLocation () {
 	checkWidget ();
-
 	/*
 	* Bug in Windows.  For some reason, Windows is unable
 	* to return the pixel coordinates of the last character
@@ -371,10 +401,11 @@ public Point getCaretLocation () {
 	if (pos == -1) {
 		pos = 0;
 		if (start [0] >= OS.GetWindowTextLength (handle)) {
-			OS.SendMessage (handle, OS.EM_REPLACESEL, 0, new byte [] {(byte)' ', 0});
+			int cp = getCodePage ();
+			OS.SendMessage (handle, OS.EM_REPLACESEL, 0, new TCHAR (cp, " ", true));
 			pos = OS.SendMessage (handle, OS.EM_POSFROMCHAR, start [0], 0);
 			OS.SendMessage (handle, OS.EM_SETSEL, start [0], start [0] + 1);
-			OS.SendMessage (handle, OS.EM_REPLACESEL, 0, new byte [] {0});
+			OS.SendMessage (handle, OS.EM_REPLACESEL, 0, new TCHAR (cp, "", true));
 		}
 	}
 	return new Point ((short) (pos & 0xFFFF), (short) (pos >> 16));
@@ -402,7 +433,7 @@ public int getCaretPosition () {
 	int caretLine = OS.SendMessage (handle, OS.EM_LINEFROMCHAR, caretPos, 0);
 	int caret = end [0];
 	if (caretLine == startLine) caret = start [0];
-	if (IsDBLocale) caret = mbcsToWcsPos (caret);
+	if (OS.IsDBLocale) caret = mbcsToWcsPos (caret);
 	return caret;
 }
 
@@ -419,31 +450,28 @@ public int getCaretPosition () {
 public int getCharCount () {
 	checkWidget ();
 	int length = OS.GetWindowTextLength (handle);
-	if (IsDBLocale) length = mbcsToWcsPos (length);
+	if (OS.IsDBLocale) length = mbcsToWcsPos (length);
 	return length;
 }
 
-char [] getClipboardData () {
-	char [] lpWideCharStr = null;
+String getClipboardText () {
+	String string = "";
 	if (OS.OpenClipboard (0)) {
-		int hMem = OS.GetClipboardData (OS.CF_TEXT);
+		int hMem = OS.GetClipboardData (OS.IsUnicode ? OS.CF_UNICODETEXT : OS.CF_TEXT);
 		if (hMem != 0) {
+			int byteCount = OS.GlobalSize (hMem);
 			int ptr = OS.GlobalLock (hMem);
 			if (ptr != 0) {
-				int cchWideChar = OS.MultiByteToWideChar (OS.CP_ACP, OS.MB_PRECOMPOSED, ptr, -1, null, 0);
-				lpWideCharStr = new char [--cchWideChar];
-				OS.MultiByteToWideChar (OS.CP_ACP, OS.MB_PRECOMPOSED, ptr, -1, lpWideCharStr, cchWideChar);
+				/* Use the character encoding for the default locale */
+				TCHAR buffer = new TCHAR (0, byteCount / TCHAR.sizeof);
+				OS.MoveMemory (buffer, ptr, byteCount);
+				string = buffer.toString (0, buffer.strlen ());
+				OS.GlobalUnlock (hMem);
 			}
 		}
 		OS.CloseClipboard ();
 	}
-	return lpWideCharStr;
-}
-
-String getClipboardText () {
-	char [] data = getClipboardData ();
-	if (data == null) return null;
-	return new String (data);
+	return string;
 }
 
 /**
@@ -480,7 +508,7 @@ public boolean getDoubleClickEnabled () {
 public char getEchoChar () {
 	checkWidget ();
 	char echo = (char) OS.SendMessage (handle, OS.EM_GETPASSWORDCHAR, 0, 0);
-	if (echo != 0 && (echo = mbcsToWcs (echo)) == 0) echo = '*';
+	if (echo != 0 && (echo = mbcsToWcs (echo, getCodePage ())) == 0) echo = '*';
 	return echo;
 }
 
@@ -570,7 +598,7 @@ public Point getSelection () {
 	checkWidget ();
 	int [] start = new int [1], end = new int [1];
 	OS.SendMessage (handle, OS.EM_GETSEL, start, end);
-	if (IsDBLocale) {
+	if (OS.IsDBLocale) {
 		start [0] = mbcsToWcsPos (start [0]);
 		end [0] = mbcsToWcsPos (end [0]);
 	}
@@ -641,7 +669,8 @@ int getTabWidth (int tabs) {
 	int newFont = OS.SendMessage (handle, OS.WM_GETFONT, 0, 0);
 	if (newFont != 0) oldFont = OS.SelectObject (hDC, newFont);
 	int flags = OS.DT_CALCRECT | OS.DT_SINGLELINE | OS.DT_NOPREFIX;
-	OS.DrawText (hDC, new byte [] {(byte) ' '}, 1, rect, flags);
+	TCHAR SPACE = new TCHAR (getCodePage (), " ", true);
+	OS.DrawText (hDC, SPACE, SPACE.length (), rect, flags);
 	if (newFont != 0) OS.SelectObject (hDC, oldFont);
 	OS.ReleaseDC (handle, hDC);
 	return (rect.right - rect.left) * tabs;
@@ -664,10 +693,9 @@ public String getText () {
 	checkWidget ();
 	int length = OS.GetWindowTextLength (handle);
 	if (length == 0) return "";
-	byte [] buffer1 = new byte [length + 1];
-	OS.GetWindowText (handle, buffer1, buffer1.length);
-	char [] buffer2 = Converter.mbcsToWcs (0, buffer1);
-	return new String (buffer2, 0, buffer2.length - 1);
+	TCHAR buffer = new TCHAR (getCodePage (), length + 1);
+	OS.GetWindowText (handle, buffer, length + 1);
+	return buffer.toString (0, length);
 }
 
 /**
@@ -689,7 +717,6 @@ public String getText () {
  */
 public String getText (int start, int end) {
 	checkWidget ();
-	
 	/*
 	* NOTE: The current implementation uses substring ()
 	* which can reference a potentially large character
@@ -760,7 +787,6 @@ public int getTopIndex () {
  */
 public int getTopPixel () {
 	checkWidget ();
-	
 	/*
 	* Note, EM_GETSCROLLPOS is implemented in Rich Edit 3.0
 	* and greater.  The plain text widget and previous versions
@@ -805,27 +831,30 @@ public void insert (String string) {
 		string = verifyText (string, start [0], end [0]);
 		if (string == null) return;
 	}
-	byte [] buffer = Converter.wcsToMbcs (0, string, true);
+	TCHAR buffer = new TCHAR (getCodePage (), string, true);
 	OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 }
 
 int mbcsToWcsPos (int mbcsPos) {
 	if (mbcsPos == 0) return 0;
-	int cp = OS.GetACP ();
+	if (OS.IsUnicode) return mbcsPos;
+	int cp = getCodePage ();
 	int wcsTotal = 0, mbcsTotal = 0;
 	byte [] buffer = new byte [128];
 	String delimiter = getLineDelimiter();
 	int delimiterSize = delimiter.length ();
-	int count = OS.SendMessage (handle, OS.EM_GETLINECOUNT, 0, 0);
+	int count = OS.SendMessageA (handle, OS.EM_GETLINECOUNT, 0, 0);
 	for (int line=0; line<count; line++) {
 		int wcsSize = 0;
-		int linePos = OS.SendMessage (handle, OS.EM_LINEINDEX, line, 0);
-		int mbcsSize = OS.SendMessage (handle, OS.EM_LINELENGTH, linePos, 0);
+		int linePos = OS.SendMessageA (handle, OS.EM_LINEINDEX, line, 0);
+		int mbcsSize = OS.SendMessageA (handle, OS.EM_LINELENGTH, linePos, 0);
 		if (mbcsSize != 0) {
-			if (mbcsSize > buffer.length) buffer = new byte [mbcsSize + delimiterSize];
+			if (mbcsSize + delimiterSize > buffer.length) {
+				buffer = new byte [mbcsSize + delimiterSize];
+			}
 			buffer [0] = (byte) (mbcsSize & 0xFF);
 			buffer [1] = (byte) (mbcsSize >> 8);
-			mbcsSize = OS.SendMessage (handle, OS.EM_GETLINE, line, buffer);
+			mbcsSize = OS.SendMessageA (handle, OS.EM_GETLINE, line, buffer);
 			wcsSize = OS.MultiByteToWideChar (cp, OS.MB_PRECOMPOSED, buffer, mbcsSize, null, 0);
 		}
 		if (line - 1 != count) {
@@ -993,7 +1022,7 @@ boolean sendKeyEvent (int type, int msg, int wParam, int lParam, Event event) {
 					start [0] = start [0] - DELIMITER.length ();
 				} else {
 					start [0] = start [0] - 1;
-					if (IsDBLocale) {
+					if (OS.IsDBLocale) {
 						int [] newStart = new int [1], newEnd = new int [1];
 						OS.SendMessage (handle, OS.EM_SETSEL, start [0], end [0]);
 						OS.SendMessage (handle, OS.EM_GETSEL, newStart, newEnd);
@@ -1013,7 +1042,7 @@ boolean sendKeyEvent (int type, int msg, int wParam, int lParam, Event event) {
 					end [0] = end [0] + DELIMITER.length ();
 				} else {
 					end [0] = end [0] + 1;
-					if (IsDBLocale) {
+					if (OS.IsDBLocale) {
 						int [] newStart = new int [1], newEnd = new int [1];
 						OS.SendMessage (handle, OS.EM_SETSEL, start [0], end [0]);
 						OS.SendMessage (handle, OS.EM_GETSEL, newStart, newEnd);
@@ -1037,7 +1066,7 @@ boolean sendKeyEvent (int type, int msg, int wParam, int lParam, Event event) {
 	if (newText == null) return false;
 	if (newText == oldText) return true;
 	newText = Display.withCrLf (newText);
-	byte [] buffer = Converter.wcsToMbcs (0, newText, true);
+	TCHAR buffer = new TCHAR (getCodePage (), newText, true);
 	OS.SendMessage (handle, OS.EM_SETSEL, start [0], end [0]);
 	OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 	return false;
@@ -1080,7 +1109,9 @@ public void setDoubleClickEnabled (boolean doubleClick) {
  */
 public void setEchoChar (char echo) {
 	checkWidget ();
-	if (echo != 0 && (echo = wcsToMbcs (echo)) == 0) echo = '*';
+	if (echo != 0) {
+		if ((echo = (char) wcsToMbcs (echo, getCodePage ())) == 0) echo = '*';
+	}
 	OS.SendMessage (handle, OS.EM_SETPASSWORDCHAR, echo, 0);
 	/*
 	* Bug in Windows.  When the password character is changed,
@@ -1141,8 +1172,9 @@ public void setFont (Font font) {
  */
 public void setSelection (int start) {
 	checkWidget ();
-	if (IsDBLocale) start = wcsToMbcsPos (start);
+	if (OS.IsDBLocale) start = wcsToMbcsPos (start);
 	OS.SendMessage (handle, OS.EM_SETSEL, start, start);
+	OS.SendMessage (handle, OS.EM_SCROLLCARET, 0, 0);
 }
 
 /**
@@ -1174,11 +1206,12 @@ public void setSelection (int start) {
  */
 public void setSelection (int start, int end) {
 	checkWidget ();
-	if (IsDBLocale) {
+	if (OS.IsDBLocale) {
 		start = wcsToMbcsPos (start);
 		end = wcsToMbcsPos (end);
 	}
 	OS.SendMessage (handle, OS.EM_SETSEL, start, end);
+	OS.SendMessage (handle, OS.EM_SCROLLCARET, 0, 0);
 }
 
 public void setRedraw (boolean redraw) {
@@ -1289,7 +1322,7 @@ public void setText (String string) {
 		string = verifyText (string, 0, length);
 		if (string == null) return;
 	}
-	byte [] buffer = Converter.wcsToMbcs (0, string, true);
+	TCHAR buffer = new TCHAR (getCodePage (), string, true);
 	OS.SetWindowText (handle, buffer);
 	/*
 	* Bug in Windows.  When the widget is multi line
@@ -1391,7 +1424,7 @@ String verifyText (String string, int start, int end, Event keyEvent) {
 		event.keyCode = keyEvent.keyCode;
 		event.stateMask = keyEvent.stateMask;
 	}
-	if (IsDBLocale) {
+	if (OS.IsDBLocale) {
 		event.start = mbcsToWcsPos (start);
 		event.end = mbcsToWcsPos (end);
 	}
@@ -1408,21 +1441,25 @@ String verifyText (String string, int start, int end, Event keyEvent) {
 
 int wcsToMbcsPos (int wcsPos) {
 	if (wcsPos == 0) return 0;
-	int cp = OS.GetACP ();
+	if (OS.IsUnicode) return wcsPos;
+	int cp = getCodePage ();
 	int wcsTotal = 0, mbcsTotal = 0;
 	byte [] buffer = new byte [128];
 	String delimiter = getLineDelimiter ();
 	int delimiterSize = delimiter.length ();
-	int count = OS.SendMessage (handle, OS.EM_GETLINECOUNT, 0, 0);
+	int count = OS.SendMessageA (handle, OS.EM_GETLINECOUNT, 0, 0);
 	for (int line=0; line<count; line++) {
 		int wcsSize = 0;
-		int linePos = OS.SendMessage (handle, OS.EM_LINEINDEX, line, 0);
-		int mbcsSize = OS.SendMessage (handle, OS.EM_LINELENGTH, linePos, 0);
+		int linePos = OS.SendMessageA (handle, OS.EM_LINEINDEX, line, 0);
+		int mbcsSize = OS.SendMessageA (handle, OS.EM_LINELENGTH, linePos, 0);
 		if (mbcsSize != 0) {
-			if (mbcsSize > buffer.length) buffer = new byte [mbcsSize + delimiterSize];
+			if (mbcsSize + delimiterSize > buffer.length) {
+				buffer = new byte [mbcsSize + delimiterSize];
+			}
+			//ENDIAN
 			buffer [0] = (byte) (mbcsSize & 0xFF);
 			buffer [1] = (byte) (mbcsSize >> 8);
-			mbcsSize = OS.SendMessage (handle, OS.EM_GETLINE, line, buffer);
+			mbcsSize = OS.SendMessageA (handle, OS.EM_GETLINE, line, buffer);
 			wcsSize = OS.MultiByteToWideChar (cp, OS.MB_PRECOMPOSED, buffer, mbcsSize, null, 0);
 		}
 		if (line - 1 != count) {
@@ -1450,7 +1487,8 @@ int wcsToMbcsPos (int wcsPos) {
 }
 
 int widgetStyle () {
-	int bits = super.widgetStyle () | OS.WS_TABSTOP;
+//	int bits = super.widgetStyle () | OS.WS_TABSTOP;
+	int bits = super.widgetStyle ();
 	if ((style & SWT.READ_ONLY) != 0) bits |= OS.ES_READONLY;
 	if ((style & SWT.SINGLE) != 0) return bits | OS.ES_AUTOHSCROLL;
 	bits |= OS.ES_MULTILINE | OS.ES_AUTOHSCROLL | OS.ES_NOHIDESEL;	
@@ -1458,7 +1496,7 @@ int widgetStyle () {
 	return bits;
 }
 
-byte [] windowClass () {
+TCHAR windowClass () {
 	return EditClass;
 }
 
@@ -1504,7 +1542,7 @@ LRESULT WM_CLEAR (int wParam, int lParam) {
 	if (newText.length () != 0) {
 		result = new LRESULT (callWindowProc (OS.WM_CLEAR, 0, 0));	
 		newText = Display.withCrLf (newText);
-		byte [] buffer = Converter.wcsToMbcs (0, newText, true);
+		TCHAR buffer = new TCHAR (getCodePage (), newText, true);
 		OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 	}
 	return result;
@@ -1524,10 +1562,13 @@ LRESULT WM_CUT (int wParam, int lParam) {
 	if (newText.length () != 0) {
 		result = new LRESULT (callWindowProc (OS.WM_CUT, 0, 0));	
 		newText = Display.withCrLf (newText);
-		byte [] buffer = Converter.wcsToMbcs (0, newText, true);
+		TCHAR buffer = new TCHAR (getCodePage (), newText, true);
 		OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 	}
 	return result;
+}
+LRESULT WM_GETDLGCODE (int wParam, int lParam) {
+	return null;
 }
 
 LRESULT WM_IME_CHAR (int wParam, int lParam) {
@@ -1608,7 +1649,7 @@ LRESULT WM_PASTE (int wParam, int lParam) {
 	if (newText == null) return LRESULT.ZERO;
 	if (newText != oldText) {
 		newText = Display.withCrLf (newText);
-		byte [] buffer = Converter.wcsToMbcs (0, newText, true);
+		TCHAR buffer = new TCHAR (getCodePage (), newText, true);
 		OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 		return LRESULT.ZERO;
 	}
@@ -1674,7 +1715,7 @@ LRESULT WM_UNDO (int wParam, int lParam) {
 	if (newText == null) return LRESULT.ZERO;
 	if (newText != oldText) {
 		newText = Display.withCrLf (newText);
-		byte [] buffer = Converter.wcsToMbcs (0, newText, true);
+		TCHAR buffer = new TCHAR (getCodePage (), newText, true);
 		OS.SendMessage (handle, OS.EM_REPLACESEL, 0, buffer);
 		return LRESULT.ZERO;
 	}

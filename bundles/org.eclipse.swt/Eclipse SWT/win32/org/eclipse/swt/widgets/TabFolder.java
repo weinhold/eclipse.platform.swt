@@ -445,9 +445,7 @@ public int indexOf (TabItem item) {
 	}
 	return -1;
 }
-boolean isTabItem () {
-	return true;
-}
+
 void releaseWidget () {
 	int count = OS.SendMessage (handle, OS.TCM_GETITEMCOUNT, 0, 0);
 	for (int i=0; i<count; i++) {
@@ -463,10 +461,7 @@ void releaseWidget () {
 	imageList = null;
 	super.releaseWidget ();
 }
-public boolean setFocus () {
-	checkWidget ();
-	return forceFocus ();
-}
+
 /**
  * Removes the listener from the collection of listeners who will
  * be notified when the receiver's selection changes.
@@ -580,7 +575,7 @@ int widgetStyle () {
 	* this cannot happen by setting WS_CLIPCHILDREN.
 	*/
 	int bits = super.widgetStyle () | OS.WS_CLIPCHILDREN;
-	return bits | OS.TCS_TABS | /*OS.TCS_FOCUSNEVER | */ OS.TCS_TOOLTIPS;
+	return bits | OS.TCS_TABS /*| OS.TCS_FOCUSNEVER */ | OS.TCS_TOOLTIPS;
 }
 
 TCHAR windowClass () {

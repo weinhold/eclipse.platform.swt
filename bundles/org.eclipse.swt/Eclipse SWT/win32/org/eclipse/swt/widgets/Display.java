@@ -89,10 +89,10 @@ public class Display extends Device {
 	public MSG msg = new MSG ();
 	
 	/* Windows, Events and Callback */
-	byte [] windowClass;
+	Event [] eventQueue;
 	Callback windowCallback;
 	int windowProc, threadId, processId;
-	Event [] eventQueue;
+	TCHAR windowClass;
 	static int windowClassCount = 0;
 	static final String WindowName = "SWT_Window";
 
@@ -113,6 +113,9 @@ public class Display extends Device {
 	int lastKey, lastAscii, lastMouse;
 	byte [] keyboard = new byte [256];
 	boolean accelKeyHit, mnemonicKeyHit;
+	
+	/* Image list cache */	
+	ImageList[] imageList, toolImageList, toolHotImageList, toolDisabledImageList;
 
 	/* Key Mappings */
 	static final int [] [] KeyTable = {
@@ -249,14 +252,20 @@ public Display (DeviceData data) {
 }
 
 int asciiKey (int key) {
+	if (OS.IsWinCE) return 0;
 	
 	/* Get the current keyboard. */
 	for (int i=0; i<keyboard.length; i++) keyboard [i] = 0;
 	if (!OS.GetKeyboardState (keyboard)) return 0;
-	
-	/* Translate the key to ASCII using the current keyboard. */
-	short [] result = new short [1];
-	if (OS.ToAscii (key, key, keyboard, result, 0) == 1) return result [0];
+		
+	/* Translate the key to ASCII or UNICODE using the virtual keyboard */
+	if (OS.IsUnicode) {
+		char [] result = new char [1];
+		if (OS.ToUnicode (key, key, keyboard, result, 1, 0) == 1) return result [0];
+	} else {
+		short [] result = new short [1];
+		if (OS.ToAscii (key, key, keyboard, result, 0) == 1) return result [0];
+	}
 	return 0;
 }
 
@@ -548,6 +557,15 @@ public static synchronized Display getCurrent () {
 	return findDisplay (Thread.currentThread ());
 }
 
+public Rectangle getClientArea () {
+	checkDevice ();
+	RECT rect = new RECT ();
+	OS.SystemParametersInfo (OS.SPI_GETWORKAREA, 0, rect, 0);
+	int width = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+	return new Rectangle (rect.left, rect.top, width, height);
+}
+
 /**
  * Returns the control which the on-screen pointer is currently
  * over top of, or null if it is not currently over one of the
@@ -562,7 +580,7 @@ public static synchronized Display getCurrent () {
 public Control getCursorControl () {
 	checkDevice ();
 	POINT pt = new POINT ();
-	OS.GetCursorPos (pt);
+	if (!OS.GetCursorPos (pt)) return null;
 	return findControl (OS.WindowFromPoint (pt));
 }
 
@@ -708,25 +726,136 @@ public Control getFocusControl () {
  */
 public int getIconDepth () {
 	checkDevice ();
+
+	/* Use the character encoding for the default locale */
+	TCHAR buffer1 = new TCHAR (0, "Control Panel\\Desktop\\WindowMetrics", true);
+
 	int [] phkResult = new int [1];
-	byte [] buffer1 = Converter.wcsToMbcs (0, "Control Panel\\Desktop\\WindowMetrics", true);
 	int result = OS.RegOpenKeyEx (OS.HKEY_CURRENT_USER, buffer1, 0, OS.KEY_READ, phkResult);
 	if (result != 0) return 4;
 	int depth = 4;
 	int [] lpcbData = {128};
-	byte [] lpData = new byte [lpcbData [0]];
-	byte [] buffer2 = Converter.wcsToMbcs (0, "Shell Icon BPP", true);
+	
+	/* Use the character encoding for the default locale */
+	TCHAR lpData = new TCHAR (0, lpcbData [0]);
+	TCHAR buffer2 = new TCHAR (0, "Shell Icon BPP", true);
+	
 	result = OS.RegQueryValueEx (phkResult [0], buffer2, 0, null, lpData, lpcbData);
 	if (result == 0) {
-		char [] buffer3 = Converter.mbcsToWcs (0, lpData);
-		int length = 0;
-		while (length < buffer3.length && buffer3 [length] != 0) length++;
 		try {
-			depth = Integer.parseInt (new String (buffer3, 0, length));
+			depth = Integer.parseInt (lpData.toString (0, lpData.strlen ()));
 		} catch (NumberFormatException e) {};
 	}
 	OS.RegCloseKey (phkResult [0]);
 	return depth;
+}
+
+ImageList getImageList (Point size) {
+	if (imageList == null) imageList = new ImageList [4];
+	
+	int i = 0;
+	int length = imageList.length; 
+	while (i < length) {
+		ImageList list = imageList [i];
+		if (list == null) break;
+		if (list.getImageSize().equals(size)) {
+			list.addRef();
+			return list;
+		}
+		i++;
+	}
+	
+	if (i == length) {
+		ImageList [] newList = new ImageList [length + 4];
+		System.arraycopy (imageList, 0, newList, 0, length);
+		imageList = newList;
+	}
+	
+	ImageList list = new ImageList();
+	imageList [i] = list;
+	list.addRef();
+	return list;
+}
+
+ImageList getToolImageList (Point size) {
+	if (toolImageList == null) toolImageList = new ImageList [4];
+	
+	int i = 0;
+	int length = toolImageList.length; 
+	while (i < length) {
+		ImageList list = toolImageList [i];
+		if (list == null) break;
+		if (list.getImageSize().equals(size)) {
+			list.addRef();
+			return list;
+		}
+		i++;
+	}
+	
+	if (i == length) {
+		ImageList [] newList = new ImageList [length + 4];
+		System.arraycopy (toolImageList, 0, newList, 0, length);
+		toolImageList = newList;
+	}
+	
+	ImageList list = new ImageList();
+	toolImageList [i] = list;
+	list.addRef();
+	return list;
+}
+
+ImageList getToolHotImageList (Point size) {
+	if (toolHotImageList == null) toolHotImageList = new ImageList [4];
+	
+	int i = 0;
+	int length = toolHotImageList.length; 
+	while (i < length) {
+		ImageList list = toolHotImageList [i];
+		if (list == null) break;
+		if (list.getImageSize().equals(size)) {
+			list.addRef();
+			return list;
+		}
+		i++;
+	}
+	
+	if (i == length) {
+		ImageList [] newList = new ImageList [length + 4];
+		System.arraycopy (toolHotImageList, 0, newList, 0, length);
+		toolHotImageList = newList;
+	}
+	
+	ImageList list = new ImageList();
+	toolHotImageList [i] = list;
+	list.addRef();
+	return list;
+}
+
+ImageList getToolDisabledImageList (Point size) {
+	if (toolDisabledImageList == null) toolDisabledImageList = new ImageList [4];
+	
+	int i = 0;
+	int length = toolDisabledImageList.length; 
+	while (i < length) {
+		ImageList list = toolDisabledImageList [i];
+		if (list == null) break;
+		if (list.getImageSize().equals(size)) {
+			list.addRef();
+			return list;
+		}
+		i++;
+	}
+	
+	if (i == length) {
+		ImageList [] newList = new ImageList [length + 4];
+		System.arraycopy (toolDisabledImageList, 0, newList, 0, length);
+		toolDisabledImageList = newList;
+	}
+	
+	ImageList list = new ImageList();
+	toolDisabledImageList [i] = list;
+	list.addRef();
+	return list;
 }
 
 Shell getModalShell () {
@@ -899,6 +1028,7 @@ public Thread getThread () {
  * @private
  */
 public int internal_new_GC (GCData data) {
+	if (isDisposed()) SWT.error(SWT.ERROR_DEVICE_DISPOSED);
 	int hDC = OS.GetDC (0);
 	if (hDC == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 	if (data != null) {
@@ -925,29 +1055,33 @@ protected void init () {
 	/* Create the callbacks */
 	windowCallback = new Callback (this, "windowProc", 4);
 	windowProc = windowCallback.getAddress ();
-	if (windowProc == 0) error (SWT.ERROR_NO_MORE_CALLBACKS);	
-
+	if (windowProc == 0) error (SWT.ERROR_NO_MORE_CALLBACKS);
+	
 	/* Remember the current procsss and thread */
 	threadId = OS.GetCurrentThreadId ();
 	processId = OS.GetCurrentProcessId ();
 	
+	/* Use the character encoding for the default locale */
+	windowClass = new TCHAR (0, WindowName + windowClassCount++, true);
+
 	/* Register the SWT window class */
 	int hHeap = OS.GetProcessHeap ();
 	int hInstance = OS.GetModuleHandle (null);
-	windowClass = Converter.wcsToMbcs (0, WindowName + windowClassCount++ + "\0");
-	WNDCLASSEX lpWndClass = new WNDCLASSEX ();
-	lpWndClass.cbSize = WNDCLASSEX.sizeof;
-	if (OS.GetClassInfoEx (hInstance, windowClass, lpWndClass)) {
+	WNDCLASS lpWndClass = new WNDCLASS ();
+	if (OS.GetClassInfo (hInstance, windowClass, lpWndClass)) {
 		OS.UnregisterClass (windowClass, hInstance);
 	}
 	lpWndClass.hInstance = hInstance;
 	lpWndClass.lpfnWndProc = windowProc;
 	lpWndClass.style = OS.CS_BYTEALIGNWINDOW | OS.CS_DBLCLKS;
 	lpWndClass.hCursor = OS.LoadCursor (0, OS.IDC_ARROW);
-	lpWndClass.lpszClassName = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, windowClass.length);
-	OS.MoveMemory (lpWndClass.lpszClassName, windowClass, windowClass.length); 
-	OS.RegisterClassEx (lpWndClass);
-	OS.HeapFree (hHeap, 0, lpWndClass.lpszClassName);
+	lpWndClass.cbWndExtra = 128;
+	int byteCount = windowClass.length () * TCHAR.sizeof;
+	int lpszClassName = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+	lpWndClass.lpszClassName = lpszClassName;
+	OS.MoveMemory (lpszClassName, windowClass, byteCount);
+	OS.RegisterClass (lpWndClass);
+//	OS.HeapFree (hHeap, 0, lpszClassName);
 }
 
 /**	 
@@ -1027,9 +1161,12 @@ void postEvent (Event event) {
 public boolean readAndDispatch () {
 	checkDevice ();
 	if (OS.PeekMessage (msg, 0, 0, 0, OS.PM_REMOVE)) {
-		if (filterMessage (msg)) return false;
-		OS.TranslateMessage (msg);
-		OS.DispatchMessage (msg);
+		//Control control = findControl (msg.hwnd);
+		//int hDlg = (control != null) ? ((control.parent != null) ? control.parent.handle : control.handle) : getActiveShell().handle;
+		if (!filterMessage (msg)) {
+			OS.TranslateMessage (msg);
+			OS.DispatchMessage (msg);
+		}
 		runDeferredEvents ();
 		return true;
 	}
@@ -1107,9 +1244,8 @@ void releaseDisplay () {
 	/* Unregister the SWT Window class */
 	int hHeap = OS.GetProcessHeap ();
 	int hInstance = OS.GetModuleHandle (null);
-	WNDCLASSEX lpWndClass = new WNDCLASSEX ();
-	lpWndClass.cbSize = WNDCLASSEX.sizeof;
-	OS.GetClassInfoEx (0, windowClass, lpWndClass);
+	WNDCLASS lpWndClass = new WNDCLASS ();
+	OS.GetClassInfo (0, windowClass, lpWndClass);
 	int ptr = lpWndClass.lpszClassName;
 	OS.UnregisterClass (windowClass, hInstance);
 	OS.HeapFree (hHeap, 0, ptr);
@@ -1127,6 +1263,82 @@ void releaseDisplay () {
 	data = null;
 	keys = null;
 	values = null;
+}
+
+void releaseImageList (ImageList list) {
+	int i = 0;
+	int length = imageList.length; 
+	while (i < length) {
+		if (imageList [i] == list) {
+			if (list.removeRef () > 0) return;
+			list.dispose ();
+			System.arraycopy (imageList, i + 1, imageList, i, --length - i);
+			imageList [length] = null;
+			for (int j=0; j<length; j++) {
+				if (imageList [j] != null) return;
+			}
+			imageList = null;
+			return;
+		}
+		i++;
+	}
+}
+
+void releaseToolImageList (ImageList list) {
+	int i = 0;
+	int length = toolImageList.length; 
+	while (i < length) {
+		if (toolImageList [i] == list) {
+			if (list.removeRef () > 0) return;
+			list.dispose ();
+			System.arraycopy (toolImageList, i + 1, toolImageList, i, --length - i);
+			toolImageList [length] = null;
+			for (int j=0; j<length; j++) {
+				if (toolImageList [j] != null) return;
+			}
+			toolImageList = null;
+			return;
+		}
+		i++;
+	}
+}
+
+void releaseToolHotImageList (ImageList list) {
+	int i = 0;
+	int length = toolHotImageList.length; 
+	while (i < length) {
+		if (toolHotImageList [i] == list) {
+			if (list.removeRef () > 0) return;
+			list.dispose ();
+			System.arraycopy (toolHotImageList, i + 1, toolHotImageList, i, --length - i);
+			toolHotImageList [length] = null;
+			for (int j=0; j<length; j++) {
+				if (toolHotImageList [j] != null) return;
+			}
+			toolHotImageList = null;
+			return;
+		}
+		i++;
+	}
+}
+
+void releaseToolDisabledImageList (ImageList list) {
+	int i = 0;
+	int length = toolDisabledImageList.length; 
+	while (i < length) {
+		if (toolDisabledImageList [i] == list) {
+			if (list.removeRef () > 0) return;
+			list.dispose ();
+			System.arraycopy (toolDisabledImageList, i + 1, toolDisabledImageList, i, --length - i);
+			toolDisabledImageList [length] = null;
+			for (int j=0; j<length; j++) {
+				if (toolDisabledImageList [j] != null) return;
+			}
+			toolDisabledImageList = null;
+			return;
+		}
+		i++;
+	}
 }
 
 boolean runAsyncMessages () {
@@ -1321,14 +1533,20 @@ public void setSynchronizer (Synchronizer synchronizer) {
 }
 
 int shiftedKey (int key) {
+	if (OS.IsWinCE) return 0;
 	
-	/* Clear the virtual keyboard and press the shift key. */
+	/* Clear the virtual keyboard and press the shift key */
 	for (int i=0; i<keyboard.length; i++) keyboard [i] = 0;
 	keyboard [OS.VK_SHIFT] |= 0x80;
 
-	/* Translate aKey to ASCII using the virtual keyboard. */
-	short [] result = new short [1];
-	if (OS.ToAscii (key, key, keyboard, result, 0) == 1) return result [0];
+	/* Translate the key to ASCII or UNICODE using the virtual keyboard */
+	if (OS.IsUnicode) {
+		char [] result = new char [1];
+		if (OS.ToUnicode (key, key, keyboard, result, 1, 0) == 1) return result [0];
+	} else {
+		short [] result = new short [1];
+		if (OS.ToAscii (key, key, keyboard, result, 0) == 1) return result [0];
+	}
 	return 0;
 }
 
@@ -1347,6 +1565,15 @@ int shiftedKey (int key) {
  */
 public boolean sleep () {
 	checkDevice ();
+	if (OS.IsWinCE) {
+		OS.GetMessage (msg, 0, 0, 0);
+		if (!filterMessage (msg)) {
+			OS.TranslateMessage (msg);
+			OS.DispatchMessage (msg);
+		}
+		runDeferredEvents ();
+		return true;
+	}
 	return OS.WaitMessage ();
 }
 
@@ -1357,6 +1584,10 @@ public boolean sleep () {
  * is suspended until the runnable completes.
  *
  * @param runnable code to run on the user-interface thread.
+ *
+ * @exception SWTException <ul>
+ *    <li>ERROR_FAILED_EXEC - if an exception occured when executing the runnable</li>
+ * </ul>
  *
  * @see #asyncExec
  */
@@ -1480,7 +1711,9 @@ public void wake () {
 	OS.PostThreadMessage (threadId, OS.WM_NULL, 0, 0);
 }
 
+static boolean Bogus;
 int windowProc (int hwnd, int msg, int wParam, int lParam) {
+	if (Bogus) System.out.println(msg);
 	Control control = WidgetTable.get (hwnd);
 	if (control != null) return control.windowProc (msg, wParam, lParam);
 	return OS.DefWindowProc (hwnd, msg, wParam, lParam);
