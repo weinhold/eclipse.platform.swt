@@ -136,7 +136,7 @@ public void dispose () {
 }
 
 void drawSelected(GC gc ) {
-	int rightTabEdge = parent.getSize().x - parent.borderRight - parent.chevronRect.width - parent.closeRect.width - 1;
+	int rightTabEdge = parent.getSize().x - parent.borderRight - parent.chevronRect.width - parent.expandRect.width - parent.closeRect.width - 1;
 	if (rightTabEdge <= x) return;
 	int extra = CTabFolder2.CURVE_WIDTH/2;
 	// draw background

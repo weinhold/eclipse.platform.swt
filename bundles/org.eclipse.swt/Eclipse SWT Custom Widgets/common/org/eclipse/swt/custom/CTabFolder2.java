@@ -120,13 +120,18 @@ public class CTabFolder2 extends Composite {
 	static Color border2Color;
 	static Color border3Color;
 	
-	// close and chevron buttons
+	// close, expand and chevron buttons
 	boolean showClose = false;
 	Rectangle closeRect = new Rectangle(0, 0, 0, 0);
+	int closeImageState = NORMAL;
+	
 	Rectangle chevronRect = new Rectangle(0, 0, 0, 0);
+	int chevronImageState = NORMAL;
+	
 	boolean showExpand = false;
 	Rectangle expandRect = new Rectangle(0, 0, 0, 0);
 	boolean expanded = true;
+	int expandImageState = NORMAL;
 	
 	boolean tipShowing;
 	
@@ -175,6 +180,17 @@ public class CTabFolder2 extends Composite {
 	static final int BORDER3_COLOR = SWT.COLOR_WIDGET_NORMAL_SHADOW;
 	static final int FOREGROUND = SWT.COLOR_TITLE_INACTIVE_FOREGROUND;
 	static final int BACKGROUND = SWT.COLOR_TITLE_INACTIVE_BACKGROUND;
+	
+	static final int NORMAL = 1;
+	static final int HOT = 2;
+	static final int SELECTED = 3;
+	static final RGB CLOSE_BORDER = new RGB(221, 106, 106);
+	static final RGB CLOSE_FILL = new RGB(214, 195, 195);
+	static final RGB EXPAND_BORDER = new RGB(114, 106, 221);
+	static final RGB EXPAND_FILL = new RGB(199, 196, 242);
+	static final RGB CHEVRON_BORDER = new RGB(111, 220, 106);
+	static final RGB CHEVRON_FILL = new RGB(199, 242, 196);
+	
 
 /**
  * Constructs a new instance of this class given its parent
@@ -232,16 +248,17 @@ public CTabFolder2(Composite parent, int style) {
 	Listener listener = new Listener() {
 		public void handleEvent(Event event) {
 			switch (event.type) {
-				case SWT.Dispose:                onDispose(); break;
-				case SWT.Paint:                     onPaint(event);	break;
-				case SWT.Resize:                   onResize();	break;
+				case SWT.Dispose:          onDispose(); break;
+				case SWT.Paint:            onPaint(event);	break;
+				case SWT.Resize:           onResize();	break;
 				case SWT.MouseDoubleClick: onMouseDoubleClick(event); break;
-				case SWT.MouseDown:          onMouseDown(event);	break;
-				case SWT.MouseHover:	       onMouseHover(event); break;
-				case SWT.MouseUp:               onMouseUp(event); break;
-				case SWT.FocusIn:                 onFocus(event);	break;
-				case SWT.FocusOut:              onFocus(event);	break;
-				case SWT.Traverse:                onTraverse(event); break;
+				case SWT.MouseDown:        onMouseDown(event);	break;
+				case SWT.MouseHover:       onMouseHover(event); break;
+				case SWT.MouseMove:        onMouseMove(event); break;
+				case SWT.MouseUp:          onMouseUp(event); break;
+				case SWT.FocusIn:          onFocus(event);	break;
+				case SWT.FocusOut:         onFocus(event);	break;
+				case SWT.Traverse:         onTraverse(event); break;
 			}
 		}
 	};
@@ -253,6 +270,7 @@ public CTabFolder2(Composite parent, int style) {
 		SWT.MouseDoubleClick, 
 		SWT.MouseDown, 
 		SWT.MouseHover, 
+		SWT.MouseMove,
 		SWT.MouseUp,
 		SWT.FocusIn, 
 		SWT.FocusOut, 
@@ -363,7 +381,6 @@ public void addCTabFolderExpandListener(CTabFolderExpandListener listener) {
 	if (expandListeners.length == 0) {
 		// display expand button
 		showExpand = true;
-		setButtonBounds();
 		updateItems();
 		redraw();
 	}
@@ -531,7 +548,7 @@ void createItem (CTabItem2 item, int index) {
 		updateItems();
 		// redraw tabs if new item visible
 		if (index >= topTabIndex && 
-		    item.x+item.width <= getSize().x-borderRight-closeRect.width-chevronRect.width){
+		    item.x+item.width <= getSize().x - borderRight - closeRect.width - expandRect.width - chevronRect.width){
 			redraw();
 		}
 	}
@@ -626,7 +643,7 @@ void drawBorder(GC gc) {
 				shape[index++] = itemY + right[2*i+1] - 2;
 			}
 			int temp = 0;
-			int rightTabEdge = size.x - borderRight - chevronRect.width - closeRect.width - 1;
+			int rightTabEdge = size.x - borderRight - chevronRect.width - expandRect.width - closeRect.width - 1;
 			for (int i = 0; i < shape.length/2; i++) {
 				if (shape[2*i] > rightTabEdge) {
 					if (temp == 0 && i > 0) {
@@ -664,7 +681,7 @@ void drawBorder(GC gc) {
 			}
 				
 			int temp = 0;
-			int rightTabEdge = size.x - borderRight - chevronRect.width - closeRect.width - 1;
+			int rightTabEdge = size.x - borderRight - chevronRect.width - expandRect.width - closeRect.width - 1;
 			for (int i = 0; i < shape.length/2; i++) {
 				if (shape[2*i] > rightTabEdge) {
 					if (temp == 0 && i > 0) {
@@ -865,7 +882,7 @@ void draw3DBorder(GC gc) {
 			if (selectedIndex != -1 && selectedIndex >= topTabIndex) {
 				CTabItem2 item =  items[selectedIndex];
 				Rectangle r = item.getBounds();
-				int rightTabEdge = size.x - borderRight - chevronRect.width - closeRect.width - 1;
+				int rightTabEdge = size.x - borderRight - chevronRect.width - expandRect.width - closeRect.width - 1;
 				if (r.x < rightTabEdge) {
 					gapStart = r.x - 1;
 					int extra = CURVE_WIDTH / 2;
@@ -931,7 +948,7 @@ void draw3DBorder(GC gc) {
 		} else { // on top and border showing
 			gc.setBackground(parentBackground);
 			gc.fillRectangle(0, 0, HIGHLIGHT_MARGIN, borderTop + tabHeight); //left
-			gc.fillRectangle(size.x - borderRight, 0, borderRight, borderTop + tabHeight);//right
+			gc.fillRectangle(size.x - borderRight + 1, 0, borderRight, borderTop + tabHeight);//right
 			
 			int x1 = 0;
 			int x2 = size.x - 3;
@@ -977,70 +994,164 @@ void draw3DBorder(GC gc) {
 }
 void drawChevron(GC gc) {
 	if (chevronRect.width == 0 || chevronRect.height == 0) return;
-	int x = chevronRect.x, y = chevronRect.y, width = chevronRect.width, height = chevronRect.height;
-	
+	Display display = getDisplay();
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
 		gc.fillRectangle(chevronRect);
 	}
-	
 	// draw chevron (6x5)
-	int indent = (tabHeight - 5)/2;
-	Color color = single ? selectionForeground : getParent().getForeground();
-	gc.setForeground(color);
-	gc.drawLine(x+7,  y+indent,   x+9,  y+indent+2);
-	gc.drawLine(x+8,  y+indent+3, x+7,  y+indent+4);
-	gc.drawLine(x+8,  y+indent+2, x+8,  y+indent+2);
-	gc.drawLine(x+10, y+indent,   x+12, y+indent+2);
-	gc.drawLine(x+11, y+indent+3, x+10, y+indent+4);
-	gc.drawLine(x+11, y+indent+2, x+11, y+indent+2);
+	int indent = Math.max(1, (tabHeight-11)/2);
+	int x = chevronRect.x + indent - 1;
+	int y = chevronRect.y + indent;
+	switch (chevronImageState) {
+		case NORMAL: {
+			int[] shape = new int[] {x,y, x+2,y, x+6,y+4, x+6,y+5, x+2,y+9, x,y+9, x,y+7, x+2,y+5, x+2,y+4, x,y+2};
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.fillPolygon(shape);
+			gc.setForeground(border1Color);
+			gc.drawPolygon(shape);
+			break;
+		}
+		case HOT: {
+			int[] shape = new int[] {x,y, x+2,y, x+6,y+4, x+6,y+5, x+2,y+9, x,y+9, x,y+7, x+2,y+5, x+2,y+4, x,y+2};
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.fillPolygon(shape);
+			Color border = new Color(display, CHEVRON_BORDER);
+			gc.setForeground(border);
+			gc.drawPolygon(shape);
+			border.dispose();
+			break;
+		}
+		case SELECTED: {
+			int[] shape = new int[] {x+1,y+1, x+3,y+1, x+7,y+5, x+7,y+6, x+3,y+10, x+1,y+10, x+1,y+8, x+3,y+6, x+3,y+5, x+1,y+3};
+			Color fill = new Color(display, CHEVRON_FILL);
+			gc.setBackground(fill);
+			gc.fillPolygon(shape);
+			fill.dispose();
+			Color border = new Color(display, CHEVRON_BORDER);
+			gc.setForeground(border);
+			gc.drawPolygon(shape);
+			border.dispose();
+			break;
+		}
+	}
 }
 void drawClose(GC gc) {
 	if (closeRect.width == 0 || closeRect.height == 0) return;
-	int x = closeRect.x, y = closeRect.y, width = closeRect.width, height = closeRect.height;
-	
+	Display display = getDisplay();
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
 		gc.fillRectangle(closeRect);
 	}
-	
-	// draw X (6x5)
-	int indent = (tabHeight-5)/2;
-	Color color = single ? selectionForeground : getParent().getForeground();
-	gc.setForeground(color);
-	gc.drawLine(x+6, y+indent,   x+10, y+indent+5);
-	gc.drawLine(x+7, y+indent,   x+11, y+indent+5);
-	gc.drawLine(x+6, y+indent+5, x+10, y+indent);
-	gc.drawLine(x+7, y+indent+5, x+11, y+indent);
+	// draw X (10x10 or 11x11)
+	int indent = Math.max(1, (tabHeight-11)/2);
+	int x = closeRect.x + indent - 1;
+	int y = closeRect.y + indent;
+	switch (closeImageState) {
+		case NORMAL: {
+			int[] shape = new int[] {x,y, x+2,y, x+4,y+2, x+5,y+2, x+7,y, x+9,y, 
+					                 x+9,y+2, x+7,y+4, x+7,y+5, x+9,y+7, x+9,y+9,
+			                         x+7,y+9, x+5,y+7, x+4,y+7, x+2,y+9, x,y+9,
+			                         x,y+7, x+2,y+5, x+2,y+4, x,y+2};
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.fillPolygon(shape);
+			gc.setForeground(border1Color);
+			gc.drawPolygon(shape);
+			break;
+		}
+		case HOT: {
+			int[] shape = new int[] {x,y, x+2,y, x+4,y+2, x+5,y+2, x+7,y, x+9,y, 
+					                 x+9,y+2, x+7,y+4, x+7,y+5, x+9,y+7, x+9,y+9,
+			                         x+7,y+9, x+5,y+7, x+4,y+7, x+2,y+9, x,y+9,
+			                         x,y+7, x+2,y+5, x+2,y+4, x,y+2};
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.fillPolygon(shape);
+			Color border = new Color(display, CLOSE_BORDER);
+			gc.setForeground(border);
+			gc.drawPolygon(shape);
+			border.dispose();
+			break;
+		}
+		case SELECTED:
+			int[] shape = new int[] {x+1,y+1, x+3,y+1, x+5,y+3, x+6,y+3, x+8,y+1, x+10,y+1, 
+					                 x+10,y+3, x+8,y+5, x+8,y+6, x+10,y+8, x+10,y+10,
+			                         x+8,y+10, x+6,y+8, x+5,y+8, x+3,y+10, x+1,y+10,
+			                         x+1,y+8, x+3,y+6, x+3,y+5, x+1,y+3};
+			Color fill = new Color(display, CLOSE_FILL);
+			gc.setBackground(fill);
+			gc.fillPolygon(shape);
+			fill.dispose();
+			Color border = new Color(display, CLOSE_BORDER);
+			gc.setForeground(border);
+			gc.drawPolygon(shape);
+			border.dispose();
+			break;
+	}
 }
 void drawExpand(GC gc) {
 	if (expandRect.width == 0 || expandRect.height == 0) return;
-	int x = expandRect.x, y = expandRect.y, width = expandRect.width, height = expandRect.height;
-	
+	Display display = getDisplay();
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
 		gc.fillRectangle(expandRect);
 	}
-	
 	// draw triangle (7x4 or 4x7)
-	int indent = (tabHeight - 7)/2;
-	int[] points = null;
-	if (expanded && onBottom) {
-		points = new int[] {x+3,y+height-tabHeight+indent+6, x+12,y+height-tabHeight+indent+6, x+7,y+height-tabHeight+indent+1};
+	int indent = Math.max(1, (tabHeight-11)/2);
+	int x = expandRect.x + indent - 1;
+	int y = expandRect.y + indent;
+	switch (expandImageState) {
+		case NORMAL: {
+			if (expanded) {
+				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+				gc.fillRectangle(x, y, 9, 3);
+				gc.setForeground(border1Color);
+				gc.drawRectangle(x, y, 9, 3);
+			} else {
+				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+				gc.fillRectangle(x, y, 7, 9);
+				gc.setForeground(border1Color);
+				gc.drawRectangle(x, y, 7, 9);
+				gc.drawLine(x+1, y+2, x+6, y+2);
+			}
+			break;
+		}
+		case HOT: {
+			Color border = new Color(display, EXPAND_BORDER);
+			if (expanded) {
+				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+				gc.fillRectangle(x, y, 9, 3);
+				gc.setForeground(border);
+				gc.drawRectangle(x, y, 9, 3);
+			} else {
+				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+				gc.fillRectangle(x, y, 7, 9);
+				gc.setForeground(border);
+				gc.drawRectangle(x, y, 7, 9);
+				gc.drawLine(x+1, y+2, x+6, y+2);
+			}
+			border.dispose();
+			break;
+		}
+		case SELECTED: {
+			Color fill = new Color(display, EXPAND_FILL);
+			Color border = new Color(display, EXPAND_BORDER);
+			if (expanded) {
+				gc.setBackground(fill);
+				gc.fillRectangle(x+1, y+1, 9, 3);
+				gc.setForeground(border);
+				gc.drawRectangle(x+1, y+1, 9, 3);
+			} else {
+				gc.setBackground(fill);
+				gc.fillRectangle(x+1, y+1, 7, 9);
+				gc.setForeground(border);
+				gc.drawRectangle(x+1, y+1, 7, 9);
+				gc.drawLine(x+2, y+3, x+7, y+3);
+			}
+			fill.dispose();
+			border.dispose();
+			break;
+		}
 	}
-	if (expanded && !onBottom) {
-		points = new int[] {x+4,y+indent+2, x+11,y+indent+2, x+7,y+indent+6};
-	}
-	if (!expanded && onBottom) {
-		points = new int[] {x+7,y+height-tabHeight+indent+1, x+11,y+height-tabHeight+indent+5, x+7,y+height-tabHeight+indent+9};
-	}
-	if (!expanded && !onBottom) {
-		points = new int[] {x+7,y+indent-2, x+11,y+indent+2, x+7,y+indent+6};
-	}
-	
-	Color color = single ? selectionForeground : getParent().getForeground();
-	gc.setBackground(color);
-	gc.fillPolygon(points);
 }
 void drawSelectionBackground(GC gc, int[] shape) {
 	if (backgroundImage != null) {
@@ -1537,9 +1648,22 @@ void onMouseDoubleClick(Event event) {
 }
 void onMouseDown(Event event) {
 	int x = event.x, y = event.y;
-	if (closeRect.contains(x, y) || 
-	    chevronRect.contains(x, y) ||
-	    expandRect.contains(x, y)) {
+	if (closeRect.contains(x, y)) {
+		closeImageState = SELECTED;
+		redraw(closeRect.x, closeRect.y, closeRect.width, closeRect.height, false);
+		update();
+		return;
+	} 
+	if (expandRect.contains(x, y)) {
+		expandImageState = SELECTED;
+		redraw(expandRect.x, expandRect.y, expandRect.width, expandRect.height, false);
+		update();
+		return;
+	}
+	if (chevronRect.contains(x, y)) {
+		chevronImageState = SELECTED;
+		redraw(chevronRect.x, chevronRect.y, chevronRect.width, chevronRect.height, false);
+		update();
 		return;
 	}
 	for (int i=0; i<items.length; i++) {
@@ -1554,7 +1678,43 @@ void onMouseDown(Event event) {
 		}
 	}
 }
-
+void onMouseMove(Event event) {
+	int x = event.x, y = event.y;
+	boolean close = false, expand = false, chevron = false;
+	if (closeRect.contains(x, y)) {
+		close = true;
+		if (closeImageState != HOT) {
+			closeImageState = HOT;
+			redraw(closeRect.x, closeRect.y, closeRect.width, closeRect.height, false);
+		}
+	} 
+	if (expandRect.contains(x, y)) {
+		expand = true;
+		if (expandImageState != HOT) {
+			expandImageState = HOT;
+			redraw(expandRect.x, expandRect.y, expandRect.width, expandRect.height, false);
+		}
+	}
+	if (chevronRect.contains(x, y)) {
+		chevron = true;
+		if (chevronImageState != HOT) {
+			chevronImageState = HOT;
+			redraw(chevronRect.x, chevronRect.y, chevronRect.width, chevronRect.height, false);
+		}
+	}
+	if (closeImageState == HOT && !close) {
+		closeImageState = NORMAL;
+		redraw(closeRect.x, closeRect.y, closeRect.width, closeRect.height, false);
+	}
+	if (expandImageState == HOT && !expand) {
+		expandImageState = NORMAL;
+		redraw(expandRect.x, expandRect.y, expandRect.width, expandRect.height, false);
+	}
+	if (chevronImageState == HOT && !chevron) {
+		chevronImageState = NORMAL;
+		redraw(chevronRect.x, chevronRect.y, chevronRect.width, chevronRect.height, false);
+	}
+}
 void onMouseHover(Event event) {
 	if (tipShowing) return;
 	showToolTip(event.x, event.y);
@@ -1563,6 +1723,8 @@ void onMouseUp(Event event) {
 	if (event.button != 1) return;
 	int x = event.x, y = event.y;
 	if (closeRect.contains(x, y)) {
+		closeImageState = HOT;
+		redraw(closeRect.x, closeRect.y, closeRect.width, closeRect.height, false);
 		if (selectedIndex == -1) return;
 		CTabItem2 item = items[selectedIndex];
 		CTabFolderEvent e = new CTabFolderEvent(this);
@@ -1577,6 +1739,8 @@ void onMouseUp(Event event) {
 		return;
 	}
 	if (chevronRect.contains(x, y)) {
+		chevronImageState = HOT;
+		redraw(chevronRect.x, chevronRect.y, chevronRect.width, chevronRect.height, false);
 		Rectangle rect = new Rectangle(chevronRect.x, chevronRect.y, chevronRect.width, chevronRect.height);
 		if (listListeners.length == 0) {
 			showList(rect, SWT.LEFT);
@@ -1593,6 +1757,7 @@ void onMouseUp(Event event) {
 		return;
 	}
 	if (expandRect.contains(x, y)) {
+		expandImageState = HOT;
 		CTabFolderEvent e = new CTabFolderEvent(this);
 		e.widget = this;
 		e.time = event.time;
@@ -1606,8 +1771,8 @@ void onMouseUp(Event event) {
 		}
 		if (e.doit) {
 			expanded = !expanded;
-			redraw(expandRect.x, expandRect.y, expandRect.width, expandRect.height, false);
 		}
+		redraw(expandRect.x, expandRect.y, expandRect.width, expandRect.height, false);
 		return;
 	}
 	if (single && items.length > 1) {
@@ -1963,7 +2128,6 @@ public void removeCTabFolderExpandListener(CTabFolderExpandListener listener) {
 		// hide expand button
 		expandListeners = new CTabFolderExpandListener[0];
 		showExpand = false;
-		setButtonBounds();
 		updateItems();
 		redraw();
 		return;
@@ -2082,6 +2246,7 @@ public void setBorderVisible(boolean show) {
 }
 boolean setButtonBounds() {
 	int decoratorWidth = 16;
+
 	boolean changed = false;
 	Point size = getSize();
 	
@@ -2100,6 +2265,20 @@ boolean setButtonBounds() {
 	if (oldX != closeRect.x || oldWidth != closeRect.width ||
 	    oldY != closeRect.y || oldHeight != closeRect.height) changed = true;
 	
+	oldX = expandRect.x;
+	oldY = expandRect.y;
+	oldWidth = expandRect.width;
+	oldHeight = expandRect.height;
+	if (showExpand) {
+		expandRect.x = size.x - borderRight - closeRect.width - decoratorWidth;
+		if (borderRight > 0) expandRect.x += 1;
+		expandRect.y = onBottom ? size.y - borderBottom - tabHeight: borderTop;
+		expandRect.width = decoratorWidth;
+		expandRect.height = tabHeight;
+	}
+	if (oldX != expandRect.x || oldWidth != expandRect.width ||
+	    oldY != expandRect.y || oldHeight != expandRect.height) changed = true;
+	
 	oldX = chevronRect.x;
 	oldY = chevronRect.y;
 	oldWidth = chevronRect.width;
@@ -2107,9 +2286,9 @@ boolean setButtonBounds() {
 	chevronRect.x = chevronRect.y = chevronRect.height = chevronRect.width = 0;
 	if (items.length > 1) {
 		CTabItem2 item = items[items.length-1];
-		int rightEdge = size.x - borderRight - closeRect.width;
+		int rightEdge = size.x - borderRight - closeRect.width - expandRect.width;
 		if (single || topTabIndex > 0 || item.x + item.width > rightEdge) {
-			chevronRect.x = size.x - borderRight - closeRect.width - decoratorWidth;
+			chevronRect.x = size.x - borderRight - closeRect.width - expandRect.width - decoratorWidth;
 			if (borderRight > 0) chevronRect.x += 1;
 			chevronRect.y = onBottom ? size.y - borderBottom - tabHeight: borderTop;
 			chevronRect.width = decoratorWidth;
@@ -2118,20 +2297,7 @@ boolean setButtonBounds() {
 	}
 	if (oldX != chevronRect.x || oldWidth != chevronRect.width ||
 	    oldY != chevronRect.y || oldHeight != chevronRect.height) changed = true;
-
-	oldX = expandRect.x;
-	oldY = expandRect.y;
-	oldWidth = expandRect.width;
-	oldHeight = expandRect.height;
-	if (showExpand) {
-		expandRect.x = borderLeft;
-		if (borderLeft > 0) expandRect.x -= 1;
-		expandRect.y = onBottom ? size.y - borderBottom - tabHeight : borderTop;
-		expandRect.width = decoratorWidth;
-		expandRect.height = tabHeight;
-	}
-	if (oldX != expandRect.x || oldWidth != expandRect.width ||
-	    oldY != expandRect.y || oldHeight != expandRect.height) changed = true;
+	
 	return changed;
 }
 /**
@@ -2244,9 +2410,9 @@ boolean setItemLocation() {
 		if (selectedIndex > -1) {
 			CTabItem2 item = items[selectedIndex];
 			int oldX = item.x, oldY = item.y;
-			int tabWidth = size.x - borderLeft - borderRight - expandRect.width - closeRect.width;
+			int tabWidth = size.x - borderLeft - borderRight - closeRect.width - expandRect.width - chevronRect.width;
 			int indent = Math.max(0, (tabWidth-item.width)/2);
-			item.x = borderLeft + expandRect.width+indent; 
+			item.x = borderLeft + indent; 
 			item.y = y;
 			if (item.x != oldX || item.y != oldY) changed = true;
 		}
@@ -2262,7 +2428,7 @@ boolean setItemLocation() {
 			tab.y = y;
 		}
 		
-		x = expandRect.width == 0 ?  (borderLeft <= 1 ? 0 : HIGHLIGHT_MARGIN) : expandRect.width;
+		x = borderLeft <= 1 ? 0 : HIGHLIGHT_MARGIN;
 		for (int i = topTabIndex; i < items.length; i++) {
 			// continue laying out remaining, visible items left to right 
 			CTabItem2 tab = items[i];
@@ -2271,7 +2437,7 @@ boolean setItemLocation() {
 			x = x + tab.width;
 		}
 
-		int rightEdge = size.x - borderRight - closeRect.width - chevronRect.width;
+		int rightEdge = size.x - borderRight - closeRect.width - expandRect.width - chevronRect.width;
 		if (rightEdge > 0) {
 			CTabItem2 item = items[items.length - 1];
 			if (item.x + item.width < rightEdge) {
@@ -2301,7 +2467,7 @@ boolean setItemSize() {
 		widths[i] = items[i].preferredWidth(gc, i == selectedIndex);
 	}
 	gc.dispose();
-	int tabAreaWidth = size.x - borderLeft - borderRight - expandRect.width - closeRect.width;
+	int tabAreaWidth = size.x - borderLeft - borderRight - closeRect.width - expandRect.width - chevronRect.width;
 	if (items.length > 1) {
 		int selectedWidth = selectedIndex == -1 ? 0 : widths[selectedIndex];
 		int count = selectedIndex == -1 ? items.length : items.length - 1;
@@ -2346,7 +2512,7 @@ void setLastItem(int index) {
 	if (index < 0 || index > items.length - 1) return;
 	Rectangle area = getClientArea();
 	if (area.width <= 0) return;
-	int maxWidth = area.width - closeRect.width - chevronRect.width;
+	int maxWidth = area.width - closeRect.width - expandRect.width - chevronRect.width;
 	int tabWidth = items[index].width;
 	while (index > 0) {
 		tabWidth += items[index - 1].width;
@@ -2634,7 +2800,7 @@ public void showItem (CTabItem2 item) {
 		setFirstItem(index);
 		return;
 	}
-	int rightEdge = size.x - borderRight - closeRect.width - chevronRect.width;
+	int rightEdge = size.x - borderRight - closeRect.width - expandRect.width - chevronRect.width;
 	if (item.x + item.width < rightEdge) return;
 	setLastItem(index);
 }
