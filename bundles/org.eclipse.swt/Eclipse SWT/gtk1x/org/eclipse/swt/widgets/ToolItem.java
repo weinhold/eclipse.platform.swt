@@ -510,11 +510,7 @@ public void setControl (Control control) {
 	Control newControl = control;
 	Control oldControl = this.control;
 	if (oldControl == newControl) return;
-	if (oldControl != null) {
-		int topHandle = control.topHandle ();
-//		int tempHandle = parent.tempHandle;
-//		OS.gtk_widget_reparent (topHandle, tempHandle);
-	}
+
 	this.control = newControl;
 	if (newControl != null) {
 		if (handle != boxHandle) {
@@ -522,9 +518,7 @@ public void setControl (Control control) {
 			OS.gtk_widget_destroy (handle);
 			handle = boxHandle;
 		}
-		int topHandle = control.topHandle ();
-		OS.gtk_widget_reparent (topHandle, boxHandle);
-		//OS.gtk_widget_show (topHandle);
+		OS.gtk_widget_reparent (newControl.topHandle(), boxHandle);
 	} else {		
 		boolean isVertical = (parent.getStyle () & SWT.VERTICAL) != 0;
 		handle = isVertical ? OS.gtk_hseparator_new () : OS.gtk_vseparator_new ();
