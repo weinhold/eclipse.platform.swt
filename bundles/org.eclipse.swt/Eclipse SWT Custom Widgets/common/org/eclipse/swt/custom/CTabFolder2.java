@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.*;
  * </p><p>
  * <dl>
  * <dt><b>Styles:</b></dt>
- * <dd>TOP, BOTTOM, FLAT</dd>
+ * <dd>TOP, BOTTOM, FLAT, BORDER, SINGLE, MULTI</dd>
  * <dt><b>Events:</b></dt>
  * <dd>Selection</dd>
  * <dd>"CTabFolder"</dd>
@@ -222,10 +222,10 @@ public class CTabFolder2 extends Composite {
  */
 public CTabFolder2(Composite parent, int style) {
 	super(parent, checkStyle (style));
-	onBottom = (getStyle() & SWT.BOTTOM) != 0;
-	single = (style & SWT.SINGLE) != 0;
-	borderLeft = (style & SWT.BORDER) != 0 ? ((style & SWT.FLAT) != 0 ? 1 : 1 + HIGHLIGHT_MARGIN) : 0;
-	borderRight = (style & SWT.BORDER) != 0 ? ((style & SWT.FLAT) != 0 ? 1 : 1 + HIGHLIGHT_MARGIN) : 0;
+	int style2 = super.getStyle();
+	onBottom = (style2 & SWT.BOTTOM) != 0;
+	single = (style2 & SWT.SINGLE) != 0;
+	borderLeft = borderRight = (style & SWT.BORDER) != 0 ? ((style2 & SWT.FLAT) != 0 ? 1 : 1 + HIGHLIGHT_MARGIN) : 0;
 	borderTop = onBottom ? borderLeft : 0;
 	borderBottom = onBottom ? 0 : borderRight;
 	
@@ -551,6 +551,10 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	Rectangle trim = computeTrim(0, 0, minWidth, minHeight);
 	return new Point (trim.width, trim.height);
 }
+public boolean getBorderVisible() {
+	checkWidget();
+	return showHighlight;
+}
 public Rectangle computeTrim (int x, int y, int width, int height) {
 	checkWidget();
 	if (!expanded) {
@@ -585,7 +589,7 @@ void createItem (CTabItem2 item, int index) {
 	}
 	if (items.length == 1) {
 		topTabIndex = 0;
-		if (!updateTabHeight(tabHeight)) updateItems();
+		if (!updateTabHeight(tabHeight, false)) updateItems();
 		redraw();
 	} else {
 		updateItems();
@@ -1345,6 +1349,15 @@ public int getSelectionIndex() {
 	//checkWidget();
 	return selectedIndex;
 }
+public int getStyle() {
+	int style = super.getStyle();
+	style &= ~(SWT.TOP | SWT.BOTTOM);
+	style |= onBottom ? SWT.BOTTOM : SWT.TOP;
+	style &= ~(SWT.SINGLE | SWT.MULTI);
+	style |= single ? SWT.SINGLE : SWT.MULTI;
+	if (borderLeft != 0) style |= SWT.BORDER;
+	return style;
+}
 /**
  * Returns the height of the tab
  * 
@@ -1845,7 +1858,7 @@ void onPaint(Event event) {
 	if (oldFont == null || !oldFont.equals(font)) {
 		// handle case where  default font changes
 		oldFont = font;
-		if (!updateTabHeight(tabHeight)) {
+		if (!updateTabHeight(tabHeight, false)) {
 			updateItems();
 			redraw();
 		}
@@ -2129,7 +2142,7 @@ public void removeCTabFolderCloseListener(CTabFolderCloseListener listener) {
 		// hide close button
 		closeListeners = new CTabFolderCloseListener[0];
 		showClose = false;
-		setButtonBounds();
+		if (setButtonBounds()) redraw();
 		return;
 	}
 	CTabFolderCloseListener[] newTabListeners = new CTabFolderCloseListener[closeListeners.length - 1];
@@ -2165,8 +2178,7 @@ public void removeCTabFolderExpandListener(CTabFolderExpandListener listener) {
 		// hide expand button
 		expandListeners = new CTabFolderExpandListener[0];
 		showExpand = false;
-		updateItems();
-		redraw();
+		if (setButtonBounds()) redraw();
 		return;
 	}
 	CTabFolderExpandListener[] newListeners = new CTabFolderExpandListener[expandListeners.length - 1];
@@ -2296,6 +2308,7 @@ boolean setButtonBounds() {
 	oldY = expandRect.y;
 	oldWidth = expandRect.width;
 	oldHeight = expandRect.height;
+	expandRect.x = expandRect.y = expandRect.width = expandRect.height = 0;
 	if (showExpand) {
 		expandRect.x = size.x - borderRight - closeRect.width - decoratorWidth;
 		if (borderRight > 0) expandRect.x += 1;
@@ -2366,7 +2379,7 @@ public void setFont(Font font) {
 	if (font != null && font.equals(getFont())) return;
 	super.setFont(font);
 	oldFont = getFont();
-	if (!updateTabHeight(tabHeight)) {
+	if (!updateTabHeight(tabHeight, false)) {
 		updateItems();
 		redraw();
 	}
@@ -2766,6 +2779,57 @@ public void setSelectionForeground (Color color) {
 	if (selectedIndex > -1) redraw();
 }
 /**
+ * 
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
+public void setStyle(int style) {
+	checkWidget();
+	int mask = SWT.TOP | SWT.BOTTOM | SWT.SINGLE | SWT.MULTI;
+	style = style & mask;
+	// TOP and BOTTOM are mutually exlusive.
+	// TOP is the default
+	if ((style & SWT.TOP) != 0) 
+		style = style & ~SWT.BOTTOM | SWT.TOP;
+	// SINGLE and MULTI are mutually exlusive.
+	// MULTI is the default
+	if ((style & SWT.MULTI) != 0) 
+		style = style & ~SWT.SINGLE | SWT.MULTI;
+
+	boolean changed = false;
+	if ((style & SWT.TOP) != 0 || (style & SWT.BOTTOM) != 0) {
+		if (onBottom != ((style & SWT.BOTTOM) != 0)) {
+			onBottom = (style & SWT.BOTTOM) != 0;
+			borderTop = onBottom ? borderLeft : 0;
+			borderBottom = onBottom ? 0 : borderRight;
+			updateTabHeight(tabHeight, true);
+			changed = true;
+		}
+	}
+	if ((style & SWT.SINGLE) != 0 || (style & SWT.MULTI) != 0) {
+		if (single != ((style & SWT.SINGLE) != 0)) {
+			single = (style & SWT.SINGLE) != 0;
+			if (single && selectedIndex == -1 && items.length > 0) {
+				setSelection(0, true);
+			}
+			changed = true;
+		}
+	}
+	if (changed) {
+		Rectangle rectBefore = getClientArea();
+		updateItems();
+		Rectangle rectAfter = getClientArea();
+		if (!rectBefore.equals(rectAfter)) {
+			notifyListeners(SWT.Resize, new Event());
+		}
+		redraw();
+	}
+}
+/**
  * Specify a fixed height for the tab items.  If no height is specified,
  * the default height is the height of the text or the image, whichever 
  * is greater. Specifying a height of 0 will revert to the default height.
@@ -2786,7 +2850,7 @@ public void setTabHeight(int height) {
 	fixedTabHeight = height > 0;
 	int oldHeight = tabHeight;
 	tabHeight = height;
-	updateTabHeight(oldHeight);
+	updateTabHeight(oldHeight, false);
 }
 /**
  * Set the control that appears in the top right corner of the tab folder.
@@ -2969,7 +3033,7 @@ boolean updateItems() {
 	if (setButtonBounds()) changed = true;
 	return changed;
 }
-boolean updateTabHeight(int oldHeight){
+boolean updateTabHeight(int oldHeight, boolean force){
 	if (!fixedTabHeight) {
 		int tempHeight = 0;
 		GC gc = new GC(this);
@@ -2979,7 +3043,7 @@ boolean updateTabHeight(int oldHeight){
 		gc.dispose();
 		tabHeight =  tempHeight;
 	}
-	if (tabHeight == oldHeight) return false;
+	if (!force && tabHeight == oldHeight) return false;
 	
 	oldSize = null;
 	if (onBottom) {
