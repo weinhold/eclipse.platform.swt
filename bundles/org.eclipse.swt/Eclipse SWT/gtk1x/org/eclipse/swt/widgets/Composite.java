@@ -157,8 +157,8 @@ public void setSize (int width, int height) {
 void _setSize(int width, int height) {
 	OS.eclipse_fixed_set_size(parent.parentingHandle(), topHandle(), width, height);
 	/* FIXME */
-	if ((style&SWT.V_SCROLL) != 0) width  -= 18;
-	if ((style&SWT.H_SCROLL) != 0) height -= 18;
+	if ((style&SWT.V_SCROLL) != 0) width  -= 18;  width  = Math.max(width, 0);
+	if ((style&SWT.H_SCROLL) != 0) height -= 18;  height = Math.max(height, 0);
 	OS.eclipse_fixed_set_size(fixedHandle, handle, width, height);
 }
 
