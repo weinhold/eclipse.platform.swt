@@ -104,8 +104,8 @@ public class StyledText extends Canvas {
     int lastTextChangeNewCharCount;             // event for use in the
     int lastTextChangeReplaceLineCount;         // text changed handler
     int lastTextChangeReplaceCharCount;
-    // BOGUS!  bidiColorSplit should be = false.  It is set to true for Bidi testing.
-    boolean bidiColorSplit = true;              // split lines according to colors for code editor with Bidi
+ 
+	boolean bidiColoring = true;	// apply the BIDI algorithm on text segments of the same color
 
     static final int BIDI_CARET_WIDTH = 4;
     static int xInset = 0;
@@ -627,12 +627,14 @@ public StyledText(Composite parent, int style) {
     installDefaultLineStyler();
 }
 
-void setBidiColorSplit(boolean mode) {
-    bidiColorSplit = mode;
+public void setBidiColoring(boolean mode) {
+	checkWidget();
+    bidiColoring = mode;
 }
 
-boolean getBidiColorSplit() {
-    return bidiColorSplit;
+public boolean getBidiColoring() {
+	checkWidget();
+    return bidiColoring;
 }
 
 int [] getStyleOffsets (String line, int lineOffset) {
@@ -646,7 +648,7 @@ int [] getStyleOffsets (String line, int lineOffset) {
     }
 
     int k=0, count = 1;
-    while (styles[k].start == 0 && styles[k].length == line.length()) {
+    while (k < styles.length && styles[k].start == 0 && styles[k].length == line.length()) {
         k++;
     }
     int[] offsets = new int[(styles.length - k) * 2 + 2];
