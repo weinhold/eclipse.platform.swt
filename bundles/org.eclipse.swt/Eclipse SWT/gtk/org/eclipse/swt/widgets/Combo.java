@@ -46,7 +46,7 @@ import org.eclipse.swt.events.*;
  */
 
 public class Combo extends Composite {
-	int padHandle;
+	int fixedHandle;
 	int entryHandle, listHandle;
 	int glist;
 	int textLimit = LIMIT;
@@ -265,23 +265,19 @@ static int checkStyle (int style) {
  */
 public void clearSelection () {
 	checkWidget();
-	int position = OS.gtk_editable_get_position (entryHandle);
-	OS.gtk_editable_set_position (entryHandle, position);
+	/*int position = OS.gtk_editable_get_position (entryHandle);
+	OS.gtk_editable_set_position (entryHandle, position);*/
 }
 
 void createHandle (int index) {
 	state |= HANDLE;
-	eventBoxHandle = OS.gtk_event_box_new ();
-	if (eventBoxHandle == 0) error (SWT.ERROR_NO_HANDLES);
-	padHandle = OS.gtk_fixed_new ();
-	if (padHandle == 0) error (SWT.ERROR_NO_HANDLES);
+	fixedHandle = OS.eclipse_fixed_new();
+	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	handle = OS.gtk_combo_new ();
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 	GtkCombo combo = new GtkCombo (handle);
 	entryHandle = combo.entry;
 	listHandle = combo.list;
-	fixedHandle = OS.gtk_fixed_new();
-	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }
 void setHandleStyle() {
 	boolean isEditable = (style & SWT.READ_ONLY) == 0;
@@ -289,15 +285,11 @@ void setHandleStyle() {
 }
 
 void configure () {
-	_connectParent();
-	OS.gtk_container_add(eventBoxHandle, padHandle);
-	OS.gtk_fixed_put (padHandle, fixedHandle, (short)0, (short)0);
-	OS.gtk_fixed_put (padHandle, handle, (short)0, (short)0);
+	parent._connectChild(topHandle());
+	OS.gtk_container_add(fixedHandle, handle);
 }
 
 void showHandle() {
-	OS.gtk_widget_show(eventBoxHandle);
-	OS.gtk_widget_show(padHandle);
 	OS.gtk_widget_show(fixedHandle);
 	OS.gtk_widget_show(handle);	
 	OS.gtk_widget_realize (handle);
@@ -305,7 +297,7 @@ void showHandle() {
 
 void deregister () {
 	super.deregister ();
-	WidgetTable.remove (padHandle);
+	WidgetTable.remove (fixedHandle);
 	WidgetTable.remove (entryHandle);
 	WidgetTable.remove (listHandle);
 }
@@ -343,11 +335,9 @@ void hookEvents () {
 	signal_connect_after (handle, "key_release_event", SWT.KeyUp, 3);
 }
 
-int topHandle() { return eventBoxHandle; }
+int topHandle() { return fixedHandle; }
 int parentingHandle() { return fixedHandle; }
 boolean isMyHandle(int h) {
-	if (h==eventBoxHandle) return true;
-	if (h==padHandle) return true;
 	if (h==fixedHandle) return true;
 	if (h==handle) return true;
 	if (h== entryHandle) return true;
@@ -355,19 +345,21 @@ boolean isMyHandle(int h) {
 	return false;
 }
 
-void _connectChild (int h) {
-	OS.gtk_fixed_put (fixedHandle, h, (short)0, (short)0);
-}
-
 Point _getClientAreaSize () {
-	return _getSize();
+	//return _getSize();
+	/* FIXME */
+	return new Point(70, 20);
 }
 
-boolean _setSize(int width, int height) {
-	boolean differentExtent = UtilFuncs.setSize(eventBoxHandle, width,height);
-	UtilFuncs.setSize    (fixedHandle, width,height);
-	UtilFuncs.setSize    (handle,       width,height);
-	return differentExtent;
+void _setSize(int width, int height) {
+	width = 70; height = 20;
+	super._setSize(width, height);
+	OS.eclipse_fixed_set_size(fixedHandle, handle, width, height);
+}
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	return new Point (70,20);
 }
 
 /**
@@ -693,8 +685,8 @@ int processSelection (int int0, int int1, int int2) {
 }
 
 void register () {
-	super.register ();
-	WidgetTable.put (padHandle, this);
+	WidgetTable.put (handle, this);
+	WidgetTable.put (fixedHandle, this);
 	WidgetTable.put (entryHandle, this);
 	WidgetTable.put (listHandle, this);
 }
@@ -936,7 +928,7 @@ public void setItem (int index, String string) {
  */
 public void setItems (String [] items) {
 	checkWidget();
-	if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
+	/*if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (items.length == 0) {
 		OS.gtk_list_clear_items (listHandle, 0, -1);
 		//LEAK
@@ -969,7 +961,7 @@ public void setItems (String [] items) {
 	}
 	OS.gtk_signal_handler_block_by_data (entryHandle, SWT.Modify);
 	OS.gtk_editable_delete_text (entryHandle, 0, -1);
-	OS.gtk_signal_handler_unblock_by_data (entryHandle, SWT.Modify);
+	OS.gtk_signal_handler_unblock_by_data (entryHandle, SWT.Modify);*/
 }
 
 /**
@@ -990,9 +982,9 @@ public void setItems (String [] items) {
  */
 public void setSelection (Point selection) {
 	checkWidget();
-	if (selection == null) error (SWT.ERROR_NULL_ARGUMENT);
+	/*if (selection == null) error (SWT.ERROR_NULL_ARGUMENT);
 	OS.gtk_editable_set_position (entryHandle, selection.x);
-	OS.gtk_editable_select_region (entryHandle, selection.x, selection.y);
+	OS.gtk_editable_select_region (entryHandle, selection.x, selection.y);*/
 }
 
 protected boolean setTabGroupFocus () {
@@ -1022,13 +1014,13 @@ protected boolean setTabGroupFocus () {
  */
 public void setText (String string) {
 	checkWidget();
-	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	/*if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	OS.gtk_editable_delete_text (entryHandle, 0, -1);
 	int [] position = new int [1];
 	byte [] buffer = Converter.wcsToMbcs (null, string);
 	OS.gtk_editable_insert_text (entryHandle, buffer, buffer.length, position);
-	OS.gtk_editable_set_position (entryHandle, 0);
+	OS.gtk_editable_set_position (entryHandle, 0);*/
 }
 
 /**

@@ -729,11 +729,10 @@ public void setToolTipText (String string) {
  * </ul>
  */
 public void setWidth (int width) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if ((style & SWT.SEPARATOR) == 0) return;
-	
-	Point size = control.computeSize(width, SWT.DEFAULT);
-	control.setSize(size);
+	/* FIXME */
+	/*Point size = control.computeSize(width, SWT.DEFAULT);
+	control.setSize(size);*/
 }
 }
