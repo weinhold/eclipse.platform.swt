@@ -182,7 +182,7 @@ public String open () {
 	byte [] titleBytes = Converter.wcsToMbcs (null, title, true);
 	int handle = OS.gtk_file_selection_new (titleBytes);
 	GtkFileSelection dialog = new GtkFileSelection ();
-	OS.memmove (dialog, handle, GtkFileSelection.sizeof);
+	OS.memmove (dialog, handle, 0);
 	
 	/* Calculate the fully-specified file name and convert to bytes */
 	StringBuffer stringBuffer = new StringBuffer ();

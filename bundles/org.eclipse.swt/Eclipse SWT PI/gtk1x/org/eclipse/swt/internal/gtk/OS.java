@@ -645,7 +645,6 @@ public static final native void memmove(int dest, GtkColorSelectionDialog src, i
 public static final native void memmove(int dest, GtkCombo src, int size);
 public static final native void memmove(int dest, GtkContainer src, int size);
 //public static final native void memmove(int dest, GtkData src, int size);
-public static final native void memmove(int dest, GtkFileSelection src, int size);
 public static final native void memmove(int dest, GtkHBox src, int size);
 public static final native void memmove(int dest, GtkMenuItem src, int size);
 public static final native void memmove(int dest, GtkRequisition src, int size);
