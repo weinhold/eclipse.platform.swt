@@ -355,9 +355,9 @@ void showHandle() {
 }
 
 void hookEvents () {
-/*	super.hookEvents ();*/
-/*	signal_connect_after(shellHandle, "map-event",     SWT.Deiconify, 3);
-	signal_connect_after(shellHandle, "unmap-event",   SWT.Iconify, 3);*/
+	super.hookEvents ();
+	signal_connect_after(shellHandle, "map-event",     SWT.Deiconify, 3);
+	signal_connect_after(shellHandle, "unmap-event",   SWT.Iconify, 3);
 	signal_connect(shellHandle, "size-allocate", SWT.Resize, 3);
 	signal_connect(shellHandle, "delete-event",  SWT.Dispose, 3);
 }
@@ -409,13 +409,13 @@ boolean isMyHandle(int h) {
  *   ===  GEOMETRY  ===
  */
 
-public Point _getLocation() {
+Point _getLocation() {
 	int [] x = new int [1], y = new int [1];
 	OS.gtk_window_get_position(shellHandle, x,y);
 	return new Point(x[0], y[0]);
 }
 
-public Point _getSize() {
+Point _getSize() {
 	int[] x = new int[1]; int[] y = new int[1];
 	OS.gtk_window_get_size(shellHandle, x, y);
 	return new Point(x[0], y[0]);
@@ -676,10 +676,8 @@ public void setImeInputMode (int mode) {
 
 public void setMaximized (boolean maximized) {
 	checkWidget();
-	
-	/*
-	 * Out of luck on curent GDK.
-	 */
+	if (maximized) OS.gtk_window_maximize(shellHandle);
+		else OS.gtk_window_unmaximize(shellHandle);
 }
 
 public void setMenuBar (Menu menu) {
@@ -705,23 +703,8 @@ public void setMenuBar (Menu menu) {
 
 public void setMinimized (boolean minimized) {
 	checkWidget();
-	
-	/*
-	 * In GDK, there is no way to iconify a shell.
-	 * If we wanted it really badly, on pure X this is done
-	 * by sending a client message - see ICCCM L.4.1.4.
-	 */
-	if (minimized) return;
-	
-	/*
-	 * At least we can force a deiconify
-	 * 
-	 * FIXME We now have it!!!
-	 * 
-	 */
-/*	GtkWidget w = new GtkWidget();
-	OS.memmove(w, topHandle, w.sizeof);
-	OS.gdk_window_show(w.window);*/
+	if (minimized) OS.gtk_window_iconify(shellHandle);
+		else OS.gtk_window_deiconify(shellHandle);
 }
 
 /**

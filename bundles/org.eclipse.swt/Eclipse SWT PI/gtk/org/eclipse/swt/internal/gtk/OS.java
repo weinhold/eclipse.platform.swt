@@ -282,6 +282,11 @@ public static final native void gtk_window_get_position(int handle, int[] x, int
 public static final native void gtk_window_get_size(int handle, int[] x, int[] y);
 public static final native void gtk_window_move(int handle, int x, int y);
 public static final native void gtk_window_resize(int handle, int x, int y);
+public static final native void gtk_window_iconify(int handle);
+public static final native void gtk_window_deiconify(int handle);
+public static final native void gtk_window_maximize(int handle);
+public static final native void gtk_window_unmaximize(int handle);
+
 
 
 /* Menus */
