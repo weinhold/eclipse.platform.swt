@@ -113,8 +113,7 @@ public TableItem (Table parent, int style, int index) {
  * </ul>
  */
 public Rectangle getBounds (int index) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	int CELL_SPACING=1;
 	GtkCList table = new GtkCList();
 	OS.memmove(table, parent.handle, GtkCList.sizeof);
@@ -122,11 +121,9 @@ public Rectangle getBounds (int index) {
 	columnHandle= columnHandle+index*GtkCListColumn.sizeof;
 	GtkCListColumn column=new GtkCListColumn();
 	OS.memmove(column, columnHandle, GtkCListColumn.sizeof);
-	GtkAdjustment adjustment=new GtkAdjustment();
-	OS.memmove(adjustment, table.vadjustment, GtkAdjustment.sizeof);
-	float vaj = adjustment.value;
-	OS.memmove(adjustment, table.hadjustment, GtkAdjustment.sizeof);
-	float haj = adjustment.value;
+	
+	double haj = OS.gtk_adjustment_get_value(table.hadjustment);
+	double vaj = OS.gtk_adjustment_get_value(table.vadjustment);
 	int x=(short)column.area_x+table.hoffset;
 	int width=(short)column.area_width;
 	int height=parent.getItemHeight();

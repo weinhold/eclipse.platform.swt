@@ -1131,9 +1131,8 @@ public void setTopIndex (int index) {
 	checkWidget ();
 	if ((style & SWT.SINGLE) != 0) return;
 	if (index > getLineCount()) return;
-	GtkAdjustment adjustment = new GtkAdjustment();
 	int adjustmentHandle = OS.gtk_scrolled_window_get_vadjustment(scrolledHandle);
-      	OS.memmove(adjustment, adjustmentHandle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment(adjustmentHandle);
 	int adjust = (int)(index*adjustment.upper/getLineCount());
 	if (adjust <= 0) {
 		adjust = 0;
@@ -1188,9 +1187,8 @@ public void showSelection () {
 	if ( (topCharIndex > start_pos && topCharIndex < end_pos) || topCharIndex==start_pos ||
 		topCharIndex == end_pos) return;
 	if (pos < start_pos || pos > end_pos) {
-		GtkAdjustment adjustment = new GtkAdjustment();
 		int adjustmentHandle = OS.gtk_scrolled_window_get_vadjustment(scrolledHandle);
-	       	OS.memmove(adjustment, adjustmentHandle, GtkAdjustment.sizeof);
+		GtkAdjustment adjustment = new GtkAdjustment(adjustmentHandle);
 		String tmpString= new String(getText(0,start_pos));
 		int currentln=getLineNumberInString(tmpString, '\n');
 		int adjust = (int)(currentln*adjustment.upper/getLineCount()-adjustment.page_increment);

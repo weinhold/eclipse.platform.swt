@@ -197,13 +197,10 @@ public Rectangle getBounds () {
 	GtkCTree tree = new GtkCTree();
 	OS.memmove(tree, ctree, GtkCTree.sizeof);
 
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, tree.vadjustment, GtkAdjustment.sizeof);
-	float vaj = adjustment.value;
-	OS.memmove (adjustment, tree.hadjustment, GtkAdjustment.sizeof);
-	float haj = adjustment.value;
+	double haj = OS.gtk_adjustment_get_value(tree.hadjustment);
+	double vaj = OS.gtk_adjustment_get_value(tree.vadjustment);
+	
 	int columnHandle = tree.column;
-
 	int height=parent.getItemHeight();
 
 	int row_list = tree.row_list; int level=0;
