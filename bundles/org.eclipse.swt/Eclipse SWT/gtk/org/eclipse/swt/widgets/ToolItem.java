@@ -24,17 +24,26 @@ import org.eclipse.swt.events.*;
  * </p>
  * IMPORTANT: This class is <em>not</em> intended to be subclassed.
  */
-
 public class ToolItem extends Item {
-	int boxHandle;
 	ToolBar parent;
 	Control control;
 	Image hotImage, disabledImage;
+	
+	/* These are required for some kinds of items.
+	 * For example, boxHandle is needed for Separator when it is
+	 * the host for a child Control, and for arrow items.
+	 */
+	int boxHandle, arrowHandle;
+	
+	/* For some kinds of items, the native constructor will
+	 * create them already configured / shown.  In that case,
+	 * configure()/show() will do nothing.
+	 */
+	boolean configured=false, shown=false;
+	
 	int currentpixmap;
 	boolean drawHotImage;
 	int position;
-	boolean configured=false;
-	boolean shown=false;
 	private int tooltipsHandle;
 
 /**
@@ -140,15 +149,11 @@ public ToolItem (ToolBar parent, int style, int index) {
  * @see SelectionEvent
  */
 public void addSelectionListener(SelectionListener listener) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
 	TypedListener typedListener = new TypedListener (listener);
 	addListener (SWT.Selection,typedListener);
 	addListener (SWT.DefaultSelection,typedListener);
-}
-static int checkStyle (int style) {
-	return checkBits (style, SWT.PUSH, SWT.CHECK, SWT.RADIO, SWT.SEPARATOR, SWT.DROP_DOWN, 0);
 }
 
 void createHandle (int index) {
@@ -536,8 +541,8 @@ public void setControl (Control control) {
 	if (oldControl == newControl) return;
 	if (oldControl != null) {
 		int topHandle = control.topHandle ();
-		int tempHandle = parent.tempHandle;
-		OS.gtk_widget_reparent (topHandle, tempHandle);
+//		int tempHandle = parent.tempHandle;
+//		OS.gtk_widget_reparent (topHandle, tempHandle);
 	}
 	this.control = newControl;
 	if (newControl != null) {
@@ -711,8 +716,7 @@ public void setText (String string) {
  * </ul>
  */
 public void setToolTipText (String string) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (tooltipsHandle == 0) tooltipsHandle = OS.gtk_tooltips_new();
 	byte [] buffer = Converter.wcsToMbcs (null, string, true);
 	OS.gtk_tooltips_set_tip(tooltipsHandle, handle, buffer, null);
@@ -728,11 +732,14 @@ public void setToolTipText (String string) {
  * </ul>
  */
 public void setWidth (int width) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if ((style & SWT.SEPARATOR) == 0) return;
 	
 	Point size = control.computeSize(width, SWT.DEFAULT);
 	control.setSize(size);
+}
+
+static int checkStyle (int style) {
+	return checkBits (style, SWT.PUSH, SWT.CHECK, SWT.RADIO, SWT.SEPARATOR, SWT.DROP_DOWN, 0);
 }
 }
