@@ -1382,9 +1382,6 @@ void onDispose() {
 
 	selectionBackground = null;
 	selectionForeground = null;
-	border1Color = null;
-	border2Color = null;
-	border3Color = null;
 }
 void onFocus(Event event) {
 	checkWidget();
