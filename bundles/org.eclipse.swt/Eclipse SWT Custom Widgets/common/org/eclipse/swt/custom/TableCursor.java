@@ -17,7 +17,6 @@ public TableCursor (Table parent, int style) {
 		public void handleEvent (Event event) {
 			switch (event.type) {
 				case SWT.Dispose:	dispose (event); break;
-				case SWT.FocusOut:	focusOut (event); break;
 				case SWT.KeyDown:	keyDown (event); break;
 				case SWT.Paint:	    paint (event); break;
 				case SWT.Traverse:	traverse (event); break;
@@ -25,7 +24,6 @@ public TableCursor (Table parent, int style) {
 		}
 	};
 	addListener (SWT.Dispose, listener);
-	addListener (SWT.FocusOut, listener);
 	addListener (SWT.KeyDown, listener);
 	addListener (SWT.Paint, listener);
 	addListener (SWT.Traverse, listener);
@@ -127,23 +125,23 @@ void keyDown (Event event) {
 	}
 	switch (event.keyCode) {
 		case SWT.ARROW_UP:
-			setRowColumn (row - 1 , column);
+			setRowColumn (row - 1 , column, true);
 			break;
 		case SWT.ARROW_DOWN:
-			setRowColumn (row + 1, column);
+			setRowColumn (row + 1, column, true);
 			break;
 		case SWT.ARROW_LEFT:
-			setRowColumn (row, column - 1);
+			setRowColumn (row, column - 1, true);
 			break;
 		case SWT.ARROW_RIGHT:
-			setRowColumn (row, column + 1);
+			setRowColumn (row, column + 1, true);
 			break;
 		case SWT.HOME:
-			setRowColumn (0, column);
+			setRowColumn (0, column, true);
 			break;
 		case SWT.END: {
 			int row = table.getItemCount () - 1;
-			setRowColumn (row, column);
+			setRowColumn (row, column, true);
 			break;
 		}
 		case SWT.PAGE_UP: {
@@ -157,7 +155,7 @@ void keyDown (Event event) {
 				int page = Math.max (1, rect.height / height);
 				index = Math.max (0, index - page + 1);
 			}
-			setRowColumn (index, column);
+			setRowColumn (index, column, true);
 			break;
 		}
 		case SWT.PAGE_DOWN: {
@@ -173,19 +171,14 @@ void keyDown (Event event) {
 			if (index == row) {
 				index = Math.min (end, index + page - 1);
 			}
-			setRowColumn (index, column);
+			setRowColumn (index, column, true);
 			break;
 		}
 	}
 }
 
-void focusOut (Event event) {
-	//setVisible (false);
-}
-
 void paint (Event event) {
 	GC gc = event.gc;
-System.out.println("painting "+ event.x+" "+event.y+" "+event.width +" "+event.height);
 	Display display = getDisplay ();
 	gc.setForeground (display.getSystemColor (SWT.COLOR_LIST_SELECTION_TEXT));
 	gc.setBackground (display.getSystemColor (SWT.COLOR_LIST_SELECTION));
@@ -209,12 +202,11 @@ System.out.println("painting "+ event.x+" "+event.y+" "+event.width +" "+event.h
 
 void tableFocusIn (Event event) {
 	if (isDisposed()) return;
-	setVisible (true);
-	setFocus ();
+	if (isVisible()) setFocus ();
 }
 
 void tableMouseDown (Event event) {
-	if (isDisposed()) return;
+	if (isDisposed() || !isVisible()) return;
 	Point pt = new Point (event.x, event.y);
 	Rectangle clientRect = table.getClientArea ();
 	int columns = table.getColumnCount ();
@@ -226,7 +218,7 @@ void tableMouseDown (Event event) {
 			Rectangle rect = item.getBounds (column);
 			if (rect.y > clientRect.y + clientRect.height) return;
 			if (rect.contains (pt)) {
-				setRowColumn (row, column);
+				setRowColumn (row, column, true);
 				setFocus ();
 				return;
 			}
@@ -245,7 +237,7 @@ void traverse (Event event) {
 	event.doit = true;
 }
 
-void setRowColumn (int row, int column) {
+void setRowColumn (int row, int column, boolean notify) {
 	if (0 <= row && row < table.getItemCount ()) {
 		if (0 <= column && column < table.getColumnCount ()) {
 			this.row = row;
@@ -254,7 +246,9 @@ void setRowColumn (int row, int column) {
 			table.showItem (item);
 			setBounds (item.getBounds (column));
 			redraw ();
-			notifyListeners (SWT.Selection, new Event ());
+			if (notify) {
+				notifyListeners (SWT.Selection, new Event ());
+			}
 		}
 	}
 }
@@ -274,6 +268,12 @@ public int getColumn () {
 }
 public TableItem getRow() {
 	return table.getItem(row);
+}
+public void setSelection(TableItem row, int column) {
+	if (row == null || row.isDisposed() || column < 0 || column >= table.getColumnCount()) 
+		SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+	setRowColumn(table.indexOf(row), column, false);
+	
 }
 }
 
