@@ -778,9 +778,7 @@ public void drawArc(int x, int y, int width, int height, int startAngle, int end
  * @see #drawRectangle
  */
 public void drawFocus(int x, int y, int width, int height) {
-	GtkStyle style = new GtkStyle();
-	int hStyle = OS.gtk_widget_get_default_style();
-	OS.memmove(style, hStyle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle(OS.gtk_widget_get_default_style());
 	GdkColor color = new GdkColor();
 	color.pixel = style.fg0_pixel;
 	color.red = style.fg0_red;

@@ -178,8 +178,7 @@ final class Pixbuffer {
 		if (dest==null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		int w = getWidth();
 		int h = getHeight();
-		GdkVisual visual = new GdkVisual();
-		OS.memmove(visual, OS.gdk_visual_get_system(), GdkVisual.sizeof);
+		GdkVisual visual = new GdkVisual(OS.gdk_visual_get_system());
 		dest.pixmap = OS.gdk_pixmap_new (0, w, h, visual.depth);
 		dest.mask = 0;  // for now; we fill it later in this method
 		GDKPIXBUF.gdk_pixbuf_render_to_drawable_alpha(handle,  // src

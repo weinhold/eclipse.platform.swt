@@ -589,8 +589,7 @@ public void internal_dispose_GC (int gc, GCData data) {
 
 void init(Device display, int width, int height) {
 	device = display;
-	GdkVisual visual = new GdkVisual ();
-	OS.memmove(visual, OS.gdk_visual_get_system(), GdkVisual.sizeof);
+	GdkVisual visual = new GdkVisual (OS.gdk_visual_get_system());
 	this.pixmap = OS.gdk_pixmap_new(0, width, height, visual.depth);
 	if (pixmap == 0) SWT.error(SWT.ERROR_NO_HANDLES);
 	/* Fill the bitmap with white */

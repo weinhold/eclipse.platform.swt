@@ -238,9 +238,7 @@ static RGB gtk_getRGBIntensities(GdkColor gdkColor) {
 	if (!intensitiesAreZero) return new RGB ((gdkColor.red&0xFF00)>>8,
 	                                        (gdkColor.green&0xFF00)>>8,
 	                                        (gdkColor.blue&0xFF00)>>8 );
-	GdkVisual visual = new GdkVisual();
-	OS.memmove(visual, OS.gdk_visual_get_system(), GdkVisual.sizeof);
-
+	GdkVisual visual = new GdkVisual(OS.gdk_visual_get_system());
 	int r = (gdkColor.pixel&visual.red_mask) >> visual.red_shift;
 	if (visual.red_prec<8) r = r << (8 - visual.red_prec);
 		else r = r >> (visual.red_prec - 8);
