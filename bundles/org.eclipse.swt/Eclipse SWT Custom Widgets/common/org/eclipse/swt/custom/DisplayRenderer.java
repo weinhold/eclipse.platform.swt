@@ -14,17 +14,21 @@ import org.eclipse.swt.graphics.*;
  * Created by StyledText to handle a single invalidate (i.e., Paint event).
  */
 class DisplayRenderer extends AbstractRenderer {
+	private StyledText parent;
 	
 DisplayRenderer(Device device, Font regularFont, StyledText parent, boolean isBidi, int tabLength, int lineEndSpaceWidth, int leftMargin) {
-	super(device, regularFont, parent, isBidi, lineEndSpaceWidth, leftMargin);
+	super(device, regularFont, isBidi, lineEndSpaceWidth, leftMargin);
+	this.parent = parent;
 	calculateLineHeight();
 	setTabLength(tabLength);
+}
+protected void disposeGC(GC gc) {
+	gc.dispose();
 }
 /** 
  * @see AbstractRenderer#drawLineSelectionBackground
  */
 protected void drawLineSelectionBackground(String line, int lineOffset, StyleRange[] styles, int paintY, GC gc, FontData currentFont, StyledTextBidi bidi) {
-	StyledText parent = getParent();
 	Point selection = parent.internalGetSelection();
 	LineCache lineCache = parent.internalGetLineCache();
 	StyledTextContent content = getContent();
@@ -109,16 +113,45 @@ protected void drawLineSelectionBackground(String line, int lineOffset, StyleRan
 	// drawn as spaces. tabs just move the draw position. 
 	gc.fillRectangle(paintX - horizontalScrollOffset + leftMargin, paintY, selectionBackgroundWidth, lineHeight);
 }
-
+/**
+ * @see AbstractRenderer#getBidiSegments
+ */
+protected int[] getBidiSegments(int lineOffset, String lineText) {
+	return parent.getBidiSegments(lineOffset, lineText);
+}
 /**
  */
 protected Rectangle getClientArea() {
-	return getParent().getClientArea();
+	return parent.getClientArea();
 }
 /**
  */
 protected StyledTextContent getContent() {
-	return getParent().internalGetContent();
+	return parent.internalGetContent();
+}
+protected GC getGC() {
+	return new GC(parent);
+}
+protected int getHorizontalPixel() {
+	return parent.internalGetHorizontalPixel();
+}
+protected int getLastCaretDirection() {
+	return parent.internalGetLastCaretDirection();
+}
+/**
+ * @see AbstractRenderer#getLineBackgroundData
+ */
+protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
+	return parent.getLineBackgroundData(lineOffset, line);
+}
+/**
+ * @see AbstractRenderer#getLineStyleData
+ */
+protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
+	return parent.getLineStyleData(lineOffset, line);
+}
+protected Point getSelection() {
+	return parent.internalGetSelection();
 }
 /**
  * Returns the background color to be used for rendering selected text.
@@ -227,7 +260,7 @@ Pseudo code for getSelectionLineStyles
 	}
 */
 protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
-	Point selection = getParent().internalGetSelection();	
+	Point selection = parent.internalGetSelection();	
 	int selectionStart = selection.x;
 	int selectionEnd = selection.y;
 	Vector newStyles = new Vector(styles.length);	
@@ -337,6 +370,9 @@ protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	newStyles.copyInto(styles);
 	return styles;
 }
+protected boolean isFullLineSelection() {
+	return (parent.getStyle() & SWT.FULL_SELECTION) != 0;
+}
 /**
  * Ensures that the selection style ends at the selection end.
  * <code>selectionStyle</code> is assumed to be created based on the style 
@@ -352,7 +388,7 @@ protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
  *  null otherwise.
  */
 private StyleRange setSelectionStyleEnd(StyleRange selectionStyle, StyleRange style) {
-	int selectionEnd = getParent().internalGetSelection().y;
+	int selectionEnd = parent.internalGetSelection().y;
 	StyleRange newStyle = null;
 	
 	// does style extend beyond selection?				

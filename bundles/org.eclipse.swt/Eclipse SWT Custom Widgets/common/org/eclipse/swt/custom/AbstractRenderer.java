@@ -14,24 +14,23 @@ import org.eclipse.swt.graphics.*;
  * Created by StyledText to handle a single invalidate (i.e., Paint event).
  */
 abstract class AbstractRenderer {
-	private StyledText parent;
 	private Device device;
 	private boolean isBidi;
 	private int lineEndSpaceWidth;
+	private int tabLength;
 	private int tabWidth;						// width of a tab character in the current GC
 	private int lineHeight;
 	private Font boldFont;
 	private Font regularFont;
 	private int leftMargin;
 	
-AbstractRenderer(Device device, Font regularFont, StyledText parent, boolean isBidi, int lineEndSpaceWidth, int leftMargin) {
+AbstractRenderer(Device device, Font regularFont, boolean isBidi, int lineEndSpaceWidth, int leftMargin) {
 	FontData fontData = regularFont.getFontData()[0];
 
 	fontData.setStyle(fontData.getStyle() | SWT.BOLD);
 	boldFont = new Font(device, fontData);
 	this.device = device;
 	this.regularFont = regularFont;	
-	this.parent = parent;
 	this.isBidi = isBidi;
 	this.lineEndSpaceWidth = lineEndSpaceWidth;
 	this.leftMargin = leftMargin;
@@ -60,7 +59,7 @@ int bidiTextWidth(String text, int startOffset, int length, int startXOffset, St
 	}
 	// Use lastCaretDirection in order to get same results as during
 	// caret positioning (setBidiCaretLocation). Fixes 1GKU4C5.
-	return bidi.getCaretPosition(endOffset, parent.internalGetLastCaretDirection()) - startXOffset;
+	return bidi.getCaretPosition(endOffset, getLastCaretDirection()) - startXOffset;
 }
 /**
  * Calculates the line height
@@ -94,7 +93,7 @@ protected void dispose() {
 void drawLine(String line, int lineIndex, int paintY, GC gc, Color widgetBackground, Color widgetForeground, FontData currentFont, boolean clearBackground) {
 	int lineOffset = getContent().getOffsetAtLine(lineIndex);
 	int lineLength = line.length();
-	Point selection = parent.internalGetSelection();
+	Point selection = getSelection();
 	int selectionStart = selection.x;
 	int selectionEnd = selection.y;
 	StyleRange[] styles = new StyleRange[0];
@@ -116,8 +115,8 @@ void drawLine(String line, int lineIndex, int paintY, GC gc, Color widgetBackgro
 	if (lineBackground == null) {
 		lineBackground = widgetBackground;
 	}
-	if (clearBackground && 
-		((parent.getStyle() & SWT.FULL_SELECTION) == 0 || 
+	if (clearBackground &&
+		(isFullLineSelection() == false || 
 		 selectionStart > lineOffset || 
 		 selectionEnd <= lineOffset + lineLength)) {
 		// draw background if full selection is off or if line is not 
@@ -185,7 +184,7 @@ protected abstract void drawLineSelectionBackground(String line, int lineOffset,
  */
 void drawStyledLine(String line, int lineOffset, int renderOffset, StyleRange[] styles, int paintX, int paintY, GC gc, Color lineBackground, Color lineForeground, FontData currentFont, StyledTextBidi bidi) {
 	int lineLength = line.length();
-	int horizontalScrollOffset = parent.internalGetHorizontalPixel();
+	int horizontalScrollOffset = getHorizontalPixel();
 	Color background = gc.getBackground();
 	Color foreground = gc.getForeground();	
 	StyleRange style = null;
@@ -284,7 +283,7 @@ void drawStyledLine(String line, int lineOffset, int renderOffset, StyleRange[] 
 int drawText(String text, int startOffset, int length, int paintX, int paintY, GC gc, StyledTextBidi bidi) {
 	int endOffset = startOffset + length;
 	int textLength = text.length();
-	int horizontalScrollOffset = parent.internalGetHorizontalPixel();
+	int horizontalScrollOffset = getHorizontalPixel();
 	
 	if (startOffset < 0 || startOffset >= textLength || startOffset + length > textLength) {
 		return paintX;
@@ -348,9 +347,6 @@ protected abstract StyledTextContent getContent();
 Device getDevice() {
 	return device;
 }
-StyledText getParent() {
-	return parent;
-}
 /**
  * Returns an array of text ranges that have a font style specified (e.g., SWT.BOLD).
  * <p>
@@ -396,15 +392,33 @@ StyleRange[] getFontStyleRanges(StyleRange[] styles, int lineOffset, int lineLen
 	}
 	return ranges;
 }
-protected void disposeGC(GC gc) {
-	gc.dispose();
-}
-protected GC getGC() {
-	return new GC(parent);
-}
+protected abstract void disposeGC(GC gc);
+/**
+ * Returns the text segments that should be treated as if they 
+ * had a different direction than the surrounding text.
+ * <p>
+ *
+ * @param lineOffset offset of the first character in the line. 
+ * 	0 based from the beginning of the document.
+ * @param line text of the line to specify bidi segments for
+ * @return text segments that should be treated as if they had a
+ * 	different direction than the surrounding text. Only the start 
+ * 	index of a segment is specified, relative to the start of the 
+ * 	line. Always starts with 0 and ends with the line length. 
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_INVALID_ARGUMENT - if the segment indices returned 
+ * 		by the listener do not start with 0, are not in ascending order,
+ * 		exceed the line length or have duplicates</li>
+ * </ul>
+ */
+protected abstract int[] getBidiSegments(int lineOffset, String lineText);
+protected abstract GC getGC();
+protected abstract int getHorizontalPixel();
+
 int getLineEndSpaceWidth() {
 	return lineEndSpaceWidth;
 }
+protected abstract int getLastCaretDirection();
 int getLeftMargin() {
 	return leftMargin;
 }
@@ -417,9 +431,8 @@ int getLeftMargin() {
  * @param line line to get line background data for
  * @return line background data for the given line.
  */
-protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
-	return parent.sendLineEvent(StyledText.LineGetBackground, lineOffset, line);
-}
+protected abstract StyledTextEvent getLineBackgroundData(int lineOffset, String line);
+
 int getLineHeight() {
 	return lineHeight;
 }
@@ -436,62 +449,8 @@ int getLineHeight() {
  * @return line style data for the given line. Styles may start before 
  * 	line start and end after line end
  */
-StyledTextEvent getLineStyleData(int lineOffset, String line) {
-	StyledTextEvent event = parent.sendLineEvent(StyledText.LineGetStyle, lineOffset, line);
-	
-	if (event != null) {
-		if (event.styles != null && parent.internalGetWordWrap()) {
-			event.styles = getVisualLineStyleData(event.styles, lineOffset, line.length());
-		}
-		if (event.styles == null) {
-			event.styles = new StyleRange[0];
-		}
-		else
-		if (isBidi()) {
-			GC gc = getGC();
-			if (StyledTextBidi.isLigated(gc)) {
-				// Check for ligatures that are partially styled, if one is found
-				// automatically apply the style to the entire ligature.
-				// Since ligatures can't extend over multiple lines (they aren't 
-				// ligatures if they are separated by a line delimiter) we can ignore
-				// style starts or ends that are not on the current line.
-				// Note that there is no need to deal with segments when checking for
-				// the ligatures.
-				int lineLength = line.length();
-				StyledTextBidi bidi = new StyledTextBidi(gc, line, new int[] {0, lineLength});
-				for (int i=0; i<event.styles.length; i++) {
-					StyleRange range = event.styles[i];
-					StyleRange newRange = null;
-					int relativeStart = range.start - lineOffset;
-					if (relativeStart >= 0) {
-						int startLigature = bidi.getLigatureStartOffset(relativeStart);
-						if (startLigature != relativeStart) {
-							newRange = (StyleRange) range.clone();
-							range = event.styles[i] = newRange;
-							range.start = range.start - (relativeStart - startLigature);
-							range.length = range.length + (relativeStart - startLigature);
-						}
-					}
-					int rangeEnd = range.start + range.length;
-					int relativeEnd = rangeEnd - lineOffset - 1;
-					if (relativeEnd < lineLength) {
-						int endLigature = bidi.getLigatureEndOffset(relativeEnd);
-						if (endLigature != relativeEnd) {
-							if (newRange == null) {
-								newRange = (StyleRange) range.clone();
-								range = event.styles[i] = newRange;
-							}
-							range.length = range.length + (endLigature - relativeEnd);
-						}
-					}
-		        }
-		    }
-		    disposeGC(gc);
-		}
-		return event;
-	}
-	return null;
-}
+protected abstract StyledTextEvent getLineStyleData(int lineOffset, String line);
+protected abstract Point getSelection();
 /**
  * Merges the selection into the styles that are passed in.
  * The font style of existing style ranges is preserved in the selection.
@@ -526,7 +485,7 @@ StyledTextBidi getStyledTextBidi(String lineText, int lineOffset, GC gc, StyleRa
 	else {
 		fontStyles = getFontStyleRanges(styles, lineOffset, lineText.length());
 	}
-	return new StyledTextBidi(gc, tabWidth, lineText, fontStyles, boldFont, parent.getBidiSegments(lineOffset, lineText));
+	return new StyledTextBidi(gc, tabWidth, lineText, fontStyles, boldFont, getBidiSegments(lineOffset, lineText));
 }	
 /**
  * Returns the next tab stop for the specified x location.
@@ -536,7 +495,7 @@ StyledTextBidi getStyledTextBidi(String lineText, int lineOffset, GC gc, StyleRa
  * @return the next tab stop for the specified x location.
  */
 int getTabStop(int x) {
-	int spaceWidth = tabWidth / parent.internalGetTabs();
+	int spaceWidth = tabWidth / tabLength;
 
 	// make sure tab stop is at least one space width apart 
 	// from the last character. fixes 4844.
@@ -586,6 +545,7 @@ StyleRange[] getVisualLineStyleData(StyleRange[] logicalStyles, int lineOffset, 
 boolean isBidi() {
 	return isBidi;
 }
+protected abstract boolean isFullLineSelection();
 /** 
  * Sets the background of the specified GC for a line rendering operation,
  * if it is not already set.
@@ -645,6 +605,7 @@ void setTabLength(int tabLength) {
 	GC gc = getGC();
 	StringBuffer tabBuffer = new StringBuffer(tabLength);
 	
+	this.tabLength = tabLength;
 	for (int i = 0; i < tabLength; i++) {
 		tabBuffer.append(' ');
 	}

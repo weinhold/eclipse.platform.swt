@@ -17,29 +17,26 @@ class PrintRenderer extends AbstractRenderer {
 	WrappedContent content;
 	Rectangle clientArea;
 	GC gc;
-	Hashtable printerColors = new Hashtable();
+	Hashtable lineBackgrounds;
+	Hashtable lineStyles;
+	Hashtable bidiSegments;	
 	
-PrintRenderer(Device device, GC gc, Font regularFont, StyledText parent, boolean isBidi, int tabLength, int lineEndSpaceWidth, int leftMargin, Rectangle clientArea) {
-	super(device, regularFont, parent, isBidi, lineEndSpaceWidth, leftMargin);
+PrintRenderer(
+		Device device, GC gc, StyledTextContent logicalContent, 
+		Hashtable lineBackgrounds, Hashtable lineStyles, Hashtable bidiSegments,
+		Font regularFont, boolean isBidi, int tabLength, int lineEndSpaceWidth, 
+		int leftMargin, Rectangle clientArea) {
+	super(device, regularFont, isBidi, lineEndSpaceWidth, leftMargin);
+	this.lineBackgrounds = lineBackgrounds;
+	this.lineStyles = lineStyles;
+	this.bidiSegments = bidiSegments;	
 	this.clientArea = clientArea;	
 	this.gc = gc;
 	calculateLineHeight();
 	setTabLength(tabLength);
-	content = new WrappedContent(this, parent.internalGetLogicalContent());
+	content = new WrappedContent(this, logicalContent);
 	// wrapLines requires tab width to be known	
 	content.wrapLines();
-}
-protected void dispose() {
-	if (printerColors != null) {
-		Iterator colors = printerColors.values().iterator();
-		
-		while (colors.hasNext()) {
-			Color color = (Color) colors.next();
-			color.dispose();
-		}
-		printerColors = null;
-	}
-	super.dispose();
 }
 	
 protected void disposeGC(GC gc) {
@@ -61,52 +58,37 @@ protected Rectangle getClientArea() {
 protected GC getGC() {
 	return gc;
 }
-private Color getPrinterColor(Color color) {
-	Color printerColor = null;
-	
-	if (color != null) {
-		printerColor = (Color) printerColors.get(color);		
-		if (printerColor == null) {
-			printerColor = new Color(getDevice(), color.getRGB());
-			printerColors.put(color, printerColor);
-		}
-	}
-	return printerColor;
+protected int getHorizontalPixel() {
+	return 0;
+}
+/**
+ * @see AbstractRenderer#getBidiSegments
+ */
+protected int[] getBidiSegments(int lineOffset, String lineText) {	
+	return (int []) bidiSegments.get(new Integer(lineOffset));
 }
 /**
  */
 protected StyledTextContent getContent() {
 	return content;
 }
+protected int getLastCaretDirection() {
+	return SWT.RIGHT;
+}
 /**
  * @see AbstractRenderer#getLineBackgroundData
  */
 protected StyledTextEvent getLineBackgroundData(int lineOffset, String line) {
-	StyledTextEvent event = super.getLineBackgroundData(lineOffset, line);
-	
-	event.lineBackground = getPrinterColor(event.lineBackground);
-	return event;
+	return (StyledTextEvent) lineBackgrounds.get(new Integer(lineOffset));
 }
 /**
  * @see AbstractRenderer#getLineStyleData
  */
 protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
-	StyledTextEvent event = super.getLineStyleData(lineOffset, line);
-	
-	for (int i = 0; i < event.styles.length; i++) {
-		StyleRange style = event.styles[i];
-		Color printerBackground = getPrinterColor(style.background);
-		Color printerForeground = getPrinterColor(style.foreground);
-		
-		if (printerBackground != style.background || 
-			printerForeground != style.foreground) {
-			style = (StyleRange) style.clone();
-			style.background = printerBackground;
-			style.foreground = printerForeground;
-			event.styles[i] = style;
-		}
-	}
-	return event;
+	return (StyledTextEvent) lineStyles.get(new Integer(lineOffset));
+}
+protected Point getSelection() {
+	return new Point(0, 0);
 }
 /**
  * Do not print the selection.
@@ -115,5 +97,8 @@ protected StyledTextEvent getLineStyleData(int lineOffset, String line) {
  */
 protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
 	return styles;
+}
+protected boolean isFullLineSelection() {
+	return false;
 }
 }
