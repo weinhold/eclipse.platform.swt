@@ -97,6 +97,7 @@ void configure() {
 
 void showHandle() {
 	OS.gtk_widget_show (boxHandle);
+	OS.gtk_widget_show (fixedHandle);
 	OS.gtk_widget_show (handle);
 	OS.gtk_widget_realize (handle);
 }
@@ -177,6 +178,7 @@ public ToolItem getItem (int index) {
 public ToolItem getItem (Point point) {
 	return null;
 }
+
 /**
  * Returns the number of items contained in the receiver.
  *
@@ -189,15 +191,10 @@ public ToolItem getItem (Point point) {
  */
 public int getItemCount () {
 	checkWidget();
-	/* FIXME
-	 * This code will return the wrong count for items,
-	 * as list includes Window children
-	 */
-//	int list = OS.gtk_container_children (handle);
-//	return OS.g_list_length (list);
-	// TEMPORARY CODE
-	return getItems ().length;
+	int list = OS.gtk_container_children (handle);
+	return OS.g_list_length (list);
 }
+
 /**
  * Returns an array of <code>TabItem</code>s which are the items
  * in the receiver. 
@@ -223,14 +220,9 @@ public ToolItem [] getItems () {
 	for (int i=0; i<length; i++) {
 		int data = OS.g_list_nth_data (list, i);
 		Widget widget = WidgetTable.get (data);
-		if (widget instanceof ToolItem) {
-			result [count++] = (ToolItem) widget;
-		}
+		result [count++] = (ToolItem) widget;
 	}
-	if (length == count) return result;
-	ToolItem [] newResult = new ToolItem [count];
-	System.arraycopy (result, 0, newResult, 0, count);
-	return newResult;
+	return result;
 }
 
 /**
