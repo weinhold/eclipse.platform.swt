@@ -321,7 +321,7 @@ class TreeTab extends ScrollableTab {
 		return new String[] {"Selection", "TopItem"};
 	}
 
-	Object[] parametersForType(String typeName, String value, Control control) {
+	Object[] parameterForType(String typeName, String value, Control control) {
 		if (typeName.equals("org.eclipse.swt.widgets.TreeItem")) {
 			TreeItem item = findItem(value, ((Tree) control).getItems());
 			if (item != null) return new Object[] {item};
@@ -336,7 +336,7 @@ class TreeTab extends ScrollableTab {
 			}
 			return new Object[] {items};
 		}
-		return super.parametersForType(typeName, value, control);
+		return super.parameterForType(typeName, value, control);
 	}
 
 	TreeItem findItem(String value, TreeItem[] items) {
@@ -347,16 +347,6 @@ class TreeTab extends ScrollableTab {
 			if (item != null) return item;
 		}
 		return null;
-	}
-
-	String instructionsForType(String typeName) {
-		if (typeName.equals("org.eclipse.swt.widgets.TreeItem")) {
-			return "Node 1";
-		}
-		if (typeName.equals("[Lorg.eclipse.swt.widgets.TreeItem;")) {
-			return "Node 1,Node 3";
-		}
-		return super.instructionsForType(typeName);
 	}
 
 	/**

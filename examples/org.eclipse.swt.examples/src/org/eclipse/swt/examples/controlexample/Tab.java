@@ -582,7 +582,7 @@ abstract class Tab {
 
 	void resetLabels() {
 		String methodRoot = nameCombo.getText();
-		returnTypeLabel.setText(instructions(methodRoot));
+		returnTypeLabel.setText(parameterInfo(methodRoot));
 		setButton.setText(setMethodName(methodRoot));
 		getButton.setText("get" + methodRoot);
 		setText.setText("");
@@ -595,40 +595,23 @@ abstract class Tab {
 		return "set" + methodRoot;
 	}
 
-	String instructions(String methodRoot) {
-		String instructions = null;
+	String parameterInfo(String methodRoot) {
 		String typeName = null;
 		Class returnType = getReturnType(methodRoot);
-		if (returnType.isArray()) {
+		boolean isArray = returnType.isArray();
+		if (isArray) {
 			typeName = returnType.getComponentType().getName();
-			instructions = typeName + "[]";
 		} else {
 			typeName = returnType.getName();
-			instructions = typeName;
 		}
-		instructions += "   " + ControlExample.getResourceString("Eg");
-		if (typeName.equals("int") || typeName.equals("long")) {
-			instructions += "4";
-			if (returnType.isArray()) instructions += ",5,6";
-		} else if (typeName.equals("char")) {
-			instructions += "c";
-			if (returnType.isArray()) instructions += ",d,e";
-		} else if (typeName.equals("boolean")) {
-			instructions += "true";
-			if (returnType.isArray()) instructions += ",true";
-		} else if (typeName.equals("java.lang.String")) {
-			instructions += ControlExample.getResourceString("Hello");
-			if (returnType.isArray()) instructions += "," + ControlExample.getResourceString("Hello");
-		} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
-			instructions += "0,0";
-		} else {
-			instructions += instructionsForType(returnType.getName());
+		String typeNameString = typeName;
+		int index = typeName.lastIndexOf('.');
+		if (index != -1 && index+1 < typeName.length()) typeNameString = typeName.substring(index+1);
+		String info = ControlExample.getResourceString("Info_" + typeNameString + (isArray ? "A" : ""));
+		if (isArray) {
+			typeNameString += "[]";
 		}
-		return instructions;
-	}
-
-	String instructionsForType(String typeName) {
-		return "x";
+		return ControlExample.getResourceString("Parameter_Info", new Object[] {typeNameString, info});
 	}
 
 	void getValue() {
@@ -639,7 +622,9 @@ abstract class Tab {
 			try {
 				java.lang.reflect.Method method = controls[i].getClass().getMethod(methodName, null);
 				Object result = method.invoke(controls[i], null);
-				if (result.getClass().isArray()) {
+				if (result == null) {
+					getText.append("null");
+				} else if (result.getClass().isArray()) {
 					Object [] arrayResult = (Object[]) result;
 					for (int j = 0; j < arrayResult.length; j++) {
 						getText.append(arrayResult[j].toString() + "\n");
@@ -679,33 +664,33 @@ abstract class Tab {
 			try {
 				java.lang.reflect.Method method = controls[i].getClass().getMethod(methodName, new Class[] {returnType});
 				String typeName = returnType.getName();
-				Object[] parameters = null;
+				Object[] parameter = null;
 				if (typeName.equals("int")) {
-					parameters = new Object[] {new Integer(value)};
+					parameter = new Object[] {new Integer(value)};
 				} else if (typeName.equals("long")) {
-					parameters = new Object[] {new Long(value)};
+					parameter = new Object[] {new Long(value)};
 				} else if (typeName.equals("char")) {
-					parameters = new Object[] {value.length() == 1 ? new Character(value.charAt(0)) : new Character('\0')};
+					parameter = new Object[] {value.length() == 1 ? new Character(value.charAt(0)) : new Character('\0')};
 				} else if (typeName.equals("boolean")) {
-					parameters = new Object[] {new Boolean(value)};
+					parameter = new Object[] {new Boolean(value)};
 				} else if (typeName.equals("java.lang.String")) {
-					parameters = new Object[] {value};
+					parameter = new Object[] {value};
 				} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
 					String xy[] = value.split(",");
-					parameters = new Object[] {new Point(new Integer(xy[0]).intValue(),new Integer(xy[1]).intValue())};
+					parameter = new Object[] {new Point(new Integer(xy[0]).intValue(),new Integer(xy[1]).intValue())};
 				} else if (typeName.equals("[Ljava.lang.String;")) {
-					parameters = new Object[] {value.split(",")};
+					parameter = new Object[] {value.split(",")};
 				} else {
-					parameters = parametersForType(typeName, value, controls[i]);
+					parameter = parameterForType(typeName, value, controls[i]);
 				}
-				method.invoke(controls[i], parameters);
+				method.invoke(controls[i], parameter);
 			} catch (Exception e) {
 				getText.setText(e.toString());
 			}
 		}
 	}
 
-	Object[] parametersForType(String typeName, String value, Control control) {
+	Object[] parameterForType(String typeName, String value, Control control) {
 		return new Object[] {value};
 	}
 
