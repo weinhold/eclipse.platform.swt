@@ -47,21 +47,6 @@ typedef struct GdkColor_FID_CACHE {
 
 typedef GdkColor_FID_CACHE *PGdkColor_FID_CACHE;
 
-typedef struct GdkEventButton_FID_CACHE {
-	int cached;
-	jclass GdkEventButtonClass;
-	jfieldID type, window, send_event, time, x, y, pressure, xtilt, ytilt, state, button, source, deviceid, x_root, y_root;
-} GdkEventButton_FID_CACHE;
-
-typedef GdkEventButton_FID_CACHE *PGdkEventButton_FID_CACHE;
-
-typedef struct GdkEventMotion_FID_CACHE {
-	int cached;
-	jclass GdkEventMotionClass;
-	jfieldID type, window, send_event, time, x, y, pressure, xtilt, ytilt, state, is_hint, source, deviceid, x_root, y_root;
-} GdkEventMotion_FID_CACHE;
-
-typedef GdkEventMotion_FID_CACHE *PGdkEventMotion_FID_CACHE;
 
 typedef struct GdkEventExpose_FID_CACHE {
 	int cached;
@@ -119,14 +104,6 @@ typedef struct GdkVisual_FID_CACHE {
 
 typedef GdkVisual_FID_CACHE *PGdkVisual_FID_CACHE;
 
-typedef struct GtkObject_FID_CACHE {
-	int cached;
-	jclass GtkObjectClass;
-	jfieldID klass, flags, ref_count, object_data;
-} GtkObject_FID_CACHE;
-
-typedef GtkObject_FID_CACHE *PGtkObject_FID_CACHE;
-
 typedef struct GtkData_FID_CACHE {
 	int cached;
 	jclass GtkDataClass;
@@ -161,7 +138,7 @@ typedef GtkWidget_FID_CACHE *PGtkWidget_FID_CACHE;
 typedef struct GtkContainer_FID_CACHE {
 	int cached;
 	jclass GtkContainerClass;
-	jfieldID focus_child, border_width, need_resize, resize_mode, resize_widgets;
+	jfieldID focus_child, border_width, need_resize, resize_mode;
 } GtkContainer_FID_CACHE;
 
 typedef GtkContainer_FID_CACHE *PGtkContainer_FID_CACHE;
@@ -249,26 +226,10 @@ typedef GtkCombo_FID_CACHE *PGtkCombo_FID_CACHE;
 typedef struct GtkCList_FID_CACHE {
 	int cached;
 	jclass GtkCListClass;
-	jfieldID clist_flags, row_mem_chunk, cell_mem_chunk, freeze_count, internal_allocation_x, internal_allocation_y, internal_allocation_width, internal_allocation_height, rows, row_center_offset, row_height, row_list, row_list_end, columns, column_title_area_x, column_title_area_y, column_title_area_width, column_title_area_height, title_window, column, clist_window, clist_window_width, clist_window_height, hoffset, voffset, shadow_type, selection_mode, selection, selection_end, undo_selection, undo_unselection, undo_anchor, button_actions0, button_actions1, button_actions2, button_actions3, button_actions4, drag_button, click_cell_row, click_cell_column, hadjustment, vadjustment, xor_gc, fg_gc, bg_gc, cursor_drag, x_drag, focus_row, anchor, anchor_state, drag_pos, htimer, vtimer, sort_type, compare, sort_column;
+	jfieldID clist_flags, row_mem_chunk, cell_mem_chunk, freeze_count, internal_allocation_x, internal_allocation_y, internal_allocation_width, internal_allocation_height, rows, row_height, row_list, row_list_end, columns, column_title_area_x, column_title_area_y, column_title_area_width, column_title_area_height, title_window, column, clist_window, clist_window_width, clist_window_height, hoffset, voffset, shadow_type, selection_mode, selection, selection_end, undo_selection, undo_unselection, undo_anchor, button_actions0, button_actions1, button_actions2, button_actions3, button_actions4, drag_button, click_cell_row, click_cell_column, hadjustment, vadjustment, xor_gc, fg_gc, bg_gc, cursor_drag, x_drag, focus_row, anchor, anchor_state, drag_pos, htimer, vtimer, sort_type, compare, sort_column;
 } GtkCList_FID_CACHE;
 
 typedef GtkCList_FID_CACHE *PGtkCList_FID_CACHE;
-
-typedef struct GtkEditable_FID_CACHE {
-	int cached;
-	jclass GtkEditableClass;
-	jfieldID current_pos, selection_start_pos, selection_end_pos, has_selection, editable, visible, ic, ic_attr, clipboard_text;
-} GtkEditable_FID_CACHE;
-
-typedef GtkEditable_FID_CACHE *PGtkEditable_FID_CACHE;
-
-typedef struct GtkText_FID_CACHE {
-	int cached;
-	jclass GtkTextClass;
-	jfieldID first_line_start_index,first_onscreen_hor_pixel,first_onscreen_ver_pixel,default_tab_width,cursor_pos_x,cursor_pos_y,cursor_virtual_x;
-} GtkText_FID_CACHE;
-
-typedef GtkText_FID_CACHE *PGtkText_FID_CACHE;
 
 typedef struct GtkProgress_FID_CACHE {
 	int cached;
@@ -355,8 +316,6 @@ typedef GtkCTree_FID_CACHE *PGtkCTree_FID_CACHE;
 /* ----------- cache function prototypes  ----------- */
 
 void cacheGdkColorFids(JNIEnv *env, jobject lpGdkColor, PGdkColor_FID_CACHE lpCache);
-void cacheGdkEventButtonFids(JNIEnv *env, jobject lpGdkEventButton, PGdkEventButton_FID_CACHE lpCache);
-void cacheGdkEventMotionFids(JNIEnv *env, jobject lpGdkEventMotion, PGdkEventMotion_FID_CACHE lpCache);
 void cacheGdkEventExposeFids(JNIEnv *env, jobject lpGdkEventExpose, PGdkEventExpose_FID_CACHE lpCache);
 void cacheGdkFontFids(JNIEnv *env, jobject lpGdkFont, PGdkFont_FID_CACHE lpCache);
 void cacheGdkGCValuesFids(JNIEnv *env, jobject lpGdkGCValues, PGdkGCValues_FID_CACHE lpCache);
@@ -365,7 +324,6 @@ void cacheGdkPointFids(JNIEnv *env, jobject lpGdkPoint, PGdkPoint_FID_CACHE lpCa
 void cacheGdkRectangleFids(JNIEnv *env, jobject lpGdkRectangle, PGdkRectangle_FID_CACHE lpCache);
 void cacheGdkVisualFids(JNIEnv *env, jobject lpGdkVisual, PGdkVisual_FID_CACHE lpCache);
 
-void cacheGtkObjectFids(JNIEnv *env, jobject lpGtkObject, PGtkObject_FID_CACHE lpCache);
 void cacheGtkDataFids(JNIEnv *env, jobject lpGtkData, PGtkData_FID_CACHE lpCache);
 void cacheGtkAdjustmentFids(JNIEnv *env, jobject lpGtkAdjustment, PGtkAdjustment_FID_CACHE lpCache);
 void cacheGtkWidgetFids(JNIEnv *env, jobject lpGtkWidget, PGtkWidget_FID_CACHE lpCache);
@@ -380,8 +338,6 @@ void cacheGtkBoxFids(JNIEnv *env, jobject lpGtkBox, PGtkBox_FID_CACHE lpCache);
 void cacheGtkHBoxFids(JNIEnv *env, jobject lpGtkHBox, PGtkHBox_FID_CACHE lpCache);
 void cacheGtkComboFids(JNIEnv *env, jobject lpGtkCombo, PGtkCombo_FID_CACHE lpCache);
 void cacheGtkCListFids(JNIEnv *env, jobject lpGtkCList, PGtkCList_FID_CACHE lpCache);
-void cacheGtkEditableFids(JNIEnv *env, jobject lpGtkEditable, PGtkEditable_FID_CACHE lpCache);
-void cacheGtkTextFids(JNIEnv *env, jobject lpGtkText, PGtkText_FID_CACHE lpCache);
 void cacheGtkProgressFids(JNIEnv *env, jobject lpGtkProgress, PGtkProgress_FID_CACHE lpCache);
 void cacheGtkProgressBarFids(JNIEnv *env, jobject lpGtkProgressBar, PGtkProgressBar_FID_CACHE lpCache);
 
@@ -404,10 +360,6 @@ void cacheGtkCTreeFids(JNIEnv *env, jobject lpGtkCTree, PGtkCTree_FID_CACHE lpCa
  */
 void getGdkColorFields(JNIEnv *env, jobject lpObject, GdkColor *lpGdkColor, GdkColor_FID_CACHE *lpGdkColorFc);
 void setGdkColorFields(JNIEnv *env, jobject lpObject, GdkColor *lpGdkColor, GdkColor_FID_CACHE *lpGdkColorFc);
-void getGdkEventButtonFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventButton_FID_CACHE *lpGdkEventButtonFc);
-void setGdkEventButtonFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventButton_FID_CACHE *lpGdkEventButtonFc);
-void getGdkEventMotionFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventMotion_FID_CACHE *lpGdkEventMotionFc);
-void setGdkEventMotionFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventMotion_FID_CACHE *lpGdkEventMotionFc);
 void getGdkEventExposeFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventExpose_FID_CACHE *lpGdkEventExposeFc);
 void setGdkEventExposeFields(JNIEnv *env, jobject lpObject, GdkEvent *lpGdkEvent, GdkEventExpose_FID_CACHE *lpGdkEventExposeFc);
 void getGdkFontFields(JNIEnv *env, jobject lpObject, GdkFont *lpGdkFont, GdkFont_FID_CACHE *lpGdkFontFc);
@@ -440,8 +392,6 @@ void getGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkC
 void setGtkComboFields(JNIEnv *env, jobject lpObject, GtkCombo *lpGtkCombo, GtkCombo_FID_CACHE *lpGtkComboFc);
 void getGtkContainerFields(JNIEnv *env, jobject lpObject, GtkContainer *lpGtkContainer, GtkContainer_FID_CACHE *lpGtkContainerFc);
 void setGtkContainerFields(JNIEnv *env, jobject lpObject, GtkContainer *lpGtkContainer, GtkContainer_FID_CACHE *lpGtkContainerFc);
-void getGtkObjectFields(JNIEnv *env, jobject lpObject, GtkObject *lpGtkObject, GtkObject_FID_CACHE *lpGtkObjectFc);
-void setGtkObjectFields(JNIEnv *env, jobject lpObject, GtkObject *lpGtkObject, GtkObject_FID_CACHE *lpGtkObjectFc);
 void getGtkProgressFields(JNIEnv *env, jobject lpObject, GtkProgress *lpGtkProgress, GtkProgress_FID_CACHE *lpGtkProgressFc);
 void setGtkProgressFields(JNIEnv *env, jobject lpObject, GtkProgress *lpGtkProgress, GtkProgress_FID_CACHE *lpGtkProgressFc);
 void getGtkProgressBarFields(JNIEnv *env, jobject lpObject, GtkProgressBar *lpGtkProgressBar, GtkProgressBar_FID_CACHE *lpGtkProgressBarFc);
@@ -472,8 +422,6 @@ void getGtkCTreeFields(JNIEnv *env, jobject lpObject, GtkCTree *lpGtkCTree, GtkC
 void setGtkCTreeFields(JNIEnv *env, jobject lpObject, GtkCTree *lpGtkCTree, GtkCTree_FID_CACHE *lpGtkCTreeFc);
 
 extern GdkColor_FID_CACHE GdkColorFc;
-extern GdkEventButton_FID_CACHE GdkEventButtonFc;
-extern GdkEventMotion_FID_CACHE GdkEventMotionFc;
 extern GdkEventExpose_FID_CACHE GdkEventExposeFc;
 extern GdkFont_FID_CACHE GdkFontFc;
 extern GdkGCValues_FID_CACHE GdkGCValuesFc;
@@ -493,18 +441,15 @@ extern GtkCTreeRow_FID_CACHE GtkCTreeRowFc;
 extern GtkCTree_FID_CACHE GtkCTreeFc;
 extern GtkCList_FID_CACHE GtkCListFc;
 extern GtkData_FID_CACHE GtkDataFc;
-extern GtkEditable_FID_CACHE GtkEditableFc;
 extern GtkItem_FID_CACHE GtkItemFc;
 extern GtkMenu_FID_CACHE GtkMenuFc;
 extern GtkMenuShell_FID_CACHE GtkMenuShellFc;
 extern GtkMenuItem_FID_CACHE GtkMenuItemFc;
-extern GtkObject_FID_CACHE GtkObjectFc;
 extern GtkWidget_FID_CACHE GtkWidgetFc;
 extern GtkBox_FID_CACHE GtkBoxFc;
 extern GtkHBox_FID_CACHE GtkHBoxFc;
 extern GtkCombo_FID_CACHE GtkComboFc;
 extern GtkFrame_FID_CACHE GtkFrameFc;
-extern GtkText_FID_CACHE GtkTextFc;
 extern GtkProgress_FID_CACHE GtkProgressFc;
 extern GtkProgressBar_FID_CACHE GtkProgressBarFc;
 extern GtkArg_FID_CACHE GtkArgFc;

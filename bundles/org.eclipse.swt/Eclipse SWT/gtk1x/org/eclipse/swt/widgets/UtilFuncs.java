@@ -113,28 +113,12 @@ static void setZeroSize(int handle) {
 }
 
 static int getFont(int widget) {
-	int hStyle = OS.gtk_widget_get_style(widget);
-	GtkStyle style = new GtkStyle();
-	OS.memmove(style, hStyle, GtkStyle.sizeof);
-	return style.font;
+	/* FIXME */
+	return 0;
 }
 
 static void setFont(int handle, int font) {
-	OS.gtk_widget_ensure_style(handle);
-	// We can't just get the widget's style and set
-	// its font, because the style slot may point to the
-	// default font; therefore we have to obtain a clone
-	// of the style
-	GtkWidget widget = new GtkWidget ();
-	OS.memmove (widget, handle, GtkWidget.sizeof);
-	int hStyle = OS.gtk_style_copy(widget.style);
-	GtkStyle style = new GtkStyle();
-	OS.memmove(style, hStyle, GtkStyle.sizeof);
-	
-	OS.gdk_font_unref(style.font);
-	style.font = font;
-	OS.memmove (hStyle, style, GtkStyle.sizeof);
-	OS.gtk_widget_set_style (handle, hStyle);
+	/* FIXME */
 }
 
 }

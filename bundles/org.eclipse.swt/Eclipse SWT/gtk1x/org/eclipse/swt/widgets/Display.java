@@ -314,18 +314,15 @@ protected void create (DeviceData data) {
 }
 
 synchronized void createDisplay (DeviceData data) {
+	OS.gtk_set_locale();
 	if (!OS.gtk_init_check (new int [] {0}, null)) {
-		/*
-		* This code is intentionally commented.
-		*/
-//		disposed = true;
-//		SWT.error (SWT.ERROR_DEVICE_DISPOSED);
+		SWT.error (SWT.ERROR_DEVICE_DISPOSED);
 		return;
 	}
 	OS.gdk_rgb_init ();
-	int ptr = OS.gtk_check_version (1, 2, 8);
+	int ptr = OS.gtk_check_version (1, 3, 13);
 	if (ptr != 0) {
-		System.out.println ("***WARNING: SWT requires GTK version 1.2.8 or greater");
+		System.out.println ("***WARNING: SWT requires GTK version 1.3.13 or greater");
 		int length = OS.strlen (ptr);
 		byte [] buffer = new byte [length];
 		OS.memmove (buffer, ptr, length);
@@ -924,10 +921,12 @@ void initializeSystemColors() {
  */
 public Font getSystemFont () {
 	checkDevice ();
-	GtkStyle style = new GtkStyle();
+/*	GtkStyle style = new GtkStyle();
 	OS.memmove (style, OS.gtk_widget_get_default_style(), GtkStyle.sizeof);
 	int gdkFont = style.font;  // gives a GdkFont*
-	return Font.gtk_new (gdkFont);
+	return Font.gtk_new (gdkFont);*/
+	SWT.error(SWT.ERROR_NOT_IMPLEMENTED);
+	return null;
 }
 
 /**

@@ -233,8 +233,9 @@ public Rectangle getBounds () {
 	if (styleHandle == 0)
 		styleHandle = OS.gtk_widget_get_style(ctree);
 	GtkStyle style = new GtkStyle();
-	OS.memmove(style, styleHandle, GtkStyle.sizeof);	
-	int width = OS.gdk_string_width(style.font, buffer1);
+	OS.memmove(style, styleHandle, GtkStyle.sizeof);
+	/* FIXME */	
+	int width = 50; /*OS.gdk_string_width(style.font, buffer1);*/
 
 //	x = (short)column.area_x+tree.tree_indent*(level-1)+spacing[0]+tree.hoffset;
 	int x = 33+tree.tree_indent*(level-1)+spacing[0]+tree.hoffset;

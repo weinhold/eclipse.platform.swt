@@ -1942,11 +1942,11 @@ public void setFont (Font font) {
 	}
 	
 	/* The font argument is null, revert to default font */
-	GtkStyle style = new GtkStyle();
+/*	GtkStyle style = new GtkStyle();
 	OS.memmove (style, OS.gtk_widget_get_default_style(), GtkStyle.sizeof);
 	int fontHandle = OS.gdk_font_ref(style.font);
 	if (fontHandle==0) error(SWT.ERROR_NO_HANDLES);
-	_setFontHandle(fontHandle);
+	_setFontHandle(fontHandle);*/
 }
 
 /**

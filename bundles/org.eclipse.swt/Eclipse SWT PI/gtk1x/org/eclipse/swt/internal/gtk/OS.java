@@ -223,7 +223,24 @@ public class OS {
 //	public static final int G_LOG_LEVEL_INFO = 1 << 6;
 //	public static final int G_LOG_LEVEL_DEBUG = 1 << 7;
 	public static final int G_LOG_LEVEL_MASK = ~(G_LOG_FLAG_RECURSION | G_LOG_FLAG_FATAL);
-	
+
+
+/*
+ *         Native methods.
+ */
+
+
+/*
+ * Main loop
+ */
+
+public static final native int gtk_set_locale();
+public static final native boolean gtk_init_check(int[] argc, int[] argv);
+
+
+
+
+
 public static final native int GTK_WIDGET_FLAGS(int wid);
 public static final native void GTK_WIDGET_SET_FLAGS(int wid,int flag);
 public static final native void GTK_WIDGET_UNSET_FLAGS(int wid,int flag);
@@ -476,7 +493,6 @@ public static final native int gtk_editable_get_chars(int editable, int start_po
 public static final native void gtk_entry_set_visibility(int entry, boolean visible);
 public static final native void gtk_entry_set_max_length(int entry, short max);
 public static final native void gtk_fixed_move(int fixed, int widget, short x, short y);
-public static final native boolean gtk_init_check(int[] argc, int[] argv);
 public static final native int gtk_frame_new(byte[] label);
 public static final native void gtk_frame_set_shadow_type(int frame, int type);
 public static final native void gtk_frame_set_label(int frame, byte[] label);

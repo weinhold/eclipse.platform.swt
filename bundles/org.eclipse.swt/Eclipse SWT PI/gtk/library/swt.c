@@ -39,34 +39,29 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1check_1version
 }
 
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_init_check
- * Signature:	
+ * Main loop
  */
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1set_1locale
+  (JNIEnv *env, jclass that)
+{
+  return (jint)gtk_set_locale();
+}
+
 JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1init_1check
   (JNIEnv *env, jclass that, jintArray argc, jintArray argv)
 {
-	jboolean rc;
-	jint *argc1 = NULL;
-	jint *argv1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_init_check");
-#endif
-
-	if (argc) {
-		argc1 = (*env)->GetIntArrayElements(env, argc, NULL);
-	}
-	if (argv) {
-		argv1 = (*env)->GetIntArrayElements(env, argv, NULL);
-	}
-	rc = (jboolean)gtk_init_check((int*)argc1, (char***)argv1);
-	if (argc) {
-		(*env)->ReleaseIntArrayElements(env, argc, argc1, 0);
-	}
-	if (argv) {
-		(*env)->ReleaseIntArrayElements(env, argv, argv1, 0);
-	}
-	return rc;
+  /*
+   * Temporary code, pending resolution of GTK bug 70984.
+   */
+  static char* targs[2];
+  static char** targv;
+  static int targc = 1;
+  static char *targv0 = "swt";
+  static char *targv1 = (char*)0;
+  targs[0] = targv0; targs[1] = targv1;
+  targv = &targs;
+  return gtk_init_check(&targc, &targv);
 }
 
 /*

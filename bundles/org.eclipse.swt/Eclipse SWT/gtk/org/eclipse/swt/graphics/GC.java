@@ -68,9 +68,9 @@ public GC(Drawable drawable) {
 	
 	// The colors we get from the widget are not always right.
 	// Get the default GTK_STATE_NORMAL colors
-	setBackground( DefaultGtkStyle.instance().backgroundColorNORMAL() );
+/*	setBackground( DefaultGtkStyle.instance().backgroundColorNORMAL() );
 	setForeground( DefaultGtkStyle.instance().foregroundColorNORMAL() );
-
+*/
 
 	// Feature in GDK.
 	// Sometimes, gdk_gc_new() doesn't get the font from the control,
@@ -80,7 +80,7 @@ public GC(Drawable drawable) {
 	GdkGCValues values = new GdkGCValues();
 	OS.gdk_gc_get_values(handle, values);
 	if (values.font == 0) {
-		OS.gdk_gc_set_font(handle,  DefaultGtkStyle.instance().loadDefaultFont() );
+/*		OS.gdk_gc_set_font(handle,  DefaultGtkStyle.instance().loadDefaultFont() );*/
 	}
 	
 	if (data.image != null) {
@@ -461,7 +461,7 @@ public void setClipping(Region region) {
  * </ul>
  */
 public void setFont(Font font) {	
-	int fontHandle = 0;
+/*	int fontHandle = 0;
 	if (font == null) {
 		GtkStyle gtkStyle = new GtkStyle();
 		int style = OS.gtk_widget_get_default_style();
@@ -470,7 +470,7 @@ public void setFont(Font font) {
 	} else {
 		fontHandle = font.handle;
 	}
-	OS.gdk_gc_set_font(handle, fontHandle);
+	OS.gdk_gc_set_font(handle, fontHandle);*/
 }
 
 /** 

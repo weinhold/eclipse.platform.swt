@@ -171,28 +171,13 @@ public Rectangle _getClientArea () {
 Trim _getTrim() {
 	trim = new Trim();
 	
-	// set up the test widgets
-	int testWindowHandle = OS.gtk_window_new(0);
-	int testHandle = OS.gtk_frame_new(string2bytesConvertMnemonic("Test String"));
-	OS.gtk_container_add(testWindowHandle, testHandle);
-	OS.gtk_widget_realize(testHandle);
-	
-	// get info
-	GtkFrame frame = new GtkFrame();
-	OS.memmove (frame, testHandle, GtkFrame.sizeof);
-	GtkStyle groupStyle = new GtkStyle();
-	OS.memmove (groupStyle, frame.style, GtkStyle.sizeof);
-	GtkStyleClass styleClass = new GtkStyleClass();
-	OS.memmove (styleClass, groupStyle.klass, GtkStyleClass.sizeof);
+	/* FIXME */
 	
 	// see gtk_frame_size_allocate()
-	trim.left = trim.right = frame.border_width + styleClass.xthickness;
-	trim.top = frame.border_width + Math.max(frame.label_height, styleClass.ythickness);
-	trim.bottom = frame.border_width + styleClass.ythickness;
+	trim.left = trim.right = 2;
+	trim.top = 10;
+	trim.bottom = 2;
 	
-	// clean up
-	OS.gtk_widget_destroy(testHandle);
-	OS.gtk_widget_destroy(testWindowHandle);
 	return trim;
 }
 

@@ -50,8 +50,8 @@ Font() {
  */
 public Font(Device display, FontData fd) {
 	if (fd == null) error(SWT.ERROR_NULL_ARGUMENT);
-	
-	String xlfd = fd.getXlfd();
+	/* FIXME */
+/*	String xlfd = fd.getXlfd();
 	byte[] buffer = Converter.wcsToMbcs(null, xlfd, true);
 	handle = OS.gdk_font_load(buffer);
 	if (handle == 0) {
@@ -59,7 +59,7 @@ public Font(Device display, FontData fd) {
 		GtkStyle gtkStyle = new GtkStyle();
 		OS.memmove(gtkStyle, hStyle, GtkStyle.sizeof);
 		handle = OS.gdk_font_ref(gtkStyle.font);
-	}
+	}*/
 }
 /**	 
  * Constructs a new font given a device, a font name,
@@ -83,7 +83,7 @@ public Font(Device display, FontData fd) {
  * </ul>
  */
 public Font(Device display, String fontFamily, int height, int style) {
-	if (fontFamily == null) error(SWT.ERROR_NULL_ARGUMENT);
+/*	if (fontFamily == null) error(SWT.ERROR_NULL_ARGUMENT);
 	FontData fd = new FontData(fontFamily, height, style);
 	byte[] buffer = Converter.wcsToMbcs(null, fd.getXlfd(), true);
 	handle = OS.gdk_font_load(buffer);
@@ -92,7 +92,7 @@ public Font(Device display, String fontFamily, int height, int style) {
 		GtkStyle gtkStyle = new GtkStyle();
 		OS.memmove(gtkStyle, hStyle, GtkStyle.sizeof);
 		handle = OS.gdk_font_ref(gtkStyle.font);
-	}
+	}*/
 }
 /**
  * Disposes of the operating system resources associated with
