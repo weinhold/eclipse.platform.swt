@@ -28,7 +28,8 @@ import org.eclipse.swt.graphics.*;
  * @see Canvas
  */
 public class Composite extends Scrollable {
-	int radioHandle;
+	/* boxHandle is temporarily here, until eclipsefixed gets fixed */
+	int boxHandle, radioHandle;
 	Layout layout;
 
 /*
@@ -77,6 +78,9 @@ void createHandle (int index) {
 	scrolledHandle = OS.gtk_scrolled_window_new(0,0);
 	if (scrolledHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	
+	boxHandle = OS.gtk_event_box_new();
+	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
+	
 	handle = OS.eclipse_fixed_new();
 	if (handle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 	OS.GTK_WIDGET_SET_FLAGS(handle, OS.GTK_CAN_FOCUS);
@@ -84,7 +88,8 @@ void createHandle (int index) {
 
 void configure() {
 	parent._connectChild(scrolledHandle);
-	OS.gtk_container_add(scrolledHandle, handle);
+	OS.gtk_container_add(scrolledHandle, boxHandle);
+	OS.gtk_container_add(boxHandle, handle);
 }
 
 void setHandleStyle() {
@@ -93,11 +98,16 @@ void setHandleStyle() {
 
 void showHandle() {
 	OS.gtk_widget_show_now (scrolledHandle);
+	OS.gtk_widget_show_now (boxHandle);
 	OS.gtk_widget_realize (handle);
 	OS.gtk_widget_show_now (handle);
 }
 int topHandle() { return scrolledHandle; }
 int parentingHandle() { return handle; }
+boolean isMyHandle(int h) {
+	if (h==boxHandle) return true;
+	return super.isMyHandle(h);
+}
 
 
 /*
@@ -132,18 +142,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	if (wHint != SWT.DEFAULT) size.x = wHint;
 	if (hHint != SWT.DEFAULT) size.y = hHint;
 	Rectangle trim = computeTrim (0, 0, size.x, size.y);
-	System.out.println("computeSize on Composite "+this+" gave "+trim.width+"@"+trim.height);
 	return new Point (trim.width, trim.height);
-}
-
-void initializeTrim() {
-	/* Temporary implementation - I just measured the scrollbars
-	 * with one particular theme.  The fair thing to do is get
-	 * the real dimensions from gtk.
-	 */
-	trim = new Trim();
-	if ((style&SWT.H_SCROLL)!=0) trim.bottom=18;
-	if ((style&SWT.V_SCROLL)!=0) trim.right=18;	
 }
 
 
@@ -216,10 +215,6 @@ public void setLayout (Layout layout) {
  */
 public Control [] getChildren () {
 	checkWidget();
-	return _getChildren();
-}
-
-Control [] _getChildren () {
 	return _getChildren(parentingHandle());
 }
 
@@ -259,8 +254,15 @@ Control _childFromHandle(int h) {
 
 public Rectangle getClientArea () {
 	checkWidget();
-	/* FIXME */
-	return getBounds();
+	/* We can not measure the actual size of the client area,
+	 * because it may not have propagated down yet.
+	 */
+	Point size = _getSize();
+	/* FIXME - this code assumes the scrollbars are to the right */
+	/* FIXME - I just measured the size on one particular theme. */
+	if ((style & SWT.V_SCROLL) != 0) size.x -= 18;
+	if ((style & SWT.H_SCROLL) != 0) size.y -= 18;
+	return new Rectangle(0,0, size.x, size.y);
 }
 
 
@@ -298,14 +300,13 @@ public void layout () {
  * </ul>
  */
 public void layout (boolean changed) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (layout == null) return;
 	layout.layout (this, changed);
 }
 
 Point minimumSize () {
-	Control [] children = _getChildren ();
+	Control [] children = _getChildren (parentingHandle());
 	int width = 0, height = 0;
 	for (int i=0; i<children.length; i++) {
 		Rectangle rect = children [i].getBounds ();
@@ -336,7 +337,7 @@ void _connectChild (int h) {
 }
 
 void releaseChildren () {
-	Control [] children = _getChildren ();
+	Control [] children = _getChildren (parentingHandle());
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
 		if (child != null && !child.isDisposed ()) {
@@ -352,7 +353,7 @@ void releaseWidget () {
 }
 void releaseHandle () {
 	super.releaseHandle ();
-	radioHandle = 0;
+	boxHandle = radioHandle = 0;
 }
 
 int processMouseDown (int callData, int arg1, int int2) {
@@ -377,9 +378,8 @@ int processFocusOut(int int0, int int1, int int2) {
 }
 
 public boolean setFocus () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	Control [] children = _getChildren ();
+	checkWidget();
+	Control [] children = _getChildren (parentingHandle());
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
 		if (child.getVisible () && child.setFocus ()) return true;
