@@ -540,9 +540,12 @@ public static final native void gtk_editable_delete_selection(int editable);
 public static final native int gtk_editable_get_chars(int editable, int start_pos, int end_pos);
 public static final native void gtk_entry_set_visibility(int entry, boolean visible);
 public static final native void gtk_entry_set_max_length(int entry, short max);
+/* frame */
 public static final native int gtk_frame_new(byte[] label);
 public static final native void gtk_frame_set_shadow_type(int frame, int type);
 public static final native void gtk_frame_set_label(int frame, byte[] label);
+public static final native void swt_frame_get_trim(int handle, int[] trims);
+
 public static final native int gtk_hseparator_new();
 public static final native int gtk_hbox_new(boolean homogeneous, int spacing);
 public static final native void gtk_grab_add(int widget);
@@ -751,7 +754,6 @@ public static final native void memmove(GtkCListColumn dest, int src);
 public static final native void memmove(GtkCList dest, int src);
 public static final native void memmove(GtkCTreeRow dest, int src);
 public static final native void memmove(GtkCTree dest, int src);
-
 
 /* Write memmoves */
 public static final native void memmove(int dest, GtkEditable src, int size);

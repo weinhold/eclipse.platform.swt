@@ -30,7 +30,7 @@ import org.eclipse.swt.graphics.*;
  */
 public class Group extends Composite {
 	int frameHandle;
-	String text="";
+	String text="";  int bogus;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -80,6 +80,9 @@ void createHandle(int index) {
 	frameHandle = OS.gtk_frame_new(null);
 	if (frameHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	
+	boxHandle = OS.gtk_event_box_new();
+	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
+
 	handle = OS.eclipse_fixed_new();
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 }
@@ -94,35 +97,14 @@ void _setHandleStyle() {
 }
 
 void configure() {
-	parent._connectChild(topHandle());
-	OS.gtk_container_add(frameHandle, handle);
-}
-
-public Point computeSize (int wHint, int hHint, boolean changed) {
-	checkWidget ();
-	/*int width = computeNativeSize(wHint, hHint, changed).x;
-	int height = 0;
-	Point size;
-	if (layout != null) {
-		size = layout.computeSize (this, wHint, hHint, changed);
-	} else {
-		size = minimumSize ();
-	}
-	if (size.x == 0) size.x = DEFAULT_WIDTH;
-	if (size.y == 0) size.y = DEFAULT_HEIGHT;
-	if (wHint != SWT.DEFAULT) size.x = wHint;
-	if (hHint != SWT.DEFAULT) size.y = hHint;
-	width = Math.max (width, size.x);
-	height = Math.max (height, size.y);
-	Rectangle trim = computeTrim (0, 0, width, height);
-	width = trim.width;  height = trim.height;
-	return new Point (width, height);*/
-	/* FIXME */
-	return new Point (100, 100);
+	parent._connectChild(frameHandle);
+	OS.gtk_container_add(frameHandle, boxHandle);
+	OS.gtk_container_add(boxHandle, handle);
 }
 
 void showHandle() {
 	OS.gtk_widget_show (frameHandle);
+	OS.gtk_widget_show (boxHandle);
 	OS.gtk_widget_show (handle);
 	OS.gtk_widget_realize (handle);
 }
@@ -150,43 +132,65 @@ void deregister () {
 int topHandle () { return frameHandle; }
 int parentingHandle() { return handle; }
 
+
 /*
  *   ===  GEOMETRY  ===
  */
 
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	if (layout==null) return computeNativeSize(wHint, hHint, changed);
+
+	Point size = layout.computeSize (this, wHint, hHint, changed);
+	if (size.x == 0) size.x = DEFAULT_WIDTH;
+	if (size.y == 0) size.y = DEFAULT_HEIGHT;
+	if (wHint != SWT.DEFAULT) size.x = wHint;
+	if (hHint != SWT.DEFAULT) size.y = hHint;
+	Rectangle trim = computeTrim (0, 0, size.x, size.y);
+	return new Point (trim.width, trim.height);
+}
+
+/**
+ * Given a desired <em>client area</em> for the receiver
+ * (as described by the arguments), returns the bounding
+ * rectangle which would be required to produce that client
+ * area.
+ * <p>
+ * In other words, it returns a rectangle such that, if the
+ * receiver's bounds were set to that rectangle, the area
+ * of the receiver which is capable of displaying data
+ * (that is, not covered by the "trimmings") would be the
+ * rectangle described by the arguments (relative to the
+ * receiver's parent).
+ * </p>
+ * 
+ * @return the required bounds to produce the given client area
+ *
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ *
+ * @see #getClientArea
+ */
+public Rectangle computeTrim (int x, int y, int width, int height) {
+	checkWidget();
+	int[] trims = new int[4];
+	OS.swt_frame_get_trim(frameHandle, trims);	
+	return new Rectangle (x-trims[1], y-trims[0], width+trims[1]+trims[2], height+trims[0]+trims[3]);
+}
+
 public Rectangle getClientArea () {
 	checkWidget();
-	/*
-	 * The Group coordinates originate at the client area
-	 */
+	/* The Group coordinates originate at the client area */
 	int width, height;
 	Point size = _getSize();
-	width = size.x - _getTrim().left - _getTrim().right;
-	height = size.y - _getTrim().top - _getTrim().bottom;
-	return new Rectangle(0,0, width, height);
+	int[] trims = new int[4];
+	OS.swt_frame_get_trim(frameHandle, trims);
+	return new Rectangle(0,0, size.x - trims[1] - trims[2], size.y - trims[0] - trims[3]);
 }
 
-Trim _getTrim() {
-	trim = new Trim();
-	
-	/* FIXME */
-	
-	// see gtk_frame_size_allocate()
-	trim.left = trim.right = 2;
-	trim.top = 10;
-	trim.bottom = 2;
-	
-	return trim;
-}
-
-/*
-void _setSize(int width, int height) {
-	boolean differentExtent = UtilFuncs.setSize (topHandle(), width,height);
-	Point clientSize = UtilFuncs.getSize(frameHandle);
-	// WRONG but it's quite safe - the frame clips it
-	UtilFuncs.setSize (handle, clientSize.x, clientSize.y);
-}
-*/
 
 /*   =========  Model Logic  =========   */
 
@@ -206,8 +210,7 @@ String getNameText () {
  * </ul>
  */
 public String getText () {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	return text;
 }
 
@@ -228,8 +231,7 @@ public String getText () {
  * </ul>
  */
 public void setText (String string) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	OS.gtk_frame_set_label (frameHandle, string2bytesConvertMnemonic(string));
 	text=string;
