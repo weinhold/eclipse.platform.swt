@@ -26,6 +26,7 @@ GTKTARGET = gtk+-2.0
 #GTKTARGET = gtk+-linux-fb-2.0
 
 CC = gcc
+LD = ld
 
 include make_common.mak
 
@@ -36,7 +37,7 @@ SWT_VERSION=$(maj_ver)$(min_ver)
 SWT_PREFIX   = swt
 OS_PREFIX    = linux
 SWT_DLL      = lib$(SWT_PREFIX)-$(OS_PREFIX)-$(SWT_VERSION).so
-SWTPI_DLL      = lib$(SWT_PREFIX)-pi-$(OS_PREFIX)-$(SWT_VERSION).so
+SWTPI_DLL    = lib$(SWT_PREFIX)-pi-$(OS_PREFIX)-$(SWT_VERSION).so
 
 #GNOME_PREFIX = swt-gnome
 #GNOME_DLL    = lib$(GNOME_PREFIX)-$(OS_PREFIX)-$(SWT_VERSION).so
@@ -65,57 +66,48 @@ make_swt: $(SWT_DLL) $(SWTPI_DLL)
 # All about Linking
 
 $(SWT_DLL): callback.o
-	ld -x -shared \
+	$(LD) -x -shared \
 	    -o $(SWT_DLL) callback.o
 	    
 $(SWTPI_DLL): swt.o structs.o
-	ld -x -shared \
+	$(LD) -x -shared \
 	    $(GTKLIBS) \
 	    -o $(SWTPI_DLL) swt.o structs.o
 
 #$(GNOME_DLL): gnome.o
-#	ld -o $@ gnome.o $(GNOME_LIB)
+#	$(LD) -o $@ gnome.o $(GNOME_LIB)
 
 
 # All about Compiling
 
-SWT_C_FLAGS = -c -O -s \
+CFLAGS = -c -O -s \
 	    -DSWT_VERSION=$(SWT_VERSION) \
 	    -DLINUX -DGTK \
-	    -fpic \
-	    -I$(JAVA_JNI) \
-	    $(GTKCFLAGS)
-
-#SWT_GNOME_FLAGS = -c -O -s \
-#	    -DSWT_VERSION=$(SWT_VERSION) \
-#	    -DLINUX -DGTK \
-#	    -fpic \
-#	    -I$(JAVA_JNI) \
-#	    `gnome-config --cflags gnome`
-
-swt.o: swt.c swt.h
-	gcc $(SWT_C_FLAGS) swt.c
-
-swt-gtkwidget.o: swt-gtkwidget.c swt.h
-	gcc $(SWT_C_FLAGS) swt-gtkwidget.c
-
-swt-gtkwindow.o: swt-gtkwindow.c swt.h
-	gcc $(SWT_C_FLAGS) swt-gtkwindow.c
-
-structs.o: structs.c
-	gcc $(SWT_C_FLAGS) structs.c
+	    -fpic -fPIC \
+	    -I$(JAVA_JNI)
 
 callback.o: callback.c
-	gcc $(SWT_C_FLAGS) callback.c
-
-globals.o: globals.c
-	gcc $(SWT_C_FLAGS) globals.c
+	$(CC) $(CFLAGS) callback.c
 
 library.o: library.c
-	gcc $(SWT_C_FLAGS) library.c
+	$(CC) $(CFLAGS) library.c
 
-#gnome.o: gnome.c
-#	gcc $(SWT_GNOME_FLAGS) gnome.c
+swt.o: swt.c swt.h
+	$(CC) $(CFLAGS) $(GTKCFLAGS) swt.c
+
+swt-gtkwidget.o: swt-gtkwidget.c swt.h
+	$(CC) $(CFLAGS) $(GTKCFLAGS) swt.c
+
+swt-gtkwindow.o: swt-gtkwindow.c swt.h
+	$(CC) $(CFLAGS) $(GTKCFLAGS) swt.c
+
+structs.o: structs.c
+	$(CC) $(CFLAGS) $(GTKCFLAGS) swt.c
+
+globals.o: globals.c
+	g$(CC)cc $(CFLAGS) $(GTKCFLAGS) swt.c
+
+
 
 clean:
 	rm -f *.o *.so
