@@ -176,6 +176,9 @@ public class OS {
 	public static final int Pt_ARG_MODIFIER_KEYS                                    = ( 7 * 1000 + 4 );
 
 	public static final byte [] Pg_PAT_HALF = {(byte)0xAA, (byte)0x55, (byte)0xAA, (byte)0x55, (byte)0xAA, (byte)0x55, (byte)0xAA, (byte)0x55};
+	
+	public static final int Pt_ARG_BEVEL_CONTRAST                                    = ( 2 * 1000 + 20 );
+
 /*** END MANUALLY ADDED/FIXED ***/
 
 //public static final int Aw_ARG_ONOFF_STATE                                    = ( 5 * 1000 + 1 );
@@ -2806,6 +2809,7 @@ public static final native void PtWindowToFront (int widget);
 public static final native int PtFindDisjoint (int widget);
 
 public static final native int PtBlockAllWindows(int skip, short cursor, int cursor_color);
+public static final native int PtBlockWindow(int window, short cursor, int cursor_color);
 public static final native void PtUnblockWindows(int bl);
 public static final native int PtNextTopLevelWidget(int widget);
 public static final native int PtWindowGetState(int widget);

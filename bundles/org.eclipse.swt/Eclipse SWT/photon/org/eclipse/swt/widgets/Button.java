@@ -174,6 +174,13 @@ public int getAlignment () {
 	return SWT.LEFT;
 }
 
+boolean getDefault () {
+	if ((style & SWT.PUSH) == 0) return false;
+	int [] args = {OS.Pt_ARG_BEVEL_CONTRAST, 0, 0};
+	OS.PtGetResources (handle, args.length / 3, args);
+	return args [1] == 100;
+}
+
 public Image getImage () {
 	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
 	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
@@ -246,6 +253,26 @@ void hookEvents () {
 int processActivate (int info) {
 	if (setFocus ()) click ();
 	return OS.Pt_CONTINUE;
+}
+
+int processFocusIn (int info) {
+	int result = super.processFocusIn (info);
+	// widget could be disposed at this point
+	if (handle == 0) return result;
+	if ((style & SWT.PUSH) == 0) return result;
+	getShell ().setDefaultButton (this, false);
+	return result;
+}
+
+int processFocusOut (int info) {
+	int result = super.processFocusOut (info);
+	// widget could be disposed at this point
+	if (handle == 0) return result;
+	if ((style & SWT.PUSH) == 0) return result;
+	if (getDefault ()) {
+		getShell ().setDefaultButton (null, false);
+	}
+	return result;
 }
 
 int processPaint (int damage) {
@@ -325,6 +352,13 @@ public void setAlignment (int alignment) {
 	OS.PtSetResources (handle, args.length / 3, args);
 }
 
+void setDefault (boolean value) {
+	if ((style & SWT.PUSH) == 0) return;
+	if (getShell ().parent == null) return;
+	int [] args = {OS.Pt_ARG_BEVEL_CONTRAST, value ? 100 : 20, 0};
+	OS.PtSetResources (handle, args.length / 3, args);
+}
+
 public void setSelection (boolean selected) {
 	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
 	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
@@ -375,7 +409,7 @@ public void setText (String string) {
 		ptr2 = OS.malloc (buffer2.length);
 		OS.memmove (ptr2, buffer2, buffer2.length);
 	}
-	replaceMnemonic (mnemonic, 0);
+	replaceMnemonic (mnemonic, true, true);
 	int [] args = {
 		OS.Pt_ARG_TEXT_STRING, ptr, 0,
 		OS.Pt_ARG_LABEL_TYPE, OS.Pt_Z_STRING, 0,
