@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 import org.eclipse.swt.*;
+import org.eclipse.swt.internal.Compatibility;
 import org.eclipse.swt.internal.ole.win32.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
@@ -42,7 +43,6 @@ import org.eclipse.swt.internal.win32.*;
 public class OleClientSite extends Composite {
 		
 	// Interfaces for this Ole Client Container
-	private COMObject  iUnknown;
 	private COMObject  iOleClientSite;
 	private COMObject  iAdviseSink;
 	private COMObject  iOleInPlaceSite;
@@ -84,9 +84,6 @@ protected OleClientSite(Composite parent, int style) {
 	// not create an Ole Object
 
 	super(parent, style);
-	
-	createCOMInterfaces();
-	
 	// install the Ole Frame for this Client Site
 	while (true) {
 		if (parent instanceof OleFrame){
@@ -98,6 +95,8 @@ protected OleClientSite(Composite parent, int style) {
 	}
 	if (frame == null) OLE.error(SWT.ERROR_INVALID_ARGUMENT);
 	frame.AddRef();
+	
+	createCOMInterfaces();
 	
 	active   = false;
 	aspect   = COM.DVASPECT_CONTENT;
@@ -115,23 +114,32 @@ protected OleClientSite(Composite parent, int style) {
 				onDispose(e);
 				break;
 			case SWT.FocusIn:
-				onFocusIn();
+				onFocusIn(e);
 				break;
 			case SWT.Paint:
 				onPaint(e);
+				break;
+			case SWT.Traverse:
+				onTraverse(e);
+				break;
+			case SWT.KeyDown:
 				break;
 			default :
 				OLE.error(SWT.ERROR_NOT_IMPLEMENTED);
 			}
 		}
 	};
-	this.addListener(SWT.Dispose, listener);
-	this.addListener(SWT.FocusIn, listener);
-	this.addListener(SWT.Paint, listener);
-	frame.addListener(SWT.Resize, listener);
+
+	addListener(SWT.Resize, listener);
+	addListener(SWT.Move, listener);
+	addListener(SWT.Dispose, listener);
+	addListener(SWT.FocusIn, listener);
+	addListener(SWT.Paint, listener);
+	addListener(SWT.Traverse, listener);
+	addListener(SWT.KeyDown, listener);
 }
 /**
- * Create an OleClientSite child widget using the OLE Document type associated with the
+ * Create an OleClientSite child widget2 using the OLE Document type associated with the
  * specified file.  The OLE Document type is determined either through header information in the file 
  * or through a Registry entry for the file extension. Use style bits to select a particular look 
  * or set of properties.
@@ -184,6 +192,18 @@ public OleClientSite(Composite parent, int style, File file) {
 		frame.Release();
 		throw e;
 	}
+	
+	String progId = getProgramID();
+	if (progId.equals("Excel.Sheet")) {
+		indent.left = 20;
+		indent.right = 20;
+		indent.top = 46;
+		indent.bottom = 20;
+	}
+	if (progId.equals("Word.Document")){
+		indent.left = 30;
+		indent.top = 30;
+	}
 }
 /**
  * Create an OleClientSite child widget to edit a blank document using the specified OLE Document
@@ -233,6 +253,17 @@ public OleClientSite(Composite parent, int style, String progId) {
 		frame.Release();
 		throw e;
 	}
+	
+//	if (progId.equals("Excel.Sheet")) {
+//		indent.left = 20;
+//		indent.right = 20;
+//		indent.top = 46;
+//		indent.bottom = 20;
+//	}
+//	if (progId.equals("Word.Document")){
+//		indent.left = 30;
+//		indent.top = 30;
+//	}
 }
 /**
  * @private
@@ -347,6 +378,17 @@ public OleClientSite(Composite parent, int style, String progId, File file) {
 		frame.Release();
 		throw e;
 	}
+	
+	if (progId.equals("Excel.Sheet")) {
+		indent.left = 20;
+		indent.right = 20;
+		indent.top = 46;
+		indent.bottom = 20;
+	}
+	if (progId.equals("Word.Document")){
+		indent.left = 30;
+		indent.top = 30;
+	}
 }
 private void activateInPlaceClient() {
 	if (objIOleInPlaceObject == null) return;
@@ -356,13 +398,8 @@ private void activateInPlaceClient() {
 	if (objIOleInPlaceObject.GetWindow(phwnd) == COM.S_OK) {
 		OS.SetWindowPos(phwnd[0], OS.HWND_TOP, 0, 0, 0, 0, OS.SWP_NOSIZE | OS.SWP_NOMOVE);
 	}
-
-	frame.setCurrentDocument(this);
-	
-	setFocus();
 }
-protected void addObjectReferences() {
-	
+protected void addObjectReferences() {	
 	//
 	int[] ppvObject = new int[1];
 	if (objIUnknown.QueryInterface(COM.IIDIPersist, ppvObject) == COM.S_OK) {
@@ -425,49 +462,42 @@ private int ContextSensitiveHelp(int fEnterMode) {
 	return COM.S_OK;
 }
 protected void createCOMInterfaces() {
-	
-	iUnknown = new COMObject(new int[]{2, 0, 0}){
-		public int method0(int[] args) {return QueryInterface(args[0], args[1]);}
-		public int method1(int[] args) {return AddRef();}
-		public int method2(int[] args) {return Release();}
-	};
-	
 	iOleClientSite = new COMObject(new int[]{2, 0, 0, 0, 3, 1, 0, 1, 0}){
-		public int method0(int[] args) {return QueryInterface(args[0], args[1]);}
-		public int method1(int[] args) {return AddRef();}
-		public int method2(int[] args) {return Release();}
-		public int method3(int[] args) {return SaveObject();}
+		public int method0(int[] args) {System.out.println("OleClientSite.QueryInterface");return QueryInterface(args[0], args[1]);}
+		public int method1(int[] args) {System.out.println("OleClientSite.AddRef");return AddRef();}
+		public int method2(int[] args) {System.out.println("OleClientSite.Release");return Release();}
+		public int method3(int[] args) {System.out.println("OleClientSite.SaveObject");return SaveObject();}
 		// method4 GetMoniker - not implemented
-		public int method5(int[] args) {return GetContainer(args[0]);}
-		public int method6(int[] args) {return ShowObject();}
-		public int method7(int[] args) {return OnShowWindow(args[0]);}
+		public int method5(int[] args) {System.out.println("OleClientSite.GetContainer");return GetContainer(args[0]);}
+		public int method6(int[] args) {System.out.println("OleClientSite.ShowObject");return ShowObject();}
+		public int method7(int[] args) {System.out.println("OleClientSite.OnShowWindow");return OnShowWindow(args[0]);}
 		// method8 RequestNewObjectLayout - not implemented
 	};
 	
 	iAdviseSink = new COMObject(new int[]{2, 0, 0, 2, 2, 1, 0, 0}){
-		public int method0(int[] args) {return QueryInterface(args[0], args[1]);}
-		public int method1(int[] args) {return AddRef();}
-		public int method2(int[] args) {return Release();}
-		public int method3(int[] args) {return OnDataChange(args[0], args[1]);}
-		public int method4(int[] args) {return OnViewChange(args[0], args[1]);}
+		public int method0(int[] args) {System.out.println("OleClientSite.QueryInterface");return QueryInterface(args[0], args[1]);}
+		public int method1(int[] args) {System.out.println("OleClientSite.AddRef");return AddRef();}
+		public int method2(int[] args) {System.out.println("OleClientSite.Release");return Release();}
+		public int method3(int[] args) {System.out.println("OleClientSite.OnDataChange");return OnDataChange(args[0], args[1]);}
+		public int method4(int[] args) {System.out.println("OleClientSite.OnViewChange");return OnViewChange(args[0], args[1]);}
 		//method5 OnRename - not implemented
-		public int method6(int[] args) {OnSave();return 0;}
-		public int method7(int[] args) {return OnClose();}	
+		public int method6(int[] args) {System.out.println("OleClientSite.OnSave");OnSave();return 0;}
+		public int method7(int[] args) {System.out.println("OleClientSite.OnClose");return OnClose();}	
 	};
 	
 	iOleInPlaceSite = new COMObject(new int[]{2, 0, 0, 1, 1, 0, 0, 0, 5, 1, 1, 0, 0, 0, 1}){
-		public int method0(int[] args) {return QueryInterface(args[0], args[1]);}
-		public int method1(int[] args) {return AddRef();}
-		public int method2(int[] args) {return Release();}
-		public int method3(int[] args) {return GetWindow(args[0]);}
-		public int method4(int[] args) {return ContextSensitiveHelp(args[0]);}
-		public int method5(int[] args) {return CanInPlaceActivate();}
-		public int method6(int[] args) {return OnInPlaceActivate();}
-		public int method7(int[] args) {return OnUIActivate();}
-		public int method8(int[] args) {return GetWindowContext(args[0], args[1], args[2], args[3], args[4]);}
-		public int method9(int[] args) {return Scroll(args[0]);}
-		public int method10(int[] args) {return OnUIDeactivate(args[0]);}
-		public int method11(int[] args) {return OnInPlaceDeactivate();}
+		public int method0(int[] args) {System.out.println("OleClientSite.QueryInterface");return QueryInterface(args[0], args[1]);}
+		public int method1(int[] args) {System.out.println("OleClientSite.AddRef");return AddRef();}
+		public int method2(int[] args) {System.out.println("OleClientSite.Release");return Release();}
+		public int method3(int[] args) {System.out.println("OleClientSite.GetWindow");return GetWindow(args[0]);}
+		public int method4(int[] args) {System.out.println("OleClientSite.ContextSensitiveHelp");return ContextSensitiveHelp(args[0]);}
+		public int method5(int[] args) {System.out.println("OleClientSite.CanInPlaceActivate");return CanInPlaceActivate();}
+		public int method6(int[] args) {System.out.println("OleClientSite.OnInPlaceActivate");return OnInPlaceActivate();}
+		public int method7(int[] args) {System.out.println("OleClientSite.OnUIActivate");return OnUIActivate();}
+		public int method8(int[] args) {System.out.println("OleClientSite.GetWindowContext");return GetWindowContext(args[0], args[1], args[2], args[3], args[4]);}
+		public int method9(int[] args) {System.out.println("OleClientSite.Scroll");return Scroll(args[0]);}
+		public int method10(int[] args) {System.out.println("OleClientSite.OnUIDeactivate");return OnUIDeactivate(args[0]);}
+		public int method11(int[] args) {System.out.println("OleClientSite.OnInPlaceDeactivate");return OnInPlaceDeactivate();}
 		// method12 DiscardUndoState - not implemented
 		// method13 DeactivateAndUndoChange - not implemented
 		public int method14(int[] args) {return OnPosRectChange(args[0]);}
@@ -485,24 +515,17 @@ protected IStorage createTempStorage() {
  * Deactivates an active in-place object and discards the object's undo state.
  */
 public void deactivateInPlaceClient() {
-	if (active && objIOleInPlaceObject != null) {
+	if (active && objIOleInPlaceObject != null)
 		objIOleInPlaceObject.InPlaceDeactivate();
-	}
 }
 private void deleteTempStorage() {
 	//Destroy this item's contents in the temp root IStorage.
 	if (tempStorage != null){
 		tempStorage.Release();
-	}
-	
+	}	
 	tempStorage = null;
 }
 protected void disposeCOMInterfaces() {
-
-	if (iUnknown != null)
-		iUnknown.dispose();
-	iUnknown = null;
-	
 	if (iOleClientSite != null)
 	iOleClientSite.dispose();
 	iOleClientSite = null;
@@ -534,8 +557,6 @@ public int doVerb(int verb) {
 	
 	// See PR: 1FV9RZW
 	int result = objIOleObject.DoVerb(verb, null, iOleClientSite.getAddress(), 0, handle, null);
-
-	if (active) setObjectRects();
 	
 	// synch up with state of object
 	if (wasActive != active){
@@ -627,16 +648,14 @@ protected GUID getClassID(String clientName) {
 	return guid;
 }
 private int GetContainer(int ppContainer) {
-	
 	/* Simple containers that do not support links to their embedded 
 	   objects probably do not need to implement this method. Instead, 
 	   they can return E_NOINTERFACE and set ppContainer to NULL.*/
-
 	if (ppContainer != 0)
 		COM.MoveMemory(ppContainer, new int[]{0}, 4);
 	return COM.E_NOINTERFACE;
 }
-private SIZE getExtent() {
+SIZE getExtent() {
 	SIZE sizel = new SIZE();
 	// get the current size of the embedded OLENatives object
 	if (objIOleObject != null) {
@@ -647,6 +666,24 @@ private SIZE getExtent() {
 		}
 	}
 	return xFormHimetricToPixels(sizel);
+}
+void setExtent(SIZE extent) {
+	if (objIOleObject == null) return;
+	
+	SIZE newExtent = xFormPixelsToHimetric(extent);
+	// Get the server running first, then do a SetExtent, then show it
+	boolean alreadyRunning = COM.OleIsRunning(objIOleObject.getAddress());
+	if (!alreadyRunning)
+		COM.OleRun(objIOleObject.getAddress());
+	
+	if (objIOleObject.SetExtent(aspect, newExtent) == COM.S_OK){
+//		inUpdate = true;
+		objIOleObject.Update();
+//		inUpdate = false;
+		if (!alreadyRunning)
+			// Close server if it wasn't already running upon entering this method.
+			objIOleObject.Close(COM.OLECLOSE_SAVEIFDIRTY);
+	}
 }
 public Rectangle getIndent() {
 	return new Rectangle(indent.left, indent.right, indent.top, indent.bottom);
@@ -660,8 +697,8 @@ public String getProgramID(){
 	if (appClsid != null){
 		int[] lplpszProgID = new int[1];
 		if (COM.ProgIDFromCLSID(appClsid, lplpszProgID) == COM.S_OK) {
+			int length = OS.GlobalSize(lplpszProgID[0]);
 			int ptr = OS.GlobalLock(lplpszProgID[0]);
-			int length = OS.GlobalSize(ptr);
 			char[] buffer = new char[length];
 			COM.MoveMemory(buffer, lplpszProgID[0], length);
 			OS.GlobalUnlock(ptr);
@@ -676,7 +713,6 @@ public String getProgramID(){
 	return null;
 }
 protected int GetWindow(int phwnd) {
-
 	if (phwnd == 0)
 		return COM.E_INVALIDARG;
 	if (frame == null) {
@@ -688,8 +724,7 @@ protected int GetWindow(int phwnd) {
 	COM.MoveMemory(phwnd, new int[] {frame.handle}, 4);
 	return COM.S_OK;
 }
-private int GetWindowContext(int ppFrame, int ppDoc, int lprcPosRect, int lprcClipRect, int lpFrameInfo) {
-	
+private int GetWindowContext(int ppFrame, int ppDoc, int lprcPosRect, int lprcClipRect, int lpFrameInfo) {	
 	if (frame == null || ppFrame == 0)
 		return COM.E_NOTIMPL;
 
@@ -704,15 +739,12 @@ private int GetWindowContext(int ppFrame, int ppDoc, int lprcPosRect, int lprcCl
 	}
 
 	// fill in position and clipping info
-	Rectangle clientArea = this.getClientArea();
-	Point clientLocation = this.getLocation();
-	setExtent(clientArea.width - indent.left - indent.right, clientArea.height - indent.top - indent.bottom);
-	
+	Rectangle bounds = getBounds();
 	RECT posRect = new RECT();
-	posRect.left   = clientLocation.x + indent.left;
-	posRect.top    = clientLocation.y + indent.top;
-	posRect.right  = clientLocation.x + clientArea.width - indent.right;
-	posRect.bottom = clientLocation.y + clientArea.height - indent.bottom;
+	posRect.left   = bounds.x;
+	posRect.top    = bounds.y;
+	posRect.right  = bounds.x + bounds.width;
+	posRect.bottom = bounds.y + bounds.height;
 
 	RECT clipRect = new RECT();
 	Rectangle frameArea  = frame.getClientArea();
@@ -720,7 +752,7 @@ private int GetWindowContext(int ppFrame, int ppDoc, int lprcPosRect, int lprcCl
 	clipRect.top    = frameArea.y;
 	clipRect.right  = frameArea.x + frameArea.width;
 	clipRect.bottom = frameArea.y + frameArea.height;
-	
+
 	if (lprcPosRect != 0) {
 		OS.MoveMemory(lprcPosRect, posRect, RECT.sizeof);
 	}
@@ -733,9 +765,9 @@ private int GetWindowContext(int ppFrame, int ppDoc, int lprcPosRect, int lprcCl
 	frameInfo.cb = OLEINPLACEFRAMEINFO.sizeof;
 	frameInfo.fMDIApp = 0;
 	frameInfo.hwndFrame = frame.handle;
-	Menu menubar = frame.getMenubar();
+	Shell shell = getShell();
+	Menu menubar = shell.getMenuBar();
 	if (menubar != null && !menubar.isDisposed()) {
-		Shell shell = menubar.getShell();
 		int hwnd = shell.handle;
 		int cAccel = OS.SendMessage(hwnd, OS.WM_APP, 0, 0);
 		if (cAccel != 0) {
@@ -767,10 +799,16 @@ public boolean isDirty() {
 	return true;
 }
 public boolean isFocusControl () {
-	Control focus = getDisplay().getFocusControl();
-	if (focus == frame) {
-		return frame.getCurrentDocument() == this;
-	}
+	checkWidget ();
+	int focusHwnd = OS.GetFocus();
+	if (focusHwnd == handle) return true;
+	if (objIOleInPlaceObject == null) return false;
+	int[] phwnd = new int[1];
+	objIOleInPlaceObject.GetWindow(phwnd);
+	if (phwnd[0] == 0) return false;
+	do {
+		if (phwnd[0] == focusHwnd) return true;
+	} while ((focusHwnd = OS.GetParent (focusHwnd)) != 0);
 	return false;
 }
 private int OnClose() {
@@ -780,22 +818,18 @@ private int OnDataChange(int pFormatetc, int pStgmed) {
 	return COM.S_OK;
 }
 private void onDispose(Event e) {
-
 	doVerb(OLE.OLEIVERB_DISCARDUNDOSTATE);
-	
 	releaseObjectInterfaces(); // Note, must release object interfaces before releasing frame
 	deleteTempStorage();
-	
-	// remove listeners
-	removeListener(SWT.Resize, listener);
-	removeListener(SWT.Move, listener);
-	removeListener(SWT.Dispose, listener);
-	frame.removeListener(SWT.Resize, listener);
 	frame.Release();
 	frame = null;
 }
-private void onFocusIn() {
-	setInplaceFocus();
+private void onFocusIn(Event e) {
+	if (objIOleInPlaceObject == null) return;
+	int[] phwnd = new int[1];
+	objIOleInPlaceObject.GetWindow(phwnd);
+	if (phwnd[0] == 0) return;
+	OS.SetFocus(phwnd[0]);
 }
 private int OnInPlaceActivate() {
 	active = true;
@@ -807,8 +841,7 @@ private int OnInPlaceActivate() {
 	}
 	return COM.S_OK;
 }
-private int OnInPlaceDeactivate() {
-	
+private int OnInPlaceDeactivate() {	
 	if (objIOleInPlaceObject != null)
 		objIOleInPlaceObject.Release();
 	objIOleInPlaceObject = null;
@@ -816,17 +849,19 @@ private int OnInPlaceDeactivate() {
 	return COM.S_OK;
 }
 private int OnPosRectChange(int lprcPosRect) {
-
 	setObjectRects();
-	
 	return COM.S_OK;
 }
 private void onPaint(Event e) {
 	if (!active && objIUnknown != null) {
 		SIZE size = getExtent();
+		Rectangle area = getClientArea();
 		RECT rect = new RECT();
-		rect.left = 0; rect.top = 0;
-		rect.right = size.cx; rect.bottom = size.cy;
+		rect.left = area.x;
+		rect.top = area.y; 
+		rect.right = area.x + size.cx;
+		rect.bottom = area.y + size.cy;
+		
 		int pArea = OS.GlobalAlloc(COM.GMEM_FIXED | COM.GMEM_ZEROINIT, RECT.sizeof);
 		OS.MoveMemory(pArea, rect, RECT.sizeof);
 		COM.OleDraw(objIUnknown.getAddress(), aspect, e.gc.handle, pArea);
@@ -834,13 +869,11 @@ private void onPaint(Event e) {
 	}
 }
 private void onResize(Event e) {
-	Rectangle area = frame.getClientArea();
-	setBounds(borderWidths.left, 
-		      borderWidths.top, 
-			  area.width - borderWidths.left - borderWidths.right, 
-			  area.height - borderWidths.top - borderWidths.bottom);
-
 	setObjectRects();
+	SIZE size = new SIZE();
+	Rectangle area = getBounds();
+	size.cx = area.width; size.cy = area.height;
+	setExtent(size);
 }
 private void OnSave() {
 }
@@ -860,22 +893,34 @@ private int OnUIActivate() {
 	return COM.S_OK;
 }
 private int OnUIDeactivate(int fUndoable) {
-
 	// currently, we are ignoring the fUndoable flag
 	if (frame == null || frame.isDisposed()) return COM.S_OK;
 
 	frame.SetActiveObject(0,0);
 
-	Menu menubar = frame.getMenubar();
+	Shell shell = getShell();
+	Menu menubar = shell.getMenuBar();
 	if (menubar == null || menubar.isDisposed())
 		return COM.S_OK;
 		
-	int shellHandle = menubar.getShell().handle;
+	int shellHandle = shell.handle;
 	OS.SetMenu(shellHandle, menubar.handle);
 	return COM.OleSetMenuDescriptor(0, shellHandle, 0, 0, 0);
 }
+private void onTraverse(Event event) {
+	switch (event.detail) {
+		case SWT.TRAVERSE_ESCAPE:
+		case SWT.TRAVERSE_RETURN:
+		case SWT.TRAVERSE_TAB_NEXT:
+		case SWT.TRAVERSE_TAB_PREVIOUS:
+		case SWT.TRAVERSE_PAGE_NEXT:
+		case SWT.TRAVERSE_PAGE_PREVIOUS:
+		case SWT.TRAVERSE_MNEMONIC:
+			event.doit = true;
+			break;
+	}
+}
 private int OnViewChange(int dwAspect, int lindex) {
-	setObjectRects();
 	return COM.S_OK;
 }
 private IStorage openStorage(IStorage storage, String name) {
@@ -890,14 +935,13 @@ private IStorage openStorage(IStorage storage, String name) {
 	return new IStorage(ppStg[0]);
 }
 protected int QueryInterface(int riid, int ppvObject) {
-
 	if (riid == 0 || ppvObject == 0)
 		return COM.E_NOINTERFACE;
 	GUID guid = new GUID();
 	COM.MoveMemory(guid, riid, GUID.sizeof);
 
 	if (COM.IsEqualGUID(guid, COM.IIDIUnknown)) {
-		COM.MoveMemory(ppvObject, new int[] {iUnknown.getAddress()}, 4);
+		COM.MoveMemory(ppvObject, new int[] {iOleClientSite.getAddress()}, 4);
 		AddRef();
 		return COM.S_OK;
 	}
@@ -911,7 +955,8 @@ protected int QueryInterface(int riid, int ppvObject) {
 		AddRef();
 		return COM.S_OK;
 	}
-	if (COM.IsEqualGUID(guid, COM.IIDIOleInPlaceSite)) {
+	if (COM.IsEqualGUID(guid, COM.IIDIOleWindow) ||
+	     COM.IsEqualGUID(guid, COM.IIDIOleInPlaceSite)) {
 		COM.MoveMemory(ppvObject, new int[] {iOleInPlaceSite.getAddress()}, 4);
 		AddRef();
 		return COM.S_OK;
@@ -1143,47 +1188,6 @@ private boolean saveToTraditionalFile(File file) {
 private int Scroll(int scrollExtant) {
 	return COM.S_OK;
 }
-void setBorderSpace(RECT newBorderwidth) {
-	borderWidths = newBorderwidth;
-
-	// readjust size and location of client site
-	Rectangle area = frame.getClientArea();
-	setBounds(borderWidths.left, borderWidths.top, 
-				area.width - borderWidths.left - borderWidths.right, 
-				area.height - borderWidths.top - borderWidths.bottom);
-
-	setObjectRects();
-}
-private void setExtent(int width, int height){
-	// Resize the width and height of the embedded/linked OLENatives object
-	// to the specified values.
-
-	if (objIOleObject == null || isStatic) return;
-
-	if (inUpdate) return;
-	
-	SIZE currentExtent = getExtent();
-	if (width == currentExtent.cx && height == currentExtent.cy) return;
-
-	SIZE newExtent = new SIZE();
-	newExtent.cx = width; newExtent.cy = height;
-	newExtent = xFormPixelsToHimetric(newExtent);
-	
-   // Get the server running first, then do a SetExtent, then show it
-	boolean alreadyRunning = COM.OleIsRunning(objIOleObject.getAddress());
-	if (!alreadyRunning)
-		COM.OleRun(objIOleObject.getAddress());
-	
-	if (objIOleObject.SetExtent(aspect, newExtent) == COM.S_OK){
-		inUpdate = true;
-		objIOleObject.Update();
-		inUpdate = false;
-		if (!alreadyRunning)
-			// Close server if it wasn't already running upon entering this method.
-			objIOleObject.Close(COM.OLECLOSE_SAVEIFDIRTY);
-	}
-
-}
 public void setIndent(Rectangle newIndent) {
 	indent = new RECT();
 	indent.left = newIndent.x;
@@ -1191,34 +1195,24 @@ public void setIndent(Rectangle newIndent) {
 	indent.top = newIndent.y;
 	indent.bottom = newIndent.height;
 }
-private boolean setInplaceFocus() {
-	if (objIOleInPlaceObject == null) return false;
-	int[] phwnd = new int[1];
-	objIOleInPlaceObject.GetWindow(phwnd);
-	if (phwnd[0] == 0) return false;
-	return (OS.SetFocus(phwnd[0]) != 0);
-}
-public boolean forceFocus () {
-	if (!setInplaceFocus()) {
-		return super.forceFocus();
-	}
-	return true;
-}
 private void setObjectRects() {
 
 	if (objIOleInPlaceObject == null) return;
 
 	// size the object to fill the available space
 	// leave a border
-	Rectangle clientArea = this.getClientArea();
-	Point clientLocation = this.getLocation();
-	setExtent(clientArea.width - indent.left - indent.right, clientArea.height - indent.top - indent.bottom);
+	Rectangle clientArea = getBounds();
+	if (clientArea.width <=0 || clientArea.height <= 0) return;
+	
+	// Resize the width and height of the embedded/linked OLENatives object
+	// to the specified values.
+	if (objIOleObject == null || isStatic) return;
 	
 	RECT posRect = new RECT();
-	posRect.left   = clientLocation.x + indent.left;
-	posRect.top    = clientLocation.y + indent.top;
-	posRect.right  = clientLocation.x + clientArea.width - indent.right;
-	posRect.bottom = clientLocation.y + clientArea.height - indent.bottom;
+	posRect.left   = clientArea.x;
+	posRect.top    = clientArea.y;
+	posRect.right  = clientArea.x + clientArea.width;
+	posRect.bottom = clientArea.y + clientArea.height;
 
 	RECT clipRect = new RECT();
 	Rectangle frameArea  = frame.getClientArea();
@@ -1288,7 +1282,7 @@ private boolean updateStorage() {
 		
 	return true;
 }
-private SIZE xFormHimetricToPixels(SIZE aSize) {
+private static SIZE xFormHimetricToPixels(SIZE aSize) {
 	// Return a new Size which is the pixel transformation of a 
 	// size in HIMETRIC units.
 
@@ -1296,16 +1290,14 @@ private SIZE xFormHimetricToPixels(SIZE aSize) {
 	int xppi = OS.GetDeviceCaps(hDC, 88); // logical pixels/inch in x
 	int yppi = OS.GetDeviceCaps(hDC, 90); // logical pixels/inch in y
 	OS.ReleaseDC(0, hDC);
-	double tcx = Math.round( ((float)aSize.cx * (float)xppi) / 2540.0 ); // 2540 HIMETRIC units per inch
-	int cx = (int)tcx;
-	double tcy = Math.round( ((float)aSize.cy * (float)yppi) / 2540.0 );
-	int cy = (int)tcy;
+	int cx = Compatibility.round(aSize.cx * xppi, 2540); // 2540 HIMETRIC units per inch
+	int cy = Compatibility.round(aSize.cy * yppi, 2540);
 	SIZE size = new SIZE();
 	size.cx = cx;
 	size.cy = cy;
 	return size;
 }
-private SIZE xFormPixelsToHimetric(SIZE aSize) {
+private static SIZE xFormPixelsToHimetric(SIZE aSize) {
 	// Return a new size which is the HIMETRIC transformation of a 
 	// size in pixel units.
 
@@ -1313,18 +1305,11 @@ private SIZE xFormPixelsToHimetric(SIZE aSize) {
 	int xppi = OS.GetDeviceCaps(hDC, 88); // logical pixels/inch in x
 	int yppi = OS.GetDeviceCaps(hDC, 90); // logical pixels/inch in y
 	OS.ReleaseDC(0, hDC);
-	double tcx = Math.round( ((float)aSize.cx * 2540.0) / (float)xppi ); // 2540 HIMETRIC units per inch
-	int cx = (int)tcx;
-	double tcy = Math.round( ((float)aSize.cy * 2540.0) / (float)yppi );
-	int cy = (int)tcy;
+	int cx = Compatibility.round(aSize.cx * 2540, xppi); // 2540 HIMETRIC units per inch
+	int cy = Compatibility.round(aSize.cy * 2540, yppi);
 	SIZE size = new SIZE();
 	size.cx = cx;
 	size.cy = cy;
 	return size;
-}
-void onClientMouseDown(int message, int lParam, int wParam) {
-	Event event = new Event();
-	event.item = this;
-	notifyParentListeners(SWT.Activate, event);
 }
 }
