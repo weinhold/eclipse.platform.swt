@@ -518,11 +518,9 @@ public Display getDisplay () {
  * but the user clicked in a no-entry widget (like Label).
  */
 Control getFocusControl() {
-	GtkWindow shell = new GtkWindow();
-	OS.memmove(shell, topHandle, GtkWindow.sizeof);
-	int focusHandle = shell.focus_widget;
-	if (focusHandle==0) return null;
-	return (Control)this.getDisplay().findWidget(focusHandle);
+	checkWidget();
+	int answer = OS.gtk_window_get_focus(topHandle);
+	return (Control)this.getDisplay().findWidget(answer);
 }
 
 /**
