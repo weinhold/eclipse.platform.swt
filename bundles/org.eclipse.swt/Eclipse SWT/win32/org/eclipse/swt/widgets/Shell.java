@@ -1096,6 +1096,16 @@ void setToolTipText (NMTTDISPINFO lpnmtdi, char [] buffer) {
 	lpnmtdi.lpszText = lpstrTip;
 }
 
+public void setTransparent(int percent) {
+	checkWidget();
+	if (percent < 0 || percent > 100) return;
+	int bits  = OS.GetWindowLong (handle, OS.GWL_EXSTYLE);
+	bits |= OS.WS_EX_LAYERED;
+	OS.SetWindowLong (handle, OS.GWL_EXSTYLE, bits);
+	byte alpha = (byte) (percent * 255 / 100);
+	OS.SetLayeredWindowAttributes(handle, 0, alpha, OS.LWA_ALPHA);
+}
+
 public void setVisible (boolean visible) {
 	checkWidget ();
 	/*

@@ -6222,6 +6222,18 @@ JNIEXPORT jboolean JNICALL OS_NATIVE(SetForegroundWindow)
 }
 #endif
 
+#ifndef NO_SetLayeredWindowAttributes
+JNIEXPORT jboolean JNICALL OS_NATIVE(SetLayeredWindowAttributes)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1, jbyte arg2, jint arg3)
+{
+	jboolean rc;
+	NATIVE_ENTER(env, that, "SetLayeredWindowAttributes\n")
+	rc = (jboolean)SetLayeredWindowAttributes((HWND)arg0, (COLORREF)arg1, (BYTE)arg2, (DWORD)arg3);
+	NATIVE_EXIT(env, that, "SetLayeredWindowAttributes\n")
+	return rc;
+}
+#endif
+
 #ifndef NO_SetMenu
 JNIEXPORT jboolean JNICALL OS_NATIVE(SetMenu)
 	(JNIEnv *env, jclass that, jint arg0, jint arg1)

@@ -610,6 +610,7 @@ public class OS {
 	public static final int LVS_SHAREIMAGELISTS = 0x40;
 	public static final int LVS_SHOWSELALWAYS = 0x8;
 	public static final int LVS_SINGLESEL = 0x4;
+	public static final int LWA_ALPHA = 0x2;
 	public static final int MAX_PATH = 260;
 	public static final int MA_NOACTIVATE = 0x3;
 	public static final int MB_ABORTRETRYIGNORE = 0x2;
@@ -1275,6 +1276,7 @@ public class OS {
 	public static final int WS_EX_TOPMOST = 0x8;
 	public static final int WS_EX_TRANSPARENT = 0x20;
 	public static final int WS_HSCROLL = 0x100000;
+	public static final int WS_EX_LAYERED = 0x00080000;
 	public static final int WS_MAXIMIZEBOX = IsWinCE ? 0x20000 : 0x10000;
 	public static final int WS_MINIMIZEBOX = IsWinCE ? 0x10000 : 0x20000;
 	public static final int WS_OVERLAPPED = IsWinCE ? WS_BORDER | WS_CAPTION : 0x0;
@@ -2450,6 +2452,7 @@ public static final native int SetDIBColorTable (int hdc, int uStartIndex, int c
 public static final native int SetErrorMode (int uMode);
 public static final native int SetFocus (int hWnd);
 public static final native boolean SetForegroundWindow (int hWnd);
+public static final native boolean SetLayeredWindowAttributes(int hwnd, int crKey, byte bAlpha, int dwFlags);
 public static final native int SetLayout (int hdc, int dwLayout);
 public static final native boolean SetMenu (int hWnd, int hMenu);
 public static final native boolean SetMenuDefaultItem (int hMenu, int uItem, int fByPos);
