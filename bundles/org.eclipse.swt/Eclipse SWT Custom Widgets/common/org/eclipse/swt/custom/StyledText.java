@@ -105,7 +105,7 @@ public class StyledText extends Canvas {
     int lastTextChangeReplaceLineCount;         // text changed handler
     int lastTextChangeReplaceCharCount;
  
-	boolean bidiColoring = true;	// apply the BIDI algorithm on text segments of the same color
+	boolean bidiColoring = false;	// apply the BIDI algorithm on text segments of the same color
 
     static final int BIDI_CARET_WIDTH = 4;
     static int xInset = 0;
@@ -643,7 +643,7 @@ int [] getStyleOffsets (String line, int lineOffset) {
     if (event != null) {
         styles = event.styles;
     }
-    if (styles.length == 0 || !bidiColorSplit) {
+    if (styles.length == 0 || !bidiColoring) {
         return new int[] {0, line.length()};
     }
 
