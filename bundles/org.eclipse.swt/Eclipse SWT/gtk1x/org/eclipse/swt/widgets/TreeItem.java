@@ -194,9 +194,8 @@ static TreeItem checkNull (TreeItem item) {
  */
 public Rectangle getBounds () {
 	int ctree = parent.handle;
-	GtkCTree tree = new GtkCTree();
-	OS.memmove(tree, ctree, GtkCTree.sizeof);
-
+	GtkCTree tree = new GtkCTree(ctree);
+/*
 	double haj = OS.gtk_adjustment_get_value(tree.hadjustment);
 	double vaj = OS.gtk_adjustment_get_value(tree.vadjustment);
 	
@@ -229,14 +228,14 @@ public Rectangle getBounds () {
 	int styleHandle = OS.gtk_ctree_node_get_row_style(ctree, handle);
 	if (styleHandle == 0)
 		styleHandle = OS.gtk_widget_get_style(ctree);
-	GtkStyle style = new GtkStyle(styleHandle);
+	GtkStyle style = new GtkStyle(styleHandle);*/
 	/* FIXME */	
 	int width = 50; /*OS.gdk_string_width(style.font, buffer1);*/
 
 //	x = (short)column.area_x+tree.tree_indent*(level-1)+spacing[0]+tree.hoffset;
-	int x = 33+tree.tree_indent*(level-1)+spacing[0]+tree.hoffset;
+/*	int x = 33+tree.tree_indent*(level-1)+spacing[0]+tree.hoffset;*/
 
-	return new Rectangle (x, y, width, height);
+	return new Rectangle (0, 0, 40, 10);
 }	
 
 /**
@@ -371,8 +370,7 @@ public Tree getParent () {
 public TreeItem getParentItem () {
 	checkWidget();
 	int data = OS.g_list_nth_data (handle, 0);
-	GtkCTreeRow row = new GtkCTreeRow ();
-	OS.memmove (row, data, GtkCTreeRow.sizeof);
+	GtkCTreeRow row = new GtkCTreeRow (data);
 	if (row.parent == 0) return null;
 	int ctree = parent.handle;
 	int index = OS.gtk_ctree_node_get_row_data (ctree, row.parent) - 1;

@@ -268,8 +268,7 @@ FontData[] getScalableFontList(String faceName) {
 	FontData[] answer;
 //	if (faceName==null) {
 		answer = new FontData[2];
-		answer[0] = new FontData("Sans");
-		answer[1] = new FontData("Serif");
+		answer[0] = new FontData("helvetica", 12, SWT.ROMAN);
 //	}
 	return answer;
 }
@@ -277,7 +276,7 @@ FontData[] getNonScalableFontList(String faceName) {
 	FontData[] answer;
 //	if (faceName==null) {
 		answer = new FontData[1];
-		answer[0] = new FontData("Monospace");
+		answer[0] = new FontData("fixed", 12, SWT.ROMAN);
 //	}
 	return answer;
 }

@@ -860,6 +860,12 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1drawable_1get_1
 	}
 }
 
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1drawable_1get_1depth
+  (JNIEnv *env, jclass that, jint drawable)
+{
+  return (jint)gdk_drawable_get_depth((GdkDrawable*)drawable);
+}
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1window_1get_1origin
   (JNIEnv *env, jclass that, jint window, jintArray x, jintArray y)
 {
