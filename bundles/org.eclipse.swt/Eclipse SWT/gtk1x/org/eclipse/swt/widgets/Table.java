@@ -85,14 +85,11 @@ public Table (Composite parent, int style) {
  */
 
 void createHandle (int index) {
-	state |= HANDLE;
-	
+	state |= HANDLE;	
 	fixedHandle = OS.eclipse_fixed_new();
 	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
-
 	handle = OS.gtk_clist_new (MAX_COLUMNS);
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
-	
 	scrolledHandle = OS.gtk_scrolled_window_new (0, 0);
 	if (scrolledHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }
@@ -118,9 +115,8 @@ void setHandleStyle () {
 	OS.gtk_scrolled_window_set_policy (scrolledHandle, hscrollbar_policy, vscrollbar_policy);		
 }
 void configure() {
-	_connectParent();
-	OS.gtk_container_add(eventBoxHandle, fixedHandle);
-	OS.gtk_fixed_put (fixedHandle, scrolledHandle, (short)0, (short)0);
+	parent._connectChild(topHandle());
+	OS.gtk_container_add (fixedHandle, scrolledHandle);
 	OS.gtk_container_add (scrolledHandle, handle);
 }
 
@@ -137,6 +133,7 @@ static int checkStyle (int style) {
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	if (wHint == SWT.DEFAULT) wHint = 200;
+	/* FIXME - the size of scrolled, not table! */
 	return computeNativeSize (wHint, hHint, changed);
 }
 
@@ -211,10 +208,9 @@ void createWidget (int index) {
 /*
  * HANDLE CODE 2
  */
-int topHandle() { return eventBoxHandle; }
+int topHandle() { return fixedHandle; }
 int parentingHandle() { return fixedHandle; }
 boolean isMyHandle(int h) {
-	if (h==eventBoxHandle) return true;
 	if (h==scrolledHandle) return true;
 	if (h==fixedHandle)    return true;
 	if (h==handle)         return true;
@@ -1350,7 +1346,7 @@ int processMouseDown (int callData, int arg1, int int2) {
 	// We can't just use the x and y coordinates from the Gdk event,
 	// because the actual items are drawn on a special X window
 	int[] ppx = new int[1], ppy = new int[1];
-	OS.gdk_window_get_pointer(_gdkWindow(), ppx, ppy, 0);	
+	OS.gdk_window_get_pointer(OS.GTK_WIDGET_WINDOW(handle), ppx, ppy, 0);	
 	int eventType;
 	if (isDoubleClick) {
 		eventType = SWT.MouseDoubleClick;

@@ -71,8 +71,7 @@ void createHandle (int index) {
 	state |= HANDLE;
 	
 	/* FIXME
-	 * We do not need an event box here, as event boxes
-	 * have real X windows.
+	 * We do not need an event box here, period.
 	 */
 	boxHandle = OS.gtk_event_box_new ();
 	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
@@ -82,26 +81,27 @@ void createHandle (int index) {
 	handle = OS.gtk_toolbar_new (orientation, OS.GTK_TOOLBAR_BOTH);
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 	
-	tempHandle = OS.gtk_fixed_new();
+	tempHandle = OS.eclipse_fixed_new();
 	if (tempHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }	
 
 void setHandleStyle() {
-	int relief = ((style&SWT.FLAT)!=0)? OS.GTK_RELIEF_NONE : OS.GTK_RELIEF_NORMAL;
-	OS.gtk_toolbar_set_button_relief(handle, relief);
+	/*int relief = ((style&SWT.FLAT)!=0)? OS.GTK_RELIEF_NONE : OS.GTK_RELIEF_NORMAL;
+	OS.gtk_toolbar_set_button_relief(handle, relief);*/
 }
 
 void configure() {
-	_connectParent();
+	parent._connectChild(topHandle());
 	OS.gtk_container_add (boxHandle, handle);
 	// invisible handle to temporarily hold control (non-item) items
 	OS.gtk_toolbar_insert_widget (handle,tempHandle,new byte[1], new byte[1],0);
 }
 
+/* FIXME - how is this different? */
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	if (layout != null) super.computeSize(wHint, hHint, changed);
-	return _computeSize (wHint, hHint, changed);
+	return computeNativeSize (wHint, hHint, changed);
 }
 
 int eventHandle () {
@@ -140,15 +140,9 @@ boolean isMyHandle(int h) {
 }
 void _connectChild (int h) {
 	// When we put a widget as a tool item, we don't know which item it is, yet.
-	OS.gtk_fixed_put(tempHandle, h, (short)0, (short)0);
+	OS.gtk_container_add(tempHandle, h);
 }
 
-
-/*
- *   ===  GEOMETRY  ===
- */
-
-boolean _setSize (int width, int height) { UtilFuncs.setSize(boxHandle, width, height); return true; }
 
 
 

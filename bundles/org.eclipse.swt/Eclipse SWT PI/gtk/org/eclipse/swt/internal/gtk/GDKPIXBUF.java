@@ -215,11 +215,4 @@ public static final native int gdk_pixbuf_get_from_drawable (
 				int width,
 				int height);
 
-
-
-/* LOAD THE DLL */
-
-static {
-	Library.loadLibrary ("swt-pixbuf");
-}
 }

@@ -115,12 +115,10 @@ public TableItem (Table parent, int style, int index) {
 public Rectangle getBounds (int index) {
 	checkWidget();
 	int CELL_SPACING=1;
-	GtkCList table = new GtkCList();
-	OS.memmove(table, parent.handle, GtkCList.sizeof);
+	GtkCList table = new GtkCList(parent.handle);
 	int columnHandle = table.column;
 	columnHandle= columnHandle+index*GtkCListColumn.sizeof;
-	GtkCListColumn column=new GtkCListColumn();
-	OS.memmove(column, columnHandle, GtkCListColumn.sizeof);
+	GtkCListColumn column=new GtkCListColumn(columnHandle);
 	
 	double haj = OS.gtk_adjustment_get_value(table.hadjustment);
 	double vaj = OS.gtk_adjustment_get_value(table.vadjustment);
