@@ -920,8 +920,9 @@ public Font getSystemFont () {
 	OS.memmove (style, OS.gtk_widget_get_default_style(), GtkStyle.sizeof);
 	int gdkFont = style.font;  // gives a GdkFont*
 	return Font.gtk_new (gdkFont);*/
-	SWT.error(SWT.ERROR_NOT_IMPLEMENTED);
-	return null;
+	byte[] name = Converter.wcsToMbcs(null, "fixed");
+	int f = OS.gdk_font_load(name);
+	return Font.gtk_new(f);
 }
 
 /**

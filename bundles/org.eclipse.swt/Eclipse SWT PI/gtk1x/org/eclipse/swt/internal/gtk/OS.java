@@ -308,6 +308,7 @@ public static final native void eclipse_fixed_move_below(int fixed, int child, i
 /* GDK */
 
 public static final native void gdk_rgb_init();
+public static final native String gdk_font_full_name_get(int handle);
 
 
 public static final native void gtk_signal_handler_block_by_data(int object, int data);
