@@ -1112,12 +1112,17 @@ public void setHeaderVisible (boolean show) {
 	 */
 //	boolean isVisibleNow = getHeaderVisible();
 //	if (show==isVisibleNow) return;
-	if (show) {
+
+/* GTK2 FIXME.
+ * FOR SOME REASON, titles_show CAUSES A SEGFAULT IN show_now ON THE SHELL.
+ * VERY WEIRD.
+ */
+
+/*	if (show) {
 		OS.gtk_clist_column_titles_show (handle);
-		OS.gtk_clist_column_titles_passive(handle);
 	} else {
 		OS.gtk_clist_column_titles_hide (handle);
-	}
+	}*/
 }
 /**
  * Returns <code>true</code> if the receiver's lines are visible,
