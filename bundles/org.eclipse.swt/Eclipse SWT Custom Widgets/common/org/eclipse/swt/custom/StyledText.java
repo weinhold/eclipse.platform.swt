@@ -388,7 +388,6 @@ public class StyledText extends Canvas {
 		int lineHeight = renderer.getLineHeight();
 		int lineCount = content.getLineCount();
 		int paintY = clientArea.y;
-		int currentPage = 1;
 		
 		if (singleLine) {
 			lineCount = 1;
@@ -402,11 +401,10 @@ public class StyledText extends Canvas {
 			if (paintY + lineHeight > clientArea.y + clientArea.height) {
 				printer.endPage();
 				printer.startPage();
-				currentPage++;
 				paintY = clientArea.y;
 			}
 			renderer.drawLine(
-				line, i, paintY, gc, background, foreground, printerFontData, false);
+				line, i, paintY, gc, background, foreground, printerFontData, true);
 		}
 		if (paintY > clientArea.y && paintY <= clientArea.y + clientArea.height) {
 			printer.endPage();
