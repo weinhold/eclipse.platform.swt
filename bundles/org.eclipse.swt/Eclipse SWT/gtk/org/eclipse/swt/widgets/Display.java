@@ -323,9 +323,8 @@ synchronized void createDisplay (DeviceData data) {
 		return;
 	}
 	OS.gdk_rgb_init ();
-	int ptr = OS.gtk_check_version (1, 3, 13);
+	int ptr = OS.gtk_check_version (2, 0, 0);
 	if (ptr != 0) {
-		System.out.println ("***WARNING: SWT requires GTK version 1.3.13 or greater");
 		int length = OS.strlen (ptr);
 		byte [] buffer = new byte [length];
 		OS.memmove (buffer, ptr, length);
