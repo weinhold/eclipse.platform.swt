@@ -78,7 +78,7 @@ void createHandle (int index) {
 	
 	handle = ((style&SWT.SEPARATOR) != 0)? (((style&SWT.HORIZONTAL)!= 0)?
 		OS.gtk_hseparator_new() : OS.gtk_vseparator_new()):
-		OS.gtk_label_new (new byte [1]);
+		OS.gtk_label_new (null);
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 }
 
@@ -281,7 +281,7 @@ public void setImage (Image image) {
 	WidgetTable.remove (handle);
 	OS.gtk_widget_destroy (handle);
 	if (image == null) {
-		handle = OS.gtk_label_new (new byte [1]);
+		handle = OS.gtk_label_new (null);
 	} else {
 		handle = OS.gtk_pixmap_new (image.pixmap, image.mask);
 	}
@@ -323,7 +323,7 @@ public void setText (String string) {
 		//NOT IMPLEMENTED - events and state of handle lost
 		WidgetTable.remove (handle);
 		OS.gtk_widget_destroy (handle);
-		handle = OS.gtk_label_new (new byte [1]);
+		handle = OS.gtk_label_new (null);
 		OS.gtk_container_add (frameHandle, handle);
 		WidgetTable.put (handle, this);
 		int alignment = style & (SWT.LEFT | SWT.RIGHT | SWT.CENTER);

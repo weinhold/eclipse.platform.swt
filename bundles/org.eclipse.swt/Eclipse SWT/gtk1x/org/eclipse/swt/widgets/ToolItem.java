@@ -664,8 +664,7 @@ public void setSelection (boolean selected) {
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
 }
 public void setText (String string) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if ((style & SWT.SEPARATOR) != 0) return;
 	text = string;
@@ -694,8 +693,7 @@ public void setText (String string) {
 		int widget = OS.g_list_nth_data (list, 0);
 		if (widget !=  0) OS.gtk_widget_destroy (widget);
 	}
-	byte [] buffer1 = Converter.wcsToMbcs (null, text);
-	int label = OS.gtk_label_new (buffer1);
+	int label = OS.gtk_label_new (string);
 	byte [] buffer2 = Converter.wcsToMbcs (null, pattern);
 	OS.gtk_label_set_pattern (label, buffer2);	
 	OS.gtk_container_add (handle, label);

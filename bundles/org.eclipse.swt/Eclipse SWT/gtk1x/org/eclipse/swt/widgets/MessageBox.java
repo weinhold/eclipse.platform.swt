@@ -171,8 +171,8 @@ private void createHandle() {
 	}
 }
 private void createMessage() {
-	byte[] bytes = Converter.wcsToMbcs (null, getMessage(), true);
-	label = OS.gtk_label_new (bytes);
+	label = OS.gtk_label_new (message);
+	if (label==0) error(SWT.ERROR_NO_HANDLES);
 	OS.gtk_box_pack_start (OS.GTK_DIALOG_VBOX(handle), label, true, true, 5); // FIXME should we use container_add??
 }
 private void createActionButtons() {	
