@@ -157,7 +157,8 @@ int parentingHandle() { return handle; }
  *   ===  GEOMETRY  ===
  */
 
-public Rectangle _getClientArea () {
+public Rectangle getClientArea () {
+	checkWidget();
 	/*
 	 * The Group coordinates originate at the client area
 	 */

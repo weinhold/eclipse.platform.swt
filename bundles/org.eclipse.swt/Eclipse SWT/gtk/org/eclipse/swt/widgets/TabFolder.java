@@ -172,7 +172,8 @@ boolean _setSize(int width, int height) {
 	return differentExtent;
 }
 
-public Rectangle _getClientArea () {
+public Rectangle getClientArea () {
+	checkWidget();
 	org.eclipse.swt.graphics.Point size = _getSize();
 	int x = Math.max(size.x-4, 3);
 	int y = Math.max(size.y-35, 3);

@@ -95,7 +95,6 @@ public class Shell extends Decorations {
 	int shellHandle, vboxHandle;
 	int modal;
 	int accelGroup;
-//	Rectangle lastClientArea;
 	boolean hasFocus;
 
 /*
@@ -356,16 +355,17 @@ void showHandle() {
 }
 
 void hookEvents () {
-/*	super.hookEvents ();
-	signal_connect_after(shellHandle, "map_event",     SWT.Deiconify, 3);
-	signal_connect_after(shellHandle, "unmap_event",   SWT.Iconify, 3);
-	signal_connect_after(shellHandle, "size_allocate", SWT.Resize, 3);*/
-	signal_connect(shellHandle, "delete_event",  SWT.Dispose, 3);
+/*	super.hookEvents ();*/
+/*	signal_connect_after(shellHandle, "map-event",     SWT.Deiconify, 3);
+	signal_connect_after(shellHandle, "unmap-event",   SWT.Iconify, 3);*/
+	signal_connect(shellHandle, "size-allocate", SWT.Resize, 3);
+	signal_connect(shellHandle, "delete-event",  SWT.Dispose, 3);
 }
 
 void register () {
 	super.register ();
 	WidgetTable.put (vboxHandle, this);
+	WidgetTable.put (shellHandle, this);
 }
 
 private void _setStyle() {
@@ -421,14 +421,22 @@ public Point _getSize() {
 	return new Point(x[0], y[0]);
 }
 
-public Rectangle _getClientArea () {
-	/* FIXME */
-	return new Rectangle (0, 0, 100,100);
+public Rectangle getClientArea () {
+	checkWidget();
+	Point totalSize = _getSize();
+	/* FIXME - subtract trim */
+	return new Rectangle (0, 0, totalSize.x, totalSize.y);
 }
 
 void _setSize(int width, int height) {
 	OS.gtk_signal_handler_block_by_data (shellHandle, SWT.Resize);
 	OS.gtk_window_resize(shellHandle, width, height);
+	boolean done = false;
+	Point s = _getSize();
+	while ((s.x!=width) || (s.y!=height)) {
+		OS.gtk_main_iteration();
+		s = _getSize();
+	}
 	OS.gtk_signal_handler_unblock_by_data (shellHandle, SWT.Resize);
 }
 
@@ -595,7 +603,7 @@ int processFocusOut(int int0, int int1, int int2) {
 }
 
 int processPaint (int callData, int int2, int int3) {
-	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
+/*	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
 	Event event = new Event ();
 	event.count = gdkEvent.count;
 	event.x = gdkEvent.x;  event.y = gdkEvent.y;
@@ -608,7 +616,13 @@ int processPaint (int callData, int int2, int int3) {
 	gc.fillRectangle(rect.x, rect.y, rect.width, rect.height);
 	sendEvent (SWT.Paint, event);
 	gc.dispose ();
-	event.gc = null;
+	event.gc = null;*/
+	return 0;
+}
+
+int processResize (int int0, int int1, int int2) {
+	sendEvent (SWT.Resize);
+	layout();
 	return 0;
 }
 

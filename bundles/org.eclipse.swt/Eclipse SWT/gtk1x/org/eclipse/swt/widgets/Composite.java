@@ -313,11 +313,6 @@ Point minimumSize () {
 	}
 	return new Point (width, height);
 }
-int processResize (int int0, int int1, int int2) {
-	sendEvent (SWT.Resize);
-	layout();
-	return 0;
-}
 int radioGroup() {
 	if (radioHandle==0) _initializeRadioGroup();
 	return OS.gtk_radio_button_group(radioHandle);
