@@ -30,19 +30,18 @@ protected void javaToNative (Object object, TransferData transferData){
 		return;
 	}
 	byte[] buffer = (byte[])object;	
-//	transferData.pValue = OS.XtMalloc(buffer.length + 1);
-//	OS.memmove(transferData.pValue, buffer, buffer.length);
+	transferData.pData = OS.malloc(buffer.length + 1);
+	OS.memmove(transferData.pData, buffer, buffer.length);
 	transferData.length = buffer.length;
-	transferData.format = 8;
 	transferData.result = 1;
 }
 protected Object nativeToJava(TransferData transferData){
 
-	if (transferData.pValue == 0 || !(isSupportedType(transferData))) return null;
+	if (transferData.pData == 0 || !(isSupportedType(transferData))) return null;
 	
-	int size = transferData.format * transferData.length / 8;
+	int size = transferData.length;
 	byte[] buffer = new byte[size];
-//	OS.memmove(buffer, transferData.pValue, size);
+	OS.memmove(buffer, transferData.pData, size);
 	return buffer;
 }
 }

@@ -2710,7 +2710,6 @@ public static final native void PtListGotoPos (int widget, int pos);
 
 public static final native int PtTextModifyText (int widget, int start, int end, int insert_pos, byte [] text, int length);
 public static final native int PtTextModifyText (int widget, int start, int end, int insert_pos, int text, int length);
-public static final native int PhClipboardCopyString (short ig, byte [] string);
 public static final native int PtTextGetSelection (int widget, int [] start, int [] end);
 public static final native int PtTextSetSelection (int widget, int [] start, int [] end);
 
@@ -2805,9 +2804,6 @@ public static final native int PtWindowFocus (int widget);
 public static final native void PtWindowToBack (int widget);
 public static final native void PtWindowToFront (int widget);
 public static final native int PtFindDisjoint (int widget);
-
-//public static final native int PhClipboardCopyString (short ig, int string);
-public static final native int PhClipboardPasteString (short ig);
 
 public static final native int PtBlockAllWindows(int skip, short cursor, int cursor_color);
 public static final native void PtUnblockWindows(int bl);
@@ -2924,4 +2920,22 @@ public static final native void PgSetFillTransPat (byte [] pat);
 
 public static final native int PtInflateBalloon (int win, int me, int position, byte [] string, byte [] font, int fill, int text_color);
 
+//public static final native void memmove (PgDisplaySettings_t dest, int src, int size);
+//public static final native void memmove (int dest, PgDisplaySettings_t src, int size);
+
+//public static final native void memmove (PgVideoModeInfo_t dest, int src, int size);
+//public static final native void memmove (int dest, PgVideoModeInfo_t src, int size);
+
+public static final native void PgGetVideoMode (PgDisplaySettings_t settings);
+public static final native void PgGetVideoModeInfo (short mode_number, PgVideoModeInfo_t mode_info);
+
+public static final native void memmove (PhClipHeader dest, int src, int size);
+public static final native void memmove (int dest, PhClipHeader src, int size);
+
+public static final native int PhClipboardCopyString (short ig, byte [] string);
+public static final native int PhClipboardPasteString (short ig);
+public static final native int PhClipboardCopy (short ig, int n, int type);
+public static final native int PhClipboardPasteStart (short ig);
+public static final native int PhClipboardPasteType (int cbdata, byte[] type);
+public static final native void PhClipboardPasteFinish (int cbdata);
 }
