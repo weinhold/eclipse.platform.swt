@@ -377,7 +377,7 @@ private int calculateWindow() {
 	if (parent == null) {
 		answer = OS.GDK_ROOT_PARENT();
 	} else {
-		answer = parent._gdkWindow();
+		answer = /*parent._gdkWindow();*/ 0;
 	}
 	if (answer==0) error(SWT.ERROR_UNSPECIFIED);
 	return answer;

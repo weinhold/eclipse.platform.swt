@@ -77,13 +77,10 @@ static int checkStyle (int style) {
 void createHandle(int index) {
 	state |= HANDLE;
 	
-	eventBoxHandle = OS.gtk_event_box_new ();
-	if (eventBoxHandle == 0) error (SWT.ERROR_NO_HANDLES);
-	
 	frameHandle = OS.gtk_frame_new(null);
 	if (frameHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	
-	handle = OS.gtk_fixed_new();
+	handle = OS.eclipse_fixed_new();
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 }
 
@@ -97,14 +94,13 @@ void _setHandleStyle() {
 }
 
 void configure() {
-	_connectParent();
-	OS.gtk_container_add(eventBoxHandle, frameHandle);
+	parent._connectChild(topHandle());
 	OS.gtk_container_add(frameHandle, handle);
 }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
-	int width = computeNativeSize(wHint, hHint, changed).x;
+	/*int width = computeNativeSize(wHint, hHint, changed).x;
 	int height = 0;
 	Point size;
 	if (layout != null) {
@@ -120,11 +116,12 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	height = Math.max (height, size.y);
 	Rectangle trim = computeTrim (0, 0, width, height);
 	width = trim.width;  height = trim.height;
-	return new Point (width, height);
+	return new Point (width, height);*/
+	/* FIXME */
+	return new Point (100, 100);
 }
 
 void showHandle() {
-	OS.gtk_widget_show (eventBoxHandle);
 	OS.gtk_widget_show (frameHandle);
 	OS.gtk_widget_show (handle);
 	OS.gtk_widget_realize (handle);
@@ -150,7 +147,7 @@ void deregister () {
 	WidgetTable.remove (frameHandle);
 }
 
-int topHandle () { return eventBoxHandle; }
+int topHandle () { return frameHandle; }
 int parentingHandle() { return handle; }
 
 /*
@@ -182,13 +179,15 @@ Trim _getTrim() {
 	return trim;
 }
 
-boolean _setSize(int width, int height) {
+/*
+void _setSize(int width, int height) {
 	boolean differentExtent = UtilFuncs.setSize (topHandle(), width,height);
 	Point clientSize = UtilFuncs.getSize(frameHandle);
 	// WRONG but it's quite safe - the frame clips it
 	UtilFuncs.setSize (handle, clientSize.x, clientSize.y);
-	return differentExtent;
 }
+*/
+
 /*   =========  Model Logic  =========   */
 
 String getNameText () {

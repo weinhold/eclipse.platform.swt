@@ -195,7 +195,7 @@ void setHandleStyle() {
 }
 
 void configure() {
-	_connectParent();
+	parent._connectChild(topHandle());
 	OS.gtk_container_add (scrolledHandle, handle);
 }
 

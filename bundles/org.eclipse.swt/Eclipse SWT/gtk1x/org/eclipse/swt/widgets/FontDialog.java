@@ -103,7 +103,7 @@ int okFunc (int widget, int callData) {
 	byte [] buffer = new byte [fontSize];
 	OS.memmove (buffer, hFontName, fontSize);
 	char [] fontName = Converter.mbcsToWcs (null, buffer);
-	fontData = FontData.gtk_new(new String (fontName));
+	//fontData = FontData.gtk_new(new String (fontName));
 	OS.gtk_widget_destroy (callData);
 	return 0;
 }

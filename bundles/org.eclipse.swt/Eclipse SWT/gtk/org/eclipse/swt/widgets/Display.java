@@ -109,6 +109,7 @@ public class Display extends Device {
 	int caretID, caretProc;
 	
 	Font systemFont;
+	int textHighlightThickness = 1; /* for emulated widgets */
 		
 	/* Colors */
 	Color NORMAL_fg,   NORMAL_bg,   NORMAL_dark,   NORMAL_mid,   NORMAL_light,   NORMAL_text,   NORMAL_base;
