@@ -41,6 +41,8 @@ public class Table extends Composite {
 	int check, uncheck;
 	int check_width, check_height;
 	public static int MAX_COLUMNS = 32;
+	
+	int fixedHandle;
 
 
 /**
@@ -85,10 +87,7 @@ public Table (Composite parent, int style) {
 void createHandle (int index) {
 	state |= HANDLE;
 	
-	eventBoxHandle = OS.gtk_event_box_new();
-	if (eventBoxHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
-	
-	fixedHandle = OS.gtk_fixed_new();
+	fixedHandle = OS.eclipse_fixed_new();
 	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
 
 	handle = OS.gtk_clist_new (MAX_COLUMNS);
@@ -138,11 +137,10 @@ static int checkStyle (int style) {
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	if (wHint == SWT.DEFAULT) wHint = 200;
-	return _computeSize (wHint, hHint, changed);
+	return computeNativeSize (wHint, hHint, changed);
 }
 
 void showHandle() {
-	OS.gtk_widget_show (eventBoxHandle);
 	OS.gtk_widget_show (fixedHandle);
 	OS.gtk_widget_show (scrolledHandle);
 	OS.gtk_widget_show (handle);
@@ -230,11 +228,9 @@ boolean isMyHandle(int h) {
  *   ===  GEOMETRY  ===
  */
 
-boolean _setSize(int width, int height) {
-	boolean different = UtilFuncs.setSize(eventBoxHandle, width, height);
-	if (different) UtilFuncs.setSize(fixedHandle, width, height);
-	if (different) UtilFuncs.setSize(scrolledHandle, width, height);
-	return different;
+void _setSize(int width, int height) {
+	super._setSize(width, height);
+	OS.eclipse_fixed_set_size(fixedHandle, scrolledHandle, width, height);
 }
 
 /**
