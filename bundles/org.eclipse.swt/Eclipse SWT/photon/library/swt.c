@@ -6546,38 +6546,6 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardCopy
 
 /*
  * Class:     org_eclipse_swt_internal_photon_OS
- * Method:    PhClipboardCopy
- * Signature: (SILorg.eclipse.swt.internal.photon.PhClipHeader;)I
- */
- /*
-JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardCopy
-  (JNIEnv *env, jclass that, jshort ig, jint n, jobject clip)
-{	
-	DECL_GLOB(pGlob)	
-    PhClipHeader clip1, *lpclip1=NULL;
-	jint result;
-	
-#ifdef DEBUG_CALL_PRINTS
-    fprintf(stderr, "PhClipboardCopy\n");
-#endif
-
-	if (clip) {
-        lpclip1 = &clip1;
-        cachePhClipHeaderFids(env, clip, &PGLOB(PhClipHeaderFc));
-        getPhClipHeaderFields(env, clip, lpclip1, &PGLOB(PhClipHeaderFc));
-    }
-    result = (jint)PhClipboardCopy(ig, n, (PhClipHeader const *)lpclip1);
-
-printf("PhClipHeader size of struct is %d\n", sizeof(clip1));
-
-    if (clip) {
-        setPhClipHeaderFields(env, clip, lpclip1, &PGLOB(PhClipHeaderFc));
-    }
-	return result;
-}
-*/
-/*
- * Class:     org_eclipse_swt_internal_photon_OS
  * Method:    PhClipboardPasteStart
  * Signature: (S)I
  */

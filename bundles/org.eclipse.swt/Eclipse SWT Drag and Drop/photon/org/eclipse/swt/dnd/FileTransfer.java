@@ -16,54 +16,11 @@ public static FileTransfer getInstance () {
 	return _instance;
 }
 public void javaToNative(Object object, TransferData transferData) {
-
-	if (object == null || !(object instanceof String[])) return;
-		
-	// build a byte array from data
-	String[] files = (String[])object;
-	
-	// create a string separated by "new lines" to represent list of files
-	String nativeFormat = "file:";
-	for (int i = 0, length = files.length; i < length; i++){
-		nativeFormat += files[i]+"\r";
-	}
-	nativeFormat += "\0";
-	// pass byte array on to super to convert to native
-	super.javaToNative(nativeFormat.getBytes(), transferData);
+	DND.error(org.eclipse.swt.SWT.ERROR_NOT_IMPLEMENTED);
 }
 public Object nativeToJava(TransferData transferData) {
-
-System.out.println("data is "+transferData.pData+" with length "+transferData.length);
-	byte[] data = (byte[])super.nativeToJava(transferData);
-System.out.println("data byte[] length is "+data.length);
-for (int i = 0; i < data.length; i++) {
-	System.out.println("data["+i+"] = "+(char)data[i]);
-}
-	if (data == null) return null;
-	char [] unicode = org.eclipse.swt.internal.Converter.mbcsToWcs (null, data);
-	String string  = new String (unicode);
-System.out.println("nativeToJava string is "+string);
-
-	// parse data and convert string to array of files
-	int start = string.indexOf("file:");
-	if (start == -1) return null;
-	start += 5;
-	String[] fileNames = new String[0];
-	while (start < string.length()) { 
-		int end = string.indexOf("\r", start);
-		if (end == -1) end = string.length() - 1;
-		
-		String fileName = string.substring(start, end);
-		String[] newFileNames = new String[fileNames.length + 1];
-		System.arraycopy(fileNames, 0, newFileNames, 0, fileNames.length);
-		newFileNames[fileNames.length] = fileName;
-		fileNames = newFileNames;
-
-		start = string.indexOf("file:", end);
-		if (start == -1) break;
-		start += 5;
-	}
-	return fileNames;
+	DND.error(org.eclipse.swt.SWT.ERROR_NOT_IMPLEMENTED);
+	return null;
 }
 protected String[] getTypeNames(){
 	return new String[]{TYPENAME};

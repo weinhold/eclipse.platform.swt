@@ -83,6 +83,7 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 		if (OS.PhClipboardCopy((short)ig, 0, null) != 0) {
 			DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
 		}
+		return;
 	}
 	if (transferAgents == null || data.length != transferAgents.length) {
 		DND.error(SWT.ERROR_INVALID_ARGUMENT);
@@ -94,10 +95,10 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 		String[] names = transferAgents[i].getTypeNames();
 		int[] ids = transferAgents[i].getTypeIds();
 		for (int j = 0; j < names.length; j++) {
-			PhClipHeader clip = new PhClipHeader();
 			TransferData transferData = new TransferData();
 			transferData.type = ids[j];
 			transferAgents[i].javaToNative(data[i], transferData);
+			PhClipHeader clip = new PhClipHeader();
 			clip.data = transferData.pData;
 			clip.length = (short)transferData.length;
 			byte[] temp = Converter.wcsToMbcs(null, names[j], true);
@@ -111,13 +112,13 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 			clip.type_5 = type[5];
 			clip.type_6 = type[6];
 			clip.type_7 = type[7];
-			count++;
 			byte[] buffer = new byte[PhClipHeader.sizeof];
 			OS.memmove(buffer, clip, PhClipHeader.sizeof);
 			byte[] newClips = new byte[clips.length + buffer.length];
 			System.arraycopy(clips, 0, newClips, 0, clips.length);
 			System.arraycopy(buffer, 0, newClips, clips.length, buffer.length);
 			clips = newClips;
+			count++;
 		}
 	}
 	
