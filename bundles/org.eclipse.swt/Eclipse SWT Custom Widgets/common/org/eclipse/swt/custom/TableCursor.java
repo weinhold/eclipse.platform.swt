@@ -184,17 +184,20 @@ void paint (Event event) {
 	gc.setForeground (display.getSystemColor (SWT.COLOR_LIST_SELECTION));
 	gc.fillRectangle (event.x, event.y, event.width, event.height);
 	TableItem item = table.getItems () [row];
-	int x = 2, y = 0;
+	int x = 0, y = 0;
+	Point size = getSize ();
 	Image image = item.getImage (column);
 	if (image != null) {
 		gc.drawImage (image, x, y);
-		x += image.getBounds ().width + 2;
+		x += image.getBounds ().width;
 	}
+	x += (column == 0) ? 2 : 6;
+
+	y = y + (int)(((float)size.y - (float)gc.getFontMetrics().getHeight()) / 2.0);
 	gc.drawString (item.getText (column), x, y);
 	if (isFocusControl ()) {
 		gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 		gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-		Point size = getSize ();
 		gc.drawFocus (0, 0, size.x, size.y);
 	}
 	
