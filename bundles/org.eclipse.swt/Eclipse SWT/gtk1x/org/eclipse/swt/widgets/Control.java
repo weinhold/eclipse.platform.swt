@@ -112,26 +112,25 @@ int eventHandle () {
  * </ul>
  */
 void hookEvents () {
-	signal_connect (handle, "expose_event", SWT.Paint, 3);
+	signal_connect_after (handle, "expose_event", SWT.Paint, 3);
 	int mask =
 		OS.GDK_POINTER_MOTION_MASK | 
 		OS.GDK_BUTTON_PRESS_MASK | OS.GDK_BUTTON_RELEASE_MASK | 
 		OS.GDK_ENTER_NOTIFY_MASK | OS.GDK_LEAVE_NOTIFY_MASK | 
 		OS.GDK_KEY_PRESS_MASK | OS.GDK_KEY_RELEASE_MASK |
 		OS.GDK_FOCUS_CHANGE_MASK;
-	int eventHandle = eventHandle ();
-	if (!OS.GTK_WIDGET_NO_WINDOW (eventHandle)) {
-		OS.gtk_widget_add_events (eventHandle, mask);
+	if (!OS.GTK_WIDGET_NO_WINDOW (handle)) {
+		OS.gtk_widget_add_events (handle, mask);
 	}
-	signal_connect_after (eventHandle, "motion_notify_event", SWT.MouseMove, 3);
-	signal_connect_after (eventHandle, "button_press_event", SWT.MouseDown, 3);
-	signal_connect_after (eventHandle, "button_release_event", SWT.MouseUp, 3);
-	signal_connect_after (eventHandle, "enter_notify_event", SWT.MouseEnter, 3);
-	signal_connect_after (eventHandle, "leave_notify_event", SWT.MouseExit, 3);
-	signal_connect_after (eventHandle, "key_press_event", SWT.KeyDown, 3);
-	signal_connect_after (eventHandle, "key_release_event", SWT.KeyUp, 3);
-	signal_connect_after (eventHandle, "focus_in_event", SWT.FocusIn, 3);
-	signal_connect_after (eventHandle, "focus_out_event", SWT.FocusOut, 3);
+	signal_connect_after (handle, "motion_notify_event", SWT.MouseMove, 3);
+	signal_connect_after (handle, "button_press_event", SWT.MouseDown, 3);
+	signal_connect_after (handle, "button_release_event", SWT.MouseUp, 3);
+	signal_connect_after (handle, "enter_notify_event", SWT.MouseEnter, 3);
+	signal_connect_after (handle, "leave_notify_event", SWT.MouseExit, 3);
+	signal_connect_after (handle, "key_press_event", SWT.KeyDown, 3);
+	signal_connect_after (handle, "key_release_event", SWT.KeyUp, 3);
+	signal_connect_after (handle, "focus_in_event", SWT.FocusIn, 3);
+	signal_connect_after (handle, "focus_out_event", SWT.FocusOut, 3);
 }
 
 abstract void setHandleStyle  ();

@@ -95,7 +95,7 @@ public class Shell extends Decorations {
 	int shellHandle, vboxHandle;
 	int modal;
 	int accelGroup;
-	Rectangle lastClientArea;
+//	Rectangle lastClientArea;
 	boolean hasFocus;
 
 /*
@@ -357,10 +357,10 @@ void showHandle() {
 
 void hookEvents () {
 /*	super.hookEvents ();
-	signal_connect(shellHandle, "map_event",     SWT.Deiconify, 3);
-	signal_connect(shellHandle, "unmap_event",   SWT.Iconify, 3);
-	signal_connect(shellHandle, "size_allocate", SWT.Resize, 3);
-	signal_connect(shellHandle, "delete_event",  SWT.Dispose, 3);*/
+	signal_connect_after(shellHandle, "map_event",     SWT.Deiconify, 3);
+	signal_connect_after(shellHandle, "unmap_event",   SWT.Iconify, 3);
+	signal_connect_after(shellHandle, "size_allocate", SWT.Resize, 3);*/
+	signal_connect(shellHandle, "delete_event",  SWT.Dispose, 3);
 }
 
 void register () {
@@ -411,12 +411,14 @@ boolean isMyHandle(int h) {
 
 public Point _getLocation() {
 	int [] x = new int [1], y = new int [1];
-/*	OS.gtk_window_get_position(shellHandle, x,y);*/
+	OS.gtk_window_get_position(shellHandle, x,y);
 	return new Point(x[0], y[0]);
 }
 
 public Point _getSize() {
-	return new Point(100,100); // FIXME
+	int[] x = new int[1]; int[] y = new int[1];
+	OS.gtk_window_get_size(shellHandle, x, y);
+	return new Point(x[0], y[0]);
 }
 
 public Rectangle _getClientArea () {
@@ -551,17 +553,8 @@ public Shell [] getShells () {
 
 public void layout (boolean changed) {
 	checkWidget();
-//	if (!resizedSinceLastLayout()) return;
-	lastClientArea=getClientArea();
 	if (layout == null) return;
 	layout.layout (this, changed);
-}
-
-/*
- * Returns whether the shell has been resized since the last layout()
- */
-boolean resizedSinceLastLayout() {
-	return !getClientArea().equals(lastClientArea);
 }
 
 /**
@@ -586,7 +579,7 @@ public void open () {
 
 int processDispose (int int0, int int1, int int2) {
 	closeWidget ();
-	return 1;
+	return 0;
 }
 
 int processFocusIn(int int0, int int1, int int2) {
@@ -602,8 +595,6 @@ int processFocusOut(int int0, int int1, int int2) {
 }
 
 int processPaint (int callData, int int2, int int3) {
-	//if (!hooks (SWT.Paint)) return 1;
-	
 	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
 	Event event = new Event ();
 	event.count = gdkEvent.count;
@@ -618,21 +609,7 @@ int processPaint (int callData, int int2, int int3) {
 	sendEvent (SWT.Paint, event);
 	gc.dispose ();
 	event.gc = null;
-	return 1;
-/*}else{
-	GdkRectangle gdkEvent = new GdkRectangle ();
-	OS.memmove (gdkEvent, callData, GdkRectangle.sizeof);
-	Event event = new Event ();
-//	event.count = gdkEvent.count;
-	event.x = gdkEvent.x;  event.y = gdkEvent.y;
-	event.width = gdkEvent.width;  event.height = gdkEvent.height;
-	GC gc = event.gc = new GC (this);
-	OS.gdk_gc_set_clip_rectangle (gc.handle, gdkEvent);
-	sendEvent (SWT.Paint, event);
-	gc.dispose ();
-	event.gc = null;
-	return 1;
-}	*/
+	return 0;
 }
 
 /**
