@@ -111,12 +111,9 @@ public Object getContents(Transfer transfer) {
 	
 	return result;
 }
-public void setContents(Object[] data, Transfer[] transferAgents){
+public void setContents(Object[] data, Transfer[] dataTypes){
 	
-	if (data == null) {
-		DND.error(SWT.ERROR_NOT_IMPLEMENTED);
-	}
-	if (transferAgents == null || data.length != transferAgents.length) {
+	if (data == null || dataTypes == null || data.length != dataTypes.length) {
 		DND.error(SWT.ERROR_INVALID_ARGUMENT);
 	}
 	
@@ -141,15 +138,15 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 		DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
 	
 	// copy data directly over to System clipboard (not deferred)
-	for (int i = 0; i < transferAgents.length; i++) {
-		String[] names = transferAgents[i].getTypeNames();
+	for (int i = 0; i < dataTypes.length; i++) {
+		String[] names = dataTypes[i].getTypeNames();
 		for (int j = 0; j < names.length; j++) {
 		
 			TransferData transferData = new TransferData();
 			/* Use the character encoding for the default locale */
 			byte[] bName = Converter.wcsToMbcs (null, names[j], false);
 			transferData.type    = OS.XmInternAtom (xDisplay, bName, false);
-			transferAgents[i].javaToNative(data[i], transferData);
+			dataTypes[i].javaToNative(data[i], transferData);
 			status = OS.XmClipboardFail;
 			if (transferData.result == 1 && transferData.format == 8){
 				byte[] buffer = new byte[transferData.length];

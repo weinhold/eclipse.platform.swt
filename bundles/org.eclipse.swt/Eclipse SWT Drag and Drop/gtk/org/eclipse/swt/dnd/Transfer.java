@@ -6,8 +6,7 @@ package org.eclipse.swt.dnd;
  */
  
 import org.eclipse.swt.internal.Converter;
-import org.eclipse.swt.internal.motif.OS;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.internal.gtk.OS;
 
 /**
  * The class <code>Transfer</code> provides a mechanism for converting a Java object to a 
@@ -52,9 +51,8 @@ abstract protected Object nativeToJava(TransferData transferData);
  * @return the unique identifier associated with this data type
  */
 public static int registerType(String formatName){
-	int xDisplay = Display.getDefault().xDisplay; // using default because we don't have a particular widget
-	/* Use the character encoding for the default locale */
-	byte[] bName = Converter.wcsToMbcs (null, formatName, true);
-	return OS.XmInternAtom (xDisplay, bName, false); 
+	if (formatName == null) return OS.GDK_NONE;
+	byte[] buffer = Converter.wcsToMbcs(null, formatName, true);
+	return OS.gdk_atom_intern(buffer, 0);
 }
 }

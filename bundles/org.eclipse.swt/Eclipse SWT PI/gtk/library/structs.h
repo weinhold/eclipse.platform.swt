@@ -245,6 +245,45 @@ typedef struct GtkCTree_FID_CACHE {
 
 typedef GtkCTree_FID_CACHE *PGtkCTree_FID_CACHE;
 
+
+/* GtkSelectionData struct */
+typedef struct GtkSelectionData_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID selection, target, type, format, data, length;
+} GtkSelectionData_FID_CACHE;
+typedef GtkSelectionData_FID_CACHE *PGtkSelectionData_FID_CACHE;
+
+void cacheGtkSelectionDataFids(JNIEnv *env, jobject lpObject, PGtkSelectionData_FID_CACHE lpCache);
+GtkSelectionData* getGtkSelectionDataFields(JNIEnv *env, jobject lpObject, GtkSelectionData *lpStruct, PGtkSelectionData_FID_CACHE lpCache);
+void setGtkSelectionDataFields(JNIEnv *env, jobject lpObject, GtkSelectionData *lpStruct, PGtkSelectionData_FID_CACHE lpCache);
+
+
+/* GtkTargetEntry struct */
+typedef struct GtkTargetEntry_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID target, flags, info;
+} GtkTargetEntry_FID_CACHE;
+typedef GtkTargetEntry_FID_CACHE *PGtkTargetEntry_FID_CACHE;
+
+void cacheGtkTargetEntryFids(JNIEnv *env, jobject lpObject, PGtkTargetEntry_FID_CACHE lpCache);
+GtkTargetEntry* getGtkTargetEntryFields(JNIEnv *env, jobject lpObject, GtkTargetEntry *lpStruct, PGtkTargetEntry_FID_CACHE lpCache);
+void setGtkTargetEntryFields(JNIEnv *env, jobject lpObject, GtkTargetEntry *lpStruct, PGtkTargetEntry_FID_CACHE lpCache);
+
+/* GdkDragContext struct */
+typedef struct GdkDragContext_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID parent_instance$g_type_instance$g_class, parent_instance$ref_count, parent_instance$qdata, protocol, is_source, source_window, dest_window, targets, actions, suggested_action, action, start_time, windowing_data;
+} GdkDragContext_FID_CACHE;
+typedef GdkDragContext_FID_CACHE *PGdkDragContext_FID_CACHE;
+
+void cacheGdkDragContextFids(JNIEnv *env, jobject lpObject, PGdkDragContext_FID_CACHE lpCache);
+GdkDragContext* getGdkDragContextFields(JNIEnv *env, jobject lpObject, GdkDragContext *lpStruct, PGdkDragContext_FID_CACHE lpCache);
+void setGdkDragContextFields(JNIEnv *env, jobject lpObject, GdkDragContext *lpStruct, PGdkDragContext_FID_CACHE lpCache);
+
+
 /* ----------- cache function prototypes  ----------- */
 
 void cacheGdkColorFids(JNIEnv *env, jobject lpGdkColor, PGdkColor_FID_CACHE lpCache);
@@ -331,5 +370,9 @@ extern GtkCombo_FID_CACHE GtkComboFc;
 extern GtkRequisition_FID_CACHE GtkRequisitionFc;
 extern GtkStyle_FID_CACHE GtkStyleFc;
 extern GtkStyleClass_FID_CACHE GtkStyleClassFc;
+extern GtkSelectionData_FID_CACHE GtkSelectionDataFc;
+extern GtkTargetEntry_FID_CACHE GtkTargetEntryFc;
+extern GdkDragContext_FID_CACHE GdkDragContextFc;
+
 
 #endif // INC_structs_H

@@ -11,7 +11,7 @@ package org.eclipse.swt.dnd;
 public class FileTransfer extends ByteArrayTransfer {
 	
 	private static FileTransfer _instance = new FileTransfer();
-	private static final String TYPENAME = "text/uri-list\0";
+	private static final String TYPENAME = "text/uri-list";
 	private static final int TYPEID = registerType(TYPENAME);
 
 private FileTransfer() {}

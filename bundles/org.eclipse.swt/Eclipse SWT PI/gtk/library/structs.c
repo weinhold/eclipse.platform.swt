@@ -19,6 +19,9 @@
 #include "structs.h"
 
 /* Globals */
+GdkDragContext_FID_CACHE GdkDragContextFc;
+GtkTargetEntry_FID_CACHE GtkTargetEntryFc;
+GtkSelectionData_FID_CACHE GtkSelectionDataFc;
 GdkColor_FID_CACHE GdkColorFc;
 GdkEventExpose_FID_CACHE GdkEventExposeFc;
 GdkFont_FID_CACHE GdkFontFc;
@@ -1502,3 +1505,125 @@ void setGtkCTreeRowFields(JNIEnv *env, jobject lpObject, GtkCTreeRow *lpGtkCTree
 	(*env)->SetIntField(env, lpObject, lpGtkCTreeRowFc->is_leaf, (jint)lpGtkCTreeRow->is_leaf);
 	(*env)->SetIntField(env, lpObject, lpGtkCTreeRowFc->expanded, (jint)lpGtkCTreeRow->expanded);
 }
+
+void cacheGtkSelectionDataFids(JNIEnv *env, jobject lpObject, PGtkSelectionData_FID_CACHE lpCache)
+{
+	if (lpCache->cached) return;
+	lpCache->clazz = (*env)->GetObjectClass(env, lpObject);
+	lpCache->selection = (*env)->GetFieldID(env, lpCache->clazz, "selection", "I");
+	lpCache->target = (*env)->GetFieldID(env, lpCache->clazz, "target", "I");
+	lpCache->type = (*env)->GetFieldID(env, lpCache->clazz, "type", "I");
+	lpCache->format = (*env)->GetFieldID(env, lpCache->clazz, "format", "I");
+	lpCache->data = (*env)->GetFieldID(env, lpCache->clazz, "data", "I");
+	lpCache->length = (*env)->GetFieldID(env, lpCache->clazz, "length", "I");
+	lpCache->cached = 1;
+}
+
+GtkSelectionData* getGtkSelectionDataFields(JNIEnv *env, jobject lpObject, GtkSelectionData *lpStruct, PGtkSelectionData_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGtkSelectionDataFids(env, lpObject, lpCache);
+	lpStruct->selection = (GdkAtom)(*env)->GetIntField(env, lpObject, lpCache->selection);
+	lpStruct->target = (GdkAtom)(*env)->GetIntField(env, lpObject, lpCache->target);
+	lpStruct->type = (GdkAtom)(*env)->GetIntField(env, lpObject, lpCache->type);
+	lpStruct->format = (*env)->GetIntField(env, lpObject, lpCache->format);
+	lpStruct->data = (guchar*)(*env)->GetIntField(env, lpObject, lpCache->data);
+	lpStruct->length = (*env)->GetIntField(env, lpObject, lpCache->length);
+	return lpStruct;
+}
+
+void setGtkSelectionDataFields(JNIEnv *env, jobject lpObject, GtkSelectionData *lpStruct, PGtkSelectionData_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGtkSelectionDataFids(env, lpObject, lpCache);
+	(*env)->SetIntField(env, lpObject, lpCache->selection, (jint) lpStruct->selection);
+	(*env)->SetIntField(env, lpObject, lpCache->target, (jint)lpStruct->target);
+	(*env)->SetIntField(env, lpObject, lpCache->type, (jint)lpStruct->type);
+	(*env)->SetIntField(env, lpObject, lpCache->format, lpStruct->format);
+	(*env)->SetIntField(env, lpObject, lpCache->data, (jint)lpStruct->data);
+	(*env)->SetIntField(env, lpObject, lpCache->length, lpStruct->length);
+}
+
+void cacheGtkTargetEntryFids(JNIEnv *env, jobject lpObject, PGtkTargetEntry_FID_CACHE lpCache)
+{
+	if (lpCache->cached) return;
+	lpCache->clazz = (*env)->GetObjectClass(env, lpObject);
+	lpCache->target = (*env)->GetFieldID(env, lpCache->clazz, "target", "I");
+	lpCache->flags = (*env)->GetFieldID(env, lpCache->clazz, "flags", "I");
+	lpCache->info = (*env)->GetFieldID(env, lpCache->clazz, "info", "I");
+	lpCache->cached = 1;
+}
+
+GtkTargetEntry* getGtkTargetEntryFields(JNIEnv *env, jobject lpObject, GtkTargetEntry *lpStruct, PGtkTargetEntry_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGtkTargetEntryFids(env, lpObject, lpCache);
+	lpStruct->target = (gchar*)(*env)->GetIntField(env, lpObject, lpCache->target);
+	lpStruct->flags = (*env)->GetIntField(env, lpObject, lpCache->flags);
+	lpStruct->info = (*env)->GetIntField(env, lpObject, lpCache->info);
+	return lpStruct;
+}
+
+void setGtkTargetEntryFields(JNIEnv *env, jobject lpObject, GtkTargetEntry *lpStruct, PGtkTargetEntry_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGtkTargetEntryFids(env, lpObject, lpCache);
+	(*env)->SetIntField(env, lpObject, lpCache->target, (jint)lpStruct->target);
+	(*env)->SetIntField(env, lpObject, lpCache->flags, (jint)lpStruct->flags);
+	(*env)->SetIntField(env, lpObject, lpCache->info, (jint)lpStruct->info);
+}
+
+void cacheGdkDragContextFids(JNIEnv *env, jobject lpObject, PGdkDragContext_FID_CACHE lpCache)
+{
+	if (lpCache->cached) return;
+	lpCache->clazz = (*env)->GetObjectClass(env, lpObject);
+	lpCache->parent_instance$g_type_instance$g_class = (*env)->GetFieldID(env, lpCache->clazz, "parent_instance$g_type_instance$g_class", "I");
+	lpCache->parent_instance$ref_count = (*env)->GetFieldID(env, lpCache->clazz, "parent_instance$ref_count", "I");
+	lpCache->parent_instance$qdata = (*env)->GetFieldID(env, lpCache->clazz, "parent_instance$qdata", "I");
+	lpCache->protocol = (*env)->GetFieldID(env, lpCache->clazz, "protocol", "I");
+	lpCache->is_source = (*env)->GetFieldID(env, lpCache->clazz, "is_source", "Z");
+	lpCache->source_window = (*env)->GetFieldID(env, lpCache->clazz, "source_window", "I");
+	lpCache->dest_window = (*env)->GetFieldID(env, lpCache->clazz, "dest_window", "I");
+	lpCache->targets = (*env)->GetFieldID(env, lpCache->clazz, "targets", "I");
+	lpCache->actions = (*env)->GetFieldID(env, lpCache->clazz, "actions", "I");
+	lpCache->suggested_action = (*env)->GetFieldID(env, lpCache->clazz, "suggested_action", "I");
+	lpCache->action = (*env)->GetFieldID(env, lpCache->clazz, "action", "I");
+	lpCache->start_time = (*env)->GetFieldID(env, lpCache->clazz, "start_time", "I");
+	lpCache->windowing_data = (*env)->GetFieldID(env, lpCache->clazz, "windowing_data", "I");
+	lpCache->cached = 1;
+}
+
+GdkDragContext* getGdkDragContextFields(JNIEnv *env, jobject lpObject, GdkDragContext *lpStruct, PGdkDragContext_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGdkDragContextFids(env, lpObject, lpCache);
+	lpStruct->parent_instance.g_type_instance.g_class = (GTypeClass*)(*env)->GetIntField(env, lpObject, lpCache->parent_instance$g_type_instance$g_class);
+	lpStruct->parent_instance.ref_count = (*env)->GetIntField(env, lpObject, lpCache->parent_instance$ref_count);
+	lpStruct->parent_instance.qdata = (GData*)(*env)->GetIntField(env, lpObject, lpCache->parent_instance$qdata);
+	lpStruct->protocol = (*env)->GetIntField(env, lpObject, lpCache->protocol);
+	lpStruct->is_source = (*env)->GetBooleanField(env, lpObject, lpCache->is_source);
+	lpStruct->source_window = (GdkWindow*)(*env)->GetIntField(env, lpObject, lpCache->source_window);
+	lpStruct->dest_window = (GdkWindow*)(*env)->GetIntField(env, lpObject, lpCache->dest_window);
+	lpStruct->targets = (GList*)(*env)->GetIntField(env, lpObject, lpCache->targets);
+	lpStruct->actions = (*env)->GetIntField(env, lpObject, lpCache->actions);
+	lpStruct->suggested_action = (*env)->GetIntField(env, lpObject, lpCache->suggested_action);
+	lpStruct->action = (*env)->GetIntField(env, lpObject, lpCache->action);
+	lpStruct->start_time = (*env)->GetIntField(env, lpObject, lpCache->start_time);
+	lpStruct->windowing_data = (gpointer)(*env)->GetIntField(env, lpObject, lpCache->windowing_data);
+	return lpStruct;
+}
+
+void setGdkDragContextFields(JNIEnv *env, jobject lpObject, GdkDragContext *lpStruct, PGdkDragContext_FID_CACHE lpCache)
+{
+	if (!lpCache->cached) cacheGdkDragContextFids(env, lpObject, lpCache);
+	(*env)->SetIntField(env, lpObject, lpCache->parent_instance$g_type_instance$g_class,(jint) lpStruct->parent_instance.g_type_instance.g_class);
+	(*env)->SetIntField(env, lpObject, lpCache->parent_instance$ref_count, lpStruct->parent_instance.ref_count);
+	(*env)->SetIntField(env, lpObject, lpCache->parent_instance$qdata, (jint) lpStruct->parent_instance.qdata);
+	(*env)->SetIntField(env, lpObject, lpCache->protocol, (jint) lpStruct->protocol);
+	(*env)->SetBooleanField(env, lpObject, lpCache->is_source, (jboolean) lpStruct->is_source);
+	(*env)->SetIntField(env, lpObject, lpCache->source_window, (jint) lpStruct->source_window);
+	(*env)->SetIntField(env, lpObject, lpCache->dest_window, (jint) lpStruct->dest_window);
+	(*env)->SetIntField(env, lpObject, lpCache->targets, (jint) lpStruct->targets);
+	(*env)->SetIntField(env, lpObject, lpCache->actions, (jint) lpStruct->actions);
+	(*env)->SetIntField(env, lpObject, lpCache->suggested_action, (jint) lpStruct->suggested_action);
+	(*env)->SetIntField(env, lpObject, lpCache->action, (jint) lpStruct->action);
+	(*env)->SetIntField(env, lpObject, lpCache->start_time, lpStruct->start_time);
+	(*env)->SetIntField(env, lpObject, lpCache->windowing_data, (jint) lpStruct->windowing_data);
+}
+
+

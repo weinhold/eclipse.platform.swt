@@ -633,3 +633,216 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1widget_1send_1e
 	return gtk_widget_send_expose((GtkWidget*)wid, (GdkEvent*)event);
 }
 
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_source_set
+ * Signature:	(IIIII)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1source_1set
+  (JNIEnv *env, jclass that, jint widget, jint start_button_mask, jint targets, jint n_targets, jint actions)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_source_set");
+#endif
+	gtk_drag_source_set( (GtkWidget*)widget, (GdkModifierType) start_button_mask, (const GtkTargetEntry*) targets,
+		n_targets, (GdkDragAction)  actions ); 
+
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_source_unset
+ * Signature:	(I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1source_1unset
+  (JNIEnv *env, jclass that, jint widget)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_source_unset");
+#endif
+	gtk_drag_source_unset( (GtkWidget*)widget); 
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_selection_data_set
+ * Signature:	(IIIII)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1selection_1data_1set
+  (JNIEnv *env, jclass that, jint selection_data, jint type, jint format, jint data, jint length)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_selection_data_set");
+#endif
+	gtk_selection_data_set( (GtkSelectionData*) selection_data, (GdkAtom) type, format,
+		(guchar*) data, length); 
+
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_dest_set
+ * Signature:	(IIIII)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1dest_1set
+  (JNIEnv *env, jclass that, jint widget, jint flags, jint targets, jint n_targets, jint actions)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_dest_set");
+#endif
+	gtk_drag_dest_set( (GtkWidget*)widget, (GtkDestDefaults) flags, (const GtkTargetEntry*) targets,
+		n_targets, (GdkDragAction)  actions ); 
+
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_dest_unset
+ * Signature:	(I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1dest_1unset
+  (JNIEnv *env, jclass that, jint widget)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_dest_unset");
+#endif
+	gtk_drag_dest_unset( (GtkWidget*)widget ); 
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_dest_find_target
+ * Signature:	(III)I
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1dest_1find_1target
+  (JNIEnv *env, jclass that, jint widget, jint context, jint target_list)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_dest_find_target");
+#endif
+	return (jint)gtk_drag_dest_find_target( (GtkWidget*)widget , (GdkDragContext*)context, (GtkTargetList*)target_list); 
+}
+
+
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gdk_drag_abort
+ * Signature:	(II)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1drag_1abort
+  (JNIEnv *env, jclass that, jint context, jint time)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gdk_drag_abort");
+#endif
+	gdk_drag_abort( (GdkDragContext *) context, time); 
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_drag_finish
+ * Signature:	(IBBI)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1drag_1finish
+  (JNIEnv *env, jclass that, jint context, jboolean sucess, jboolean del, jint time)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_drag_finish");
+#endif
+	gtk_drag_finish( (GdkDragContext *) context, sucess, del, time); 
+}
+
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_clipboard_get 
+ * Signature:	(I)I
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1clipboard_1get 
+  (JNIEnv *env, jclass that, jint selection)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_clipboard_get");
+#endif
+	return (jint) gtk_clipboard_get ( (GdkAtom) selection );
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_clipboard_set_with_data
+ * Signature:	(I)I
+ */
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1clipboard_1set_1with_1data
+  (JNIEnv *env, jclass that, jint clipboard, jint targets, jint n_targets, jint get_func, jint clear_func, jint user_data)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_clipboard_set_with_data");
+#endif
+	return gtk_clipboard_set_with_data ( (GtkClipboard*) clipboard, (GtkTargetEntry*) targets,
+                                          n_targets, (GtkClipboardGetFunc) get_func,
+                                          (GtkClipboardClearFunc) clear_func, (gpointer) user_data);
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_clipboard_wait_for_contents
+ * Signature:	(II)I
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1clipboard_1wait_1for_1contents
+  (JNIEnv *env, jclass that, jint clipboard, jint target)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_clipboard_wait_for_contents");
+#endif
+	return (jint) gtk_clipboard_wait_for_contents( (GtkClipboard*) clipboard,(GdkAtom) target);
+}
+
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gdk_atom_name
+ * Signature:	(I)I
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1atom_1name
+  (JNIEnv *env, jclass that, jint atom)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gdk_atom_name");
+#endif
+	return (jint) gdk_atom_name( (GdkAtom) atom );
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_selection_data_free
+ * Signature:	(I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1selection_1data_1free
+  (JNIEnv *env, jclass that, jint data)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_selection_data_free");
+#endif
+	gtk_selection_data_free( (GtkSelectionData*) data);
+}
+
+/*
+ * Class:	org_eclipse_swt_internal_gtk_OS
+ * Method:	gtk_clipboard_clear
+ * Signature:	(I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1clipboard_1clear
+  (JNIEnv *env, jclass that, jint clipboard)
+{
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "gtk_clipboard_clear");
+#endif
+	gtk_clipboard_clear( (GtkClipboard*) clipboard);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1POINTER_1TO_1ATOM
+  (JNIEnv *env, jclass that, jint ptr)
+{
+	return (jint) GDK_POINTER_TO_ATOM((GdkAtom)ptr);
+}
