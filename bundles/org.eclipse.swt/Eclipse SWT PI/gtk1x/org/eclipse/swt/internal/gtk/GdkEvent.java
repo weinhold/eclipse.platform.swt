@@ -13,8 +13,13 @@ package org.eclipse.swt.internal.gtk;
  * this distribution shall govern.
  */
 
-public abstract class GdkEvent {
+public class GdkEvent {
 	public int type;
 	public int window;
 	public byte send_event;
+
+	GdkEvent() {};
+	public  GdkEvent(int ptr) {
+		OS.memmove(this, ptr, 0);
+	}
 }

@@ -650,9 +650,10 @@ int processMouseUp (int callData, int arg1, int int2) {
 		* no selection signal was set and issue a fake selection
 		* event.
 		*/
-		GdkEventButton gdkEvent = new GdkEventButton ();
-		OS.memmove (gdkEvent, callData, GdkEventButton.sizeof);
-		int x = (int) gdkEvent.x, y = (int) gdkEvent.y;
+		double[] px = new double[1];
+		double[] py = new double[1];
+		OS.gdk_event_get_coords(callData, px, py);
+		int x = (int) (px[0]), y = (int) (py[0]);
 		int [] row = new int [1], column = new int [1];
 		int code = OS.gtk_clist_get_selection_info (handle, x, y, row, column);
 		if (code != 0) {
@@ -680,8 +681,7 @@ int processSelection (int int0, int int1, int int2) {
 	if ((style & SWT.MULTI) != 0) selected = false;
 	boolean single = true;
 	if (int2 != 0) {
-		GdkEventButton gdkEvent = new GdkEventButton ();
-		OS.memmove (gdkEvent, int2, GdkEventButton.sizeof);
+		GdkEvent gdkEvent = new GdkEvent (int2);
 		single = gdkEvent.type != OS.GDK_2BUTTON_PRESS;
 	}
 	if (single) {

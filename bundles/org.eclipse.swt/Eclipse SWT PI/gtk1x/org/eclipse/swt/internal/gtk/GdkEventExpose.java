@@ -21,7 +21,7 @@ public class GdkEventExpose extends GdkEvent {
 	int region;
 	public int count;
 	
-	private GdkEventExpose() {};
+	GdkEventExpose() {};
 	public  GdkEventExpose(int ptr) {
 		OS.memmove(this, ptr, 0);
 	}

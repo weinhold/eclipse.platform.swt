@@ -1514,30 +1514,35 @@ Decorations menuShell () {
 }
 
 int processKeyDown (int callData, int arg1, int int2) {
-	GdkEventKey gdkEvent = new GdkEventKey ();
-	OS.memmove (gdkEvent, callData, GdkEventKey.sizeof);
-	boolean accelResult = OS.gtk_accel_groups_activate(_getShell().topHandle, gdkEvent.keyval, gdkEvent.state);
-	if (!accelResult) sendKeyEvent (SWT.KeyDown, gdkEvent);
+	int keyval = OS.gdk_event_key_get_keyval(callData);
+	int[] pMods = new int[1];
+	OS.gdk_event_get_state(callData, pMods);
+	boolean accelResult = OS.gtk_accel_groups_activate(_getShell().topHandle,
+		keyval,
+		pMods[0]);
+	if (!accelResult) sendKeyEvent (SWT.KeyDown, callData);
 	return 1;
 }
 
 int processKeyUp (int callData, int arg1, int int2) {
-	GdkEventKey gdkEvent = new GdkEventKey ();
-	OS.memmove (gdkEvent, callData, GdkEventKey.sizeof);
-	sendKeyEvent (SWT.KeyUp, gdkEvent);
+	sendKeyEvent (SWT.KeyUp, callData);
 	return 1;
 }
 
 int processMouseDown (int callData, int arg1, int int2) {
 	OS.gtk_widget_grab_focus(handle);
-	GdkEventButton gdkEvent = new GdkEventButton ();
-	OS.memmove (gdkEvent, callData, GdkEventButton.sizeof);
+	GdkEvent gdkEvent = new GdkEvent(callData);
 	int eventType = SWT.MouseDown;
 	if (gdkEvent.type == OS.GDK_2BUTTON_PRESS) eventType = SWT.MouseDoubleClick;
-	sendMouseEvent (eventType, gdkEvent.button, gdkEvent.state, gdkEvent.time, (int)gdkEvent.x, (int)gdkEvent.y);
-	if (gdkEvent.button == 3 && menu != null) {
-		menu.setVisible (true);
-	}
+	int[] pMod = new int[1];
+	OS.gdk_event_get_state(callData, pMod);
+	int time = OS.gdk_event_get_time(callData);
+	double[] px = new double[1];
+	double[] py = new double[1];
+	OS.gdk_event_get_coords(callData, px, py);
+	int button = OS.gdk_event_button_get_button(callData);
+	sendMouseEvent (eventType, button, pMod[0], time, (int)(px[0]), (int)(py[0]));
+	if (button == 3 && menu != null) menu.setVisible (true);
 	return 1;
 }
 
@@ -1553,17 +1558,24 @@ int processMouseExit (int arg0, int arg1, int int2) {
 }
 
 int processMouseUp (int callData, int arg1, int int2) {
-	GdkEventButton gdkEvent = new GdkEventButton ();
-	OS.memmove (gdkEvent, callData, GdkEventButton.sizeof); 
-	sendMouseEvent (SWT.MouseUp, gdkEvent.button, gdkEvent.state, gdkEvent.time, (int)gdkEvent.x, (int)gdkEvent.y);
+	int[] pMod = new int[1];
+	OS.gdk_event_get_state(callData, pMod);
+	int time = OS.gdk_event_get_time(callData);
+	double[] px = new double[1];
+	double[] py = new double[1];
+	OS.gdk_event_get_coords(callData, px, py);
+	int button = OS.gdk_event_button_get_button(callData);
+	sendMouseEvent (SWT.MouseUp, button, pMod[0], time, (int)(px[0]), (int)(py[0]));
 	return 1;
 }
 
 int processMouseMove (int callData, int arg1, int int2) {
-	GdkEventMotion gdkEvent = new GdkEventMotion ();
-	OS.memmove (gdkEvent, callData, GdkEventMotion.sizeof); 
+	GdkEvent gdkEvent = new GdkEvent (callData);
 	Point where = _gdkWindowGetPointer();
-	sendMouseEvent (SWT.MouseMove, 0, gdkEvent.state, gdkEvent.time, where.x, where.y);
+	int time = OS.gdk_event_get_time(callData);
+	int[] pMods = new int[1];
+	OS.gdk_event_get_state(callData, pMods);
+	sendMouseEvent (SWT.MouseMove, 0, pMods[0], time, where.x, where.y);
 	return 1;
 }
 Point _gdkWindowGetPointer() {
@@ -1583,8 +1595,7 @@ int processFocusOut(int int0, int int1, int int2) {
 int processPaint (int callData, int int2, int int3) {
 	if (!hooks (SWT.Paint)) return 1;
 	
-	GdkEventExpose gdkEvent = new GdkEventExpose ();
-	OS.memmove (gdkEvent, callData, GdkEventExpose.sizeof);
+	GdkEventExpose gdkEvent = new GdkEventExpose (callData);
 	Event event = new Event ();
 	event.count = gdkEvent.count;
 	event.x = gdkEvent.x;  event.y = gdkEvent.y;
@@ -1669,46 +1680,52 @@ void releaseWidget () {
 	menu = null;
 	layoutData = null;
 }
-void sendKeyEvent (int type, GdkEventKey gdkEvent) {
-	/* Look up the keysym and character(s) */
-	int size = gdkEvent.length;
-	if (gdkEvent.keyval == 0 && size == 0) return;
 
-	/* If there is no composed string input by keypress, only send the keyvalue */ 
-	if (size == 0 ) {
+void sendKeyEvent (int type, int pEventKey) {
+	/* Look up the keysym and character(s) */
+	int size = OS.gdk_event_key_get_length(pEventKey);
+	if (size==0) {  /* No composed string - send the keyvalue */
+		int keyval = OS.gdk_event_key_get_keyval(pEventKey)	;
+		if (keyval==0) return;
+		
+		/* Construct a new event */
 		Event event = new Event ();
-		event.time = gdkEvent.time;
-//		event.character = (char) 0;  //no character sent
-		event.keyCode = Display.translateKey (gdkEvent.keyval);
+		event.time = OS.gdk_event_get_time(pEventKey);
+		event.keyCode = Display.translateKey (keyval);
 		event.character = (char) event.keyCode;  //no character sent
-		if ((gdkEvent.state & OS.GDK_MOD1_MASK) != 0) event.stateMask |= SWT.ALT;
-		if ((gdkEvent.state & OS.GDK_SHIFT_MASK) != 0) event.stateMask |= SWT.SHIFT;
-		if ((gdkEvent.state & OS.GDK_CONTROL_MASK) != 0) event.stateMask |= SWT.CONTROL;
-		if ((gdkEvent.state & OS.GDK_BUTTON1_MASK) != 0) event.stateMask |= SWT.BUTTON1;
-		if ((gdkEvent.state & OS.GDK_BUTTON2_MASK) != 0) event.stateMask |= SWT.BUTTON2;
-		if ((gdkEvent.state & OS.GDK_BUTTON3_MASK) != 0) event.stateMask |= SWT.BUTTON3;
+		int[] pModifier = new int[1];
+		OS.gdk_event_get_state(pEventKey, pModifier);
+		int state = pModifier[0];
+		if ((state & OS.GDK_MOD1_MASK)    != 0) event.stateMask |= SWT.ALT;
+		if ((state & OS.GDK_SHIFT_MASK)   != 0) event.stateMask |= SWT.SHIFT;
+		if ((state & OS.GDK_CONTROL_MASK) != 0) event.stateMask |= SWT.CONTROL;
+		if ((state & OS.GDK_BUTTON1_MASK) != 0) event.stateMask |= SWT.BUTTON1;
+		if ((state & OS.GDK_BUTTON2_MASK) != 0) event.stateMask |= SWT.BUTTON2;
+		if ((state & OS.GDK_BUTTON3_MASK) != 0) event.stateMask |= SWT.BUTTON3;
+		postEvent (type, event);
+		return;
+	}
+
+	/* Multi-byte key */
+	byte [] buffer = new byte [size];
+	OS.memmove (buffer, OS.gdk_event_key_get_string(pEventKey), size);
+	/* Convert from MBCS to UNICODE and send the event */
+	char [] result = Converter.mbcsToWcs (null, buffer);
+	for (int i=0; i<result.length; i++) {
+		Event event = new Event ();
+		event.time = OS.gdk_event_get_time(pEventKey);
+		event.character = result [i];
+		event.keyCode = result [i]; //0; //no keyCode sent
+		if ((state & OS.GDK_MOD1_MASK)    != 0) event.stateMask |= SWT.ALT;
+		if ((state & OS.GDK_SHIFT_MASK)   != 0) event.stateMask |= SWT.SHIFT;
+		if ((state & OS.GDK_CONTROL_MASK) != 0) event.stateMask |= SWT.CONTROL;
+		if ((state & OS.GDK_BUTTON1_MASK) != 0) event.stateMask |= SWT.BUTTON1;
+		if ((state & OS.GDK_BUTTON2_MASK) != 0) event.stateMask |= SWT.BUTTON2;
+		if ((state & OS.GDK_BUTTON3_MASK) != 0) event.stateMask |= SWT.BUTTON3;
 		postEvent (type, event);
 	}
-	else {	
-		byte [] buffer = new byte [size];
-		OS.memmove (buffer, gdkEvent.string, size);
-		/* Convert from MBCS to UNICODE and send the event */
-		char [] result = Converter.mbcsToWcs (null, buffer);
-		for (int i=0; i<result.length; i++) {
-			Event event = new Event ();
-			event.time = gdkEvent.time;
-			event.character = result [i];
-			event.keyCode = result [i]; //0; //no keyCode sent
-			if ((gdkEvent.state & OS.GDK_MOD1_MASK) != 0) event.stateMask |= SWT.ALT;
-			if ((gdkEvent.state & OS.GDK_SHIFT_MASK) != 0) event.stateMask |= SWT.SHIFT;
-			if ((gdkEvent.state & OS.GDK_CONTROL_MASK) != 0) event.stateMask |= SWT.CONTROL;
-			if ((gdkEvent.state & OS.GDK_BUTTON1_MASK) != 0) event.stateMask |= SWT.BUTTON1;
-			if ((gdkEvent.state & OS.GDK_BUTTON2_MASK) != 0) event.stateMask |= SWT.BUTTON2;
-			if ((gdkEvent.state & OS.GDK_BUTTON3_MASK) != 0) event.stateMask |= SWT.BUTTON3;
-			postEvent (type, event);
-		}
-	}	
 }
+
 void sendMouseEvent (int type, int button, int mask, int time, int x, int y) {
 	Event event = new Event ();
 	event.time = time;
