@@ -1618,9 +1618,11 @@ void onPaint(Event event) {
 //		}
 //	}
 	
-	Rectangle rect = getClientArea();
+	// fill in client area
+	int width = size.x  - borderLeft - borderRight;
+	int height = size.y - borderTop - borderBottom - tabHeight;
 	gc.setBackground(getBackground());
-	gc.fillRectangle(rect);
+	gc.fillRectangle(xClient, yClient, width, height);
 	
 	gc.setForeground(getForeground());
 	gc.setBackground(getBackground());	
@@ -1757,7 +1759,7 @@ public void removeCTabFolderExpandListener(CTabFolderExpandListener listener) {
 		// hide expand button
 		expandListeners = new CTabFolderExpandListener[0];
 		showExpand = false;
-		expandRect.x = expandRect.y = expandRect.width = expandRect.height = 0;
+		setButtonBounds();
 		updateItems();
 		redrawTabArea();
 		return;
