@@ -540,7 +540,7 @@ abstract class Tab {
 	void createSetGetDialog(int x, int y, String[] methodNames) {
 		final Shell dialog = new Shell(eventConsole.getShell (), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);
 		dialog.setLayout(new GridLayout(2, false));
-		dialog.setText(ControlExample.getResourceString ("Set_Get"));
+		dialog.setText(getTabText() + " " + ControlExample.getResourceString ("Set_Get"));
 		nameCombo = new Combo(dialog, SWT.NONE);
 		nameCombo.setItems(methodNames);
 		nameCombo.setText(methodNames[0]);
