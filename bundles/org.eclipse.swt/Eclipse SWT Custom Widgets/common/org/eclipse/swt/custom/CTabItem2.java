@@ -204,7 +204,7 @@ void drawSelected(GC gc ) {
 		shape[index++] = x + width + extra;
 		shape[index++] = y + height + 1;
 	}
-	parent.drawSelectionBackground(gc, y, shape);
+	parent.drawSelectionBackground(gc, shape);
 	
 	// Shape is non-rectangular
 	Region r = new Region();
@@ -235,6 +235,7 @@ void drawSelected(GC gc ) {
 		int imageX = xDraw;
 		int imageHeight = imageBounds.height;
 		int imageY = y + (height - imageHeight) / 2;
+		imageY += parent.onBottom ? -1 : 1;
 		int imageWidth = imageBounds.width * imageHeight / imageBounds.height;
 		gc.drawImage(image, 
 			         imageBounds.x, imageBounds.y, imageBounds.width, imageBounds.height,
@@ -250,6 +251,7 @@ void drawSelected(GC gc ) {
 	}
 	Point extent = gc.textExtent(shortenedText, FLAGS);	
 	int textY = y + (height - extent.y) / 2;
+	textY += parent.onBottom ? -1 : 1;
 	
 	gc.setForeground(parent.selectionForeground);
 	gc.drawText(shortenedText, xDraw, textY, FLAGS);
@@ -320,7 +322,7 @@ void drawUnselected(GC gc) {
 	if (this.parent.onBottom) {
 		int[] left = CTabFolder2.BOTTOM_LEFT_CORNER;
 		int[] right = CTabFolder2.BOTTOM_RIGHT_CORNER;
-		shape = new int[left.length+right.length+4];
+		shape = new int[left.length + right.length + 4];
 		int index = 0;
 		shape[index++] = x;
 		shape[index++] = y;
@@ -332,15 +334,15 @@ void drawUnselected(GC gc) {
 			shape[index++] = x + width - 3 + right[2*i]; // -3 = 2 pixel gap between tabs, gap on right side
 			shape[index++] = y + height - 2 + right[2*i+1]; // -2 = unselected tab 1 pixel shorter than selected tab
 		}
-		shape[index++]=x + width - 3; // -3 = 2 pixel gap between tabs, gap on right side
-		shape[index++]=y - 1;
+		shape[index++] = x + width - 3; // -3 = 2 pixel gap between tabs, gap on right side
+		shape[index++] = y - 1;
 	} else {
 		int[] left = CTabFolder2.TOP_LEFT_CORNER;
 		int[] right = CTabFolder2.TOP_RIGHT_CORNER;
 		shape = new int[left.length + right.length + 4];
 		int index = 0;
-		shape[index++]=x;
-		shape[index++]=y+height-1;
+		shape[index++] = x;
+		shape[index++] = y + height - 1;
 		for(int i = 0; i < left.length/2; i++) {
 			shape[index++] = x+left[2*i];
 			shape[index++] = y+1+left[2*i+1]; // +1 = unselected tab 1 pixel shorter than selected tab
@@ -363,6 +365,7 @@ void drawUnselected(GC gc) {
 	}	
 	Point extent = gc.textExtent(shortenedText, FLAGS);
 	int textY = y + (height - extent.y) / 2;
+	textY += parent.onBottom ? -1 : 1;
 	gc.setForeground(parent.getForeground());
 	gc.drawText(shortenedText, x + LEFT_MARGIN, textY, FLAGS);
 }
