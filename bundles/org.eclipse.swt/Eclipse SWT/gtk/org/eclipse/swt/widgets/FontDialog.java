@@ -126,7 +126,7 @@ public FontData open () {
 	handle = OS.gtk_font_selection_dialog_new (titleBytes);
 	if (parent!=null) {
 		OS.gtk_window_set_modal(handle, true);
-		OS.gtk_window_set_transient_for(handle, parent.topHandle);
+		OS.gtk_window_set_transient_for(handle, parent.topHandle());
 	}
 	if (fontData != null) {
 		byte[] buffer = Converter.wcsToMbcs(null, fontData.gtk_getXlfd(), true);

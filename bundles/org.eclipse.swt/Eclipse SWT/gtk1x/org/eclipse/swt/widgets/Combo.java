@@ -283,7 +283,6 @@ void createHandle (int index) {
 	fixedHandle = OS.gtk_fixed_new();
 	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }
-
 void setHandleStyle() {
 	boolean isEditable = (style & SWT.READ_ONLY) == 0;
 	OS.gtk_entry_set_editable (entryHandle, isEditable);
