@@ -49,13 +49,6 @@ typedef struct GdkColor_FID_CACHE {
 
 typedef GdkColor_FID_CACHE *PGdkColor_FID_CACHE;
 
-typedef struct GdkEvent_FID_CACHE {
-	int cached;
-	jclass GdkEventClass;
-	jfieldID type, window, send_event;
-} GdkEvent_FID_CACHE;
-
-typedef GdkEvent_FID_CACHE *PGdkEvent_FID_CACHE;
 
 typedef struct GdkEventExpose_FID_CACHE {
 	int cached;
@@ -309,7 +302,6 @@ void setGtkCTreeFields(JNIEnv *env, jobject lpObject, GtkCTree *lpGtkCTree, GtkC
 
 extern GdkColor_FID_CACHE GdkColorFc;
 extern GdkEventExpose_FID_CACHE GdkEventExposeFc;
-extern GdkEvent_FID_CACHE GdkEventFc;
 extern GdkFont_FID_CACHE GdkFontFc;
 extern GdkGCValues_FID_CACHE GdkGCValuesFc;
 extern GdkRectangle_FID_CACHE GdkRectangleFc;

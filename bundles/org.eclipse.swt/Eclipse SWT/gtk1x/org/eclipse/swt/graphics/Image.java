@@ -192,7 +192,7 @@ public Image(Device device, Image srcImage, int flag) {
 	this.alphaData = srcImage.alphaData;
 	this.alpha = srcImage.alpha;
 	this.transparentPixel = srcImage.transparentPixel;
-	// bogus - are we sure about memGC?
+	// FIXME - are we sure about memGC?
 
 	/* temporary code before we sort out greying */
 	flag = SWT.IMAGE_COPY;

@@ -8,7 +8,6 @@ package org.eclipse.swt.graphics;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.internal.gtk.*;
 import org.eclipse.swt.internal.*;
-import org.eclipse.swt.internal.BidiUtil;
 import org.eclipse.swt.*;
 
 
@@ -27,11 +26,13 @@ import org.eclipse.swt.*;
  * @see org.eclipse.swt.events.PaintEvent
  */
 public final class GC {
-
+	/**
+	 * the handle to the OS device context
+	 * (Warning: This field is platform dependent)
+	 */
 	public int handle;
 	Drawable drawable;
 	GCData data;
-	Font font;
 
 
 /*
@@ -199,7 +200,7 @@ public void setForeground(Color color) {
 
 public int getAdvanceWidth(char ch) {	
 	byte[] charBuffer = Converter.wcsToMbcs(null, new char[] { ch });
-	return OS.gdk_char_width(gdk_font(), charBuffer[0]);
+	return OS.gdk_char_width(_getGCFont(), charBuffer[0]);
 }
 /**
  * Returns the width of the specified character in the font
@@ -222,7 +223,7 @@ public int getCharWidth(char ch) {
 	int[] lbearing = new int[1];
 	int[] rbearing = new int[1];
 	int[] unused = new int[1];
-	OS.gdk_string_extents(gdk_font(), charBuffer, lbearing, rbearing, unused, unused, unused);
+	OS.gdk_string_extents(_getGCFont(), charBuffer, lbearing, rbearing, unused, unused, unused);
 	return rbearing[0] - lbearing[0];
 }
 /** 
@@ -289,7 +290,7 @@ public void getClipping(Region region) {
  * </ul>
  */
 public Font getFont() {		
-	return this.font;
+	return Font.gtk_new(_getGCFont());
 }
 /**
  * Returns a FontMetrics which contains information
@@ -302,25 +303,13 @@ public Font getFont() {
  *    <li>ERROR_GRAPHIC_DISPOSED - if the receiver has been disposed</li>
  * </ul>
  */
+// Not done
 public FontMetrics getFontMetrics() {
-	return FontMetrics.gtk_new(gdk_font());
-}
-private int gdk_font() {
-	if (font != null) return font.gdk_handle;
-	
-	/* now, THIS is really ugly */
-	GtkStyle style;
-	if (drawable instanceof Control) {
-		int h = ((Control)drawable).paintHandle();
-		style = new GtkStyle(OS.gtk_widget_get_style(h));
-		int f = style.font_desc;
-		if (f!=0) return f;
+	int fontHandle = _getGCFont();
+	if (fontHandle==0) {
+		error(SWT.ERROR_UNSPECIFIED);
 	}
-	style = new GtkStyle(OS.gtk_widget_get_default_style());
-	int f = style.font_desc;
-	if (f!=0) return f;
-	f = OS.gdk_font_load(Converter.wcsToMbcs(null, "fixed"));
-	return f;
+	return FontMetrics.gtk_new(fontHandle);
 }
 
 /** 
@@ -408,13 +397,13 @@ public boolean isClipped() {
  * </ul>
  */
 public void setClipping(int x, int y, int width, int height) {
-	if (data.clipRgn == 0) data.clipRgn = OS.gdk_region_new();
+/*	if (data.clipRgn == 0) data.clipRgn = OS.gdk_region_new();
 	GdkRectangle rect = new GdkRectangle();
 	rect.x = (short)x;  rect.y = (short)y;
 	rect.width = (short)width;  rect.height = (short)height;
 	OS.gdk_gc_set_clip_rectangle(handle, rect);
 	data.clipRgn = OS.gdk_regions_subtract(data.clipRgn, data.clipRgn);
-	data.clipRgn = OS.gdk_region_union_with_rect(data.clipRgn, rect);
+	data.clipRgn = OS.gdk_region_union_with_rect(data.clipRgn, rect);*/
 }
 /**
  * Sets the area of the receiver which can be changed
@@ -443,7 +432,7 @@ public void setClipping(Rectangle rect) {
  * </ul>
  */
 public void setClipping(Region region) {	
-	if (data.clipRgn == 0) data.clipRgn = OS.gdk_region_new();
+/*	if (data.clipRgn == 0) data.clipRgn = OS.gdk_region_new();
 	if (region == null) {
 		data.clipRgn = OS.gdk_regions_subtract(data.clipRgn, data.clipRgn);
 		OS.gdk_gc_set_clip_mask(handle, OS.GDK_NONE);
@@ -451,7 +440,7 @@ public void setClipping(Region region) {
 		data.clipRgn = OS.gdk_regions_subtract(data.clipRgn, data.clipRgn);
 		data.clipRgn = OS.gdk_regions_union(region.handle, data.clipRgn);
 		OS.gdk_gc_set_clip_region(handle, region.handle);
-	}
+	}*/
 }
 /** 
  * Sets the font which will be used by the receiver
@@ -468,8 +457,17 @@ public void setClipping(Region region) {
  *    <li>ERROR_GRAPHIC_DISPOSED - if the receiver has been disposed</li>
  * </ul>
  */
-public void setFont(Font font) {
-	this.font = font;	
+public void setFont(Font font) {	
+/*	int fontHandle = 0;
+	if (font == null) {
+		GtkStyle gtkStyle = new GtkStyle();
+		int style = OS.gtk_widget_get_default_style();
+		OS.memmove(gtkStyle, style, GtkStyle.sizeof);
+		fontHandle = gtkStyle.font;
+	} else {
+		fontHandle = font.handle;
+	}
+	OS.gdk_gc_set_font(handle, fontHandle);*/
 }
 
 /** 
@@ -570,8 +568,8 @@ public void setXORMode(boolean val) {
 public Point stringExtent(String string) {	
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
 	byte[] buffer = Converter.wcsToMbcs(null, string, true);
-	int width = OS.gdk_string_width(gdk_font(), buffer);
-	int height = OS.gdk_string_height(gdk_font(), buffer);
+	int width = OS.gdk_string_width(_getGCFont(), buffer);
+	int height = OS.gdk_string_height(_getGCFont(), buffer);
 	return new Point(width, height);
 }
 /**
@@ -596,8 +594,8 @@ public Point stringExtent(String string) {
 public Point textExtent(String string) {		
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
 	byte[] buffer = Converter.wcsToMbcs(null, string, true);
-	int width = OS.gdk_string_width(gdk_font(), buffer);
-	int height = OS.gdk_string_height(gdk_font(), buffer);
+	int width = OS.gdk_string_width(_getGCFont(), buffer);
+	int height = OS.gdk_string_height(_getGCFont(), buffer);
 	return new Point(width, height);
 }
 
@@ -607,9 +605,13 @@ public Point textExtent(String string) {
  *   ===  Access - Internal utils  ===
  */
  
-private GdkColor _getForegroundGdkColor() {
+private GdkGCValues _getGCValues() {
 	GdkGCValues values = new GdkGCValues();
 	OS.gdk_gc_get_values(handle, values);
+	return values;
+}
+private GdkColor _getForegroundGdkColor() {
+	GdkGCValues values = _getGCValues();
 	GdkColor color = new GdkColor();
 	color.pixel = values.foreground_pixel;
 	color.red   = values.foreground_red;
@@ -618,8 +620,7 @@ private GdkColor _getForegroundGdkColor() {
 	return color;
 }
 private GdkColor _getBackgroundGdkColor() {
-	GdkGCValues values = new GdkGCValues();
-	OS.gdk_gc_get_values(handle, values);
+	GdkGCValues values = _getGCValues();
 	GdkColor color = new GdkColor();
 	color.pixel = values.background_pixel;
 	color.red   = values.background_red;
@@ -627,6 +628,15 @@ private GdkColor _getBackgroundGdkColor() {
 	color.blue  = values.background_blue;
 	return color;
 }
+private int _getGCFont() {
+	GdkGCValues values = _getGCValues();
+	if (values.font==0) {
+		values.font = OS.gdk_font_load(Converter.wcsToMbcs(null, "fixed", true));
+		if (values.font == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+	}
+	return values.font;
+}
+
 
 
 /**
@@ -852,8 +862,7 @@ public void drawImage(Image srcImage, int srcX, int srcY, int srcWidth, int srcH
 	/* source image properties */
 	int[] width = new int[1];
 	int[] height = new int[1];
-	int[] unused = new int[1];
- 	OS.gdk_window_get_geometry(srcImage.pixmap, unused, unused, width, height, unused);
+ 	OS.gdk_drawable_get_size(srcImage.pixmap, width, height);
 	if ((srcY + srcWidth > width[0]) ||
 		(srcY + srcHeight > height[0])) {
 		error(SWT.ERROR_INVALID_ARGUMENT);
@@ -1155,11 +1164,12 @@ public void drawString(String string, int x, int y, boolean isTransparent) {
 	int[] width = new int[1];
 	int[] ascent = new int[1];
 	int[] average_ascent = new int [1];
-	OS.gdk_string_extents(gdk_font(), buffer, unused, unused, width, ascent, unused);
-	OS.gdk_string_extents(gdk_font(), buffer1, unused, unused, unused, average_ascent, unused);
+	int fontHandle = _getGCFont();
+	OS.gdk_string_extents(fontHandle, buffer, unused, unused, width, ascent, unused);
+	OS.gdk_string_extents(fontHandle, buffer1, unused, unused, unused, average_ascent, unused);
 	if (ascent[0]<average_ascent[0]) ascent[0] = average_ascent[0];
 	if (!isTransparent) {
-		int height = OS.gdk_string_height(gdk_font(), buffer);
+		int height = OS.gdk_string_height(fontHandle, buffer);
 		GdkGCValues values = new GdkGCValues();
 		OS.gdk_gc_get_values(handle, values);
 		GdkColor color = new GdkColor();
@@ -1175,7 +1185,7 @@ public void drawString(String string, int x, int y, boolean isTransparent) {
 		color.blue = values.foreground_blue;
 		OS.gdk_gc_set_foreground(handle, color);
 	}
-	OS.gdk_draw_string(data.drawable, gdk_font(), handle, x, y + ascent[0], buffer);
+	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);
 }
 /** 
  * Draws the given string, using the receiver's current font and
@@ -1222,15 +1232,16 @@ public void drawText(String string, int x, int y, boolean isTransparent) {
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
 	byte[] buffer = Converter.wcsToMbcs(null, string, true);
 	byte[] buffer1 = Converter.wcsToMbcs(null, "Y", true);
+	int fontHandle = _getGCFont();
 	int[] unused = new int[1];
 	int[] width = new int[1];
 	int[] ascent = new int[1];
 	int[] average_ascent = new int [1];
-	OS.gdk_string_extents(gdk_font(), buffer, unused, unused, width, ascent, unused);
-	OS.gdk_string_extents(gdk_font(), buffer1, unused, unused, unused, average_ascent, unused);
+	OS.gdk_string_extents(fontHandle, buffer, unused, unused, width, ascent, unused);
+	OS.gdk_string_extents(fontHandle, buffer1, unused, unused, unused, average_ascent, unused);
 	if (ascent[0]<average_ascent[0]) ascent[0] = average_ascent[0];
 	if (!isTransparent) {
-		int height = OS.gdk_string_height(gdk_font(), buffer);
+		int height = OS.gdk_string_height(fontHandle, buffer);
 		GdkGCValues values = new GdkGCValues();
 		OS.gdk_gc_get_values(handle, values);
 		GdkColor color = new GdkColor();
@@ -1246,7 +1257,7 @@ public void drawText(String string, int x, int y, boolean isTransparent) {
 		color.blue = values.foreground_blue;
 		OS.gdk_gc_set_foreground(handle, color);
 	}
-	OS.gdk_draw_string(data.drawable, gdk_font(), handle, x, y + ascent[0], buffer);
+	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);
 }
 
 /** 
@@ -1374,6 +1385,8 @@ public void fillArc(int x, int y, int width, int height, int startAngle, int end
 public void fillGradientRectangle(int x, int y, int width, int height, boolean vertical) {
 	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if ((width == 0) || (height == 0)) return;
+	
+	/* Rewrite this to use GdkPixbuf */
 
 	GdkGCValues values = new GdkGCValues();
 	OS.gdk_gc_get_values(handle, values);

@@ -522,6 +522,24 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1visual_1get_1sy
 
 /*  ***** Fonts *****  */
 
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1font_1from_1description
+  (JNIEnv *env, jclass that, jint desc)
+{
+  return (jint) gdk_font_from_description((PangoFontDescription*) desc);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1FONT_1ASCENT
+  (JNIEnv *env, jclass that, jint font)
+{
+  return (jint) (((GdkFont*) font) -> ascent);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1FONT_1DESCENT
+  (JNIEnv *env, jclass that, jint font)
+{
+  return (jint) (((GdkFont*) font) -> descent);
+}
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1font_1load
   (JNIEnv *env, jclass that, jbyteArray font_name)
 {
@@ -822,6 +840,26 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1window_1get_1ge
 	}
 }
 
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1drawable_1get_1size
+  (JNIEnv *env, jclass that, jint drawable, jintArray width, jintArray height)
+{
+	jint *width1 = NULL;
+	jint *height1 = NULL;
+	if (width) {
+		width1 = (*env)->GetIntArrayElements(env, width, NULL);
+	}
+	if (height) {
+		height1 = (*env)->GetIntArrayElements(env, height, NULL);
+	}
+	gdk_drawable_get_size((GdkDrawable*)drawable, (gint*)width1, (gint*)height1);
+	if (width) {
+		(*env)->ReleaseIntArrayElements(env, width, width1, 0);
+	}
+	if (height) {
+		(*env)->ReleaseIntArrayElements(env, height, height1, 0);
+	}
+}
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1window_1get_1origin
   (JNIEnv *env, jclass that, jint window, jintArray x, jintArray y)
 {
@@ -893,6 +931,97 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get
 	return (jint)gdk_event_get();
 }
 
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1button_1get_1button
+  (JNIEnv *env, jclass that, jint event)
+{
+  return (jint) (((GdkEventButton*)event) -> button);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1key_1get_1keyval
+  (JNIEnv *env, jclass that, jint event)
+{
+  return (jint) (((GdkEventKey*)event) -> keyval);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1key_1get_1length
+  (JNIEnv *env, jclass that, jint event)
+{
+  return (jint) (((GdkEventKey*)event) -> length);
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1EVENT_1TYPE
+  (JNIEnv *env, jclass that, jint event)
+{
+  GdkEventType type = ((GdkEventAny*)event) -> type;
+  return (jint) type;
+}
+
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get_1time
+  (JNIEnv *env, jclass that, jint event)
+{
+  return (jint) gdk_event_get_time((GdkEvent*) event);
+}
+
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get_1state
+  (JNIEnv *env, jclass that, jint event, jintArray state)
+{
+  gboolean result;
+  jint *state1 = NULL;
+  if (state) {
+    state1 = (*env)->GetIntArrayElements(env, state, NULL);
+  }
+  result = gdk_event_get_state((GdkEvent*)event, (GdkModifierType*)state1);
+  if (state) {
+    (*env)->ReleaseIntArrayElements(env, state, state1, 0);
+  }
+  return (jboolean) result;
+}
+
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get_1coords
+  (JNIEnv *env, jclass that, jint event, jdoubleArray win_x, jdoubleArray win_y)
+{
+  gboolean rc;
+  jdouble *win_x1 = NULL;
+  jdouble *win_y1 = NULL;
+  if (win_x) {
+	win_x1 = (*env)->GetDoubleArrayElements(env, win_x, NULL);
+  }
+  if (win_y) {
+	win_y1 = (*env)->GetDoubleArrayElements(env, win_y, NULL);
+  }
+  rc = gdk_event_get_coords((GdkEvent*)event, (gdouble*)win_x1, (gdouble*)win_y1);
+  if (win_x) {
+  	(*env)->ReleaseDoubleArrayElements(env, win_x, win_x1, 0);
+  }
+  if (win_y) {
+	(*env)->ReleaseDoubleArrayElements(env, win_y, win_y1, 0);
+  }
+  return (jboolean)rc;
+}
+
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get_1root_1coords
+  (JNIEnv *env, jclass that, jint event, jdoubleArray win_x, jdoubleArray win_y)
+{
+  gboolean rc;
+  jdouble *win_x1 = NULL;
+  jdouble *win_y1 = NULL;
+  if (win_x) {
+	win_x1 = (*env)->GetDoubleArrayElements(env, win_x, NULL);
+  }
+  if (win_y) {
+	win_y1 = (*env)->GetDoubleArrayElements(env, win_y, NULL);
+  }
+  rc = gdk_event_get_root_coords((GdkEvent*)event, (gdouble*)win_x1, (gdouble*)win_y1);
+  if (win_x) {
+  	(*env)->ReleaseDoubleArrayElements(env, win_x, win_x1, 0);
+  }
+  if (win_y) {
+	(*env)->ReleaseDoubleArrayElements(env, win_y, win_y1, 0);
+  }
+  return (jboolean)rc;
+}
+
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1event_1get_1graphics_1expose
   (JNIEnv *env, jclass that, jint window)
 {
@@ -933,10 +1062,10 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1ROOT_1PARENT
 }
 
 
-/* WHERE IS THIS? */
+/* Misc */
 
-JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1time_1get
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GDK_1CURRENT_1TIME
   (JNIEnv *env, jclass that)
 {
-	return (jint)gdk_time_get();
+  return (jint) GDK_CURRENT_TIME;
 }

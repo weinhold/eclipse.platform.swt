@@ -21,7 +21,6 @@
 /* Globals */
 GdkColor_FID_CACHE GdkColorFc;
 GdkEventExpose_FID_CACHE GdkEventExposeFc;
-GdkEvent_FID_CACHE GdkEventFc;
 GdkFont_FID_CACHE GdkFontFc;
 GdkGCValues_FID_CACHE GdkGCValuesFc;
 GdkRectangle_FID_CACHE GdkRectangleFc;
@@ -74,7 +73,7 @@ void cacheGdkEventExposeFids(JNIEnv *env, jobject lpGdkEventExpose, PGdkEventExp
 	lpCache->y = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "y", "S");
 	lpCache->width = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "width", "S");
 	lpCache->height = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "height", "S");
-	lpCache->count = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "region", "I");
+	lpCache->region = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "region", "I");
 	lpCache->count = (*env)->GetFieldID(env, lpCache->GdkEventExposeClass, "count", "I");
 
 	lpCache->cached = 1;
@@ -485,12 +484,12 @@ void cacheGtkAdjustmentFids(JNIEnv *env, jobject lpGtkAdjustment, PGtkAdjustment
 	if (lpCache->cached) return;
 
 	lpCache->GtkAdjustmentClass = (*env)->GetObjectClass(env, lpGtkAdjustment);
-	lpCache->lower = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "lower", "F");
-	lpCache->upper = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "upper", "F");
-	lpCache->value = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "value", "F");
-	lpCache->step_increment = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "step_increment", "F");
-	lpCache->page_increment = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "page_increment", "F");
-	lpCache->page_size = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "page_size", "F");
+	lpCache->lower = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "lower", "D");
+	lpCache->upper = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "upper", "D");
+	lpCache->value = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "value", "D");
+	lpCache->step_increment = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "step_increment", "D");
+	lpCache->page_increment = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "page_increment", "D");
+	lpCache->page_size = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "page_size", "D");
 
 	lpCache->cached = 1;
 };

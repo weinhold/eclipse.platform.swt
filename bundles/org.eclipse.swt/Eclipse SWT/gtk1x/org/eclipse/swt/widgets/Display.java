@@ -918,7 +918,7 @@ final void initializeSystemColors() {
  */
 public Font getSystemFont () {
 	checkDevice ();
-	if (systemFont==null) systemFont = new Font(this, new FontData("Monospace"));
+	if (systemFont==null) systemFont = new Font(this, new FontData("fixed", 12, 0));
 	return systemFont;
 }
 

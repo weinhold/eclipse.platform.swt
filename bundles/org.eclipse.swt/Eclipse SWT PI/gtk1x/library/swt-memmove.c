@@ -34,16 +34,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 	}
 }
 
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GdkEvent_2I
-  (JNIEnv *env, jclass that, jobject dest, jint src)
-{
-	DECL_GLOB(pGlob)
-	if (dest) {
-		cacheGdkEventFids(env, dest, &PGLOB(GdkEventFc));
-		setGdkEventFields(env, dest, src, &PGLOB(GdkEventFc));
-	}
-}
-
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GdkEventExpose_2I
   (JNIEnv *env, jclass that, jobject dest, jint src)
 {

@@ -308,7 +308,8 @@ public static final native void eclipse_fixed_move_below(int fixed, int child, i
 /* GDK */
 
 public static final native void gdk_rgb_init();
-public static final native String gdk_font_full_name_get(int handle);
+public static final native int gdk_font_from_description(int desc);
+
 
 
 public static final native void gtk_signal_handler_block_by_data(int object, int data);
@@ -346,6 +347,8 @@ public static final native int gdk_cursor_new(int cursor_type);
 public static final native int gdk_bitmap_create_from_data(int window, byte[] data, int width, int height);
 public static final native int gdk_cursor_new_from_pixmap(int source, int mask, GdkColor fg, GdkColor bg, int x, int y);
 public static final native void gdk_cursor_destroy(int cursor);
+public static final native int GDK_FONT_ASCENT(int font);
+public static final native int GDK_FONT_DESCENT(int font);
 public static final native int gdk_font_load(byte[] font_name);
 public static final native int gdk_font_ref(int font);
 public static final native void gdk_font_unref(int font);
@@ -389,7 +392,7 @@ public static final native boolean gdk_event_get_coords(int event, double[] px, 
 public static final native boolean gdk_event_get_root_coords(int event, double[] px, double[] py);
 public static final native int gdk_event_key_get_keyval(int event);
 public static final native int gdk_event_key_get_length(int event);
-public static final native int gdk_event_key_get_string(int event);
+public static final native String gdk_event_key_get_string(int event);
 public static final native int gdk_event_button_get_button(int event);
 
 
@@ -431,6 +434,7 @@ public static final native int gdk_window_at_pointer(int[] win_x, int[] win_y);
 public static final native int GDK_CURRENT_TIME();
 public static final native int gdk_screen_width_mm();
 public static final native void gdk_window_get_geometry(int window, int[] x, int[] y, int[] width, int[] height, int[] depth);
+public static final native void gdk_drawable_get_size(int drawable, int[] width, int[] height);
 public static final native void gdk_window_raise(int window);
 public static final native void gdk_window_lower(int window);
 public static final native int gdk_window_get_origin(int window, int[] x, int[] y);

@@ -157,8 +157,15 @@ void showHandle() {
 	OS.gtk_widget_show (handle);
 	OS.gtk_widget_realize (handle);
 }
+/**
+ * This is the handle by which our parent holds us
+ */
 int topHandle() { return handle; }
-int paintHandle() { return handle; }
+/**
+ * This is where we draw.  Every widget must guarantee
+ * that its paint handle has a Gdk window associated with it.
+ */
+public int paintHandle() { return handle; }  /* REALLY BROKEN, PENDING PANGO */
 boolean isMyHandle(int h) { return h==handle; }
 
 /*
@@ -441,7 +448,6 @@ public void setSize (int width, int height) {
 	sendEvent(SWT.Resize);
 }
 void _setSize(int width, int height) {
-	System.out.println("Setting size of "+this+" (parent "+parent+") to "+width+"@"+height);
 	OS.eclipse_fixed_set_size(parent.parentingHandle(), topHandle(), width, height);
 }
 
@@ -1174,9 +1180,13 @@ public boolean getEnabled () {
  */
 public Font getFont () {
 	checkWidget();
-	int fdescr = OS.gtk_widget_get_style(handle);
-	FontData data = FontData.gtk_from_os(fdescr);
-	return new Font(getDisplay(), data);
+	return Font.gtk_new(_getFontHandle());
+}
+/*
+ * Subclasses should override this, passing a meaningful handle
+ */
+int _getFontHandle () {
+	return UtilFuncs.getFont(handle);
 }
 
 /**
@@ -1346,7 +1356,7 @@ public int internal_new_GC (GCData data) {
 	int window = OS.GTK_WIDGET_WINDOW(paintHandle());
 	int gc = OS.gdk_gc_new(window);
 	
-//	OS.gdk_gc_set_font(gc, _getFontHandle());
+	OS.gdk_gc_set_font(gc, _getFontHandle());
 	OS.gdk_gc_set_background(gc, _getBackgroundGdkColor());
 	OS.gdk_gc_set_foreground(gc, _getForegroundGdkColor());
 	
@@ -1615,15 +1625,13 @@ void releaseWidget () {
 }
 
 void sendKeyEvent (int type, int pEventKey) {
-	/* Look up the keysym and character(s) */
+	Event event = new Event();
+	event.time = OS.gdk_event_get_time(pEventKey);
+	
 	int size = OS.gdk_event_key_get_length(pEventKey);
 	if (size==0) {  /* No composed string - send the keyvalue */
 		int keyval = OS.gdk_event_key_get_keyval(pEventKey)	;
 		if (keyval==0) return;
-		
-		/* Construct a new event */
-		Event event = new Event ();
-		event.time = OS.gdk_event_get_time(pEventKey);
 		event.keyCode = Display.translateKey (keyval);
 		event.character = (char) event.keyCode;  //no character sent
 		int[] pModifier = new int[1];
@@ -1639,16 +1647,14 @@ void sendKeyEvent (int type, int pEventKey) {
 		return;
 	}
 
-	/* Multi-byte key */
-	byte [] buffer = new byte [size];
-	OS.memmove (buffer, OS.gdk_event_key_get_string(pEventKey), size);
-	/* Convert from MBCS to UNICODE and send the event */
-	char [] result = Converter.mbcsToWcs (null, buffer);
-	for (int i=0; i<result.length; i++) {
-		Event event = new Event ();
-		event.time = OS.gdk_event_get_time(pEventKey);
-		event.character = result [i];
-		event.keyCode = result [i]; //0; //no keyCode sent
+	if (size==1) {
+		int keyval = OS.gdk_event_key_get_keyval(pEventKey)	;
+		if (keyval==0) return;
+		event.keyCode = keyval;
+		event.character = (char) event.keyCode;  //no character sent
+		int[] pModifier = new int[1];
+		OS.gdk_event_get_state(pEventKey, pModifier);
+		int state = pModifier[0];
 		if ((state & OS.GDK_MOD1_MASK)    != 0) event.stateMask |= SWT.ALT;
 		if ((state & OS.GDK_SHIFT_MASK)   != 0) event.stateMask |= SWT.SHIFT;
 		if ((state & OS.GDK_CONTROL_MASK) != 0) event.stateMask |= SWT.CONTROL;
@@ -1656,7 +1662,12 @@ void sendKeyEvent (int type, int pEventKey) {
 		if ((state & OS.GDK_BUTTON2_MASK) != 0) event.stateMask |= SWT.BUTTON2;
 		if ((state & OS.GDK_BUTTON3_MASK) != 0) event.stateMask |= SWT.BUTTON3;
 		postEvent (type, event);
+		return;
 	}
+
+	/* Multi-byte key */
+	/* The implementation in the GTK1.2 stream, is not correct here. */
+	error(SWT.ERROR_NOT_IMPLEMENTED);
 }
 
 void sendMouseEvent (int type, int button, int mask, int time, int x, int y) {
@@ -1865,7 +1876,8 @@ public void setFont (Font font) {
 	/* The non-null font case */
 	if (font != null) {
 		if (font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		OS.gtk_widget_modify_font(handle, font.handle);
+		int fontHandle = OS.gdk_font_ref(font.handle);
+		_setFontHandle(fontHandle);
 		return;
 	}
 	
@@ -1876,6 +1888,9 @@ public void setFont (Font font) {
 	int fontHandle = OS.gdk_font_ref(style.font);
 	if (fontHandle==0) error(SWT.ERROR_NO_HANDLES);
 	_setFontHandle(fontHandle);*/
+}
+void _setFontHandle (int f) {
+	UtilFuncs.setFont(handle, f);
 }
 
 /**
@@ -1894,8 +1909,7 @@ public void setFont (Font font) {
  * </ul>
  */
 public void setForeground (Color color) {
-	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
+	checkWidget();
 	int hStyle = OS.gtk_widget_get_style (handle);
 	hStyle = OS.gtk_style_copy (hStyle);	
 	GtkStyle style = new GtkStyle (hStyle);

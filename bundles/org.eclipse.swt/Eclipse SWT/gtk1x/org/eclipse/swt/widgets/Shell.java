@@ -331,7 +331,13 @@ void createHandle (int index) {
 	vboxHandle = OS.gtk_vbox_new(false,0);
 	if (vboxHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 
-	handle = OS.eclipse_fixed_new();
+	boxHandle = OS.gtk_event_box_new();
+	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
+	
+	fixedHandle = OS.eclipse_fixed_new();
+	if (fixedHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+	
+	handle = OS.gtk_drawing_area_new();
 	if (handle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 
 	accelGroup = OS.gtk_accel_group_new ();
@@ -341,7 +347,9 @@ void createHandle (int index) {
 
 void configure () {
 	OS.gtk_container_add (shellHandle, vboxHandle);
-	OS.gtk_box_pack_end(vboxHandle, handle, true,true,0);
+	OS.gtk_box_pack_end(vboxHandle, boxHandle, true,true,0);
+	OS.gtk_container_add(boxHandle, fixedHandle);
+	OS.gtk_container_add(fixedHandle, handle);
 }
 
 void showHandle() {
@@ -350,6 +358,10 @@ void showHandle() {
 	
 	OS.gtk_widget_realize (vboxHandle);
 	OS.gtk_widget_show_now (vboxHandle);
+	OS.gtk_widget_realize (boxHandle);
+	OS.gtk_widget_show_now (boxHandle);
+	OS.gtk_widget_realize (fixedHandle);
+	OS.gtk_widget_show_now (fixedHandle);
 	OS.gtk_widget_realize (handle);
 	OS.gtk_widget_show_now (handle);
 }
@@ -395,9 +407,7 @@ private void _setStyle() {
 }
 
 int topHandle () { return shellHandle; }
-
-int parentingHandle() {	return handle; }
-
+int parentingHandle() {	return fixedHandle; }
 boolean isMyHandle(int h) {
 	if (h == shellHandle)    return true;
 	if (h == vboxHandle)     return true;

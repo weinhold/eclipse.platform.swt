@@ -24,13 +24,13 @@ import org.eclipse.swt.widgets.*;
  * @see FontData
  */
 public final class Font {
-
-	public int pango_handle;
-	public int gdk_handle;
-
+	/**
+	 * the handle to the OS font resource
+	 * (Warning: This field is platform dependent)
+	 */
+	public int handle;
 Font() {
 }
-
 /**	 
  * Constructs a new font given a device and font data
  * which describes the desired font's appearance.
@@ -49,16 +49,16 @@ Font() {
  * </ul>
  */
 public Font(Device display, FontData fd) {
-	if (fd == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	
-	/* In the current implementation of SWT/GTK, fonts are PangoFontDescriptions.
-	 * Temporarily, when we paint on a drawable, we create a GdkFont, instead of
-	 * using Pango.  This means we don't handle i18n properly.
-	 */
-	pango_handle = fd.to_os();
-	createGdkHandle();
+	if (fd == null) error(SWT.ERROR_NULL_ARGUMENT);
+	/* FIXME */
+	String xlfd = fd.getXlfd();
+	byte[] buffer = Converter.wcsToMbcs(null, xlfd, true);
+	handle = OS.gdk_font_load(buffer);
+	if (handle == 0) {
+		handle = OS.gdk_font_load(Converter.wcsToMbcs(null, "fixed", true));
+		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
+	}
 }
-
 /**	 
  * Constructs a new font given a device, a font name,
  * the height of the desired font in points, and a font
@@ -81,24 +81,26 @@ public Font(Device display, FontData fd) {
  * </ul>
  */
 public Font(Device display, String fontFamily, int height, int style) {
-	if (fontFamily == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	if (fontFamily == null) error(SWT.ERROR_NULL_ARGUMENT);
 	FontData fd = new FontData(fontFamily, height, style);
-	pango_handle = fd.to_os();
-	createGdkHandle();
+	byte[] buffer = Converter.wcsToMbcs(null, fd.getXlfd(), true);
+	handle = OS.gdk_font_load(buffer);
+	if (handle == 0) {
+		/* Temporary, FIXME */
+		buffer = Converter.wcsToMbcs(null, "fixed", true);
+		handle = OS.gdk_font_load(buffer);
+		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
+	}
 }
-
 /**
  * Disposes of the operating system resources associated with
  * the font. Applications must dispose of all fonts which
  * they allocate.
  */
 public void dispose() {
-	if (pango_handle != 0) OS.pango_font_description_free(pango_handle);
-	if (gdk_handle != 0) OS.gdk_font_unref(gdk_handle);
-	pango_handle = 0;
-	gdk_handle = 0;
+	if (handle != 0) OS.gdk_font_unref(handle);
+	handle = 0;
 }
-
 /**
  * Compares the argument to the receiver, and returns true
  * if they represent the <em>same</em> object using a class
@@ -112,7 +114,10 @@ public void dispose() {
 public boolean equals(Object object) {
 	if (object == this) return true;
 	if (!(object instanceof Font)) return false;
-	return OS.gdk_font_equal(pango_handle, ((Font)object).pango_handle);
+	return OS.gdk_font_equal(handle, ((Font)object).handle);
+}
+void error(int code) {
+	throw new SWTError (code);
 }
 
 /**
@@ -128,16 +133,29 @@ public boolean equals(Object object) {
  * </ul>
  */
 public FontData[] getFontData() {
-	if (pango_handle==0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-
-	int nfonts = 1;
+	if (handle==0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
+	/* REWRITE ME.
+	 * THIS WILL NEVER WORK CORRECTLY.
+	 * WE USED TO REACH DOWN TO GDK INTERNAL MEMORY
+	 */
+	FontData[] answer = new FontData[1];
 	FontData data = new FontData();
-	data.from_os(pango_handle);
-	FontData[] answer = new FontData[nfonts];
+	data.fontFamily = "fixed";
+	data.weight = "normal";
+	data.points = 120;
 	answer[0] = data;
 	return answer;
 }
 
+public static Font gtk_new(int handle) {
+	if (handle == 0) {
+		handle = OS.gdk_font_load(Converter.wcsToMbcs(null, "fixed", true));
+		if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+	}
+	Font font = new Font();
+	font.handle = handle;
+	return font;
+}
 /**
  * Returns an integer hash code for the receiver. Any two 
  * objects which return <code>true</code> when passed to 
@@ -149,9 +167,8 @@ public FontData[] getFontData() {
  * @see #equals
  */
 public int hashCode() {
-	return pango_handle;
+	return handle;
 }
-
 /**
  * Returns <code>true</code> if the font has been disposed,
  * and <code>false</code> otherwise.
@@ -163,7 +180,7 @@ public int hashCode() {
  * @return <code>true</code> when the font is disposed and <code>false</code> otherwise
  */
 public boolean isDisposed() {
-	return pango_handle == 0;
+	return handle == 0;
 }
 
 /**
@@ -174,10 +191,7 @@ public boolean isDisposed() {
  */
 public String toString () {
 	if (isDisposed()) return "Font {*DISPOSED*}";
-	return "Font {" + pango_handle + "}";
+	return "Font {" + handle + "}";
 }
 
-void createGdkHandle() {
-	gdk_handle = OS.gdk_font_from_description(pango_handle);
-}
 }

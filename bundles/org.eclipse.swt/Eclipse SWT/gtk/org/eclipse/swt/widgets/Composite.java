@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.*;
  */
 public class Composite extends Scrollable {
 	/* boxHandle is temporarily here, until eclipsefixed gets fixed */
-	int boxHandle, radioHandle;
+	int boxHandle, fixedHandle, radioHandle;
 	Layout layout;
 
 /*
@@ -72,6 +72,9 @@ public Composite (Composite parent, int style) {
 	super (parent, style);
 }
 
+/*
+ * === Handle code begins ===
+ */
 void createHandle (int index) {
 	state |= HANDLE | CANVAS;
 	
@@ -81,7 +84,10 @@ void createHandle (int index) {
 	boxHandle = OS.gtk_event_box_new();
 	if (boxHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	
-	handle = OS.eclipse_fixed_new();
+	fixedHandle = OS.eclipse_fixed_new();
+	if (fixedHandle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+	
+	handle = OS.gtk_drawing_area_new();
 	if (handle == 0) SWT.error (SWT.ERROR_NO_HANDLES);
 	OS.GTK_WIDGET_SET_FLAGS(handle, OS.GTK_CAN_FOCUS);
 }
@@ -89,7 +95,8 @@ void createHandle (int index) {
 void configure() {
 	parent._connectChild(scrolledHandle);
 	OS.gtk_container_add(scrolledHandle, boxHandle);
-	OS.gtk_container_add(boxHandle, handle);
+	OS.gtk_container_add(boxHandle, fixedHandle);
+	OS.gtk_container_add(fixedHandle, handle);
 }
 
 void setHandleStyle() {
@@ -99,13 +106,36 @@ void setHandleStyle() {
 void showHandle() {
 	OS.gtk_widget_show_now (scrolledHandle);
 	OS.gtk_widget_show_now (boxHandle);
+	OS.gtk_widget_show_now (fixedHandle);
 	OS.gtk_widget_realize (handle);
 	OS.gtk_widget_show_now (handle);
 }
+
+void hookEvents () {
+	signal_connect_after (handle, "expose_event", SWT.Paint, 3);
+	int mask =
+		OS.GDK_POINTER_MOTION_MASK | 
+		OS.GDK_BUTTON_PRESS_MASK | OS.GDK_BUTTON_RELEASE_MASK | 
+		OS.GDK_ENTER_NOTIFY_MASK | OS.GDK_LEAVE_NOTIFY_MASK | 
+		OS.GDK_KEY_PRESS_MASK | OS.GDK_KEY_RELEASE_MASK |
+		OS.GDK_FOCUS_CHANGE_MASK;
+	OS.gtk_widget_add_events (handle, mask);
+	signal_connect_after (handle, "motion_notify_event", SWT.MouseMove, 3);
+	signal_connect_after (handle, "button_press_event", SWT.MouseDown, 3);
+	signal_connect_after (handle, "button_release_event", SWT.MouseUp, 3);
+	signal_connect_after (handle, "enter_notify_event", SWT.MouseEnter, 3);
+	signal_connect_after (handle, "leave_notify_event", SWT.MouseExit, 3);
+	signal_connect_after (handle, "key_press_event", SWT.KeyDown, 3);
+	signal_connect_after (handle, "key_release_event", SWT.KeyUp, 3);
+	signal_connect_after (handle, "focus_in_event", SWT.FocusIn, 3);
+	signal_connect_after (handle, "focus_out_event", SWT.FocusOut, 3);
+}
+
 int topHandle() { return scrolledHandle; }
-int parentingHandle() { return handle; }
+int parentingHandle() { return fixedHandle; }
 boolean isMyHandle(int h) {
 	if (h==boxHandle) return true;
+	if (h==fixedHandle) return true;
 	return super.isMyHandle(h);
 }
 
@@ -123,6 +153,13 @@ public void setBounds (int x, int y, int width, int height) {
 public void setSize (int width, int height) {
 	super.setSize(width, height);
 	layout();
+}
+void _setSize(int width, int height) {
+	OS.eclipse_fixed_set_size(parent.parentingHandle(), topHandle(), width, height);
+	/* FIXME */
+	if ((style&SWT.V_SCROLL) != 0) width  -= 18;
+	if ((style&SWT.H_SCROLL) != 0) height -= 18;
+	OS.eclipse_fixed_set_size(fixedHandle, handle, width, height);
 }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
