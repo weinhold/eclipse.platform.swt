@@ -97,7 +97,7 @@ static int[] bezier(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int 
  * @private
  */
 static int checkStyle (int style) {
-	return SWT.NONE;
+	return SWT.NO_BACKGROUND;
 }
 public Point computeSize(int wHint, int hHint, boolean changed) {
 	checkWidget();
@@ -154,10 +154,13 @@ public void layout (boolean changed) {
 	Point leftSize = (left == null) ? new Point (0, 0) : left.computeSize(width, SWT.DEFAULT);
 
 	int x = BORDER_LEFT;
+	int oldStart = curveStart;
+	Rectangle leftRect = null;
+	Rectangle rightRect = null;
 	if(left != null) {
 		int height = size.y - BORDER_TOP - BORDER_BOTTOM - BORDER_STRIPE;
 		int y = (leftSize.y > height) ? BORDER_TOP : BORDER_TOP + (height - leftSize.y) / 2;
-		left.setBounds(x, y, leftSize.x, Math.min(height, leftSize.y));
+		leftRect = new Rectangle(x, y, leftSize.x, Math.min(height, leftSize.y));
 		x += leftSize.x;
 		curveStart = x;
 	}
@@ -165,8 +168,17 @@ public void layout (boolean changed) {
 	if (right != null) {
 		int height = size.y - BORDER_TOP - BORDER_BOTTOM;
 		int y = (rightSize.y > height) ? BORDER_TOP : BORDER_TOP + (height - rightSize.y) / 2;
-		right.setBounds(x, y, rightSize.x, Math.min(size.y, rightSize.y));
+		rightRect = new Rectangle(x, y, rightSize.x, Math.min(size.y, rightSize.y));
 	}
+	if (curveStart < oldStart) {
+		redraw(curveStart, 0, oldStart + CURVE_WIDTH - curveStart, size.y, false);
+	}
+	if (curveStart > oldStart) {
+		redraw(oldStart, 0, curveStart + CURVE_WIDTH - oldStart, size.y, false);
+	}
+	update();
+	if (leftRect != null) left.setBounds(leftRect);
+	if (rightRect != null) right.setBounds(rightRect);
 }
 private void onDispose() {
 	left = null;
@@ -198,6 +210,24 @@ private void onPaint(GC gc) {
 	shape[index++] = size.y;
 	
 	gc.setBackground(getForeground());
+	gc.fillPolygon(shape);
+	
+	shape = new int[curve.length+8];
+	index = 0;
+	shape[index++] = 0;
+	shape[index++] = size.y - BORDER_STRIPE;
+	shape[index++] = x + 1;
+	shape[index++] = size.y - BORDER_STRIPE;
+	for (int i = 0; i < curve.length/2; i++) {
+		shape[index++]=x+curve[2*i];
+		shape[index++]=y+curve[2*i+1];
+	}
+	shape[index++] = x + CURVE_WIDTH;
+	shape[index++] = 0;
+	shape[index++] = 0;
+	shape[index++] = 0;
+	
+	gc.setBackground(getBackground());
 	gc.fillPolygon(shape);
 }
 
