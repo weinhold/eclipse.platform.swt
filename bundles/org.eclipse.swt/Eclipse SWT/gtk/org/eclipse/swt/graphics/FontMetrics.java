@@ -95,18 +95,6 @@ public int getLeading() {
 	return leading;
 }
 
-public static FontMetrics gtk_new_from_pango_font_description(int fontHandle) {
-	GdkFont f = new GdkFont();
-	OS.memmove (f, fontHandle);
-	
-	FontMetrics fontMetrics = new FontMetrics();
-	fontMetrics.ascent = f.ascent;
-	fontMetrics.descent = f.descent;
-	fontMetrics.averageCharWidth = OS.gdk_char_width(fontHandle, (byte)'a');
-	fontMetrics.leading = 3;
-	fontMetrics.height = fontMetrics.ascent+fontMetrics.descent+3;
-	return fontMetrics;
-}
 /**
  * Returns an integer hash code for the receiver. Any two 
  * objects which return <code>true</code> when passed to 
@@ -120,4 +108,14 @@ public static FontMetrics gtk_new_from_pango_font_description(int fontHandle) {
 public int hashCode() {
 	return ascent ^ descent ^ averageCharWidth ^ leading ^ height;
 }
+
+static FontMetrics gtk_new(int pango_font_metrics) {
+	FontMetrics answer = new FontMetrics();
+	answer.ascent = OS.pango_font_metrics_get_ascent(pango_font_metrics);
+	answer.descent = OS.pango_font_metrics_get_descent(pango_font_metrics);
+	answer.averageCharWidth = OS.pango_font_metrics_get_approximate_char_width(pango_font_metrics);
+	answer.leading = 1; /* temporary code */
+	return answer;
+}
+
 }

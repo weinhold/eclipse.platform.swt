@@ -194,6 +194,9 @@ public Image(Device device, Image srcImage, int flag) {
 	this.transparentPixel = srcImage.transparentPixel;
 	// bogus - are we sure about memGC?
 
+	/* temporary code before we sort out greying */
+	flag = SWT.IMAGE_COPY;
+
 	/* Special case:
 	 * If all we want is just a clone of the existing pixmap, it can
 	 * be done entirely in the X server, without copying across the net.

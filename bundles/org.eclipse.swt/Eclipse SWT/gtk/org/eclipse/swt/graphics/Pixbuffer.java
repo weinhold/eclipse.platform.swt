@@ -273,11 +273,13 @@ final class Pixbuffer {
 	 * an alpha channel.
 	 */
 	private void createHandle(int width, int height) {
-		handle = GDKPIXBUF.gdk_pixbuf_new(GDKPIXBUF.GDK_COLORSPACE_RGB,
+		handle = GDKPIXBUF.gdk_pixbuf_new(GDKPIXBUF.GDK_COLORSPACE_RGB(),
 		    true,
 		    8,
 	 	   width, height);
-		if (this.handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+		if (this.handle == 0) {
+			SWT.error(SWT.ERROR_NO_HANDLES);
+		}
 		data = GDKPIXBUF.gdk_pixbuf_get_pixels(handle);
 	}
 

@@ -31,6 +31,7 @@ public final class GC {
 	 * (Warning: This field is platform dependent)
 	 */
 	public int handle;
+	public int pango_context;
 	Drawable drawable;
 	GCData data;
 
@@ -65,6 +66,7 @@ public GC(Drawable drawable) {
 	data = new GCData();
 	handle = drawable.internal_new_GC(data);
 	this.drawable = drawable;
+	pango_context = OS.pango_context_new();
 	
 	// The colors we get from the widget are not always right.
 	// Get the default GTK_STATE_NORMAL colors
@@ -72,17 +74,6 @@ public GC(Drawable drawable) {
 	setForeground( DefaultGtkStyle.instance().foregroundColorNORMAL() );
 */
 
-	// Feature in GDK.
-	// Sometimes, gdk_gc_new() doesn't get the font from the control,
-	// and also, some controls don't contain a font; so when the GC
-	// was created in internal_new_gc(), the font might or might not
-	// be set; if the font isn't there, just fall back to default.
-	GdkGCValues values = new GdkGCValues();
-	OS.gdk_gc_get_values(handle, values);
-	if (values.font == 0) {
-/*		OS.gdk_gc_set_font(handle,  DefaultGtkStyle.instance().loadDefaultFont() );*/
-	}
-	
 	if (data.image != null) {
 		data.image.memGC = this;
 		/*
@@ -199,8 +190,8 @@ public void setForeground(Color color) {
  */
 
 public int getAdvanceWidth(char ch) {	
-	byte[] charBuffer = Converter.wcsToMbcs(null, new char[] { ch });
-	return OS.gdk_char_width(_getGCFont(), charBuffer[0]);
+	/* temporary code */
+	return 5;
 }
 /**
  * Returns the width of the specified character in the font
@@ -219,12 +210,8 @@ public int getAdvanceWidth(char ch) {
  * </ul>
  */
 public int getCharWidth(char ch) {
-	byte[] charBuffer = Converter.wcsToMbcs(null, new char[] { ch });
-	int[] lbearing = new int[1];
-	int[] rbearing = new int[1];
-	int[] unused = new int[1];
-	OS.gdk_string_extents(_getGCFont(), charBuffer, lbearing, rbearing, unused, unused, unused);
-	return rbearing[0] - lbearing[0];
+	/* temporary code */
+	return 5;
 }
 /** 
  * Returns the bounding rectangle of the receiver's clipping
@@ -290,8 +277,10 @@ public void getClipping(Region region) {
  * </ul>
  */
 public Font getFont() {		
-	return Font.gtk_new(_getGCFont());
+	int pango_fd = OS.pango_context_get_font_description(pango_context);
+	return new Font(Display.getCurrent(), FontData.gtk_from_os(pango_fd));
 }
+
 /**
  * Returns a FontMetrics which contains information
  * about the font currently being used by the receiver
@@ -303,16 +292,12 @@ public Font getFont() {
  *    <li>ERROR_GRAPHIC_DISPOSED - if the receiver has been disposed</li>
  * </ul>
  */
-// Not done
 public FontMetrics getFontMetrics() {
-	int fontHandle = _getGCFont();
-	if (fontHandle==0) {
-		error(SWT.ERROR_UNSPECIFIED);
-	}
-	GdkFont gdkFont = new GdkFont();
-	OS.memmove(gdkFont, fontHandle);
-	byte [] w = Converter.wcsToMbcs (null, "w", true);
-	return FontMetrics.gtk_new(fontHandle);
+	int pango_fd = OS.pango_context_get_font_description(pango_context);
+	int pango_metrics = OS.pango_context_get_metrics(pango_context, pango_fd, null);
+	FontMetrics answer = FontMetrics.gtk_new(pango_metrics);
+	answer.height = OS.pango_font_description_get_size(pango_fd);
+	return answer;
 }
 
 /** 
@@ -460,17 +445,9 @@ public void setClipping(Region region) {
  *    <li>ERROR_GRAPHIC_DISPOSED - if the receiver has been disposed</li>
  * </ul>
  */
-public void setFont(Font font) {	
-/*	int fontHandle = 0;
-	if (font == null) {
-		GtkStyle gtkStyle = new GtkStyle();
-		int style = OS.gtk_widget_get_default_style();
-		OS.memmove(gtkStyle, style, GtkStyle.sizeof);
-		fontHandle = gtkStyle.font;
-	} else {
-		fontHandle = font.handle;
-	}
-	OS.gdk_gc_set_font(handle, fontHandle);*/
+public void setFont(Font font) {
+	/* Set the font in the Pango context */
+	OS.pango_context_set_font_description(pango_context, font.handle);
 }
 
 /** 
@@ -570,10 +547,12 @@ public void setXORMode(boolean val) {
  */
 public Point stringExtent(String string) {	
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
-	byte[] buffer = Converter.wcsToMbcs(null, string, true);
+/*	byte[] buffer = Converter.wcsToMbcs(null, string, true);
 	int width = OS.gdk_string_width(_getGCFont(), buffer);
 	int height = OS.gdk_string_height(_getGCFont(), buffer);
-	return new Point(width, height);
+	return new Point(width, height);*/
+	/* Temporary code */
+	return new Point(100,20);
 }
 /**
  * Returns the extent of the given string. Tab expansion and
@@ -596,10 +575,12 @@ public Point stringExtent(String string) {
  */
 public Point textExtent(String string) {		
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
-	byte[] buffer = Converter.wcsToMbcs(null, string, true);
+/*	byte[] buffer = Converter.wcsToMbcs(null, string, true);
 	int width = OS.gdk_string_width(_getGCFont(), buffer);
 	int height = OS.gdk_string_height(_getGCFont(), buffer);
-	return new Point(width, height);
+	return new Point(width, height);*/
+	/* Temporary code */
+	return new Point(100,20);
 }
 
 
@@ -630,13 +611,6 @@ private GdkColor _getBackgroundGdkColor() {
 	color.green = values.background_green;
 	color.blue  = values.background_blue;
 	return color;
-}
-private int _getGCFont() {
-	GdkGCValues values = _getGCValues();
-	if (values.font==0) {
-		SWT.error(SWT.ERROR_UNSPECIFIED);
-	}
-	return values.font;
 }
 
 
@@ -897,7 +871,7 @@ public void drawImage(Image srcImage, int srcX, int srcY, int srcWidth, int srcH
 		double offset_y = - srcY * scale_y;
 
 		int destSizePixbuf = GDKPIXBUF.gdk_pixbuf_new (
-			GDKPIXBUF.GDK_COLORSPACE_RGB,
+			GDKPIXBUF.GDK_COLORSPACE_RGB(),
 			true, 8, destWidth, destHeight);
 		GDKPIXBUF.gdk_pixbuf_scale(
 			pixbuf.handle, // src,
@@ -1161,13 +1135,12 @@ public void drawString (String string, int x, int y) {
  */
 public void drawString(String string, int x, int y, boolean isTransparent) {
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
-	byte[] buffer = Converter.wcsToMbcs(null, string, true);
+/*	byte[] buffer = Converter.wcsToMbcs(null, string, true);
 	byte[] buffer1 = Converter.wcsToMbcs(null, "Y", true);
 	int[] unused = new int[1];
 	int[] width = new int[1];
 	int[] ascent = new int[1];
 	int[] average_ascent = new int [1];
-	int fontHandle = _getGCFont();
 	OS.gdk_string_extents(fontHandle, buffer, unused, unused, width, ascent, unused);
 	OS.gdk_string_extents(fontHandle, buffer1, unused, unused, unused, average_ascent, unused);
 	if (ascent[0]<average_ascent[0]) ascent[0] = average_ascent[0];
@@ -1188,7 +1161,7 @@ public void drawString(String string, int x, int y, boolean isTransparent) {
 		color.blue = values.foreground_blue;
 		OS.gdk_gc_set_foreground(handle, color);
 	}
-	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);
+	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);*/
 }
 /** 
  * Draws the given string, using the receiver's current font and
@@ -1233,7 +1206,7 @@ public void drawText(String string, int x, int y) {
  */
 public void drawText(String string, int x, int y, boolean isTransparent) {
 	if (string == null) error(SWT.ERROR_NULL_ARGUMENT);
-	byte[] buffer = Converter.wcsToMbcs(null, string, true);
+/*	byte[] buffer = Converter.wcsToMbcs(null, string, true);
 	byte[] buffer1 = Converter.wcsToMbcs(null, "Y", true);
 	int fontHandle = _getGCFont();
 	int[] unused = new int[1];
@@ -1260,7 +1233,7 @@ public void drawText(String string, int x, int y, boolean isTransparent) {
 		color.blue = values.foreground_blue;
 		OS.gdk_gc_set_foreground(handle, color);
 	}
-	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);
+	OS.gdk_draw_string(data.drawable, fontHandle, handle, x, y + ascent[0], buffer);*/
 }
 
 /** 
@@ -1696,7 +1669,10 @@ public void dispose() {
 		OS.gdk_gc_unref(handle);
 	else
 		drawable.internal_dispose_GC(handle, data);
-
+	
+	/* FIXME */
+	/* It is not clear how a Pango context should be freed. */
+	
 	data.drawable = // data.colormap = data.fontList = 
 		data.clipRgn = data.renderTable = 0;
 	drawable = null;

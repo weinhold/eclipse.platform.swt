@@ -660,6 +660,10 @@ public static final native void gtk_widget_set_uposition(int widget, int x, int 
 public static final native void gtk_widget_set_usize(int widget, int width, int height);
 public static final native void gtk_widget_remove_accelerator(int widget, int accel_group, int accel_key, int accel_mods);
 public static final native void gtk_widget_set_parent(int widget, int parent);
+public static final native void gtk_widget_modify_font(int widget, int pango_font_descr);
+public static final native void gtk_widget_reparent(int widget, int new_parent);
+public static final native void gtk_widget_size_allocate(int widget, GtkAllocation allocation);
+
 
 /* gtk_window_* */
 public static final native int  gtk_window_new(int type);
@@ -675,10 +679,6 @@ public static final native void gtk_window_set_transient_for(int window, int par
 
 
 
-public static final native void gtk_widget_reparent(int widget, int new_parent);
-public static final native void gtk_widget_size_allocate(int widget, GtkAllocation allocation);
-
-
 /* Pango */
 public static final native int PANGO_WEIGHT_NORMAL();
 public static final native int PANGO_WEIGHT_BOLD();
@@ -689,6 +689,12 @@ public static final native int PANGO_SCALE();
 public static final native int PANGO_STRETCH_NORMAL();
 
 public static final native int PANGO_PIXELS(int dimension);
+
+public static final native int  pango_context_new();
+public static final native int  pango_context_get_font_description(int context);
+public static final native void pango_context_set_font_description(int context, int descr);
+public static final native int  pango_context_get_metrics(int context, int desc, String language);
+
 
 public static final native int pango_font_description_new();
 public static final native int pango_font_description_from_string(String str);
@@ -704,6 +710,11 @@ public static final native int pango_font_description_get_style(int desc);
 public static final native void pango_font_description_set_style(int desc, int weight);
 public static final native int pango_font_description_get_weight(int desc);
 public static final native void pango_font_description_set_weight(int desc, int weight);
+
+public static final native int pango_font_metrics_get_ascent(int metrics);
+public static final native int pango_font_metrics_get_descent(int metrics);
+public static final native int pango_font_metrics_get_approximate_char_width(int metrics);
+
 
 
 
