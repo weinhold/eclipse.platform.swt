@@ -497,7 +497,7 @@ public void setImage (Image image) {
 	if (!parent.updateTabHeight(parent.tabHeight)) {
 		parent.updateItems();
 	}
-	parent.redrawTabArea();
+	parent.redraw();
 }
 /**
  * Set the widget text.
@@ -522,7 +522,7 @@ public void setText (String string) {
 	shortenedText = null;
 	shortenedTextWidth = 0;
 	parent.updateItems();
-	parent.redrawTabArea();
+	parent.redraw();
 }
 /**
  * Sets the receiver's tool tip text to the argument, which
