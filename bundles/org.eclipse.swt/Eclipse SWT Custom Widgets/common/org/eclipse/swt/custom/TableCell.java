@@ -20,7 +20,7 @@ public class TableCell extends Composite {
 	Listener columnListener;
 	Image image;
 	String text;
-	boolean ctrlset = false;
+	boolean multiSelectMode = false;
 
 public TableCell (Table table, int style) {
 	super(table, style);
@@ -51,14 +51,14 @@ public TableCell (Table table, int style) {
 				case SWT.Selection: onTableSelection(e); break;
 				case SWT.MouseDown: onTableMouseDown(e); break;
 				case SWT.FocusIn:   onTableFocusIn(e); break;
-				case SWT.KeyUp:   onTableKeyUp(e); break;
+				case SWT.KeyUp:     onTableKeyUp(e); break;
 			}
 		}
 	};
 	table.addListener(SWT.Selection, tableListener);
 	table.addListener(SWT.MouseDown, tableListener);
 	table.addListener(SWT.FocusIn,   tableListener);
-	table.addListener(SWT.KeyUp,   tableListener);
+	table.addListener(SWT.KeyUp,     tableListener);
 	
 	columnListener = new Listener() {
 		public void handleEvent(Event e) {
@@ -71,8 +71,6 @@ public TableCell (Table table, int style) {
 			switch (e.type) {
 				case SWT.Traverse:  onTraverse(e); break;
 				case SWT.Paint:     paint(e.gc); break;
-				case SWT.FocusIn:   
-				case SWT.FocusOut:  onFocusChange(e); break;
 				case SWT.MouseDoubleClick: onDoubleClick(e); break;
 				case SWT.KeyDown:    onKeyDown(e); break;
 			}
@@ -80,8 +78,6 @@ public TableCell (Table table, int style) {
 	};
 	addListener(SWT.Traverse, listener);
 	addListener(SWT.Paint, listener);
-	addListener(SWT.FocusIn, listener);
-	addListener(SWT.FocusOut, listener);
 	addListener(SWT.MouseDoubleClick, listener);
 	addListener(SWT.KeyDown, listener);
 }
@@ -112,17 +108,11 @@ private void onTraverse(Event e) {
 	int index = table.indexOf(row);
 	int newIndex = index;
 	int newColumn = column;
-	if (e.detail == SWT.TRAVERSE_ARROW_PREVIOUS && e.keyCode == SWT.ARROW_UP) {
-		newIndex = Math.max(index - 1, 0);
-	}
-	if (e.detail == SWT.TRAVERSE_ARROW_NEXT && e.keyCode == SWT.ARROW_DOWN) {
-		newIndex = Math.min(index + 1, table.getItemCount() - 1);
-	}
-	if (e.detail == SWT.TRAVERSE_ARROW_PREVIOUS && e.keyCode == SWT.ARROW_LEFT) {
-		newColumn = Math.max(column - 1, 0);
-	}
-	if (e.detail == SWT.TRAVERSE_ARROW_NEXT && e.keyCode == SWT.ARROW_RIGHT) {
-		newColumn = Math.min(column + 1, table.getColumnCount() - 1);
+	switch (e.keyCode) {
+		case (SWT.ARROW_UP) : newIndex = Math.max(index - 1, 0); break;
+		case (SWT.ARROW_DOWN) : newIndex = Math.min(index + 1, table.getItemCount() - 1); break;
+		case (SWT.ARROW_LEFT) : newColumn = Math.max(column - 1, 0); break;
+		case (SWT.ARROW_RIGHT) : newColumn = Math.min(column + 1, table.getColumnCount() - 1); break;
 	}
 	
 	if (index == newIndex && column == newColumn) return;
@@ -136,41 +126,27 @@ private void onTraverse(Event e) {
 }
 
 private void onTableFocusIn(Event e) {
-	if (ctrlset) return;
-	getDisplay().asyncExec(new Runnable () {
-		public void run() {
-			if (!isDisposed() && table.isFocusControl()) {
-				setVisible(true);
-				setFocus();
-			}
-		}
-	});
+	if (multiSelectMode) return;
+	setVisible(true);
+	setFocus();
 }
 private void onTableKeyUp(Event e) {
-	if ((e.stateMask & SWT.CTRL) != 0) return;
-	ctrlset = false;
-	getDisplay().asyncExec(new Runnable () {
-		public void run() {
-			if (!isDisposed() && table.isFocusControl()) {
-				setVisible(true);
-				setFocus();
-			}
-		}
-	});
+	if ((e.stateMask & SWT.CONTROL) != 0 || (e.stateMask & SWT.SHIFT) != 0) return;
+	multiSelectMode = false;
+	setVisible(true);
+	setFocus();
 }
 private void onDoubleClick(Event e) {
 	notifyListeners(SWT.DefaultSelection, new Event());
-}
-private void onFocusChange(Event e) {
-	this.setVisible(e.type == SWT.FocusIn);
 }
 private void onKeyDown(Event e) {
 	if (e.character == SWT.CR) {
 		notifyListeners(SWT.DefaultSelection, new Event());
 	}
-	if ((e.stateMask & SWT.CTRL) != 0) {
-		ctrlset = true;
-		table.forceFocus();
+	if (e.keyCode == SWT.CTRL || e.keyCode == SWT.SHIFT) {
+		multiSelectMode = true;
+		setVisible(false);
+		table.setFocus();
 	}
 }
 private void onTableMouseDown(Event e) {
@@ -209,16 +185,13 @@ private void onScrollSelection(Event e) {
 	if (visible && hadFocus) setFocus ();
 }
 private void onTableSelection(Event e) {
-	getDisplay().asyncExec(new Runnable () {
-		public void run() {
-			if (isDisposed()) return;
-			TableItem selection = table.getSelection()[0];
-			if (selection == row) return;
-			if (column == -1) setColumn(0);
-			notifyListeners(SWT.Selection, new Event());
-			updateCell();
-		}
-	});
+	TableItem[] selection = table.getSelection();
+	if (selection.length == 0) return;
+	if (selection[0] == row) return;
+	row = selection[0];
+	if (column == -1) setColumn(0);
+	notifyListeners(SWT.Selection, new Event());
+	updateCell();
 }
 private void paint(GC gc) {
 	if (row == null || column == -1) return;
@@ -269,7 +242,7 @@ private void resize() {
 		setBounds (-200, -200, 0, 0);
 	}
 }
-private void setColumn(int column) {
+public void setColumn(int column) {
 	if (column == this.column) return;
 	if (this.column != -1) {
 		TableColumn tableColumn = table.getColumn(this.column);
