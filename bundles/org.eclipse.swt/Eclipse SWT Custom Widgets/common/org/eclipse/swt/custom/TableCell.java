@@ -13,20 +13,17 @@ public class TableCell extends Composite {
 	Listener scrollListener;
 	Listener tableListener;
 	Listener columnListener;
-	Table cellTable;
-	TableItem cellItem;
+	Image image;
+	String text;
+
 
 public TableCell (Table table, int style) {
 	super(table, style);
 	this.table = table;
 	
-	cellTable = new Table(this, SWT.NONE);
-	cellTable.setBackground(getDisplay().getSystemColor(SWT.COLOR_RED));
-	cellTable.setFont(table.getFont());
-	cellTable.setForeground(table.getForeground());
-	//cellTable.setBackground(table.getBackground());
-	cellItem = new TableItem(cellTable, SWT.NONE);
-	cellTable.setSelection(0);
+	setFont(table.getFont());
+	setForeground(table.getForeground());
+	setBackground(table.getBackground());
 	
 	scrollListener = new Listener() {
 		public void handleEvent(Event e) {
@@ -47,9 +44,9 @@ public TableCell (Table table, int style) {
 		public void handleEvent(Event e) {
 			switch (e.type) {
 				case SWT.KeyDown:   onKeyDown(e); break;
-				case SWT.Selection: onSelection(e); break;
-				case SWT.MouseDown: onMouseDown(e); break;
-				case SWT.FocusIn:   onFocus(e); break;
+				case SWT.Selection: onTableSelection(e); break;
+				case SWT.MouseDown: onTableMouseDown(e); break;
+				case SWT.FocusIn:   onTableFocus(e); break;
 			}
 		}
 	};
@@ -64,23 +61,18 @@ public TableCell (Table table, int style) {
 		}
 	};
 	
-	cellTable.addListener(SWT.KeyDown, new Listener() {
+	Listener listener = new Listener() {
 		public void handleEvent(Event e) {
-			onCellKeyDown(e);
+			switch (e.type) {
+				case SWT.KeyDown:   onKeyDown(e); break;
+				case SWT.Traverse:  onTraverse(e); break;
+				case SWT.Paint:     paint(e.gc); break;
+			}
 		}
-	});
-	cellTable.addListener(SWT.Traverse, new Listener() {
-		public void handleEvent(Event e) {
-			onCellTraverse(e);
-		}
-	});
-	
-	addListener(SWT.Resize, new Listener() {
-		public void handleEvent(Event e) {
-			Point size = getSize();
-			cellTable.setBounds(0, -2, size.x, size.y + 2);
-		}
-	});
+	};
+	addListener(SWT.KeyDown, listener);
+	addListener(SWT.Traverse, listener);
+	addListener(SWT.Paint, listener);
 }
 public void dispose () {
 	setColumn(-1);
@@ -102,7 +94,7 @@ public TableColumn getColumn () {
 public TableItem getRow() {
 	return row;
 }
-private void onCellKeyDown(Event e){
+private void onKeyDown(Event e){
 	if (row == null) return;
 	int newColumn = column;
 	if (e.keyCode == SWT.ARROW_LEFT)  newColumn = Math.max(column - 1, 0);
@@ -111,7 +103,7 @@ private void onCellKeyDown(Event e){
 	setColumn(newColumn);
 	updateCell();
 }
-private void onCellTraverse(Event e) {
+private void onTraverse(Event e) {
 	if (row == null) return;
 	
 	int index = table.indexOf(row);
@@ -130,10 +122,10 @@ private void onCellTraverse(Event e) {
 	e.doit = false;
 }
 
-private void onFocus(Event e) {
-	//cellTable.setFocus();
+private void onTableFocus(Event e) {
+	setFocus();
 }
-private void onMouseDown(Event e) {
+private void onTableMouseDown(Event e) {
 	// find column at coordinates
 	Point pt = new Point(e.x, e.y);
 	row = table.getItem(pt);
@@ -157,43 +149,59 @@ private void onMouseDown(Event e) {
 	updateCell();
 }
 private void onScrollSelection(Event e) {
-	if (cellTable == null || cellTable.isDisposed()) return;
 	if (column == -1 || row == null || row.isDisposed()) return;
 	
 	boolean hadFocus = false;
 	if (getVisible ()) {
-		hadFocus = cellTable.isFocusControl();
+		hadFocus = isFocusControl();
 	}
 	boolean visible = e.detail != SWT.DRAG;
 	if (visible) {
 		setBounds (row.getBounds(column));
 	}
 	setVisible (visible);
-	if (visible && hadFocus) cellTable.setFocus ();
+	if (visible && hadFocus) setFocus ();
 }
-private void onSelection(Event e) {
+private void onTableSelection(Event e) {
 	row = table.getSelection()[0];
 	if (column == -1) setColumn(0);
 	//if (table.isFocusControl()) cellTable.setFocus();
 	updateCell();
 }
-private void onKeyDown(Event e){
-	if (row == null) return;
-	int oldColumn = column;
-	if (e.keyCode == SWT.ARROW_LEFT) setColumn(Math.max(column - 1, 0));
-	if (e.keyCode == SWT.ARROW_RIGHT) setColumn(Math.min(column + 1, table.getColumnCount() - 1));
-	if (oldColumn == column) return;
-	updateCell();
+private void paint(GC gc) {
+	Rectangle rect = getClientArea();
+	int x = rect.x, y = rect.y;
+	int width = rect.width; int height = rect.height;
+	gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+	gc.fillRectangle(x, y, width, height);
+	gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+	gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+	gc.drawFocus(x, y, width, height);
+	
+	if (image != null) {
+		Rectangle imageRect = image.getBounds();
+		x += 2; y += 2;
+		width -= 4; height -= 4;
+		gc.drawImage(image, 0, 0, imageRect.width, imageRect.height, x, y, height, height);
+		x += height; width -= height;
+	}
+	if (text != null) {
+		x += 2;
+		gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+		Point extent = gc.textExtent(text);
+		gc.drawText(text, x, y + (height - extent.y)/2, true);
+	}
 }
 
 private void updateCell() {
 	if (row != null && column != -1) {
-		cellItem.setText(row.getText(column));
-		cellItem.setImage(row.getImage(column));
-		cellTable.pack();
-		//cellTable.setFocus ();
+		text = row.getText(column);
+		image = row.getImage(column);
 	}
 	resize();
+	GC gc = new GC(this);
+	paint(gc);
+	gc.dispose();
 }
 private void resize() {
 	if (row != null && column != -1) {
