@@ -554,7 +554,7 @@ public static final native void gtk_grab_remove(int widget);
 public static final native int gtk_hscale_new(int adjustment);
 public static final native int gtk_hscrollbar_new(int adjustment);
 public static final native void gtk_label_set_justify(int label, int jtype);
-public static final native int gtk_label_new(byte[] str);
+public static final native int gtk_label_new(String label);
 public static final native void gtk_label_set_pattern(int label, byte[] pattern);
 public static final native void gtk_main_quit();
 public static final native void gtk_main();

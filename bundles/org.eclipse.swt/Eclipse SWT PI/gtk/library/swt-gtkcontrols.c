@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) IBM Corp. 2000, 2002.  All rights reserved.
+ *
+ * The contents of this file are made available under the terms
+ * of the GNU Lesser General Public License (LGPL) Version 2.1 that
+ * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
+ * available at http://www.gnu.org/licenses/lgpl.html.  If the version
+ * of the LGPL at http://www.gnu.org is different to the version of
+ * the LGPL accompanying this distribution and there is any conflict
+ * between the two license versions, the terms of the LGPL accompanying
+ * this distribution shall govern.
+ */
 
 #include "swt.h"
 #include "structs.h"
@@ -6,62 +18,31 @@
 #include <assert.h>
 
 
-
 /*
  * Labels
  */
 
-
-
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_label_get_type
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1label_1get_1type
   (JNIEnv *env, jclass that)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_label_get_type");
-#endif
-
-	return gtk_label_get_type ();
+  return gtk_label_get_type ();
 }
 
-
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_label_new
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1label_1new
-  (JNIEnv *env, jclass that, jbyteArray str)
+  (JNIEnv *env, jclass that, jstring str)
 {
-	jint rc;
-	jbyte *str1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_label_new");
-#endif
+  jint rc;
+  const jbyte *str1 = NULL;
 
-	if (str) {
-		str1 = (*env)->GetByteArrayElements(env, str, NULL);
-	}
-	rc = (jint)gtk_label_new((gchar*)str1);
-	if (str) {
-		(*env)->ReleaseByteArrayElements(env, str, str1, 0);
-	}
-	return rc;
+  if (str!=NULL) {
+    str1 = (*env)->GetStringUTFChars(env, str, NULL);
+    if (str1==NULL) return 0;
+  }
+  rc = (jint) gtk_label_new((gchar*)str1);
+  if (str!=NULL) (*env)->ReleaseStringUTFChars(env, str, str1);
+  return rc;
 }
 
-
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_label_set_text
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1label_1set_1text
   (JNIEnv *env, jclass that, jint label, jbyteArray str)
 {

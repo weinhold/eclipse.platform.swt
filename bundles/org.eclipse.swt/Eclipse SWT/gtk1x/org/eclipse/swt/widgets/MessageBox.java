@@ -203,7 +203,6 @@ private void showHandle() {
 	}
 }
 int createButton(String buttonName) {
-	System.out.println("Creating button "+buttonName);
 	byte[] bytes = Converter.wcsToMbcs (null, buttonName, true);
 	int buttonHandle = OS.gtk_button_new_with_label(bytes);
 	OS.gtk_box_pack_start (OS.GTK_DIALOG_ACTION_AREA(handle), buttonHandle, true, true, 0);
@@ -216,7 +215,6 @@ private void hookSelection(int h) {
 	Callback okCallback = new Callback (this, "activateFunc", 2);
 	int okFunc = okCallback.getAddress ();
 	OS.gtk_signal_connect (h, clicked, okFunc, h);
-
 }
 private static int checkStyle (int style) {
 	int mask = (SWT.YES | SWT.NO | SWT.OK | SWT.CANCEL | SWT.ABORT | SWT.RETRY | SWT.IGNORE);
