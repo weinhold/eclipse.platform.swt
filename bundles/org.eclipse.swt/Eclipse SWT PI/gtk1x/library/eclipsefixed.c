@@ -783,8 +783,11 @@ move_gdk_window_below (GdkWindow *window,
 }
 
 
-#if 0
-/* Test program */
+#if 1
+/* Test program
+ * Compile with:
+ * gcc `pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0` -I/opt/IBMvame1.4/ive/bin/include eclipsefixed.c
+ */
 
 #include <gtk/gtk.h>
 
@@ -799,13 +802,15 @@ int
 main (int argc, char **argv)
 {
   GtkWidget *window;
+  GtkWidget *frame;
   GtkWidget *fixed;
-  GtkWidget *button1, *button2, *button3;
-  GtkWidget *label;
+  GtkWidget *button1;
 
   gtk_init (&argc, &argv);
   
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+  frame = gtk_frame_new ("Frame");
 
   fixed = eclipse_fixed_new ();
 
@@ -813,54 +818,17 @@ main (int argc, char **argv)
   button1 = gtk_button_new_with_label ("On Top");
   gtk_container_add (GTK_CONTAINER (fixed), button1);
   
-  button2 = gtk_button_new_with_label ("In middle");
-  gtk_container_add (GTK_CONTAINER (fixed), button2);
-
-  button3 = gtk_button_new_with_label ("On bottom");
-  gtk_container_add (GTK_CONTAINER (fixed), button3);
-
-  /* Move them around (ending up in the order the labels say) */
-  eclipse_fixed_move_above (ECLIPSE_FIXED (fixed), button1, button2);
-  eclipse_fixed_move_below (ECLIPSE_FIXED (fixed), button3, button2);
-  eclipse_fixed_move_above (ECLIPSE_FIXED (fixed), button3, button2);
-  eclipse_fixed_move_below (ECLIPSE_FIXED (fixed), button3, button1);
-  eclipse_fixed_move_above (ECLIPSE_FIXED (fixed), button1, NULL);
-  eclipse_fixed_move_below (ECLIPSE_FIXED (fixed), button3, NULL);
-
-  /* Tile them with slight overlap to see stacking order */
-  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), button1, 20, 20);
-  eclipse_fixed_set_size (ECLIPSE_FIXED (fixed), button1, 100, 100);
-
-  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), button2, 100, 20);
-  eclipse_fixed_set_size (ECLIPSE_FIXED (fixed), button2, 100, 100);
-
-  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), button3, 180, 20);
-  eclipse_fixed_set_size (ECLIPSE_FIXED (fixed), button3, 100, 100);  
+  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), button1, 5, 5);
+  eclipse_fixed_set_size (ECLIPSE_FIXED (fixed), button1, 100, 30);
 
   /* Make clicking buttons restack them */
   gtk_signal_connect (GTK_OBJECT (button1), "clicked",
                       GTK_SIGNAL_FUNC (raise_to_top),
                       fixed);
 
-  gtk_signal_connect (GTK_OBJECT (button2), "clicked",
-                      GTK_SIGNAL_FUNC (raise_to_top),
-                      fixed);
-
-  gtk_signal_connect (GTK_OBJECT (button3), "clicked",
-                      GTK_SIGNAL_FUNC (raise_to_top),
-                      fixed);
-  
-  /* Add some no-window widgets */
-  label = gtk_label_new ("Label1");
-  gtk_container_add (GTK_CONTAINER (fixed), label);
-  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), label, 20, 150);
-
-  label = gtk_label_new ("Label2");
-  gtk_container_add (GTK_CONTAINER (fixed), label);
-  eclipse_fixed_set_location (ECLIPSE_FIXED (fixed), label, 20, 180);
-
-  gtk_container_add (GTK_CONTAINER (window), fixed);
-  
+  gtk_container_add (GTK_CONTAINER (window), frame);
+  gtk_container_add (GTK_CONTAINER (frame), fixed);
+ 
   gtk_widget_show_all (window);
 
   gtk_signal_connect (GTK_OBJECT (window), "destroy",
