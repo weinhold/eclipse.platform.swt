@@ -1340,8 +1340,7 @@ int processMouseDown (int callData, int arg1, int int2) {
 	OS.gtk_widget_grab_focus(handle);
 	
 	// First, see if we have a single or double click
-	GdkEvent gdkEvent = new GdkEvent(callData);
-	boolean isDoubleClick = (gdkEvent.type == OS.GDK_2BUTTON_PRESS);
+	boolean isDoubleClick = (OS.gdk_event_button_get_button(callData)==2);
 	
 	// We can't just use the x and y coordinates from the Gdk event,
 	// because the actual items are drawn on a special X window
