@@ -2934,7 +2934,7 @@ public static final native void PgGetVideoMode (PgDisplaySettings_t settings);
 public static final native void PgGetVideoModeInfo (short mode_number, PgVideoModeInfo_t mode_info);
 
 public static final native void memmove (PhClipHeader dest, int src, int size);
-//public static final native void memmove (int dest, PhClipHeader src, int size);
+public static final native void memmove (int dest, PhClipHeader src, int size);
 public static final native void memmove (byte[] dest, PhClipHeader src, int size);
 
 public static final native int PhClipboardCopyString (short ig, byte [] string);

@@ -6524,26 +6524,58 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PgGetVideoModeInf
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardCopy
   (JNIEnv *env, jclass that, jshort ig, jint n, jbyteArray clip)
 {	
-	jbyte *clip1=NULL;
+   jbyte *clip1;
+   jint result;
+   
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "PhClipboardCopy\n");
+#endif
+
+    if (clip) {
+        clip1 = (*env)->GetByteArrayElements(env, clip, NULL);
+    }
+    
+    result = (jint)PhClipboardCopy(ig, n, (PhClipHeader const *)clip1);
+    
+    if (clip) {
+        (*env)->ReleaseByteArrayElements(env, clip, clip1, 0);
+    }
+    
+    return result;
+}
+
+/*
+ * Class:     org_eclipse_swt_internal_photon_OS
+ * Method:    PhClipboardCopy
+ * Signature: (SILorg.eclipse.swt.internal.photon.PhClipHeader;)I
+ */
+ /*
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardCopy
+  (JNIEnv *env, jclass that, jshort ig, jint n, jobject clip)
+{	
+	DECL_GLOB(pGlob)	
+    PhClipHeader clip1, *lpclip1=NULL;
 	jint result;
+	
 #ifdef DEBUG_CALL_PRINTS
     fprintf(stderr, "PhClipboardCopy\n");
 #endif
 
 	if (clip) {
-        clip1 = (char *)(*env)->GetByteArrayElements(env, clip, NULL);
+        lpclip1 = &clip1;
+        cachePhClipHeaderFids(env, clip, &PGLOB(PhClipHeaderFc));
+        getPhClipHeaderFields(env, clip, lpclip1, &PGLOB(PhClipHeaderFc));
     }
-    	
-	result = (jint)PhClipboardCopy(ig, n, (PhClipHeader const *)clip1);
-	
-	if (clip) {
-        (*env)->ReleaseByteArrayElements(env, clip, (jbyte *)clip1, 0);
+    result = (jint)PhClipboardCopy(ig, n, (PhClipHeader const *)lpclip1);
+
+printf("PhClipHeader size of struct is %d\n", sizeof(clip1));
+
+    if (clip) {
+        setPhClipHeaderFields(env, clip, lpclip1, &PGLOB(PhClipHeaderFc));
     }
-
-    return result;
-
+	return result;
 }
-
+*/
 /*
  * Class:     org_eclipse_swt_internal_photon_OS
  * Method:    PhClipboardPasteStart
@@ -6645,7 +6677,7 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__Lorg_ecl
  * Method:    memmove
  * Signature: ([BLorg/eclipse/swt/internal/photon/PhClipHeader;I)V
  */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__BLorg_eclipse_swt_internal_photon_PhClipHeader_2I
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove___3BLorg_eclipse_swt_internal_photon_PhClipHeader_2I
   (JNIEnv *env, jobject that, jbyteArray dest, jobject src, jint count)
 {
 	DECL_GLOB(pGlob)
@@ -6653,22 +6685,46 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__BLorg_ec
     PhClipHeader object, *src1= NULL;
     
 #ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__BLorg_eclipse_swt_internal_photon_PhClipHeader_2I\n");
+	fprintf(stderr, "memmove___3BLorg_eclipse_swt_internal_photon_PhClipHeader_2I\n");
 #endif
 
     if (src) {
         src1=&object;
-        cachePhClipHeaderFids(env, src, &pGlob(PhClipHeaderFc));
-        getPhClipHeaderFields(env, src, src1, &pGlob(PhClipHeaderFc));
+        cachePhClipHeaderFids(env, src, &PGLOB(PhClipHeaderFc));
+        getPhClipHeaderFields(env, src, src1, &PGLOB(PhClipHeaderFc));
     }
     
     if (dest) {
-    	dest1 = (void)(*env)->GetByteArrayElements(env, dest, NULL);
+    	dest1 = (*env)->GetByteArrayElements(env, dest, NULL);
     }
     
     memmove((void *)dest1, (void *)src1, count);
     
-     if (dest) {
+    if (dest) {
     	 (*env)->ReleaseByteArrayElements(env, dest, (jbyte *)dest1, 0);
     }
+}
+
+/*
+ * Class:     org_eclipse_swt_internal_photon_OS
+ * Method:    memmove
+ * Signature: (ILorg/eclipse/swt/internal/photon/PhClipHeader;I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove___ILorg_eclipse_swt_internal_photon_PhClipHeader_2I
+  (JNIEnv *env, jobject that, jint dest, jobject src, jint count)
+{
+	DECL_GLOB(pGlob)
+    PhClipHeader object, *src1= NULL;
+    
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "memmove___3BLorg_eclipse_swt_internal_photon_PhClipHeader_2I\n");
+#endif
+
+    if (src) {
+        src1=&object;
+        cachePhClipHeaderFids(env, src, &PGLOB(PhClipHeaderFc));
+        getPhClipHeaderFields(env, src, src1, &PGLOB(PhClipHeaderFc));
+    }
+    
+    memmove((void *)dest, (void *)src1, count);
 }

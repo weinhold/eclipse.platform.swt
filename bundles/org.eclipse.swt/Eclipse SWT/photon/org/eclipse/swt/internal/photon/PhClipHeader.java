@@ -11,9 +11,10 @@ public class PhClipHeader {
 	public byte type_6;
 	public byte type_7;
 	public short length;
+	public short zero;
 	public int data;
 	
-	public static final int sizeof = 14;
+	public static final int sizeof = 16;
 
 }
 

@@ -12,7 +12,7 @@ public class TextTransfer extends ByteArrayTransfer {
 
 	private static TextTransfer _instance = new TextTransfer();
 	private static final String TYPENAME = "TEXT";
-	private static final int TYPEID = 10;
+	private static final int TYPEID = registerType(TYPENAME);
 
 private TextTransfer() {
 }
