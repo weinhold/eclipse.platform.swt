@@ -510,8 +510,8 @@ Control findControl(int h) {
 	Widget w = findWidget(h);
 	if (w==null) return null;
 	if (w instanceof Control) return (Control)w;
-	// w is something like an Item.  Go for the parent
-	
+
+	/* w is something like an Item.  Go for the parent */
 	GtkWidget widget = new GtkWidget();
 	OS.memmove(widget, h, GtkWidget.sizeof);
 	return findControl(widget.parent);
@@ -594,6 +594,7 @@ public Object getData () {
 	checkDevice ();
 	return data;
 }
+
 /**
  * Returns a point whose x coordinate is the horizontal
  * dots per inch of the display, and whose y coordinate
@@ -607,9 +608,9 @@ public Object getData () {
  */
 public Point getDPI () {
 	checkDevice ();
+	/* Apparently, SWT believes pixels are always square */
 	int widthMM = OS.gdk_screen_width_mm ();
 	int width = OS.gdk_screen_width ();
-	// compute round(25.4 * width / widthMM)
 	int dpi = Compatibility.round(254 * width, widthMM * 10);
 	return new Point (dpi, dpi);
 }
@@ -669,8 +670,7 @@ public Control getFocusControl () {
 
 public int getDepth () {
 	checkDevice ();
-	GdkVisual visual = new GdkVisual ();
-	OS.memmove(visual, OS.gdk_visual_get_system(), GdkVisual.sizeof);
+	GdkVisual visual = new GdkVisual (OS.gdk_visual_get_system());
 	return visual.depth;
 }
 
@@ -784,11 +784,10 @@ public Color getSystemColor (int id) {
 	return super.getSystemColor (id);
 }
 
-void initializeSystemColors() {
+final void initializeSystemColors() {
 	
 	/* Get the theme colors */
-	GtkStyle defaultStyle = new GtkStyle();
-	OS.memmove (defaultStyle, OS.gtk_widget_get_default_style(), GtkStyle.sizeof);
+	GtkStyle defaultStyle = new GtkStyle(OS.gtk_widget_get_default_style());
 	
 	GdkColor gdk_NORMAL_dark = new GdkColor();
 	gdk_NORMAL_dark.pixel = defaultStyle.dark0_pixel;
@@ -895,8 +894,6 @@ void initializeSystemColors() {
 	gdk_INSENSITIVE_bg.green = defaultStyle.bg4_green;
 	gdk_INSENSITIVE_bg.blue  = defaultStyle.bg4_blue;
 	INSENSITIVE_bg = Color.gtk_new(gdk_INSENSITIVE_bg);
-
-
 }
 
 /**

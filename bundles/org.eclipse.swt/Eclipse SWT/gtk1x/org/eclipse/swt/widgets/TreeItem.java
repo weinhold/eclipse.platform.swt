@@ -232,8 +232,7 @@ public Rectangle getBounds () {
 	int styleHandle = OS.gtk_ctree_node_get_row_style(ctree, handle);
 	if (styleHandle == 0)
 		styleHandle = OS.gtk_widget_get_style(ctree);
-	GtkStyle style = new GtkStyle();
-	OS.memmove(style, styleHandle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle(styleHandle);
 	/* FIXME */	
 	int width = 50; /*OS.gdk_string_width(style.font, buffer1);*/
 

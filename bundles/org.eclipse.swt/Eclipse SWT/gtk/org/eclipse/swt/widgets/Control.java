@@ -1142,8 +1142,7 @@ GdkColor _getBackgroundGdkColor() {
 	int h = paintHandle();
 	
 	int hStyle = OS.gtk_widget_get_style (handle);
-	GtkStyle style = new GtkStyle ();
-	OS.memmove (style, hStyle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle (hStyle);
 	GdkColor color = new GdkColor ();
 	color.pixel = style.bg0_pixel;
 	color.red = style.bg0_red;
@@ -1247,8 +1246,7 @@ GdkColor _getForegroundGdkColor() {
 	int h = paintHandle();
 	
 	int hStyle = OS.gtk_widget_get_style (handle);
-	GtkStyle style = new GtkStyle ();
-	OS.memmove (style, hStyle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle (hStyle);
 	GdkColor color = new GdkColor ();
 	color.pixel = style.fg0_pixel;
 	color.red = style.fg0_red;
@@ -1762,11 +1760,9 @@ public void setBackground (Color color) {
 	int hStyle = OS.gtk_widget_get_style (handle);
 	boolean makeCopy = hStyle == hDefaultStyle;
 	hStyle = OS.gtk_style_copy (makeCopy ? hDefaultStyle : hStyle);	
-	GtkStyle style = new GtkStyle ();
-	OS.memmove (style, hStyle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle (hStyle);
 	if (color == null) {
-		GtkStyle defaultStyle = new GtkStyle ();
-		OS.memmove (defaultStyle, hDefaultStyle, GtkStyle.sizeof);
+		GtkStyle defaultStyle = new GtkStyle (hDefaultStyle);
 		style.bg0_pixel = defaultStyle.bg0_pixel;
 		style.bg0_red = defaultStyle.bg0_red;
 		style.bg0_green = defaultStyle.bg0_green;
@@ -1809,8 +1805,10 @@ public void setBackground (Color color) {
 		style.bg4_green = color.handle.green;
 		style.bg4_blue = color.handle.blue;
 	}
-	OS.memmove (hStyle, style, GtkStyle.sizeof);
-	OS.gtk_widget_set_style (handle, hStyle);
+	/* FIXME */
+	/* I believe there is now something like set_color? */
+	/*OS.memmove (hStyle, style, GtkStyle.sizeof);
+	OS.gtk_widget_set_style (handle, hStyle);*/
 	if (makeCopy) {
 		OS.gtk_style_unref (hStyle);
 	}
@@ -1978,12 +1976,10 @@ public void setForeground (Color color) {
 	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
 	int hStyle = OS.gtk_widget_get_style (handle);
 	hStyle = OS.gtk_style_copy (hStyle);	
-	GtkStyle style = new GtkStyle ();
-	OS.memmove (style, hStyle, GtkStyle.sizeof);
+	GtkStyle style = new GtkStyle (hStyle);
 	if (color == null) {
 		int hDefaultStyle = OS.gtk_widget_get_default_style ();
-		GtkStyle defaultStyle = new GtkStyle ();
-		OS.memmove (defaultStyle, hDefaultStyle, GtkStyle.sizeof);
+		GtkStyle defaultStyle = new GtkStyle (hDefaultStyle);
 		style.fg0_pixel = defaultStyle.fg0_pixel;
 		style.fg0_red = defaultStyle.fg0_red;
 		style.fg0_green = defaultStyle.fg0_green;
@@ -2026,8 +2022,10 @@ public void setForeground (Color color) {
 		style.fg4_green = color.handle.green;
 		style.fg4_blue = color.handle.blue;
 	}
-	OS.memmove (hStyle, style, GtkStyle.sizeof);
-	OS.gtk_widget_set_style (handle, hStyle);
+	/* FIXME */
+	/* I believe there is now something like set_color? */
+	/*OS.memmove (hStyle, style, GtkStyle.sizeof);
+	OS.gtk_widget_set_style (handle, hStyle);*/
 }
 
 /**

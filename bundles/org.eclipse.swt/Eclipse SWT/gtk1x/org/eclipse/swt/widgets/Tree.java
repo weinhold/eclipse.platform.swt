@@ -198,8 +198,7 @@ int createCheckPixmap(boolean checked) {
 		int check_height = clist.row_height-1;
 		int check_width = check_height;
 
-		GdkVisual visual = new GdkVisual();
-		OS.memmove(visual, OS.gdk_visual_get_system(), GdkVisual.sizeof);
+		GdkVisual visual = new GdkVisual(OS.gdk_visual_get_system());
 		int pixmap = OS.gdk_pixmap_new(0, check_width, check_height, visual.depth);
 		
 		int gc = OS.gdk_gc_new(pixmap);
