@@ -33,9 +33,17 @@ public void javaToNative(Object object, TransferData transferData) {
 }
 public Object nativeToJava(TransferData transferData) {
 
+System.out.println("data is "+transferData.pData+" with length "+transferData.length);
 	byte[] data = (byte[])super.nativeToJava(transferData);
+System.out.println("data byte[] length is "+data.length);
+for (int i = 0; i < data.length; i++) {
+	System.out.println("data["+i+"] = "+(char)data[i]);
+}
 	if (data == null) return null;
-	String string  = new String(data);
+	char [] unicode = org.eclipse.swt.internal.Converter.mbcsToWcs (null, data);
+	String string  = new String (unicode);
+System.out.println("nativeToJava string is "+string);
+
 	// parse data and convert string to array of files
 	int start = string.indexOf("file:");
 	if (start == -1) return null;

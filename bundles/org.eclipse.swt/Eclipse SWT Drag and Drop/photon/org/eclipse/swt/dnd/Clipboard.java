@@ -76,16 +76,18 @@ public Object getContents(Transfer transfer) {
 	return result;
 }
 public void setContents(Object[] data, Transfer[] transferAgents){
-
+	if (display.isDisposed() ) return;
+	
 	if (data == null) {
-		DND.error(SWT.ERROR_NOT_IMPLEMENTED);
+		int ig = OS.PhInputGroup(0);
+		if (OS.PhClipboardCopy((short)ig, 0, null) != 0) {
+			DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
+		}
 	}
 	if (transferAgents == null || data.length != transferAgents.length) {
 		DND.error(SWT.ERROR_INVALID_ARGUMENT);
 	}
 	
-	int status = -1;
-	int ig = OS.PhInputGroup(0);
 	byte[] clips = new byte[0];
 	int count = 0;
 	for (int i = 0; i < transferAgents.length; i++) {
@@ -120,11 +122,11 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 	}
 	
 	if (count > 0){
-		status = OS.PhClipboardCopy((short)ig, count, clips);
+		int ig = OS.PhInputGroup(0);
+		if (OS.PhClipboardCopy((short)ig, count, clips) != 0) {
+			DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
+		}
 	}
-
-	if (status != 0) 
-		DND.error(DND.ERROR_CANNOT_SET_CLIPBOARD);
 }
 /*
  * Note: getAvailableTypeNames is a tool for writing a Transfer sub-class only.  It should
