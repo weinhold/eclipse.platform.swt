@@ -47,12 +47,9 @@ final class Pixbuffer {
 	Pixbuffer (Image src) {
 		if (src == null || src.pixmap == 0) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 
-		// get the geometry
-		int[] unused = new int[1];
 		int[] w = new int[1];
 		int[] h = new int[1];
-		int[] d = new int[1];
-		OS.gdk_window_get_geometry(src.pixmap, unused, unused, w, h, unused);
+		OS.gdk_drawable_get_size(src.pixmap, w, h);
 	 	int width = w[0];
 	 	int height = h[0];
 
