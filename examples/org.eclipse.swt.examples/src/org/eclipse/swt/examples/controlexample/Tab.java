@@ -588,6 +588,7 @@ abstract class Tab {
 		setText.setText("");
 		getText.setText("");
 		getValue();
+		setText.setFocus();
 	}
 
 	String setMethodName(String methodRoot) {
@@ -606,7 +607,7 @@ abstract class Tab {
 			instructions = typeName;
 		}
 		instructions += "   " + ControlExample.getResourceString("Eg");
-		if (typeName.equals("int")) {
+		if (typeName.equals("int") || typeName.equals("long")) {
 			instructions += "4";
 			if (returnType.isArray()) instructions += ",5,6";
 		} else if (typeName.equals("char")) {
@@ -615,14 +616,19 @@ abstract class Tab {
 		} else if (typeName.equals("boolean")) {
 			instructions += "true";
 			if (returnType.isArray()) instructions += ",true";
+		} else if (typeName.equals("java.lang.String")) {
+			instructions += ControlExample.getResourceString("Hello");
+			if (returnType.isArray()) instructions += "," + ControlExample.getResourceString("Hello");
 		} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
 			instructions += "0,0";
-		} else if (returnType.isArray()) {
-			instructions += "a,b,c";
 		} else {
-			instructions += ControlExample.getResourceString("Hello");
+			instructions += instructionsForType(returnType.getName());
 		}
 		return instructions;
+	}
+
+	String instructionsForType(String typeName) {
+		return "x";
 	}
 
 	void getValue() {

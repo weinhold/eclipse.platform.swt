@@ -349,6 +349,16 @@ class TreeTab extends ScrollableTab {
 		return null;
 	}
 
+	String instructionsForType(String typeName) {
+		if (typeName.equals("org.eclipse.swt.widgets.TreeItem")) {
+			return "Node 1";
+		}
+		if (typeName.equals("[Lorg.eclipse.swt.widgets.TreeItem;")) {
+			return "Node 1,Node 3";
+		}
+		return super.instructionsForType(typeName);
+	}
+
 	/**
 	 * Gets the text for the tab folder item.
 	 */
