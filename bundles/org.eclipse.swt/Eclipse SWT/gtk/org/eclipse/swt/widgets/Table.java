@@ -126,6 +126,7 @@ void setHandleStyle () {
 
 
 void showHandle() {
+	OS.gtk_widget_show (boxHandle);
 	OS.gtk_widget_show (fixedHandle);
 	OS.gtk_widget_show (scrolledHandle);
 	OS.gtk_widget_show (handle);
@@ -135,6 +136,11 @@ void showHandle() {
 		uncheck = createCheckPixmap(false);
 		check = createCheckPixmap(true);
 	}
+}
+void hookEvents () {
+	//TO DO - get rid of enter/exit for mouse crossing border
+	super.hookEvents ();
+	signal_connect (handle, "select_row", SWT.Selection, 5);
 }
 
 int createCheckPixmap(boolean checked) {
@@ -180,11 +186,6 @@ int createCheckPixmap(boolean checked) {
 		return pixmap;
 }
 
-void hookEvents () {
-	//TO DO - get rid of enter/exit for mouse crossing border
-	super.hookEvents ();
-	signal_connect (handle, "select_row", SWT.Selection, 5);
-}
 
 void createWidget (int index) {
 	super.createWidget (index);
@@ -196,16 +197,8 @@ void createWidget (int index) {
 /*
  * HANDLE CODE 2
  */
-int topHandle() { return fixedHandle; }
+int topHandle() { return boxHandle; }
 int parentingHandle() { return fixedHandle; }
-boolean isMyHandle(int h) {
-	if (h==scrolledHandle) return true;
-	if (h==fixedHandle)    return true;
-	if (h==handle)         return true;
-	return false;
-
-}
-
 
 
 /*
