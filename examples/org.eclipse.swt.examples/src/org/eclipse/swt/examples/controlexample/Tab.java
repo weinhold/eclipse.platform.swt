@@ -67,6 +67,12 @@ abstract class Tab {
 	Text eventConsole;
 	boolean logging = false;
 	boolean [] eventsFilter;
+	
+	/* Set/Get API controls */
+	Combo nameCombo;
+	Label returnTypeLabel;
+	Button getButton, setButton;
+	Text setText, getText;
 
 	static final String [] EVENT_NAMES = {
 		"None",
@@ -107,12 +113,13 @@ abstract class Tab {
 		 */	
 		controlGroup = new Group (tabFolderPage, SWT.NONE);
 		controlGroup.setLayout (new GridLayout (2, true));
-		controlGroup.setLayoutData (new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_FILL));
+		controlGroup.setLayoutData (new GridData(SWT.FILL, SWT.FILL, false, false));
 		controlGroup.setText (ControlExample.getResourceString("Parameters"));
 	
 		/* Create individual groups inside the "Control" group */
 		createStyleGroup ();
 		createOtherGroup ();
+		createSetGetGroup();
 		createSizeGroup ();
 		createColorGroup ();
 		if (RTL_SUPPORT_ENABLE) {
@@ -152,6 +159,29 @@ abstract class Tab {
 		}
 	}
 	
+	/**
+	 * Append the Set/Get API controls to the "Other" group.
+	 */
+	void createSetGetGroup() {
+		/*
+		 * Create the button to access set/get API functionality.
+		 */
+		final String [] methodNames = getMethodNames ();
+		if (methodNames != null) {
+			Button setGetButton = new Button (otherGroup, SWT.PUSH);
+			setGetButton.setText (ControlExample.getResourceString ("Set_Get"));
+			setGetButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			setGetButton.addSelectionListener (new SelectionAdapter() {
+				public void widgetSelected (SelectionEvent e) {
+					Button button = (Button)e.widget;
+					Point pt = button.getLocation();
+					pt = e.display.map(button, null, pt);
+					createSetGetDialog(pt.x, pt.y, methodNames);
+				}
+			});
+		}
+	}
+
 	/**
 	 * Creates the "Control" widget children.
 	 * Subclasses override this method to augment
@@ -272,7 +302,7 @@ abstract class Tab {
 		/* Create the group */
 		otherGroup = new Group (controlGroup, SWT.NONE);
 		otherGroup.setLayout (new GridLayout ());
-		otherGroup.setLayoutData (new GridData (GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_FILL));
+		otherGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, false, false));
 		otherGroup.setText (ControlExample.getResourceString("Other"));
 	
 		/* Create the controls */
@@ -342,9 +372,8 @@ abstract class Tab {
 	 */
 	void createExampleGroup () {
 		exampleGroup = new Group (tabFolderPage, SWT.NONE);
-		GridLayout gridLayout = new GridLayout ();
-		exampleGroup.setLayout (gridLayout);
-		exampleGroup.setLayoutData (new GridData (GridData.FILL_BOTH));
+		exampleGroup.setLayout (new GridLayout ());
+		exampleGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, false));
 	}
 	
 	/**
@@ -437,9 +466,7 @@ abstract class Tab {
 	void createListenersGroup () {
 		listenersGroup = new Group (tabFolderPage, SWT.NONE);
 		listenersGroup.setLayout (new GridLayout (3, false));
-		GridData gridData = new GridData (GridData.HORIZONTAL_ALIGN_FILL | GridData.FILL_VERTICAL);
-		gridData.horizontalSpan = 2;
-		listenersGroup.setLayoutData (gridData);
+		listenersGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, false, true, 2, 1));
 		listenersGroup.setText (ControlExample.getResourceString ("Listeners"));
 
 		/*
@@ -488,7 +515,7 @@ abstract class Tab {
 		/* Create the event console Text. */
 		eventConsole = new Text (listenersGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		GridData data = new GridData (GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data.horizontalSpan = 4;
 		data.heightHint = 80;
 		eventConsole.setLayoutData (data);
 		createEventConsolePopup ();
@@ -502,6 +529,133 @@ abstract class Tab {
 		});
 	}
 	
+	/**
+	 * Returns a list of set/get API method names (without the set/get prefix)
+	 * that can be used to set/get values in the example control(s).
+	 */
+	String[] getMethodNames() {
+		return null;
+	}
+
+	void createSetGetDialog(int x, int y, String[] methodNames) {
+		final Shell dialog = new Shell(eventConsole.getShell (), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);
+		dialog.setLayout(new GridLayout(2, false));
+		dialog.setText(ControlExample.getResourceString ("Set_Get"));
+		nameCombo = new Combo(dialog, SWT.NONE);
+		nameCombo.setItems(methodNames);
+		nameCombo.setText(methodNames[0]);
+		nameCombo.setVisibleItemCount(methodNames.length);
+		nameCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		nameCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				resetLabels();
+			}
+		});
+		returnTypeLabel = new Label(dialog, SWT.NONE);
+		returnTypeLabel.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		setButton = new Button(dialog, SWT.PUSH);
+		setButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		setButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				setValue();
+			}
+		});
+		setText = new Text(dialog, SWT.SINGLE | SWT.BORDER);
+		setText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		getButton = new Button(dialog, SWT.PUSH);
+		getButton.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, false, false));
+		getButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				getValue();
+			}
+		});
+		getText = new Text(dialog, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
+		getText.setLayoutData(new GridData(200, 200));
+		resetLabels();
+		dialog.setDefaultButton(setButton);
+		dialog.pack();
+		dialog.setLocation(x, y);
+		dialog.open();
+	}
+
+	void resetLabels() {
+		returnTypeLabel.setText(getReturnType().toString());
+		setButton.setText("set" + nameCombo.getText());
+		getButton.setText("get" + nameCombo.getText());
+		setText.setText("");
+		getText.setText("");
+		getValue();
+	}
+
+	void getValue() {
+		String methodName = "get" + nameCombo.getText();
+		getText.setText("");
+		Control[] controls = getExampleWidgets();
+		for (int i = 0; i < controls.length; i++) {
+			try {
+				java.lang.reflect.Method method = controls[i].getClass().getMethod(methodName, null);
+				Object result = method.invoke(controls[i], null);
+				if (result.getClass().isArray()) {
+					Object [] arrayResult = (Object[]) result;
+					for (int j = 0; j < arrayResult.length; j++) {
+						getText.append(arrayResult[j].toString() + "\n");
+					}
+				} else {
+					getText.append(result.toString());
+				}
+			} catch (Exception e) {
+				getText.append(e.toString());
+			}
+			if (i + 1 < controls.length) {
+				getText.append("\n\n");
+			}
+		}
+	}
+
+	Class getReturnType() {
+		Class returnType = null;
+		String methodName = "get" + nameCombo.getText();
+		Control[] controls = getExampleWidgets();
+		try {
+			java.lang.reflect.Method method = controls[0].getClass().getMethod(methodName, null);
+			returnType = method.getReturnType();
+		} catch (Exception e) {
+		}
+		return returnType;
+	}
+	
+	void setValue() {
+		/* The parameter type must be the same as the get method's return type */
+		Class returnType = getReturnType();
+		
+		String methodName = "set" + nameCombo.getText();
+		String value = setText.getText();
+		Control[] controls = getExampleWidgets();
+		for (int i = 0; i < controls.length; i++) {
+			try {
+				java.lang.reflect.Method method = controls[i].getClass().getMethod(methodName, new Class[] {returnType});
+				String typeName = returnType.getName();
+				if (returnType.isArray()) System.out.println(returnType.getComponentType());
+				Object[] parameters = null;
+				if (typeName.equals("int")) {
+					parameters = new Object[] {new Integer(value)};
+				} else if (typeName.equals("boolean")) {
+					parameters = new Object[] {new Boolean(value)};
+				} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
+					String xy[] = value.split(",");
+					parameters = new Object[] {new Point(new Integer(xy[0]).intValue(),new Integer(xy[1]).intValue())};
+				} else if (typeName.equals("[Ljava.lang.String;")) {
+					parameters = new Object[] {value.split(",")};
+				} else { // String
+					parameters = new Object[] {value};
+				}
+				method.invoke(controls[i], parameters);
+			} catch (Exception e) {
+				getText.setText(e.toString());
+			}
+		}
+	}
+
 	void createOrientationGroup () {
 		/* Create Orientation group*/
 		orientationGroup = new Group (controlGroup, SWT.NONE);
