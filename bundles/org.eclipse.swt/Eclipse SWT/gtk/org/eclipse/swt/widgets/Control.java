@@ -154,7 +154,10 @@ void configure () {
  * An exception to this is the Shell, which we do NOT realize
  * at this point.
  */
-abstract void showHandle();
+void showHandle() {
+	OS.gtk_widget_show (handle);
+	OS.gtk_widget_realize (handle);
+}
 int topHandle() { return handle; }
 int paintHandle() { return handle; }
 boolean isMyHandle(int h) { return h==handle; }
@@ -225,6 +228,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 
 Point computeNativeSize (int wHint, int hHint, boolean changed) {
 	GtkRequisition requisition = new GtkRequisition ();
+	OS.gtk_widget_size_request (handle, requisition);
 	int width = wHint == SWT.DEFAULT ? requisition.width : wHint;
 	int height = hHint == SWT.DEFAULT ? requisition.height : hHint;
 	return new Point (width, height);	
