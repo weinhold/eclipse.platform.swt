@@ -235,14 +235,39 @@ LRESULT WM_HSCROLL (int wParam, int lParam) {
 LRESULT WM_MOUSEWHEEL (int wParam, int lParam) {
 	LRESULT result = super.WM_MOUSEWHEEL (wParam, lParam);
 	if (result != null) return result;
-	int position = verticalBar == null ? 0 : verticalBar.getSelection ();
+	
+	// Implement scrolling for Canvas type widgets.
+	// For all native widgets, rely on the native widget to handle WM_MOUSEWHEEL
+	if ((state & CANVAS) != 0) {
+		if (verticalBar == null && horizontalBar == null) return LRESULT.ZERO;
+		int wheelDelta = (short)-(wParam >> 16);
+		if (wheelDelta < OS.WHEEL_DELTA) return new LRESULT(0);
+		int[] value = new int[1];
+   		OS.SystemParametersInfo(OS.SPI_GETWHEELSCROLLLINES, 0, value, 0);
+		int increment = value[0] * wheelDelta / OS.WHEEL_DELTA;
+		System.out.println("Scroll canvas by "+increment);
+		
+		return LRESULT.ZERO;
+	}
+		
+	// When the native widget scrolls inside the WM_MOUSEWHEEL event, no WM_VSCROLL or WM_HSCROLL event 
+	// is sent and the application does not get notified that the widget has scrolled.  
+	// Check for a change in the scrollbar position and notify the application. 
+	int vPosition = verticalBar == null ? 0 : verticalBar.getSelection ();
+	int hPosition = horizontalBar == null ? 0 : horizontalBar.getSelection ();
 	int code = callWindowProc (OS.WM_MOUSEWHEEL, wParam, lParam);
 	if (verticalBar != null) {
-		if (verticalBar.getSelection() != position) {
+		if (verticalBar.getSelection() != vPosition) {
 			Event event = new Event ();
 			event.detail = SWT.DRAG; 
-			//CAN SEND MULTIPLE
 			verticalBar.sendEvent (SWT.Selection, event);
+		}
+	}
+	if (horizontalBar != null) {
+		if (horizontalBar.getSelection() != hPosition) {
+			Event event = new Event ();
+			event.detail = SWT.DRAG; 
+			horizontalBar.sendEvent (SWT.Selection, event);
 		}
 	}
 	return new LRESULT (code);
@@ -257,6 +282,8 @@ LRESULT WM_SIZE (int wParam, int lParam) {
 }
 
 LRESULT WM_VSCROLL (int wParam, int lParam) {
+	new Error().printStackTrace();
+	
 	LRESULT result = super.WM_VSCROLL (wParam, lParam);
 	if (result != null) return result;
 
