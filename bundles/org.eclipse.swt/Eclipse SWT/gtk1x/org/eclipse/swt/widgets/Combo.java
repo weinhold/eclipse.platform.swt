@@ -46,7 +46,9 @@ import org.eclipse.swt.events.*;
  */
 
 public class Combo extends Composite {
-	int padHandle, glist;
+	int padHandle;
+	int entryHandle, listHandle;
+	int glist;
 	int textLimit = LIMIT;
 	public final static int LIMIT;
 	
@@ -263,10 +265,8 @@ static int checkStyle (int style) {
  */
 public void clearSelection () {
 	checkWidget();
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	int position = OS.gtk_editable_get_position (combo.entry);
-	OS.gtk_editable_set_position (combo.entry, position);
+	int position = OS.gtk_editable_get_position (entryHandle);
+	OS.gtk_editable_set_position (entryHandle, position);
 }
 
 void createHandle (int index) {
@@ -277,15 +277,16 @@ void createHandle (int index) {
 	if (padHandle == 0) error (SWT.ERROR_NO_HANDLES);
 	handle = OS.gtk_combo_new ();
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+	GtkCombo combo = new GtkCombo (handle);
+	entryHandle = combo.entry;
+	listHandle = combo.list;
 	fixedHandle = OS.gtk_fixed_new();
 	if (fixedHandle == 0) error (SWT.ERROR_NO_HANDLES);
 }
 
 void setHandleStyle() {
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
 	boolean isEditable = (style & SWT.READ_ONLY) == 0;
-	OS.gtk_entry_set_editable (combo.entry, isEditable);
+	OS.gtk_entry_set_editable (entryHandle, isEditable);
 }
 
 void configure () {
@@ -311,37 +312,41 @@ void showHandle() {
 void deregister () {
 	super.deregister ();
 	WidgetTable.remove (padHandle);
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	WidgetTable.remove (combo.entry);
-	WidgetTable.remove (combo.list);
-	WidgetTable.remove (combo.button);
+	WidgetTable.remove (entryHandle);
+	WidgetTable.remove (listHandle);
 }
 
 void hookEvents () {
 	// TO DO - expose, enter/exit, focus in/out
 	super.hookEvents ();
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
 	// TO DO - fix multiple selection events for one user action
-	signal_connect (combo.list, "select_child", SWT.Selection, 3);
-	signal_connect_after (combo.entry, "changed", SWT.Modify, 2);
+	signal_connect (listHandle, "select_child", SWT.Selection, 3);
+	signal_connect_after (entryHandle, "changed", SWT.Modify, 2);
 	int mask =
 		OS.GDK_POINTER_MOTION_MASK | 
 		OS.GDK_BUTTON_PRESS_MASK | OS.GDK_BUTTON_RELEASE_MASK | 
 		OS.GDK_KEY_PRESS_MASK | OS.GDK_KEY_RELEASE_MASK;
-	int [] handles = new int [] {combo.entry, combo.list, combo.button};
-	for (int i=0; i<handles.length; i++) {
-		int handle = handles [i];
-		if (!OS.GTK_WIDGET_NO_WINDOW (handle)) {
-			OS.gtk_widget_add_events (handle, mask);
-		}
-		signal_connect_after (handle, "motion_notify_event", SWT.MouseMove, 3);
-		signal_connect_after (handle, "button_press_event", SWT.MouseDown, 3);
-		signal_connect_after (handle, "button_release_event", SWT.MouseUp, 3);
-		signal_connect_after (handle, "key_press_event", SWT.KeyDown, 3);
-		signal_connect_after (handle, "key_release_event", SWT.KeyUp, 3);
-	}
+
+	OS.gtk_widget_add_events (entryHandle, mask);
+	OS.gtk_widget_add_events (listHandle, mask);
+
+	signal_connect_after (entryHandle, "motion_notify_event", SWT.MouseMove, 3);
+	signal_connect_after (entryHandle, "button_press_event", SWT.MouseDown, 3);
+	signal_connect_after (entryHandle, "button_release_event", SWT.MouseUp, 3);
+	signal_connect_after (entryHandle, "key_press_event", SWT.KeyDown, 3);
+	signal_connect_after (entryHandle, "key_release_event", SWT.KeyUp, 3);
+
+	signal_connect_after (listHandle, "motion_notify_event", SWT.MouseMove, 3);
+	signal_connect_after (listHandle, "button_press_event", SWT.MouseDown, 3);
+	signal_connect_after (listHandle, "button_release_event", SWT.MouseUp, 3);
+	signal_connect_after (listHandle, "key_press_event", SWT.KeyDown, 3);
+	signal_connect_after (listHandle, "key_release_event", SWT.KeyUp, 3);
+
+	signal_connect_after (handle, "motion_notify_event", SWT.MouseMove, 3);
+	signal_connect_after (handle, "button_press_event", SWT.MouseDown, 3);
+	signal_connect_after (handle, "button_release_event", SWT.MouseUp, 3);
+	signal_connect_after (handle, "key_press_event", SWT.KeyDown, 3);
+	signal_connect_after (handle, "key_release_event", SWT.KeyUp, 3);
 }
 
 int topHandle() { return eventBoxHandle; }
@@ -351,11 +356,8 @@ boolean isMyHandle(int h) {
 	if (h==padHandle) return true;
 	if (h==fixedHandle) return true;
 	if (h==handle) return true;
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	if (h== combo.entry) return true;
-	if (h== combo.list) return true;
-	if (h== combo.button) return true;
+	if (h== entryHandle) return true;
+	if (h== listHandle) return true;
 	return false;
 }
 
@@ -535,10 +537,8 @@ public String [] getItems () {
  */
 public Point getSelection () {
 	checkWidget ();
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
 	GtkEditable editable = new GtkEditable();
-	OS.memmove (editable, combo.entry, GtkEditable.sizeof);
+	OS.memmove (editable, entryHandle, GtkEditable.sizeof);
 	return new Point (editable.selection_start_pos, editable.selection_end_pos);
 }
 
@@ -572,9 +572,7 @@ public int getSelectionIndex () {
  */
 public String getText () {
 	checkWidget();
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	int address = OS.gtk_entry_get_text (combo.entry);
+	int address = OS.gtk_entry_get_text (entryHandle);
 	int length = OS.strlen (address);
 	byte [] buffer1 = new byte [length];
 	OS.memmove (buffer1, address, length);
@@ -702,11 +700,8 @@ int processSelection (int int0, int int1, int int2) {
 void register () {
 	super.register ();
 	WidgetTable.put (padHandle, this);
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	WidgetTable.put (combo.entry, this);
-	WidgetTable.put (combo.list, this);
-	WidgetTable.put (combo.button, this);
+	WidgetTable.put (entryHandle, this);
+	WidgetTable.put (listHandle, this);
 }
 
 void releaseHandle () {
@@ -891,14 +886,12 @@ public void select (int index) {
 	String [] items = getItems ();
 	if (index >= items.length) return;
 	String selectedText = items [index];
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	OS.gtk_signal_handler_block_by_data (combo.entry, SWT.Modify);
-	OS.gtk_signal_handler_block_by_data (combo.list, SWT.Selection);
-	OS.gtk_list_select_item (combo.list, index);
-	OS.gtk_entry_set_text (combo.entry, Converter.wcsToMbcs (null, selectedText, true));
-	OS.gtk_signal_handler_unblock_by_data (combo.entry, SWT.Modify);
-	OS.gtk_signal_handler_unblock_by_data (combo.list, SWT.Selection);
+	OS.gtk_signal_handler_block_by_data (entryHandle, SWT.Modify);
+	OS.gtk_signal_handler_block_by_data (listHandle, SWT.Selection);
+	OS.gtk_list_select_item (listHandle, index);
+	OS.gtk_entry_set_text (entryHandle, Converter.wcsToMbcs (null, selectedText, true));
+	OS.gtk_signal_handler_unblock_by_data (entryHandle, SWT.Modify);
+	OS.gtk_signal_handler_unblock_by_data (listHandle, SWT.Selection);
 }
 
 /**
@@ -949,10 +942,8 @@ public void setItem (int index, String string) {
 public void setItems (String [] items) {
 	checkWidget();
 	if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
 	if (items.length == 0) {
-		OS.gtk_list_clear_items (combo.list, 0, -1);
+		OS.gtk_list_clear_items (listHandle, 0, -1);
 		//LEAK
 		glist = 0;
 	} else {
@@ -966,11 +957,11 @@ public void setItems (String [] items) {
 			OS.memmove (data, buffer, buffer.length);
 			new_glist = OS.g_list_append (new_glist, data);
 		}
-		OS.gtk_signal_handler_block_by_data (combo.entry, SWT.Modify);
-		OS.gtk_signal_handler_block_by_data (combo.list, SWT.Selection);
+		OS.gtk_signal_handler_block_by_data (entryHandle, SWT.Modify);
+		OS.gtk_signal_handler_block_by_data (listHandle, SWT.Selection);
 		OS.gtk_combo_set_popdown_strings (handle, new_glist);
-		OS.gtk_signal_handler_unblock_by_data (combo.entry, SWT.Modify);
-		OS.gtk_signal_handler_unblock_by_data (combo.list, SWT.Selection);
+		OS.gtk_signal_handler_unblock_by_data (entryHandle, SWT.Modify);
+		OS.gtk_signal_handler_unblock_by_data (listHandle, SWT.Selection);
 		if (glist != 0) {
 			int count = OS.g_list_length (glist);
 			for (int i=0; i<count; i++) {
@@ -981,9 +972,9 @@ public void setItems (String [] items) {
 		}
 		glist = new_glist;
 	}
-	OS.gtk_signal_handler_block_by_data (combo.entry, SWT.Modify);
-	OS.gtk_editable_delete_text (combo.entry, 0, -1);
-	OS.gtk_signal_handler_unblock_by_data (combo.entry, SWT.Modify);
+	OS.gtk_signal_handler_block_by_data (entryHandle, SWT.Modify);
+	OS.gtk_editable_delete_text (entryHandle, 0, -1);
+	OS.gtk_signal_handler_unblock_by_data (entryHandle, SWT.Modify);
 }
 
 /**
@@ -1005,11 +996,8 @@ public void setItems (String [] items) {
 public void setSelection (Point selection) {
 	checkWidget();
 	if (selection == null) error (SWT.ERROR_NULL_ARGUMENT);
-	GtkCombo gtkCombo = new GtkCombo ();
-	OS.memmove (gtkCombo, handle, GtkCombo.sizeof);
-	int entry = gtkCombo.entry;
-	OS.gtk_editable_set_position (entry, selection.x);
-	OS.gtk_editable_select_region (entry, selection.x, selection.y);
+	OS.gtk_editable_set_position (entryHandle, selection.x);
+	OS.gtk_editable_select_region (entryHandle, selection.x, selection.y);
 }
 
 protected boolean setTabGroupFocus () {
@@ -1041,14 +1029,11 @@ public void setText (String string) {
 	checkWidget();
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
-	GtkCombo gtkCombo = new GtkCombo ();
-	OS.memmove (gtkCombo, handle, GtkCombo.sizeof);
-	int entry = gtkCombo.entry;
-	OS.gtk_editable_delete_text (entry, 0, -1);
+	OS.gtk_editable_delete_text (entryHandle, 0, -1);
 	int [] position = new int [1];
 	byte [] buffer = Converter.wcsToMbcs (null, string);
-	OS.gtk_editable_insert_text (entry, buffer, buffer.length, position);
-	OS.gtk_editable_set_position (entry, 0);
+	OS.gtk_editable_insert_text (entryHandle, buffer, buffer.length, position);
+	OS.gtk_editable_set_position (entryHandle, 0);
 }
 
 /**
@@ -1069,9 +1054,7 @@ public void setTextLimit (int limit) {
 	checkWidget();
 	if (limit == 0) error (SWT.ERROR_CANNOT_BE_ZERO);
 	this.textLimit = (short) limit;
-	GtkCombo combo = new GtkCombo ();
-	OS.memmove (combo, handle, GtkCombo.sizeof);
-	OS.gtk_entry_set_max_length (combo.entry, (short) limit);
+	OS.gtk_entry_set_max_length (entryHandle, (short) limit);
 }
 
 }

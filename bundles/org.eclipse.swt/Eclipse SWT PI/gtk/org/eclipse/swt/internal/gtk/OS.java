@@ -535,6 +535,7 @@ public static final native void gtk_notebook_set_page(int notebook, int page_num
 public static final native void gtk_object_set_user_data(int object, int data);
 public static final native int gtk_object_get_user_data(int object);
 public static final native int gtk_pixmap_new(int pixmap, int mask);
+public static final native double gtk_adjustment_get_value(int adj);
 public static final native int gtk_progress_bar_new();
 public static final native void gtk_progress_bar_set_orientation(int pbar, int orientation);
 public static final native void gtk_progress_bar_set_bar_style(int pbar, int style);
@@ -652,7 +653,7 @@ public static final native void memmove(GdkEvent dest, int src);
 public static final native void memmove(GdkEventExpose dest, int src);
 public static final native void memmove(GtkAdjustment dest, int src);
 public static final native void memmove(GtkCList dest, int src, int size);
-public static final native void memmove(GtkCombo dest, int src, int size);
+public static final native void memmove(GtkCombo dest, int src);
 public static final native void memmove(GtkContainer dest, int src, int size);
 public static final native void memmove(GtkCTreeRow dest, int src, int size);
 public static final native void memmove(GtkEditable dest, int src, int size);
