@@ -168,10 +168,15 @@ private void onScrollSelection(Event e) {
 	if (visible && hadFocus) setFocus ();
 }
 private void onTableSelection(Event e) {
-	row = table.getSelection()[0];
-	if (column == -1) setColumn(0);
-	//if (table.isFocusControl()) cellTable.setFocus();
-	updateCell();
+	getDisplay().asyncExec(new Runnable () {
+		public void run() {
+			if (isDisposed()) return;
+			row = table.getSelection()[0];
+			if (column == -1) setColumn(0);
+			//if (table.isFocusControl()) cellTable.setFocus();
+			updateCell();
+		}
+	});
 }
 private void paint(GC gc) {
 	Rectangle rect = getClientArea();
