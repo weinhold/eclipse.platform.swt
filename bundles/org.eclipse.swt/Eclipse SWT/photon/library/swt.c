@@ -6504,17 +6504,29 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PgGetVideoModeInf
 /*
  * Class:     org_eclipse_swt_internal_photon_OS
  * Method:    PhClipboardCopy
- * Signature: (SII)I
+ * Signature: (SI[B)I
  */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardCopy
-  (JNIEnv *env, jclass that, jshort ig, jint n, jint clip)
-{
-
+  (JNIEnv *env, jclass that, jshort ig, jint n, jbyteArray clip)
+{	
+	jbyte *clip1=NULL;
+	jint result;
+    
 #ifdef DEBUG_CALL_PRINTS
     fprintf(stderr, "PhClipboardCopy\n");
 #endif
 
-    return (jint)PhClipboardCopy(ig, n, (void *)clip);
+	if (clip) {
+        clip1 = (char *)(*env)->GetByteArrayElements(env, clip, NULL);
+    }
+    	
+	result = (jint)PhClipboardCopy(ig, n, (PhClipHeader const *)clip1);
+	
+	if (clip) {
+        (*env)->ReleaseByteArrayElements(env, clip, (jbyte *)clip1, 0);
+    }
+
+    return result;
 
 }
 
@@ -6542,6 +6554,7 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardPasteT
   (JNIEnv *env, jobject that, jint cbdata, jbyteArray type)
 {
 	 char *type1=NULL;
+	 jint result;
 
 #ifdef DEBUG_CALL_PRINTS
     fprintf(stderr, "PhClipboardPasteType\n");
@@ -6550,7 +6563,27 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardPasteT
  	if (type)
         type1 = (char *)(*env)->GetByteArrayElements(env, type, NULL);
     	
-	return (jint) PhClipboardPasteType((void *)cbdata, type1);
+	result = (jint) PhClipboardPasteType((void *)cbdata, type1);
+	
+	if (type)
+        (*env)->ReleaseByteArrayElements(env, type, (jbyte *)type1, 0);
+        
+	return result;
+}
+
+/*
+ * Class:     org_eclipse_swt_internal_photon_OS
+ * Method:    PhClipboardPasteTypeN
+ * Signature: (II)I
+ */
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardPasteTypeN
+  (JNIEnv *env, jobject that, jint cbdata, jint n)
+{
+
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "PhClipboardPasteTypeN\n");
+#endif
+	return (jint) PhClipboardPasteTypeN((void *)cbdata, n);
 }
 
 /*
@@ -6568,29 +6601,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_PhClipboardPasteF
 	PhClipboardPasteFinish((void *)cbdata);
 	
 	return;
-}
-
-/*
- * Class:     org_eclipse_swt_internal_photon_OS
- * Method:    memmove
- * Signature: (ILorg/eclipse/swt/internal/photon/PhClipHeader;I)V
- */
-JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__ILorg_eclipse_swt_internal_photon_PhClipHeader_2I
-  (JNIEnv *env, jobject that, jint dest, jobject src, jint count)
-{
-	DECL_GLOB(pGlob)
-	
-    PhClipHeader object, *src1=NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_photon_PhClipHeader_2I\n");
-#endif
-
-    if (src) {
-        src1=&object;
-        cachePhClipHeaderFids(env, src, &PGLOB(PhClipHeaderFc));
-        getPhClipHeaderFields(env, src, src1, &PGLOB(PhClipHeaderFc));
-    }
-    memmove((void *)dest, (void *)src1, count);
 }
 
 /*
@@ -6614,4 +6624,37 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__Lorg_ecl
         setPhClipHeaderFields(env, dest, dest1, &PGLOB(PhClipHeaderFc));
     }
 
+}
+
+/*
+ * Class:     org_eclipse_swt_internal_photon_OS
+ * Method:    memmove
+ * Signature: ([BLorg/eclipse/swt/internal/photon/PhClipHeader;I)V
+ */
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_photon_OS_memmove__BLorg_eclipse_swt_internal_photon_PhClipHeader_2I
+  (JNIEnv *env, jobject that, jbyteArray dest, jobject src, jint count)
+{
+	DECL_GLOB(pGlob)
+	jbyte *dest1=NULL;
+    PhClipHeader object, *src1= NULL;
+    
+#ifdef DEBUG_CALL_PRINTS
+	fprintf(stderr, "memmove__BLorg_eclipse_swt_internal_photon_PhClipHeader_2I\n");
+#endif
+
+    if (src) {
+        src1=&object;
+        cachePhClipHeaderFids(env, src, &pGlob(PhClipHeaderFc));
+        getPhClipHeaderFields(env, src, src1, &pGlob(PhClipHeaderFc));
+    }
+    
+    if (dest) {
+    	dest1 = (void)(*env)->GetByteArrayElements(env, dest, NULL);
+    }
+    
+    memmove((void *)dest1, (void *)src1, count);
+    
+     if (dest) {
+    	 (*env)->ReleaseByteArrayElements(env, dest, (jbyte *)dest1, 0);
+    }
 }

@@ -2930,12 +2930,14 @@ public static final native void PgGetVideoMode (PgDisplaySettings_t settings);
 public static final native void PgGetVideoModeInfo (short mode_number, PgVideoModeInfo_t mode_info);
 
 public static final native void memmove (PhClipHeader dest, int src, int size);
-public static final native void memmove (int dest, PhClipHeader src, int size);
+//public static final native void memmove (int dest, PhClipHeader src, int size);
+public static final native void memmove (byte[] dest, PhClipHeader src, int size);
 
 public static final native int PhClipboardCopyString (short ig, byte [] string);
 public static final native int PhClipboardPasteString (short ig);
-public static final native int PhClipboardCopy (short ig, int n, int type);
+public static final native int PhClipboardCopy (short ig, int n, byte[] clip);
 public static final native int PhClipboardPasteStart (short ig);
 public static final native int PhClipboardPasteType (int cbdata, byte[] type);
+public static final native int PhClipboardPasteTypeN (int cbdata, int n);
 public static final native void PhClipboardPasteFinish (int cbdata);
 }

@@ -46,30 +46,32 @@ public void dispose () {
 }
 public Object getContents(Transfer transfer) {
 	if (display.isDisposed() ) return null;
+	
+	Object result = null;
+	
 	int ig = OS.PhInputGroup(0);
 	int cbdata = OS.PhClipboardPasteStart((short)ig);
-	Object result = null;
 	try {
 		String[] types = transfer.getTypeNames();
+		int[] ids = transfer.getTypeIds();
 		for (int i = 0; i < types.length; i++) {
-			byte[] type = new byte[8];
-			byte[] temp = types[i].getBytes();
-			System.arraycopy(temp, 0, type, 0, Math.min(type.length, temp.length));
+			byte[] type = Converter.wcsToMbcs(null, types[i], true);
 			int pClipHeader = OS.PhClipboardPasteType(cbdata, type);
 			if (pClipHeader != 0) {
 				PhClipHeader clipHeader = new PhClipHeader();
 				OS.memmove(clipHeader, pClipHeader, PhClipHeader.sizeof);
-				byte[] buffer = new byte[clipHeader.length];
-				OS.memmove(buffer, clipHeader.data, buffer.length);
-				OS.free(clipHeader.data);
-				OS.free(pClipHeader);
-				result = buffer;
+				TransferData data = new TransferData();
+				data.pData = clipHeader.data;
+				data.length = clipHeader.length;
+				data.type = ids[i];
+				result = transfer.nativeToJava(data);
 				break;
 			}
 		}
 	} finally {
 		OS.PhClipboardPasteFinish(cbdata);
 	}
+	
 	return result;
 }
 public void setContents(Object[] data, Transfer[] transferAgents){
@@ -81,53 +83,34 @@ public void setContents(Object[] data, Transfer[] transferAgents){
 		DND.error(SWT.ERROR_INVALID_ARGUMENT);
 	}
 	
-	// copy data directly over to System clipboard (not deferred)
-	PhClipHeader[] clip = new PhClipHeader[0];
+	int status = -1;
+	int ig = OS.PhInputGroup(0);
+	//PhClipHeader[] clips = new PhClipHeader[0];
 	for (int i = 0; i < transferAgents.length; i++) {
 		String[] names = transferAgents[i].getTypeNames();
-		PhClipHeader[] tempClip = new PhClipHeader[names.length];
+		int[] ids = transferAgents[i].getTypeIds();
 		for (int j = 0; j < names.length; j++) {
-			tempClip[j] = new PhClipHeader();
-			byte[] type = new byte[8];
-			byte[] name = names[j].getBytes();
-			System.arraycopy(name, 0, type, 0, Math.min(type.length, name.length));
-			tempClip[j].type_0 = type[0];
-			tempClip[j].type_1 = type[1];
-			tempClip[j].type_2 = type[2];
-			tempClip[j].type_3 = type[3];
-			tempClip[j].type_4 = type[4];
-			tempClip[j].type_5 = type[5];
-			tempClip[j].type_6 = type[6];
-			tempClip[j].type_7 = type[7];
+			PhClipHeader clip = new PhClipHeader();
 			TransferData transferData = new TransferData();
+			transferData.type = ids[j];
 			transferAgents[i].javaToNative(data[i], transferData);
-			tempClip[j].data = transferData.pData;
-			tempClip[j].length = (short)transferData.length;
+			clip.data = transferData.pData;
+			clip.length = (short)transferData.length;
+			byte[] temp = Converter.wcsToMbcs(null, names[j], true);
+			byte[] type = new byte[8];
+			System.arraycopy(temp, 0, type, 0, Math.min(type.length, temp.length));
+			clip.type_0 = type[0];
+			clip.type_1 = type[1];
+			clip.type_2 = type[2];
+			clip.type_3 = type[3];
+			clip.type_4 = type[4];
+			clip.type_5 = type[5];
+			clip.type_6 = type[6];
+			clip.type_7 = type[7];
+			byte[] buffer = new byte[PhClipHeader.sizeof];
+			OS.memmove(buffer, clip, PhClipHeader.sizeof);
+			status = OS.PhClipboardCopy((short)ig, 1, buffer);
 		}
-		PhClipHeader[] newClip = new PhClipHeader[clip.length + tempClip.length];
-		System.arraycopy(clip, 0, newClip, 0, clip.length);
-		System.arraycopy(tempClip, 0, newClip, clip.length, tempClip.length);
-		clip = newClip;
-	}
-	
-	int pClip = OS.malloc(clip.length * PhClipHeader.sizeof);
-	int status = -1;
-	try {
-		int offset = 0;
-		for (int i = 0; i < clip.length; i++) {
-			OS.memmove(clip[i], pClip + offset, PhClipHeader.sizeof);
-			offset += PhClipHeader.sizeof;
-		}
-	
-		int ig = OS.PhInputGroup(0);
-		status = OS.PhClipboardCopy((short)ig, clip.length, pClip);
-	} finally {
-		OS.free(pClip);
-	}
-	
-	for (int i = 0; i < clip.length; i++) {
-		int pData = clip[i].data;
-		if (pData != 0)	OS.free(pData);
 	}
 	
 	if (status != 0) 
@@ -139,31 +122,37 @@ public void setContents(Object[] data, Transfer[] transferAgents){
  * information.
  */
 public String[] getAvailableTypeNames() {
-	int[] count = new int[1];
-	int[] max_length = new int[1];
-//	int xDisplay = OS.XtDisplay (shellHandle);
-//	if (xDisplay == 0)
-//		DND.error(SWT.ERROR_UNSPECIFIED);
-//	int xWindow = OS.XtWindow (shellHandle);
-//	if (xWindow == 0)
-//		DND.error(SWT.ERROR_UNSPECIFIED);
-//	if (OS.XmClipboardInquireCount(xDisplay, xWindow, count, max_length) != OS.XmClipboardSuccess)
-//		DND.error(SWT.ERROR_UNSPECIFIED);
-	String[] types = new String[count[0]];
-//	for (int i = 0; i < count[0]; i++) {
-//		byte[] buffer = new byte[max_length[0]];
-//		int[] copied_length = new int[1];
-//		int rc = OS.XmClipboardInquireFormat(xDisplay, xWindow, i + 1, buffer, buffer.length, copied_length);
-//		if (rc == OS.XmClipboardNoData){
-//			types[i] = "";
-//			continue;
-//		}
-//		if (rc != OS.XmClipboardSuccess)
-//			DND.error(SWT.ERROR_UNSPECIFIED);
-//		byte[] buffer2 = new byte[copied_length[0]];
-//		System.arraycopy(buffer, 0, buffer2, 0, copied_length[0]);
-//		types[i] = new String(buffer2);
-//	}
+	String[] types = new String[0];
+	int ig = OS.PhInputGroup(0);
+	int cbdata = OS.PhClipboardPasteStart((short)ig);
+	if (cbdata == 0) return types;
+	try {
+		int pClipHeader = 0;
+		int n = 0;
+		while ((pClipHeader = OS.PhClipboardPasteTypeN(cbdata, n++)) != 0) {
+			PhClipHeader clipHeader = new PhClipHeader();
+			OS.memmove(clipHeader, pClipHeader, PhClipHeader.sizeof);
+			byte[] buffer = new byte[8];
+			buffer[0] = clipHeader.type_0;
+			buffer[1] = clipHeader.type_1;
+			buffer[2] = clipHeader.type_2;
+			buffer[3] = clipHeader.type_3;
+			buffer[4] = clipHeader.type_4;
+			buffer[5] = clipHeader.type_5;
+			buffer[6] = clipHeader.type_6;
+			buffer[7] = clipHeader.type_7;
+			char [] unicode = Converter.mbcsToWcs (null, buffer);
+			
+			String[] newTypes = new String[types.length + 1];
+			System.arraycopy(types, 0, newTypes, 0, types.length);
+			newTypes[types.length] = new String (unicode);
+			types = newTypes;
+System.out.println("pClipHeader = "+pClipHeader);
+System.out.println("clipHeader.data = "+clipHeader.data);
+		}
+	} finally {
+		OS.PhClipboardPasteFinish(cbdata);
+	}
 	return types;
 }
 }

@@ -30,7 +30,7 @@ protected void javaToNative (Object object, TransferData transferData){
 		return;
 	}
 	byte[] buffer = (byte[])object;	
-	transferData.pData = OS.malloc(buffer.length + 1);
+	transferData.pData = OS.malloc(buffer.length);
 	OS.memmove(transferData.pData, buffer, buffer.length);
 	transferData.length = buffer.length;
 	transferData.result = 1;
@@ -40,6 +40,7 @@ protected Object nativeToJava(TransferData transferData){
 	if (transferData.pData == 0 || !(isSupportedType(transferData))) return null;
 	
 	int size = transferData.length;
+	if (size == 0) return null;
 	byte[] buffer = new byte[size];
 	OS.memmove(buffer, transferData.pData, size);
 	return buffer;
