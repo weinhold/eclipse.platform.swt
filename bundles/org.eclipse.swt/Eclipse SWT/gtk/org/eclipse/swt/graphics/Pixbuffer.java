@@ -283,13 +283,9 @@ final class Pixbuffer {
 	private void fillAlphaFromPixmapMask(int mask) {
 		hasMask = true;
 		
-		/* pull the mask data from the X Server */	
-		// get the geometry
-		int[] unused = new int[1];
 		int[] w = new int[1];
 		int[] h = new int[1];
-		int[] d = new int[1];
-		OS.gdk_window_get_geometry(mask, unused, unused, w, h, unused);
+	 	OS.gdk_drawable_get_size(mask, w, h);
 	 	int width =  Math.min(w[0], getWidth());
 	 	int height = Math.min(h[0], getHeight());
 		/* Get the data */
@@ -313,13 +309,9 @@ final class Pixbuffer {
 	private void fillAlphaFromTransparentPixel(int pm, int pixel) {
 		transparentPixel = pixel;
 	
-		/* pull the data from the X Server */	
-		// get the geometry
-		int[] unused = new int[1];
 		int[] w = new int[1];
 		int[] h = new int[1];
-		int[] d = new int[1];
-		OS.gdk_window_get_geometry(pm, unused, unused, w, h, unused);
+		OS.gdk_drawable_get_size(pm, w, h);
 	 	int width =  Math.min(w[0], getWidth());
 	 	int height = Math.min(h[0], getHeight());
 		/* Get the data */

@@ -241,8 +241,7 @@ public int getCharWidth(char ch) {
 public Rectangle getClipping() {
 	if (data.clipRgn == 0) {
 		int[] width = new int[1]; int[] height = new int[1];
-		int[] unused = new int[1];
-		OS.gdk_window_get_geometry(data.drawable, unused, unused, width, height, unused);
+		OS.gdk_drawable_get_size(data.drawable, width, height);
 		return new Rectangle(0, 0, width[0], height[0]);
 	}
 	GdkRectangle rect = new GdkRectangle();
@@ -267,8 +266,7 @@ public void getClipping(Region region) {
 	int hRegion = region.handle;
 	if (data.clipRgn == 0) {
 		int[] width = new int[1]; int[] height = new int[1];
-		int[] unused = new int[1];
-		OS.gdk_window_get_geometry(data.drawable, unused, unused, width, height, unused);
+		OS.gdk_drawable_get_size(data.drawable, width, height);
 		hRegion = OS.gdk_region_new();
 		GdkRectangle rect = new GdkRectangle();
 		rect.x = 0; rect.y = 0;
@@ -814,8 +812,8 @@ public void drawFocus(int x, int y, int width, int height) {
 public void drawImage(Image image, int x, int y) {
 	if (image == null) error(SWT.ERROR_NULL_ARGUMENT);
 	int pixmap = image.pixmap;
-	int [] unused = new int [1];  int [] width = new int [1];  int [] height = new int [1];
- 	OS.gdk_window_get_geometry(pixmap, unused, unused, width, height, unused);
+	int [] width = new int [1];  int [] height = new int [1];
+ 	OS.gdk_drawable_get_size(pixmap, width, height);
  	drawImage(image, 0, 0, width[0], height[0], x, y, width[0], height[0]);
 }
 

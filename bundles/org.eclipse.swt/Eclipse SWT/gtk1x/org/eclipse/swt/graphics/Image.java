@@ -143,6 +143,8 @@ Image() {
  */
 public Image(Device display, int width, int height) {
 	init(display, width, height);
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -194,19 +196,16 @@ public Image(Device device, Image srcImage, int flag) {
 	this.transparentPixel = srcImage.transparentPixel;
 	// FIXME - are we sure about memGC?
 
-	/* temporary code before we sort out greying */
-	flag = SWT.IMAGE_COPY;
-
 	/* Special case:
 	 * If all we want is just a clone of the existing pixmap, it can
 	 * be done entirely in the X server, without copying across the net.
 	 */
 	if (flag == SWT.IMAGE_COPY) {
-		int[] unused = new int[1];
 		int[] width = new int[1]; int[] height = new int[1];
-		int[] depth = new int[1];		
-	 	OS.gdk_window_get_geometry(pixmap, unused, unused, width, height, depth);
-		pixmap = OS.gdk_pixmap_new (0, width[0], height[0], depth[0]);
+	 	OS.gdk_drawable_get_size(srcImage.pixmap, width, height);
+	 	int depth = OS.gdk_drawable_get_depth(srcImage.pixmap);
+		pixmap = OS.gdk_pixmap_new (0, width[0], height[0], depth);
+
 		int gc = OS.gdk_gc_new (pixmap);
 		OS.gdk_draw_pixmap(pixmap, gc, srcImage.pixmap,
 			0,0,0,0, width[0], height[0]);
@@ -231,6 +230,8 @@ public Image(Device device, Image srcImage, int flag) {
 			if (srcImage.transparentPixel != -1 && srcImage.memGC != null) srcImage.destroyMask();
 		}
 
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 		
 		return;
 	}
@@ -268,6 +269,8 @@ public Image(Device device, Image srcImage, int flag) {
 public Image(Device display, Rectangle bounds) {
 	if (bounds == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	init(display, bounds.width, bounds.height);
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -285,6 +288,8 @@ public Image(Device display, ImageData image) {
 	if (image == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (display == null) display = Display.getDefault();
 	init(display, image);
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -334,6 +339,8 @@ public Image(Device display, ImageData source, ImageData mask) {
 	image.maskPad = mask.scanlinePad;
 	image.maskData = mask.data;
 	init(display, image);
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -365,6 +372,8 @@ public Image(Device display, InputStream stream) {
 	if (stream == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (display == null) display = Display.getDefault();
 	init(display, new ImageData(stream));
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -389,6 +398,8 @@ public Image(Device display, String filename) {
 	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (display == null) display = Display.getDefault();
 	init(display, new ImageData(filename));
+	
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 }
 
 /**
@@ -501,8 +512,8 @@ public void setBackground(Color color) {
  * </ul>
  */
 public Rectangle getBounds() {
-	int[] unused = new int[1]; int[] width = new int[1]; int[] height = new int[1];
- 	OS.gdk_window_get_geometry(pixmap, unused, unused, width, height, unused);
+	int[] width = new int[1]; int[] height = new int[1];
+ 	OS.gdk_drawable_get_size(pixmap, width, height);
 	return new Rectangle(0, 0, width[0], height[0]);
 
 }
@@ -526,6 +537,7 @@ public ImageData getImageData() {
 
 public static Image gtk_new(int type, int pixmap, int mask) {
 	Image image = new Image();
+	if (pixmap==0) SWT.error(SWT.ERROR_CANNOT_BE_ZERO);  // FIXME remove this, this is for debugging only
 	image.type = type;
 	image.pixmap = pixmap;
 	image.mask = mask;
