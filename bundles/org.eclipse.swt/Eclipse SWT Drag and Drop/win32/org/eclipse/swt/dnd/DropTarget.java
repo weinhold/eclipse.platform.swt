@@ -460,8 +460,33 @@ private int Drop(
 
 		}
 	}			
+
+	int osOperation = opToOs(lastOperation);
+	OS.MoveMemory(pdwEffect, new int[] {osOperation}, 4);
+
+
+/*
+	// Set the performed effect on the data object since some applications
+	// check this value rather than the pdwEffect
+	STGMEDIUM stgmedium = new STGMEDIUM();
+	stgmedium.tymed = COM.TYMED_HGLOBAL;
+	int ptr = OS.GlobalAlloc(COM.GMEM_FIXED | COM.GMEM_ZEROINIT, 4);
+	int ptr2 = OS.GlobalAlloc(COM.GMEM_FIXED | COM.GMEM_ZEROINIT, 4);
+	OS.MoveMemory(ptr2, new int[] {osOperation}, 4);
+	OS.MoveMemory(ptr, new int[] {ptr2}, 4);
+	stgmedium.unionField = ptr;
+	FORMATETC formatetc = new FORMATETC();
+	formatetc.cfFormat = CFSTR_PERFORMEDDROPEFFECT;
+	formatetc.tymed = COM.TYMED_HGLOBAL;
 	
-	OS.MoveMemory(pdwEffect, new int[] {osToOp(lastOperation)}, 4);	
+	IDataObject dataObject = new IDataObject(pDataObject);
+	dataObject.AddRef();
+	dataObject.SetData(formatetc, stgmedium, false);
+	dataObject.Release();
+	
+	OS.GlobalFree(ptr2);
+	OS.GlobalFree(ptr);
+*/
 	return COM.S_OK;
 }
 /**

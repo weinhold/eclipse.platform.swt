@@ -430,7 +430,6 @@ private static GUID IIDFromString(String lpsz) {
 }
 public static final native boolean IsEqualGUID(GUID rguid1, GUID rguid2);
 public static final native void MoveMemory( byte[] Destination, DROPFILES Source, int Length);
-public static final native void MoveMemory(char[] Destination, int SourcePtr, int Length);
 public static final native void MoveMemory(double[] Destination, int SourcePtr, int Length);
 public static final native void MoveMemory(float[] Destination, int SourcePtr, int Length);
 public static final native void MoveMemory(short[] Destination, int SourcePtr, int Length);
@@ -442,6 +441,7 @@ public static final native void MoveMemory(int DestinationPtr, GUID Source, int 
 public static final native void MoveMemory(int DestinationPtr, OLEINPLACEFRAMEINFO Source, int Length);
 public static final native void MoveMemory( int Destination, STATSTG Source, int Length);
 public static final native void MoveMemory( int Destination, STGMEDIUM Source, int Length);
+public static final native void MoveMemory( STGMEDIUM Destination, int SourcePtr, int Length);
 public static final native void MoveMemory(DISPPARAMS Destination, int SourcePtr, int Length);
 public static final native void MoveMemory(FORMATETC Destination, int Source, int Length);
 public static final native void MoveMemory(GUID Destination, int SourcePtr, int Length);
@@ -496,7 +496,7 @@ public static final native int RegisterDragDrop(
 	int pDropTarget //Pointer to object that is to be target of drop
 );
 public static final native  void ReleaseStgMedium(
-  STGMEDIUM pmedium  //Pointer to storage medium to be freed
+  int pmedium  //Pointer to storage medium to be freed
 ); 
 public static final native int RevokeDragDrop(
 	int hwnd  //Handle to a window that can accept drops

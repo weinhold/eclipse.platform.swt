@@ -33,7 +33,8 @@ public class DND {
 	 * Drag and Drop Operation: the drop target makes a link to the data in the drag source
 	 */
 	public final static int DROP_LINK = 4;
-
+	
+	public final static int DROP_TARGET_MOVE = 5;
 	/**
 	 * DragSource Event: the drop has successfully completed or has been terminated (such as hitting the ESC key);
 	 *                   perform cleanup such as removing data on a move operation
@@ -76,7 +77,10 @@ public class DND {
 	public static final int FEEDBACK_NONE = 0;
 	public static final int FEEDBACK_SELECT = 1;
 	public static final int FEEDBACK_INSERT_BEFORE = 2;
-	public static final int FEEDBACK_INSERT_AFTER = 3;
+	public static final int FEEDBACK_INSERT_AFTER = 4;
+	public static final int FEEDBACK_SCROLL = 8;
+	public static final int FEEDBACK_EXPAND = 16;
+	
 
 	/**
 	 * Error code for SWTError - drag source can not be initialized
