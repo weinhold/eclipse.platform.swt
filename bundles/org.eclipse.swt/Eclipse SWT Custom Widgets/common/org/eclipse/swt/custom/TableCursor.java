@@ -269,7 +269,7 @@ void setRowColumn(int row, int column, boolean notify) {
 		if (0 <= column && column < table.getColumnCount()) {
 			this.row = row;
 			this.column = column;
-			TableItem item = table.getItems()[row];
+			TableItem item = table.getItem(row);
 			table.showItem(item);
 			setBounds(item.getBounds(column));
 			redraw();
