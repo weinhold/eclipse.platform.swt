@@ -102,8 +102,8 @@ public class StyledText extends Canvas {
 	int lineHeight;						// line height=font height
 	int tabLength = 4;					// number of characters in a tab
 	int lineEndSpaceWidth;				// space, in pixel, used to indicated a selected line break
-	int leftMargin = 15;
-	int topMargin = 15;
+	int leftMargin = 1;
+	int topMargin = 1;
 	int rightMargin = 2;
 	int bottomMargin = 2;
 	Cursor ibeamCursor;		
@@ -1166,7 +1166,7 @@ public StyledText(Composite parent, int style) {
 		StyledTextBidi.addLanguageListener(this, runnable);
 	}
 	if ((style & SWT.BORDER) == 0 || (style & SWT.SINGLE) == 0) {
-//		leftMargin = topMargin = rightMargin = bottomMargin = 0;
+		leftMargin = topMargin = rightMargin = bottomMargin = 0;
 	}
 	// set the caret width, the height of the caret will default to the line height
 	calculateScrollBars();
