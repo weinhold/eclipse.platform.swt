@@ -25,7 +25,6 @@ import org.eclipse.swt.graphics.*;
  */
 
 public abstract class Scrollable extends Control {
-	
 	ScrollBar horizontalBar, verticalBar;
 
 /**
@@ -96,34 +95,14 @@ int callWindowProc (int msg, int wParam, int lParam) {
  */
 public Rectangle computeTrim (int x, int y, int width, int height) {
 	checkWidget ();
-
-	/* Get the size of the trimmings */
 	RECT rect = new RECT ();
 	OS.SetRect (rect, x, y, x + width, y + height);
 	int bits = OS.GetWindowLong (handle, OS.GWL_STYLE);
-	boolean hasMenu = ((bits & OS.WS_CHILD) == 0) && (OS.GetMenu (handle) != 0);
-	OS.AdjustWindowRectEx (rect, bits, hasMenu, OS.GetWindowLong (handle, OS.GWL_EXSTYLE));
-
-	/* Get the size of the scroll bars */
-	if ((horizontalBar != null) && (horizontalBar.getVisible ())) {
-		rect.bottom += OS.GetSystemMetrics (OS.SM_CYHSCROLL);
-	}
-	if ((verticalBar != null) && (verticalBar.getVisible ())) {
-		rect.right += OS.GetSystemMetrics (OS.SM_CXVSCROLL);
-	}
-
-	/* Get the height of the menu bar */
-	if (hasMenu) {
-		RECT testRect = new RECT ();
-		OS.SetRect (testRect, 0, 0, rect.right - rect.left, rect.bottom - rect.top);
-		OS.SendMessage (handle, OS.WM_NCCALCSIZE, 0, testRect);
-		while ((testRect.bottom - testRect.top) < height) {
-			rect.top -= OS.GetSystemMetrics (OS.SM_CYMENU) - OS.GetSystemMetrics (OS.SM_CYBORDER);
-			OS.SetRect(testRect, 0, 0, rect.right - rect.left, rect.bottom - rect.top);
-			OS.SendMessage (handle, OS.WM_NCCALCSIZE, 0, testRect);
-		}
-	}
-	return new Rectangle (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+	OS.AdjustWindowRectEx (rect, bits, false, OS.GetWindowLong (handle, OS.GWL_EXSTYLE));
+	if (horizontalBar != null) rect.bottom += OS.GetSystemMetrics (OS.SM_CYHSCROLL);
+	if (verticalBar != null) rect.right += OS.GetSystemMetrics (OS.SM_CXVSCROLL);
+	int nWidth = rect.right - rect.left, nHeight = rect.bottom - rect.top;
+	return new Rectangle (rect.left, rect.top, nWidth, nHeight);
 }
 
 ScrollBar createScrollBar (int type) {
@@ -227,7 +206,7 @@ int widgetStyle () {
 	return bits;
 }
 
-byte [] windowClass () {
+TCHAR windowClass () {
 	return getDisplay ().windowClass;
 }
 
@@ -238,11 +217,35 @@ int windowProc () {
 LRESULT WM_HSCROLL (int wParam, int lParam) {
 	LRESULT result = super.WM_HSCROLL (wParam, lParam);
 	if (result != null) return result;
-	if ((lParam == 0) && (horizontalBar != null)) {
+	
+	/*
+	* Bug on WinCE.  lParam should be NULL when the message is not sent
+	* by a scroll bar control, but it contains the handle to the window.
+	* When the message is sent by a scroll bar control, it correctly
+	* contains the handle to the scroll bar.  The fix is to check for
+	* both.
+	*/
+	if ((lParam == 0 || lParam == handle) && horizontalBar != null) {
 		result = wmScroll (OS.WM_HSCROLL, wParam, lParam);
 		horizontalBar.wmScrollChild (wParam, lParam);
 	}
 	return result;
+}
+
+LRESULT WM_MOUSEWHEEL (int wParam, int lParam) {
+	LRESULT result = super.WM_MOUSEWHEEL (wParam, lParam);
+	if (result != null) return result;
+	int position = verticalBar == null ? 0 : verticalBar.getSelection ();
+	int code = callWindowProc (OS.WM_MOUSEWHEEL, wParam, lParam);
+	if (verticalBar != null) {
+		if (verticalBar.getSelection() != position) {
+			Event event = new Event ();
+			event.detail = SWT.DRAG; 
+			//CAN SEND MULTIPLE
+			verticalBar.sendEvent (SWT.Selection, event);
+		}
+	}
+	return new LRESULT (code);
 }
 
 LRESULT WM_SIZE (int wParam, int lParam) {
@@ -256,7 +259,15 @@ LRESULT WM_SIZE (int wParam, int lParam) {
 LRESULT WM_VSCROLL (int wParam, int lParam) {
 	LRESULT result = super.WM_VSCROLL (wParam, lParam);
 	if (result != null) return result;
-	if ((lParam == 0) && (verticalBar != null)) {
+
+	/*
+	* Bug on WinCE.  lParam should be NULL when the message is not sent
+	* by a scroll bar control, but it contains the handle to the window.
+	* When the message is sent by a scroll bar control, it correctly
+	* contains the handle to the scroll bar.  The fix is to check for
+	* both.
+	*/
+	if ((lParam == 0 || lParam == handle) && (verticalBar != null)) {
 		result = wmScroll (OS.WM_VSCROLL, wParam, lParam);
 		verticalBar.wmScrollChild (wParam, lParam);
 	}
@@ -280,7 +291,13 @@ LRESULT wmScroll (int msg, int wParam, int lParam) {
 	switch (code) {
 		case OS.SB_ENDSCROLL:  return null;
 		case OS.SB_THUMBTRACK:
-		case OS.SB_THUMBPOSITION:	
+		case OS.SB_THUMBPOSITION:
+			/* 
+			* Note: On WinCE, the value in SB_THUMBPOSITION is relative to nMin.
+			* Same for SB_THUMBPOSITION 'except' for the very first thumb track
+			* message which has the actual value of nMin. This is a problem when
+			* nMin is not zero.
+			*/
 			info.nPos = info.nTrackPos;
 			break;
 		case OS.SB_TOP:
@@ -292,19 +309,17 @@ LRESULT wmScroll (int msg, int wParam, int lParam) {
 		case OS.SB_LINEDOWN:
 			info.nPos += bar.getIncrement ();
 			break;
-		case OS.SB_LINEUP: {
+		case OS.SB_LINEUP:
 			int increment = bar.getIncrement ();
 			info.nPos = Math.max (info.nMin, info.nPos - increment);
 			break;
-		}
 		case OS.SB_PAGEDOWN:
 			info.nPos += bar.getPageIncrement ();
 			break;
-		case OS.SB_PAGEUP: {
+		case OS.SB_PAGEUP:
 			int pageIncrement = bar.getPageIncrement ();
 			info.nPos = Math.max (info.nMin, info.nPos - pageIncrement);
 			break;
-		}
 	}
 	OS.SetScrollInfo (handle, type, info, true);
 	return null;

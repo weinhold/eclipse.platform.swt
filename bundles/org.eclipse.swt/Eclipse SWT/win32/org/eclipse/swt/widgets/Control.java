@@ -391,6 +391,35 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	return new Point (width, height);
 }
 
+Control computeTabGroup () {
+	if (isTabGroup ()) return this;
+	return parent.computeTabGroup ();
+}
+
+Control computeTabRoot () {
+	Control [] tabList = parent._getTabList ();
+	if (tabList != null) {
+		int index = 0;
+		while (index < tabList.length) {
+			if (tabList [index] == this) break;
+			index++;
+		}
+		if (index == tabList.length) {
+			if (isTabGroup ()) return this;
+		}
+	}
+	return parent.computeTabRoot ();
+}
+
+Control [] computeTabList () {
+	if (isTabGroup ()) {
+		if (getVisible () && getEnabled ()) {
+			return new Control [] {this};
+		}
+	}
+	return new Control [0];
+}
+
 void createHandle () {
 	int hwndParent = 0;
 	if (handle != 0) {
@@ -399,7 +428,7 @@ void createHandle () {
 		if (parent != null) hwndParent = parent.handle;
 	}
 	handle = OS.CreateWindowEx (
-		widgetExtStyle () /*| OS.WS_EX_CONTROLPARENT*/,
+		widgetExtStyle (),
 		windowClass (),
 		null,
 		widgetStyle (),
@@ -424,19 +453,13 @@ void createWidget () {
 	setDefaultFont ();
 }
 
-Control currentTabGroup () {
-	if (isTabGroup ()) return this;
-	return parent.currentTabGroup ();
-}
-
 int defaultBackground () {
 	return OS.GetSysColor (OS.COLOR_BTNFACE);
 }
 
 int defaultFont () {
-	int hFont = OS.GetStockObject (OS.DEFAULT_GUI_FONT);
-	if (hFont == 0) hFont = OS.GetStockObject (OS.SYSTEM_FONT);
-	return hFont;
+	Display display = getDisplay ();
+	return display.systemFont ();
 }
 
 int defaultForeground () {
@@ -455,6 +478,24 @@ void destroyWidget () {
 	}
 }
 
+void drawBackground (int hDC) {
+	RECT rect = new RECT ();
+	OS.GetClientRect (handle, rect);
+	drawBackground (hDC, rect);
+}
+
+void drawBackground (int hDC, RECT rect) {
+	Display display = getDisplay ();
+	int hPalette = display.hPalette;
+	if (hPalette != 0) {
+		OS.SelectPalette (hDC, hPalette, false);
+		OS.RealizePalette (hDC);
+	}
+	int pixel = getBackgroundPixel ();
+	int hBrush = findBrush (pixel);
+	OS.FillRect (hDC, rect, hBrush);
+}
+
 int findBrush (int pixel) {
 	return parent.findBrush (pixel);
 }
@@ -468,12 +509,21 @@ char findMnemonic (String string) {
 	int index = 0;
 	int length = string.length ();
 	do {
-		while ((index < length) && (string.charAt (index) != Mnemonic)) index++;
+		while (index < length && string.charAt (index) != Mnemonic) index++;
 		if (++index >= length) return '\0';
 		if (string.charAt (index) != Mnemonic) return string.charAt (index);
 		index++;
 	} while (index < length);
  	return '\0';
+}
+
+void fixFocus () {
+	Shell shell = getShell ();
+	Control control = this;
+	while ((control = control.parent) != null) {
+		if (control.setFocus () || control == shell) return;
+	}
+	OS.SetFocus (0);
 }
 
 /**
@@ -577,10 +627,11 @@ int getCodePage () {
 	LOGFONT logFont = new LOGFONT ();
 	OS.GetObject (hFont, LOGFONT.sizeof, logFont);
 	int cs = logFont.lfCharSet & 0xFF;
-//	if (cs == OS.DEFAULT_CHARSET) return OS.CP_ACP;
 	int [] lpCs = new int [8];
-	OS.TranslateCharsetInfo (cs, lpCs, OS.TCI_SRCCHARSET);
-	return lpCs [1];
+	if (OS.TranslateCharsetInfo (cs, lpCs, OS.TCI_SRCCHARSET)) {
+		return lpCs [1];
+	}
+	return OS.GetACP ();
 }
 
 /**
@@ -802,15 +853,6 @@ public Point getSize () {
 	return new Point (width, height);
 }
 
-Control [] getTabList () {
-	if (isTabGroup ()) {
-		if (getVisible () && getEnabled ()) {
-			return new Control [] {this};
-		}
-	}
-	return new Control [0];
-}
-
 /**
  * Returns the receiver's tool tip text, or null if it has
  * not been set.
@@ -904,6 +946,7 @@ public int internal_new_GC (GCData data) {
 		data.foreground = getForegroundPixel ();
 		data.background = getBackgroundPixel ();
 		data.hFont = OS.SendMessage (handle, OS.WM_GETFONT, 0, 0);
+		data.hwnd = handle;
 	}
 	return hDC;
 }
@@ -993,6 +1036,15 @@ public boolean isFocusControl () {
 	return hasFocus ();
 }
 
+boolean isFocusAncestor () {
+	Display display = getDisplay ();
+	Control control = display.getFocusControl ();
+	while (control != null && control != this) {
+		control = control.parent;
+	}
+	return control == this;
+}
+
 /**
  * Returns <code>true</code> if the underlying operating
  * system supports this reparenting, otherwise <code>false</code>
@@ -1007,6 +1059,32 @@ public boolean isFocusControl () {
 public boolean isReparentable () {
 	checkWidget ();
 	return true;
+}
+
+boolean isShowing () {
+	/*
+	* This is not complete.  Need to check if the
+	* widget is obscurred by a parent or sibling.
+	*/
+	if (!isVisible ()) return false;
+	Control control = this;
+	while (control != null) {
+		Point size = control.getSize ();
+		if (size.x == 0 || size.y == 0) {
+			return false;
+		}
+		control = control.parent;
+	}
+	return true;
+	/*
+	* Check to see if current damage is included.
+	*/
+//	if (!OS.IsWindowVisible (handle)) return false;
+//	int flags = OS.DCX_CACHE | OS.DCX_CLIPCHILDREN | OS.DCX_CLIPSIBLINGS;
+//	int hDC = OS.GetDCEx (handle, 0, flags);
+//	int result = OS.GetClipBox (hDC, new RECT ());
+//	OS.ReleaseDC (handle, hDC);
+//	return result != OS.NULLREGION;
 }
 
 boolean isTabGroup () {
@@ -1051,7 +1129,7 @@ Decorations menuShell () {
 	return parent.menuShell ();
 }
 
-boolean mnemonicHit () {
+boolean mnemonicHit (char key) {
 	return false;
 }
 
@@ -1694,8 +1772,8 @@ public void setCursor (Cursor cursor) {
 }
 
 void setDefaultFont () {
-	int hFont = OS.GetStockObject (OS.DEFAULT_GUI_FONT);
-	if (hFont == 0) hFont = OS.GetStockObject (OS.SYSTEM_FONT);
+	Display display = getDisplay ();
+	int hFont = display.systemFont ();
 	OS.SendMessage (handle, OS.WM_SETFONT, hFont, 0);
 }
 
@@ -1715,18 +1793,6 @@ void setDefaultFont () {
 public void setEnabled (boolean enabled) {
 	checkWidget ();
 
-	/* Enable or disable the window */
-	boolean fixFocus = false;
-	if (!enabled) {
-		Display display = getDisplay ();
-		Control control = display.getFocusControl ();
-		while (control != null && control != this) {
-			control = control.parent;
-		}
-		fixFocus = control == this;
-	}
-	OS.EnableWindow (handle, enabled);
-	
 	/*
 	* Feature in Windows.  If the receiver has focus, disabling
 	* the receiver causes no window to have focus.  The fix is
@@ -1734,12 +1800,10 @@ public void setEnabled (boolean enabled) {
 	* focus.  If no window will take focus, set focus to the
 	* desktop.
 	*/
-	if (!fixFocus) return;
-	Control control = this;
-	while ((control = control.parent) != null) {
-		if (control.setFocus () || control instanceof Shell) return;
-	}
-	OS.SetFocus (0);
+	boolean fixFocus = false;
+	if (!enabled) fixFocus = isFocusAncestor ();
+	OS.EnableWindow (handle, enabled);
+	if (fixFocus) fixFocus ();
 }
 
 /**
@@ -1817,17 +1881,7 @@ void setForegroundPixel (int pixel) {
 	OS.InvalidateRect (handle, null, true);
 }
 
-boolean setKeyState (Event event, int type) {
-	Display display = getDisplay ();
-	if (display.lastAscii != 0) {
-		event.character = mbcsToWcs ((char) display.lastAscii);
-	}
-	if (display.lastVirtual) {
-		event.keyCode = Display.translateKey (display.lastKey);
-	}
-	if (event.keyCode == 0 && event.character == 0) {
-		return false;
-	}
+boolean setInputState (Event event, int type) {
 	if (OS.GetKeyState (OS.VK_MENU) < 0) event.stateMask |= SWT.ALT;
 	if (OS.GetKeyState (OS.VK_SHIFT) < 0) event.stateMask |= SWT.SHIFT;
 	if (OS.GetKeyState (OS.VK_CONTROL) < 0) event.stateMask |= SWT.CONTROL;
@@ -1848,6 +1902,20 @@ boolean setKeyState (Event event, int type) {
 			break;
 	}		
 	return true;
+}
+
+boolean setKeyState (Event event, int type) {
+	Display display = getDisplay ();
+	if (display.lastAscii != 0) {
+		event.character = mbcsToWcs ((char) display.lastAscii);
+	}
+	if (display.lastVirtual) {
+		event.keyCode = Display.translateKey (display.lastKey);
+	}
+	if (event.keyCode == 0 && event.character == 0) {
+		return false;
+	}
+	return setInputState (event, type);
 }
 
 /**
@@ -2047,11 +2115,7 @@ boolean setTabGroupFocus () {
 }
 
 boolean setTabItemFocus () {
-	Control [] path = getPath ();
-	for (int i=0; i<path.length; i++) {
-		Point size = path [i].getSize ();
-		if (size.x == 0 || size.y == 0) return false;
-	}
+	if (!isShowing ()) return false;
 	return setFocus ();
 }
 
@@ -2101,8 +2165,27 @@ public void setVisible (boolean visible) {
 		sendEvent (SWT.Show);
 		if (isDisposed ()) return;
 	}
+	
+	/*
+	* Feature in Windows.  If the receiver has focus, hiding
+	* the receiver causes no window to have focus.  The fix is
+	* to assign focus to the first ancestor window that takes
+	* focus.  If no window will take focus, set focus to the
+	* desktop.
+	*/
+//	boolean fixFocus = false;
+//	if (!visible) fixFocus = isFocusAncestor ();
 	OS.ShowWindow (handle, visible ? OS.SW_SHOW : OS.SW_HIDE);
-	if (!visible) sendEvent (SWT.Hide);
+	if (!visible) {
+		/*
+		* It is possible (but unlikely), that application
+		* code could have disposed the widget in the show
+		* event.  If this happens, just return.
+		*/
+		sendEvent (SWT.Hide);
+		if (isDisposed ()) return;
+	}
+//	if (fixFocus) fixFocus ();
 }
 
 void sort (int [] items) {
@@ -2180,16 +2263,22 @@ boolean translateAccelerator (MSG msg) {
 	return menuShell ().translateAccelerator (msg);
 }
 
+boolean translateMnemonic (char key) {
+	if (!isVisible () || !isEnabled ()) return false;
+	Event event = new Event ();
+	event.doit = mnemonicMatch (key);
+	event.detail = SWT.TRAVERSE_MNEMONIC;
+	Display display = getDisplay ();
+	display.lastVirtual = false;
+	display.lastKey = 0;
+	display.lastAscii = key;
+	if (!setKeyState (event, SWT.Traverse)) {
+		return false;
+	}
+	return traverse (event);
+}
+
 boolean translateMnemonic (MSG msg) {
-	Control control = (parent == null) ? getShell() : parent;
-	//Control control = getShell();
-//	if (true) {
-//		getDisplay().Bogus = true;
-//		boolean r = OS.IsDialogMessage(control.handle, msg);
-//		getDisplay().Bogus = false;
-//		return r;
-//	}
-	
 	int hwnd = msg.hwnd;
 	if (OS.GetKeyState (OS.VK_MENU) >= 0) {
 		int code = OS.SendMessage (hwnd, OS.WM_GETDLGCODE, 0, 0);
@@ -2197,26 +2286,18 @@ boolean translateMnemonic (MSG msg) {
 		if ((code & OS.DLGC_BUTTON) == 0) return false;
 	}
 	Decorations shell = menuShell ();
-	if (!shell.isVisible () || !shell.isEnabled ()) return false;
-	char ch = mbcsToWcs ((char) msg.wParam);
-	return ch != 0 && shell.traverseMnemonic (ch);
+	if (shell.isVisible () && shell.isEnabled ()) {
+		char ch = mbcsToWcs ((char) msg.wParam);
+		return ch != 0 && shell.translateMnemonic (ch);
+	}
+	return false;
 }
 
 boolean translateTraversal (MSG msg) {
-
-	Control control = (parent == null) ? getShell() : parent;
-	//Control control = getShell();
-	if (true) {
-		getDisplay().Bogus = true;
-		boolean r = OS.IsDialogMessage(control.handle, msg);
-		getDisplay().Bogus = false;
-		return r;
-	}
-	
 	int hwnd = msg.hwnd;
-	int detail = 0;
+	int detail = SWT.TRAVERSE_NONE;
 	int key = msg.wParam;
-	boolean doit = true;
+	boolean doit = true, all = false;
 	boolean lastVirtual = false;
 	int lastKey = key, lastAscii = 0;
 	switch (key) {
@@ -2225,6 +2306,8 @@ boolean translateTraversal (MSG msg) {
 			Shell shell = getShell ();
 			if (shell.parent == null) return false;
 			if (!shell.isVisible () || !shell.isEnabled ()) return false;
+			int code = OS.SendMessage (hwnd, OS.WM_GETDLGCODE, 0, 0);
+			if ((code & OS.DLGC_WANTALLKEYS) != 0) doit = false;
 			detail = SWT.TRAVERSE_ESCAPE;
 			break;
 		}
@@ -2245,8 +2328,7 @@ boolean translateTraversal (MSG msg) {
 			if ((code & (OS.DLGC_WANTTAB | OS.DLGC_WANTALLKEYS)) != 0) {
 				if (next && OS.GetKeyState (OS.VK_CONTROL) >= 0) doit = false;
 			}
-			detail = SWT.TRAVERSE_TAB_PREVIOUS;
-			if (next) detail = SWT.TRAVERSE_TAB_NEXT;
+			detail = next ? SWT.TRAVERSE_TAB_NEXT : SWT.TRAVERSE_TAB_PREVIOUS;
 			break;
 		}
 		case OS.VK_UP:
@@ -2255,39 +2337,66 @@ boolean translateTraversal (MSG msg) {
 		case OS.VK_RIGHT: {
 			lastVirtual = true;
 			int code = OS.SendMessage (hwnd, OS.WM_GETDLGCODE, 0, 0);
-			if ((code & OS.DLGC_WANTARROWS) != 0) doit = false;
-			detail = SWT.TRAVERSE_ARROW_PREVIOUS;
-			if (key == OS.VK_DOWN || key == OS.VK_RIGHT) {	
-				detail = SWT.TRAVERSE_ARROW_NEXT;
-			}
+			if ((code & (OS.DLGC_WANTARROWS /*| OS.DLGC_WANTALLKEYS*/)) != 0) doit = false;
+			boolean next = key == OS.VK_DOWN || key == OS.VK_RIGHT;
+			detail = next ? SWT.TRAVERSE_ARROW_NEXT : SWT.TRAVERSE_ARROW_PREVIOUS;
+			break;
+		}
+		case OS.VK_PRIOR:
+		case OS.VK_NEXT: {
+			all = true;
+			lastVirtual = true;
+			if (OS.GetKeyState (OS.VK_CONTROL) >= 0) return false;
+			int code = OS.SendMessage (hwnd, OS.WM_GETDLGCODE, 0, 0);
+			if ((code & OS.DLGC_WANTALLKEYS) != 0) doit = false;
+			detail = key == OS.VK_PRIOR ? SWT.TRAVERSE_PAGE_PREVIOUS : SWT.TRAVERSE_PAGE_NEXT;
 			break;
 		}
 		default:
 			return false;
 	}
-	if (hooks (SWT.Traverse)) {
-		Event event = new Event ();
-		event.doit = doit;
-		event.detail = detail;
-		Display display = getDisplay ();
-		display.lastKey = lastKey;
-		display.lastAscii = lastAscii;
-		display.lastVirtual = lastVirtual;
-		if (!setKeyState (event, SWT.Traverse)) {
-			return false;
-		}
-		/*
-		* It is possible (but unlikely), that application
-		* code could have disposed the widget in the traverse
-		* event.  If this happens, return true to stop further
-		* event processing.
-		*/
-		sendEvent (SWT.Traverse, event);
-		if (isDisposed ()) return true;
-		doit = event.doit;
-		detail = event.detail;
+	Event event = new Event ();
+	event.doit = doit;
+	event.detail = detail;
+	Display display = getDisplay ();
+	display.lastKey = lastKey;
+	display.lastAscii = lastAscii;
+	display.lastVirtual = lastVirtual;
+	if (!setKeyState (event, SWT.Traverse)) {
+		return false;
 	}
-	if (doit) return traverse (detail);
+	Shell shell = getShell ();
+	Control control = this;
+	do {
+		if (control.traverse (event)) return true;
+		if (control == shell) return false;
+		control = control.parent;
+	} while (all && control != null);
+	return false;
+}
+
+boolean traverse (Event event) {
+	/*
+	* It is possible (but unlikely), that application
+	* code could have disposed the widget in the traverse
+	* event.  If this happens, return true to stop further
+	* event processing.
+	*/	
+	sendEvent (SWT.Traverse, event);
+	if (isDisposed ()) return false;
+	if (!event.doit) return false;
+	switch (event.detail) {
+		case SWT.TRAVERSE_NONE:				return true;
+		case SWT.TRAVERSE_ESCAPE:			return traverseEscape ();
+		case SWT.TRAVERSE_RETURN:			return traverseReturn ();
+		case SWT.TRAVERSE_TAB_NEXT:			return traverseGroup (true);
+		case SWT.TRAVERSE_TAB_PREVIOUS:		return traverseGroup (false);
+		case SWT.TRAVERSE_ARROW_NEXT:		return traverseItem (true);
+		case SWT.TRAVERSE_ARROW_PREVIOUS:	return traverseItem (false);
+		case SWT.TRAVERSE_MNEMONIC:			return traverseMnemonic (event.character);	
+		case SWT.TRAVERSE_PAGE_NEXT:		return traversePage (true);
+		case SWT.TRAVERSE_PAGE_PREVIOUS:	return traversePage (false);
+	}
 	return false;
 }
 
@@ -2309,15 +2418,10 @@ boolean translateTraversal (MSG msg) {
 public boolean traverse (int traversal) {
 	checkWidget ();
 	if (!isFocusControl () && !setFocus ()) return false;
-	switch (traversal) {
-		case SWT.TRAVERSE_ESCAPE:		return traverseEscape ();
-		case SWT.TRAVERSE_RETURN:		return traverseReturn ();
-		case SWT.TRAVERSE_TAB_NEXT:		return traverseGroup (true);
-		case SWT.TRAVERSE_TAB_PREVIOUS:	return traverseGroup (false);
-		case SWT.TRAVERSE_ARROW_NEXT:		return traverseItem (true);
-		case SWT.TRAVERSE_ARROW_PREVIOUS:	return traverseItem (false);	
-	}
-	return false;
+	Event event = new Event ();
+	event.doit = true;
+	event.detail = traversal;
+	return traverse (event);
 }
 
 boolean traverseEscape () {
@@ -2329,8 +2433,9 @@ boolean traverseEscape () {
 }
 
 boolean traverseGroup (boolean next) {
-	Control group = currentTabGroup ();
-	Control [] list = menuShell ().getTabList ();
+	Control root = computeTabRoot ();
+	Control group = computeTabGroup ();
+	Control [] list = root.computeTabList ();
 	int length = list.length;
 	int index = 0;
 	while (index < length) {
@@ -2370,7 +2475,7 @@ boolean traverseItem (boolean next) {
 	* not accessed.
 	*/
 	int start = index, offset = (next) ? 1 : -1;
-	while ((index = ((index + offset) + length) % length) != start) {
+	while ((index = (index + offset + length) % length) != start) {
 		Control child = children [index];
 		if (!child.isDisposed () && child.isTabItem ()) {
 			if (child.setTabItemFocus ()) return true;
@@ -2380,8 +2485,11 @@ boolean traverseItem (boolean next) {
 }
 
 boolean traverseMnemonic (char key) {
-	if (!isVisible () || !isEnabled ()) return false;
-	return mnemonicMatch (key) && mnemonicHit ();
+	return mnemonicHit (key);
+}
+
+boolean traversePage (boolean next) {
+	return false;
 }
 
 boolean traverseReturn () {
@@ -2418,6 +2526,11 @@ public void update () {
 		int flags = OS.RDW_UPDATENOW | OS.RDW_ALLCHILDREN;
 		OS.RedrawWindow (handle, null, 0, flags);
 	}
+}
+
+void updateFont (Font oldFont, Font newFont) {
+	Font font = getFont ();
+	if (font.equals (oldFont)) setFont (newFont);
 }
 
 int widgetExtStyle () {
@@ -2479,8 +2592,8 @@ int windowProc (int msg, int wParam, int lParam) {
 		case OS.WM_CHAR:				result = WM_CHAR (wParam, lParam); break;
 		case OS.WM_CLEAR:				result = WM_CLEAR (wParam, lParam); break;
 		case OS.WM_CLOSE:				result = WM_CLOSE (wParam, lParam); break;
-		case OS.WM_COMMAND:				result = WM_COMMAND (wParam, lParam); break;
-		case OS.WM_CONTEXTMENU:			result = WM_CONTEXTMENU (wParam, lParam); break;
+		case OS.WM_COMMAND:			result = WM_COMMAND (wParam, lParam); break;
+		case OS.WM_CONTEXTMENU:		result = WM_CONTEXTMENU (wParam, lParam); break;
 		case OS.WM_CTLCOLORBTN:
 		case OS.WM_CTLCOLORDLG:
 		case OS.WM_CTLCOLOREDIT:
@@ -2488,27 +2601,27 @@ int windowProc (int msg, int wParam, int lParam) {
 		case OS.WM_CTLCOLORMSGBOX:
 		case OS.WM_CTLCOLORSCROLLBAR:
 		case OS.WM_CTLCOLORSTATIC:		result = WM_CTLCOLOR (wParam, lParam); break;
-		case OS.WM_CUT:					result = WM_CUT (wParam, lParam); break;
-		case OS.WM_DESTROY:				result = WM_DESTROY (wParam, lParam); break;
+		case OS.WM_CUT:				result = WM_CUT (wParam, lParam); break;
+		case OS.WM_DESTROY:			result = WM_DESTROY (wParam, lParam); break;
 		case OS.WM_DRAWITEM:			result = WM_DRAWITEM (wParam, lParam); break;
 		case OS.WM_ERASEBKGND:			result = WM_ERASEBKGND (wParam, lParam); break;
 		case OS.WM_GETDLGCODE:			result = WM_GETDLGCODE (wParam, lParam); break;
 		case OS.WM_HELP:				result = WM_HELP (wParam, lParam); break;
-		case OS.WM_HSCROLL:				result = WM_HSCROLL (wParam, lParam); break;
+		case OS.WM_HSCROLL:			result = WM_HSCROLL (wParam, lParam); break;
 		case OS.WM_IME_CHAR:			result = WM_IME_CHAR (wParam, lParam); break;
-		case OS.WM_IME_COMPOSITION:		result = WM_IME_COMPOSITION (wParam, lParam); break;
+		case OS.WM_IME_COMPOSITION:	result = WM_IME_COMPOSITION (wParam, lParam); break;
 		case OS.WM_INITMENUPOPUP:		result = WM_INITMENUPOPUP (wParam, lParam); break;
-		case OS.WM_GETFONT:				result = WM_GETFONT (wParam, lParam); break;
-		case OS.WM_KEYDOWN:				result = WM_KEYDOWN (wParam, lParam); break;
+		case OS.WM_GETFONT:			result = WM_GETFONT (wParam, lParam); break;
+		case OS.WM_KEYDOWN:			result = WM_KEYDOWN (wParam, lParam); break;
 		case OS.WM_KEYUP:				result = WM_KEYUP (wParam, lParam); break;
 		case OS.WM_KILLFOCUS:			result = WM_KILLFOCUS (wParam, lParam); break;
 		case OS.WM_LBUTTONDBLCLK:		result = WM_LBUTTONDBLCLK (wParam, lParam); break;
-		case OS.WM_LBUTTONDOWN:			result = WM_LBUTTONDOWN (wParam, lParam); break;
+		case OS.WM_LBUTTONDOWN:		result = WM_LBUTTONDOWN (wParam, lParam); break;
 		case OS.WM_LBUTTONUP:			result = WM_LBUTTONUP (wParam, lParam); break;
 		case OS.WM_MBUTTONDBLCLK:		result = WM_MBUTTONDBLCLK (wParam, lParam); break;
-		case OS.WM_MBUTTONDOWN:			result = WM_MBUTTONDOWN (wParam, lParam); break;
+		case OS.WM_MBUTTONDOWN:		result = WM_MBUTTONDOWN (wParam, lParam); break;
 		case OS.WM_MBUTTONUP:			result = WM_MBUTTONUP (wParam, lParam); break;
-		case OS.WM_MEASUREITEM:			result = WM_MEASUREITEM (wParam, lParam); break;
+		case OS.WM_MEASUREITEM:		result = WM_MEASUREITEM (wParam, lParam); break;
 		case OS.WM_MENUCHAR:			result = WM_MENUCHAR (wParam, lParam); break;
 		case OS.WM_MENUSELECT:			result = WM_MENUSELECT (wParam, lParam); break;
 		case OS.WM_MOUSEACTIVATE:		result = WM_MOUSEACTIVATE (wParam, lParam); break;
@@ -2524,24 +2637,25 @@ int windowProc (int msg, int wParam, int lParam) {
 		case OS.WM_PAINT:				result = WM_PAINT (wParam, lParam); break;
 		case OS.WM_PALETTECHANGED:		result = WM_PALETTECHANGED (wParam, lParam); break;
 		case OS.WM_PASTE:				result = WM_PASTE (wParam, lParam); break;
-		case OS.WM_QUERYNEWPALETTE:		result = WM_QUERYNEWPALETTE (wParam, lParam); break;
+		case OS.WM_QUERYNEWPALETTE:	result = WM_QUERYNEWPALETTE (wParam, lParam); break;
 		case OS.WM_QUERYOPEN:			result = WM_QUERYOPEN (wParam, lParam); break;
 		case OS.WM_RBUTTONDBLCLK:		result = WM_RBUTTONDBLCLK (wParam, lParam); break;
-		case OS.WM_RBUTTONDOWN:			result = WM_RBUTTONDOWN (wParam, lParam); break;
+		case OS.WM_RBUTTONDOWN:		result = WM_RBUTTONDOWN (wParam, lParam); break;
 		case OS.WM_RBUTTONUP:			result = WM_RBUTTONUP (wParam, lParam); break;
 		case OS.WM_SETCURSOR:			result = WM_SETCURSOR (wParam, lParam); break;
 		case OS.WM_SETFOCUS:			result = WM_SETFOCUS (wParam, lParam); break;
-		case OS.WM_SETFONT:				result = WM_SETFONT (wParam, lParam); break;
+		case OS.WM_SETFONT:			result = WM_SETFONT (wParam, lParam); break;
+		case OS.WM_SETTINGCHANGE:		result = WM_SETTINGCHANGE (wParam, lParam); break;
 		case OS.WM_SHOWWINDOW:			result = WM_SHOWWINDOW (wParam, lParam); break;
 		case OS.WM_SIZE:				result = WM_SIZE (wParam, lParam); break;
-		case OS.WM_SYSCHAR:				result = WM_SYSCHAR (wParam, lParam); break;
+		case OS.WM_SYSCHAR:			result = WM_SYSCHAR (wParam, lParam); break;
 		case OS.WM_SYSCOLORCHANGE:		result = WM_SYSCOLORCHANGE (wParam, lParam); break;
 		case OS.WM_SYSCOMMAND:			result = WM_SYSCOMMAND (wParam, lParam); break;
 		case OS.WM_SYSKEYDOWN:			result = WM_SYSKEYDOWN (wParam, lParam); break;
 		case OS.WM_SYSKEYUP:			result = WM_SYSKEYUP (wParam, lParam); break;
 		case OS.WM_TIMER:				result = WM_TIMER (wParam, lParam); break;
 		case OS.WM_UNDO:				result = WM_UNDO (wParam, lParam); break;
-		case OS.WM_VSCROLL:				result = WM_VSCROLL (wParam, lParam); break;
+		case OS.WM_VSCROLL:			result = WM_VSCROLL (wParam, lParam); break;
 		case OS.WM_WINDOWPOSCHANGING:	result = WM_WINDOWPOSCHANGING (wParam, lParam); break;
 	}
 	if (result != null) return result.value;
@@ -2956,12 +3070,26 @@ LRESULT WM_KEYDOWN (int wParam, int lParam) {
 }
 
 LRESULT WM_KEYUP (int wParam, int lParam) {
+	Display display = getDisplay ();
+	
+	/* Check for hardware keys */
+	if (OS.IsWinCE) {
+		if (OS.VK_APP1 <= wParam && wParam <= OS.VK_APP6) {
+			display.lastVirtual = false;
+			display.lastKey = display.lastAscii = 0;
+			Event event = new Event ();
+			event.detail = wParam - OS.VK_APP1 + 1;
+			/* Check the bit 30 to get the key state */
+			int type = (lParam & 0x40000000) != 0 ? SWT.HardKeyUp : SWT.HardKeyDown;
+			if (setInputState (event, type)) sendEvent (type, event);
+			return null;
+		}
+	}
 	
 	/*
 	* If the key up is not hooked, reset last key
 	* and last ascii in case the key down is hooked.
 	*/
-	Display display = getDisplay ();
 	if (!hooks (SWT.KeyUp)) {
 		display.lastVirtual = false;
 		display.lastKey = display.lastAscii = 0;
@@ -3009,6 +3137,7 @@ LRESULT WM_KEYUP (int wParam, int lParam) {
 }
 
 LRESULT WM_KILLFOCUS (int wParam, int lParam) {
+	int code = callWindowProc (OS.WM_KILLFOCUS, wParam, lParam);
 	Display display = getDisplay ();
 	Shell shell = getShell ();
 	
@@ -3042,7 +3171,8 @@ LRESULT WM_KILLFOCUS (int wParam, int lParam) {
 	* zero as the result of the window proc.
 	*/
 	if (isDisposed ()) return LRESULT.ZERO;
-	return null;
+	if (code == 0) return LRESULT.ZERO;
+	return new LRESULT (code);
 }
 
 LRESULT WM_LBUTTONDBLCLK (int wParam, int lParam) {
@@ -3326,15 +3456,7 @@ LRESULT WM_MOUSEMOVE (int wParam, int lParam) {
 }
 
 LRESULT WM_MOUSEWHEEL (int wParam, int lParam) {
-	/*
-	* Feature in Windows.  If the WM_MOUSEWHEEL is handled by
-	* the control, it may not send WM_VSCROLL and WM_HSCROLL
-	* messages.  The fix is to intercept the WM_MOUSEWHEEL message
-	* and call the DefWindowProc which will convert the message to 
-	* send the appropriate WM_HSCROLL or WM_VSCROLL message.
-	*/
-	int code = OS.DefWindowProc (handle, OS.WM_MOUSEWHEEL, wParam, lParam);
-	return new LRESULT (code);
+	return null;
 }
 
 LRESULT WM_MOVE (int wParam, int lParam) {
@@ -3483,6 +3605,7 @@ LRESULT WM_SETCURSOR (int wParam, int lParam) {
 }
 
 LRESULT WM_SETFOCUS (int wParam, int lParam) {
+	int code = callWindowProc (OS.WM_SETFOCUS, wParam, lParam);
 	Shell shell = getShell ();
 	
 	/*
@@ -3512,6 +3635,11 @@ LRESULT WM_SETFOCUS (int wParam, int lParam) {
 	* zero as the result of the window proc.
 	*/
 	if (isDisposed ()) return LRESULT.ZERO;
+	if (code == 0) return LRESULT.ZERO;
+	return new LRESULT (code);
+}
+
+LRESULT WM_SETTINGCHANGE (int wParam, int lParam) {
 	return null;
 }
 
