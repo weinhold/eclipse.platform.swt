@@ -11,6 +11,10 @@
  * this distribution shall govern.
  */
 
+/*
+ * This file is logically part of swt.c, and will be eventually merged back.
+ */
+
 /**
  * SWT natives for the GTK Drawing Toolkit.
  */ 
