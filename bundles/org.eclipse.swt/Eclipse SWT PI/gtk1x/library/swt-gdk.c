@@ -19,6 +19,12 @@
  * SWT natives for the GTK Drawing Toolkit.
  */ 
 
+#include "swt.h"
+#include "structs.h"
+
+#include <stdio.h>
+#include <assert.h>
+
 /*  ***** General *****  */
 
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1screen_1width
@@ -129,11 +135,11 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1region_1union_1
 		cacheGdkRectangleFids(env, rect, &PGLOB(GdkRectangleFc));
 		getGdkRectangleFields(env, rect, rect1, &PGLOB(GdkRectangleFc));
 	}
-	rc = (jint)gdk_region_union_with_rect((GdkRegion*)region, (GdkRectangle*)rect1);
+	gdk_region_union_with_rect((GdkRegion*)region, (GdkRectangle*)rect1);
 	if (rect) {
 		setGdkRectangleFields(env, rect, rect1, &PGLOB(GdkRectangleFc));
 	}
-	return rc;
+	return 0;
 }
 
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gdk_1regions_1union

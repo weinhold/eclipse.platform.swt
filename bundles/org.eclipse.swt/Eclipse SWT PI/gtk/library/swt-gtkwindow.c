@@ -25,18 +25,15 @@
 
 
 /*
- * gtk_window_new
+ * gtk_window_*
  */
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1new
   (JNIEnv *env, jclass that, jint type)
 {
 	return (jint)gtk_window_new((GtkWindowType)type);
 }
 
-
-/*
- * gtk_window_set_title
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1title
   (JNIEnv *env, jclass that, jint window, jbyteArray title)
 {
@@ -50,46 +47,29 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1ti
 	}
 }
 
-
-/*
- * gtk_window_set_policy
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1policy
   (JNIEnv *env, jclass that, jint window, jint allow_shrink, jint allow_grow, jint auto_shrink)
 {
 	gtk_window_set_policy((GtkWindow*)window, (gint)allow_shrink, (gint)allow_grow, (gint)auto_shrink);
 }
 
-
-/*
- * gtk_window_set_resizable
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1resizable
   (JNIEnv *env, jclass that, jint window, jboolean resizable)
 {
 	gtk_window_set_resizable((GtkWindow*)window, (gboolean)resizable);
 }
 
-
-/*
- * gtk_window_set_transient_for
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1transient_1for
   (JNIEnv *env, jclass that, jint window, jint parent)
 {
 	gtk_window_set_transient_for((GtkWindow*)window, (GtkWindow*)parent);
 }
 
-
-/*
- * gtk_window_set_modal
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1modal
   (JNIEnv *env, jclass that, jint window, jboolean modal)
 {
 	gtk_window_set_modal((GtkWindow*)window, modal);
 }
-
 
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1add_1accel_1group
   (JNIEnv *env, jclass that, jint window, jint accel_group)
@@ -110,21 +90,10 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1add_1ac
  *  Color selection
  */
 
-
-
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_color_selection_set_color
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selection_1set_1color
   (JNIEnv *env, jclass that, jint colorsel, jdoubleArray color)
 {
 	jdouble *color1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_color_selection_set_color");
-#endif
-
 	if (color) {
 		color1 = (*env)->GetDoubleArrayElements(env, color, NULL);
 	}
@@ -134,19 +103,10 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selectio
 	}
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_color_selection_get_color
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selection_1get_1color
   (JNIEnv *env, jclass that, jint colorsel, jdoubleArray color)
 {
 	jdouble *color1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_color_selection_get_color");
-#endif
-
 	if (color) {
 		color1 = (*env)->GetDoubleArrayElements(env, color, NULL);
 	}
@@ -156,20 +116,11 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selectio
 	}
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_color_selection_dialog_new
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selection_1dialog_1new
   (JNIEnv *env, jclass that, jbyteArray title)
 {
 	jint rc;
 	jbyte *title1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_color_selection_dialog_new");
-#endif
-
 	if (title) {
 		title1 = (*env)->GetByteArrayElements(env, title, NULL);
 	}
@@ -181,44 +132,26 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1color_1selectio
 }
 
 
-
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_dialog_new
- * Signature:	
+ * gtk_dialog_*
  */
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1dialog_1new
   (JNIEnv *env, jclass that)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_dialog_new");
-#endif
-
 	return (jint)gtk_dialog_new();
 }
 
 
-
-
-
-
-
-
-
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_file_selection_new
- * Signature:	
+ * gtk_file_selection_*
  */
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection_1new
   (JNIEnv *env, jclass that, jbyteArray title)
 {
 	jint rc;
 	jbyte *title1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_file_selection_new");
-#endif
-
 	if (title) {
 		title1 = (*env)->GetByteArrayElements(env, title, NULL);
 	}
@@ -229,19 +162,10 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection
 	return rc;
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_file_selection_set_filename
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection_1set_1filename
   (JNIEnv *env, jclass that, jint filesel, jbyteArray filename)
 {
 	jbyte *filename1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_file_selection_set_filename");
-#endif
-
 	if (filename) {
 		filename1 = (*env)->GetByteArrayElements(env, filename, NULL);
 	}
@@ -251,34 +175,16 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection
 	}
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_file_selection_get_filename
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection_1get_1filename
   (JNIEnv *env, jclass that, jint filesel)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_file_selection_get_filename");
-#endif
-
 	return (jint)gtk_file_selection_get_filename((GtkFileSelection*)filesel);
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_file_selection_complete
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection_1complete
   (JNIEnv *env, jclass that, jint filesel, jbyteArray pattern)
 {
 	jbyte *pattern1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_file_selection_complete");
-#endif
-
 	if (pattern) {
 		pattern1 = (*env)->GetByteArrayElements(env, pattern, NULL);
 	}
@@ -289,41 +195,15 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1file_1selection
 }
 
 
-
-
-
-
-
-
-JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selection_1set_1font_1name
-  (JNIEnv *env, jclass that, jint fontsel, jbyteArray fontname)
-{
-	jboolean rc;
-	jbyte *fontname1 = NULL;
-	if (fontname) {
-		fontname1 = (*env)->GetByteArrayElements(env, fontname, NULL);
-	}
-	rc = (jboolean)gtk_font_selection_set_font_name((GtkFontSelection*)fontsel, (gchar*)fontname1);
-	if (fontname) {
-		(*env)->ReleaseByteArrayElements(env, fontname, fontname1, 0);
-	}
-	return rc;
-}
-
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_font_selection_dialog_new
- * Signature:	
+ * gtk_font_selection_*
  */
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selection_1dialog_1new
   (JNIEnv *env, jclass that, jbyteArray title)
 {
 	jint rc;
 	jbyte *title1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_font_selection_dialog_new");
-#endif
-
 	if (title) {
 		title1 = (*env)->GetByteArrayElements(env, title, NULL);
 	}
@@ -334,35 +214,17 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selection
 	return rc;
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_font_selection_dialog_get_font_name
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selection_1dialog_1get_1font_1name
   (JNIEnv *env, jclass that, jint fsd)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_font_selection_dialog_get_font_name");
-#endif
-
 	return (jint)gtk_font_selection_dialog_get_font_name((GtkFontSelectionDialog*)fsd);
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_font_selection_dialog_set_font_name
- * Signature:	
- */
 JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selection_1dialog_1set_1font_1name
   (JNIEnv *env, jclass that, jint fsd, jbyteArray fontname)
 {
 	jboolean rc;
 	jbyte *fontname1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_font_selection_dialog_set_font_name");
-#endif
-
 	if (fontname) {
 		fontname1 = (*env)->GetByteArrayElements(env, fontname, NULL);
 	}
@@ -373,7 +235,20 @@ JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1font_1selec
 	return rc;
 }
 
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1FONT_1SELECTION_1DIALOG_1OK_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bugs 70742, 70745
+     */
+    return (jint) (((GtkFontSelectionDialog*)fsd)->ok_button);
+}
 
-
-
-
+JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1FONT_1SELECTION_1DIALOG_1CANCEL_1BUTTON
+  (JNIEnv *env, jclass that, jint fsd)
+{
+    /*
+     * GTK bugs 70742, 70745
+     */
+    return (jint) (((GtkFontSelectionDialog*)fsd)->cancel_button);
+}

@@ -1,3 +1,25 @@
+/*
+ * Copyright (c) IBM Corp. 2000, 2002.  All rights reserved.
+ *
+ * The contents of this file are made available under the terms
+ * of the GNU Lesser General Public License (LGPL) Version 2.1 that
+ * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
+ * available at http://www.gnu.org/licenses/lgpl.html.  If the version
+ * of the LGPL at http://www.gnu.org is different to the version of
+ * the LGPL accompanying this distribution and there is any conflict
+ * between the two license versions, the terms of the LGPL accompanying
+ * this distribution shall govern.
+ */
+
+/**
+ * SWT OS natives implementation: OS.memmove(...)
+ */ 
+
+#include "swt.h"
+#include "structs.h"
+
+#include <stdio.h>
+#include <assert.h>
 
 
 
@@ -920,10 +942,6 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 }
 
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkData_2I
   (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
 {
@@ -934,27 +952,15 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclip
 		cacheGtkDataFids(env, src, &PGLOB(GtkDataFc));
 		getGtkDataFields(env, src, src1, &PGLOB(GtkDataFc));
 	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkData_2I\n");
-#endif
-
 	memmove((void*)dest, (void*)src1, count);
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
+
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkData_2II
   (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
 {
 	DECL_GLOB(pGlob)
 	GtkData dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkData_2II\n");
-#endif
-
 	memmove((void*)&dest_struct, (void*)src, count);
 	if (dest) {
 		dest1 = &dest_struct;
@@ -962,12 +968,9 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 		setGtkDataFields(env, dest, dest1, &PGLOB(GtkDataFc));
 	}
 }
+*/
 
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclipse_swt_internal_gtk_GtkEditable_2I
   (JNIEnv *env, jclass that, jint dest, jobject src, jint count)
 {
@@ -978,27 +981,14 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__ILorg_eclip
 		cacheGtkEditableFids(env, src, &PGLOB(GtkEditableFc));
 		getGtkEditableFields(env, src, src1, &PGLOB(GtkEditableFc));
 	}
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__ILorg_eclipse_swt_internal_gtk_GtkEditable_2I\n");
-#endif
-
 	memmove((void*)dest, (void*)src1, count);
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	memmove
- * Signature:	
- */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclipse_swt_internal_gtk_GtkEditable_2II
   (JNIEnv *env, jclass that, jobject dest, jint src, jint count)
 {
 	DECL_GLOB(pGlob)
 	GtkEditable dest_struct={0}, *dest1 = NULL;
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "memmove__Lorg_eclipse_swt_internal_gtk_GtkEditable_2II\n");
-#endif
-
 	memmove((void*)&dest_struct, (void*)src, count);
 	if (dest) {
 		dest1 = &dest_struct;
@@ -1006,6 +996,7 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_memmove__Lorg_eclips
 		setGtkEditableFields(env, dest, dest1, &PGLOB(GtkEditableFc));
 	}
 }
+*/
 
 /*
  * Class:	org_eclipse_swt_internal_gtk_OS

@@ -18,6 +18,8 @@
 #ifndef INC_structs_H
 #define INC_structs_H
 
+#define GTK_ENABLE_BROKEN 1
+
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 

@@ -31,7 +31,7 @@ GdkPoint_FID_CACHE GdkPointFc;
 GdkRectangle_FID_CACHE GdkRectangleFc;
 GdkVisual_FID_CACHE GdkVisualFc;
 GtkObject_FID_CACHE GtkObjectFc;
-GtkData_FID_CACHE GtkDataFc;
+/*GtkData_FID_CACHE GtkDataFc;*/
 GtkAdjustment_FID_CACHE GtkAdjustmentFc;
 GtkAllocation_FID_CACHE GtkAllocationFc;
 GtkWidget_FID_CACHE GtkWidgetFc;
@@ -445,6 +445,7 @@ void cacheGtkContainerFids(JNIEnv *env, jobject lpGtkContainer, PGtkContainer_FI
 	lpCache->cached = 1;
 };
 
+/*
 void cacheGtkDataFids(JNIEnv *env, jobject lpGtkData, PGtkData_FID_CACHE lpCache)
 {
 	DECL_GLOB(pGlob)
@@ -455,7 +456,7 @@ void cacheGtkDataFids(JNIEnv *env, jobject lpGtkData, PGtkData_FID_CACHE lpCache
 
 	lpCache->cached = 1;
 };
-
+*/
 void cacheGtkEditableFids(JNIEnv *env, jobject lpGtkEditable, PGtkEditable_FID_CACHE lpCache)
 {
 	DECL_GLOB(pGlob)
@@ -917,7 +918,7 @@ void cacheGtkAdjustmentFids(JNIEnv *env, jobject lpGtkAdjustment, PGtkAdjustment
 	if (lpCache->cached) return;
 
 	lpCache->GtkAdjustmentClass = (*env)->GetObjectClass(env, lpGtkAdjustment);
-	cacheGtkDataFids(env, lpGtkAdjustment, &PGLOB(GtkDataFc));
+/*	cacheGtkDataFids(env, lpGtkAdjustment, &PGLOB(GtkDataFc));*/
 	lpCache->lower = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "lower", "F");
 	lpCache->upper = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "upper", "F");
 	lpCache->value = (*env)->GetFieldID(env, lpCache->GtkAdjustmentClass, "value", "F");
@@ -2527,7 +2528,7 @@ void setGtkCheckMenuItemFields(JNIEnv *env, jobject lpObject, GtkCheckMenuItem *
 	(*env)->SetIntField(env, lpObject, lpGtkCheckMenuItemFc->active, (jint)lpGtkCheckMenuItem->active);
 	(*env)->SetIntField(env, lpObject, lpGtkCheckMenuItemFc->always_show_toggle, (jint)lpGtkCheckMenuItem->always_show_toggle);
 }
-
+/*
 void getGtkDataFields(JNIEnv *env, jobject lpObject, GtkData *lpGtkData, GtkData_FID_CACHE *lpGtkDataFc)
 {
 	DECL_GLOB(pGlob)
@@ -2539,11 +2540,11 @@ void setGtkDataFields(JNIEnv *env, jobject lpObject, GtkData *lpGtkData, GtkData
 	DECL_GLOB(pGlob)
 	setGtkObjectFields(env, lpObject, &lpGtkData->object, &PGLOB(GtkObjectFc));
 }
-
+*/
 void getGtkAdjustmentFields(JNIEnv *env, jobject lpObject, GtkAdjustment *lpGtkAdjustment, GtkAdjustment_FID_CACHE *lpGtkAdjustmentFc)
 {
 	DECL_GLOB(pGlob)
-	getGtkDataFields(env, lpObject, &lpGtkAdjustment->data, &PGLOB(GtkDataFc));
+/*	getGtkDataFields(env, lpObject, &lpGtkAdjustment->data, &PGLOB(GtkDataFc));*/
 	lpGtkAdjustment->lower = (*env)->GetFloatField(env, lpObject, lpGtkAdjustmentFc->lower);
 	lpGtkAdjustment->upper = (*env)->GetFloatField(env, lpObject, lpGtkAdjustmentFc->upper);
 	lpGtkAdjustment->value = (*env)->GetFloatField(env, lpObject, lpGtkAdjustmentFc->value);
@@ -2555,7 +2556,7 @@ void getGtkAdjustmentFields(JNIEnv *env, jobject lpObject, GtkAdjustment *lpGtkA
 void setGtkAdjustmentFields(JNIEnv *env, jobject lpObject, GtkAdjustment *lpGtkAdjustment, GtkAdjustment_FID_CACHE *lpGtkAdjustmentFc)
 {
 	DECL_GLOB(pGlob)
-	setGtkDataFields(env, lpObject, &lpGtkAdjustment->data, &PGLOB(GtkDataFc));
+/*	setGtkDataFields(env, lpObject, &lpGtkAdjustment->data, &PGLOB(GtkDataFc));*/
 	(*env)->SetFloatField(env, lpObject, lpGtkAdjustmentFc->lower, (jfloat)lpGtkAdjustment->lower);
 	(*env)->SetFloatField(env, lpObject, lpGtkAdjustmentFc->upper, (jfloat)lpGtkAdjustment->upper);
 	(*env)->SetFloatField(env, lpObject, lpGtkAdjustmentFc->value, (jfloat)lpGtkAdjustment->value);

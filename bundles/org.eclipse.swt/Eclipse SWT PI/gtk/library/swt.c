@@ -1332,7 +1332,8 @@ JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1toolbar_1new
 	fprintf(stderr, "gtk_toolbar_new");
 #endif
 
-	return (jint)gtk_toolbar_new((GtkOrientation)orientation, (GtkToolbarStyle)style);
+/*	return (jint)gtk_toolbar_new((GtkOrientation)orientation, (GtkToolbarStyle)style);*/
+	return (jint)gtk_toolbar_new();
 }
 
 /*
