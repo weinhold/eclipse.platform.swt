@@ -570,7 +570,9 @@ abstract class Tab {
 			}
 		});
 		getText = new Text(dialog, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
-		getText.setLayoutData(new GridData(200, 200));
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data.widthHint = data.heightHint = 200;
+		getText.setLayoutData(data);
 		resetLabels();
 		dialog.setDefaultButton(setButton);
 		dialog.pack();
@@ -579,12 +581,48 @@ abstract class Tab {
 	}
 
 	void resetLabels() {
-		returnTypeLabel.setText(getReturnType().toString());
-		setButton.setText("set" + nameCombo.getText());
-		getButton.setText("get" + nameCombo.getText());
+		String methodRoot = nameCombo.getText();
+		returnTypeLabel.setText(instructions(methodRoot));
+		setButton.setText(setMethodName(methodRoot));
+		getButton.setText("get" + methodRoot);
 		setText.setText("");
 		getText.setText("");
 		getValue();
+	}
+
+	String setMethodName(String methodRoot) {
+		return "set" + methodRoot;
+	}
+
+	String instructions(String methodRoot) {
+		String instructions = null;
+		String typeName = null;
+		Class returnType = getReturnType(methodRoot);
+		if (returnType.isArray()) {
+			typeName = returnType.getComponentType().getName();
+			instructions = typeName + "[]";
+		} else {
+			typeName = returnType.getName();
+			instructions = typeName;
+		}
+		instructions += "   " + ControlExample.getResourceString("Eg");
+		if (typeName.equals("int")) {
+			instructions += "4";
+			if (returnType.isArray()) instructions += ",5,6";
+		} else if (typeName.equals("char")) {
+			instructions += "c";
+			if (returnType.isArray()) instructions += ",d,e";
+		} else if (typeName.equals("boolean")) {
+			instructions += "true";
+			if (returnType.isArray()) instructions += ",true";
+		} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
+			instructions += "0,0";
+		} else if (returnType.isArray()) {
+			instructions += "a,b,c";
+		} else {
+			instructions += ControlExample.getResourceString("Hello");
+		}
+		return instructions;
 	}
 
 	void getValue() {
@@ -612,9 +650,9 @@ abstract class Tab {
 		}
 	}
 
-	Class getReturnType() {
+	Class getReturnType(String methodRoot) {
 		Class returnType = null;
-		String methodName = "get" + nameCombo.getText();
+		String methodName = "get" + methodRoot;
 		Control[] controls = getExampleWidgets();
 		try {
 			java.lang.reflect.Method method = controls[0].getClass().getMethod(methodName, null);
@@ -626,34 +664,43 @@ abstract class Tab {
 	
 	void setValue() {
 		/* The parameter type must be the same as the get method's return type */
-		Class returnType = getReturnType();
-		
-		String methodName = "set" + nameCombo.getText();
+		String methodRoot = nameCombo.getText();
+		Class returnType = getReturnType(methodRoot);
+		String methodName = setMethodName(methodRoot);
 		String value = setText.getText();
 		Control[] controls = getExampleWidgets();
 		for (int i = 0; i < controls.length; i++) {
 			try {
 				java.lang.reflect.Method method = controls[i].getClass().getMethod(methodName, new Class[] {returnType});
 				String typeName = returnType.getName();
-				if (returnType.isArray()) System.out.println(returnType.getComponentType());
 				Object[] parameters = null;
 				if (typeName.equals("int")) {
 					parameters = new Object[] {new Integer(value)};
+				} else if (typeName.equals("long")) {
+					parameters = new Object[] {new Long(value)};
+				} else if (typeName.equals("char")) {
+					parameters = new Object[] {value.length() == 1 ? new Character(value.charAt(0)) : new Character('\0')};
 				} else if (typeName.equals("boolean")) {
 					parameters = new Object[] {new Boolean(value)};
+				} else if (typeName.equals("java.lang.String")) {
+					parameters = new Object[] {value};
 				} else if (typeName.equals("org.eclipse.swt.graphics.Point")) {
 					String xy[] = value.split(",");
 					parameters = new Object[] {new Point(new Integer(xy[0]).intValue(),new Integer(xy[1]).intValue())};
 				} else if (typeName.equals("[Ljava.lang.String;")) {
 					parameters = new Object[] {value.split(",")};
-				} else { // String
-					parameters = new Object[] {value};
+				} else {
+					parameters = parametersForType(typeName, value, controls[i]);
 				}
 				method.invoke(controls[i], parameters);
 			} catch (Exception e) {
 				getText.setText(e.toString());
 			}
 		}
+	}
+
+	Object[] parametersForType(String typeName, String value, Control control) {
+		return new Object[] {value};
 	}
 
 	void createOrientationGroup () {

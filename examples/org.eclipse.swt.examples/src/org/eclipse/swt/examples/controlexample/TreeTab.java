@@ -321,6 +321,33 @@ class TreeTab extends ScrollableTab {
 		return new String[] {"Selection", "TopItem"};
 	}
 
+	Object[] parametersForType(String typeName, String value, Control control) {
+		if (typeName.equals("org.eclipse.swt.widgets.TreeItem")) {
+			TreeItem item = findItem(value, ((Tree) control).getItems());
+			if (item != null) return new Object[] {item};
+		}
+		if (typeName.equals("[Lorg.eclipse.swt.widgets.TreeItem;")) {
+			String[] values = value.split(",");
+			Object[] parameters = new Object[values.length];
+			for (int i = 0; i < values.length; i++) {
+				TreeItem item = findItem(values[i], ((Tree) control).getItems());
+				if (item == null) break;
+				parameters[i] = item;				
+			}
+		}
+		return super.parametersForType(typeName, value, control);
+	}
+
+	TreeItem findItem(String value, TreeItem[] items) {
+		for (int i = 0; i < items.length; i++) {
+			TreeItem item = items[i];
+			if (item.getText().equals(value)) return item;
+			item = findItem(value, item.getItems());
+			if (item != null) return item;
+		}
+		return null;
+	}
+
 	/**
 	 * Gets the text for the tab folder item.
 	 */
