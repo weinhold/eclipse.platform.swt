@@ -409,6 +409,7 @@ int callWindowProc (int msg, int wParam, int lParam) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
+ * @see SWT#Close
  * @see #dispose
  */
 public void close () {
@@ -640,6 +641,18 @@ public Shell getShell () {
 	return this;
 }
 
+public Point getSize () {
+	checkWidget ();
+	if (!OS.IsWinCE) {
+		if (OS.IsIconic (handle)) return super.getSize ();
+	}
+	RECT rect = new RECT ();
+	OS.GetWindowRect (handle, rect);
+	int width = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+	return new Point (width, height);
+}
+
 /**
  * Returns an array containing all shells which are 
  * descendents of the receiver.
@@ -704,8 +717,8 @@ int hwndMDIClient () {
  * the display on which it was created (so that all other
  * shells on that display, which are not the receiver's
  * children will be drawn behind it), marks it visible,
- * and sets focus to its default button (if it has one)
- * and asks the window manager to make the shell active.
+ * sets the focus and asks the window manager to make the
+ * shell active.
  *
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
@@ -924,12 +937,15 @@ void setBounds (int x, int y, int width, int height, int flags) {
 
 public void setEnabled (boolean enabled) {
 	checkWidget ();
-	state &= ~DISABLED;
-	if (!enabled) state |= DISABLED;
-	if (!Display.TrimEnabled) {
-		super.setEnabled (enabled);
+	if (enabled) {
+		state &= ~DISABLED;
 	} else {
+		state |= DISABLED;
+	}
+	if (Display.TrimEnabled) {
 		if (isActive ()) setItemEnabled (OS.SC_CLOSE, enabled);
+	} else {
+		OS.EnableWindow (handle, enabled);
 	}
 }
 
@@ -1108,21 +1124,21 @@ public void setTransparent(int percent) {
 
 public void setVisible (boolean visible) {
 	checkWidget ();
+	if (drawCount != 0) {
+		if (((state & HIDDEN) == 0) == visible) return;
+	} else {
+		if (visible == OS.IsWindowVisible (handle)) return;
+	}
+	
 	/*
-	* Bug in Windows.  Calling ShowOwnedPopups() to hide the
-	* child windows of a hidden window causes the application
-	* to be deactivated.  The fix is to call ShowOwnedPopups()
-	* to hide children before hiding the parent.
+	* Feature in Windows.  When ShowWindow() is called used to hide
+	* a window, Windows attempts to give focus to the parent. If the
+	* parent is disabled by EnableWindow(), focus is assigned to
+	* another windows on the desktop.  This means that if you hide
+	* a modal window before the parent is enabled, the parent will
+	* not come to the front.  The fix is to change the modal state
+	* before hiding or showing a window so that this does not occur.
 	*/
-	if (showWithParent && !visible) {
-		if (!OS.IsWinCE) OS.ShowOwnedPopups (handle, false);
-	}
-	super.setVisible (visible);
-	if (showWithParent == visible) return;
-	showWithParent = visible;
-	if (visible) {
-		if (!OS.IsWinCE) OS.ShowOwnedPopups (handle, true);
-	}
 	int mask = SWT.PRIMARY_MODAL | SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL;
 	if ((style & mask) != 0) {
 		if (visible) {
@@ -1143,6 +1159,23 @@ public void setVisible (boolean visible) {
 	} else {
 		updateModal ();
 	}
+	
+	/*
+	* Bug in Windows.  Calling ShowOwnedPopups() to hide the
+	* child windows of a hidden window causes the application
+	* to be deactivated.  The fix is to call ShowOwnedPopups()
+	* to hide children before hiding the parent.
+	*/
+	if (showWithParent && !visible) {
+		if (!OS.IsWinCE) OS.ShowOwnedPopups (handle, false);
+	}
+	super.setVisible (visible);
+	if (isDisposed ()) return;
+	if (showWithParent == visible) return;
+	showWithParent = visible;
+	if (visible) {
+		if (!OS.IsWinCE) OS.ShowOwnedPopups (handle, true);
+	}
 }
 
 boolean translateAccelerator (MSG msg) {
@@ -1159,10 +1192,10 @@ boolean traverseEscape () {
 }
 
 void updateModal () {
-	if (!Display.TrimEnabled) {
-		super.setEnabled (isActive ());
-	} else {
+	if (Display.TrimEnabled) {
 		setItemEnabled (OS.SC_CLOSE, isActive ());
+	} else {
+		OS.EnableWindow (handle, isActive ());
 	}
 }
 
@@ -1179,12 +1212,12 @@ int widgetExtStyle () {
 	int bits = super.widgetExtStyle () & ~OS.WS_EX_MDICHILD;
 	/*
 	* Bug in Windows 98 and NT.  Creating a window with the
-	* WS_EX_TOPMOST extendes style can result in a dialog shell
+	* WS_EX_TOPMOST extended style can result in a dialog shell
 	* being moved behind its parent.  The exact case where this
 	* happens is a shell with two dialog shell children where
 	* each dialog child has another hidden dialog child with
 	* the WS_EX_TOPMOST extended style.  Clicking on either of
-	* the visible dialog causes them to become active but move
+	* the visible dialogs causes them to become active but move
 	* to the back, behind the parent shell.  The fix is to
 	* disallow the WS_EX_TOPMOST extended style on Windows 98
 	* and NT.

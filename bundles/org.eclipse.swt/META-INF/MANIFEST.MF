@@ -1,5 +1,6 @@
-Bundle-Name: org.eclipse.swt
-Bundle-UniqueId: org.eclipse.swt
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-GlobalName: org.eclipse.swt
 Bundle-Version: 3.0.0
 Manifest-Version: 1.0
 Provide-Package: 
@@ -11,7 +12,7 @@ Provide-Package:
  org.eclipse.swt.events,
  org.eclipse.swt.graphics,
  org.eclipse.swt.internal,
- org.eclipse.swt.internal.awt,
+ org.eclipse.swt.awt,
  org.eclipse.swt.internal.image,
  org.eclipse.swt.layout,
  org.eclipse.swt.printing,

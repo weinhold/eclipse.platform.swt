@@ -332,6 +332,18 @@ public Control [] getChildren () {
 	return _getChildren ();
 }
 
+int getChildrenCount () {
+	/*
+	* NOTE: The current implementation will count
+	* non-registered children.
+	*/
+	int list = OS.gtk_container_get_children (handle);
+	if (list == 0) return 0;
+	int count = OS.g_list_length (list);
+	OS.g_list_free (list);
+	return count;
+}
+
 /**
  * Returns layout which is associated with the receiver, or
  * null if one has not been set.
@@ -383,14 +395,12 @@ public Control [] getTabList () {
 int gtk_button_press_event (int widget, int event) {
 	int result = super.gtk_button_press_event (widget, event);
 	if ((state & CANVAS) != 0) {
-		if ((style & SWT.NO_FOCUS) == 0) {
-			int count = 0;
-			int list = OS.gtk_container_get_children (handle);
-			if (list != 0) {
-				count = OS.g_list_length (list);
-				OS.g_list_free (list);
+		if ((style & SWT.NO_FOCUS) == 0 && hooksKeys ()) {
+			GdkEventButton gdkEvent = new GdkEventButton ();
+			OS.memmove (gdkEvent, event, GdkEventButton.sizeof);
+			if (gdkEvent.button == 1) {
+				if (getChildrenCount () == 0)  setFocus ();
 			}
-			if (count == 0) setFocus ();
 		}
 	}
 	return result;
@@ -427,6 +437,26 @@ int gtk_expose_event (int widget, int eventPtr) {
 	return 0;
 }
 
+int gtk_key_press_event (int widget, int event) {
+	int result = super.gtk_key_press_event (widget, event);
+	if (result != 0) return result;
+	/*
+	* Feature in GTK.  The default behavior when the return key
+	* is pressed is to select the default button.  This is not the
+	* expected behavior for Composite and its subclasses.  The
+	* fix is to avoid calling the default handler.
+	*/
+	if ((state & CANVAS) != 0) {
+		GdkEventKey keyEvent = new GdkEventKey ();
+		OS.memmove (keyEvent, event, GdkEventKey.sizeof);
+		int key = keyEvent.keyval;
+		switch (key) {
+			case OS.GDK_Return:
+			case OS.GDK_KP_Enter: return 1;
+		}
+	}
+	return result;
+}
 int gtk_focus_in_event (int widget, int event) {
 	int result = super.gtk_focus_in_event (widget, event);
 	return (state & CANVAS) != 0 ? 1 : result;
@@ -643,7 +673,6 @@ public boolean setFocus () {
 		Control child = children [i];
 		if (child.getVisible () && child.setFocus ()) return true;
 	}
-	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return super.setFocus ();
 }
 
@@ -665,29 +694,16 @@ public void setLayout (Layout layout) {
 
 boolean setTabGroupFocus () {
 	if (isTabItem ()) return setTabItemFocus ();
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if ((takeFocus || socketHandle != 0) && setTabItemFocus ()) return true;
-	}
+	boolean takeFocus = (style & SWT.NO_FOCUS) == 0;
+	if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
+	if (socketHandle != 0) takeFocus = true;
+	if (takeFocus  && setTabItemFocus ()) return true;
 	Control [] children = _getChildren ();
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
 		if (child.isTabItem () && child.setTabItemFocus ()) return true;
 	}
 	return false;
-}
-
-boolean setTabItemFocus () {
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus || socketHandle != 0) {
-			if (!isShowing ()) return false;
-			if (forceFocus ()) return true;
-		}
-	}
-	return super.setTabItemFocus ();
 }
 
 /**
@@ -712,16 +728,6 @@ public void setTabList (Control [] tabList) {
 			Control control = tabList [i];
 			if (control == null) error (SWT.ERROR_INVALID_ARGUMENT);
 			if (control.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
-			/*
-			* This code is intentionally commented.
-			* Tab lists are currently only supported
-			* for the direct children of a composite.
-			*/
-//			Shell shell = control.getShell ();
-//			while (control != shell && control != this) {
-//				control = control.parent;
-//			}
-//			if (control != this) error (SWT.ERROR_INVALID_PARENT);
 			if (control.parent != this) error (SWT.ERROR_INVALID_PARENT);
 		}
 		Control [] newList = new Control [tabList.length];

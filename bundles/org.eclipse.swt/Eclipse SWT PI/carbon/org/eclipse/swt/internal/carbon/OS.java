@@ -448,6 +448,7 @@ public class OS {
 	public static final int kScrapFlavorTypeText = ('T'<<24) + ('E'<<16) + ('X'<<8) + 'T';
 	public static final boolean kScrollBarsSyncAlwaysActive = true;
 	public static final boolean kScrollBarsSyncWithFocus = false;
+	public static final int kSetFrontProcessFrontWindowOnly = 1 << 0;
 	public static final int kSheetWindowClass = 11;
 	public static final int kStdCFStringAlertVersionOne = 1;
 	public static final int kSymbolLigaturesOffSelector = 17;
@@ -515,10 +516,13 @@ public class OS {
 	public static final int kThemeMenuItemCmdKeyFont = 103;
 	public static final int kThemeMenuItemFont = 101;
 	public static final int kThemeMenuItemHierarchical = 1;
+	public static final int kThemeMetricDisclosureButtonWidth = 22;
 	public static final int kThemeMetricDisclosureTriangleHeight = 25;
 	public static final int kThemeMetricCheckBoxWidth = 50;
+	public static final int kThemeMetricComboBoxLargeDisclosureWidth = 74;
 	public static final int kThemeMetricRadioButtonWidth = 52;
 	public static final int kThemeMetricEditTextFrameOutset = 5;
+	public static final int kThemeMetricEditTextWhitespace = 4;
 	public static final int kThemeMetricFocusRectOutset = 7;
 	public static final int kThemeMetricHSliderHeight = 41;
 	public static final int kThemeMetricMenuTextTrailingEdgeMargin = 67;
@@ -922,7 +926,7 @@ public static final native double GetEventTime(int eHandle);
 public static final native int GetFlavorData(int theDrag, int theItemRef, int theType, byte[] dataPtr, int[] dataSize, int dataOffset);
 public static final native int GetFlavorDataSize(int theDrag, int theItemRef, int theType, int[] dataSize);
 public static final native int GetFlavorType(int theDrag,int theItemRef, short index, int[] theType);
-public static final native void GetFontInfo(short[] info);
+public static final native void GetFontInfo(FontInfo info);
 public static final native int GetGDevice();
 public static final native void GetGWorld(int[] portHandle, int[] gdHandle);
 public static final native void GetGlobalMouse(Point where);
@@ -1226,6 +1230,7 @@ public static final native int SetEventParameter(int inEvent, int inName, int in
 public static final native int SetEventParameter(int inEvent, int inName, int inType, int inSize, short[] inDataPtr);
 public static final native int SetFontInfoForSelection(int iStyleType, int iNumStyles, int iStyles, int iFPEventTarget);
 public static final native int SetFrontProcess(int[] psn);
+public static final native int SetFrontProcessWithOptions(int[] psn, int inOptions);
 public static final native void SetGWorld(int portHandle, int gdHandle);
 public static final native void SetItemMark(int theMenu, short item, short markChar);
 public static final native int SetKeyboardFocus(int wHandle, int cHandle, short inPart);

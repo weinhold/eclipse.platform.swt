@@ -556,7 +556,22 @@ public boolean forceFocus () {
 			focusHandle = handle;
 		}
 	}
-	return XmProcessTraversal (focusHandle, OS.XmTRAVERSE_CURRENT);
+	int [] argList = new int [] {OS.XmNtraversalOn, 0};
+	OS.XtGetValues (focusHandle, argList, argList.length / 2);
+	boolean force = argList [1] == 0;
+	if (force) {
+		state |= FOCUS_FORCED;
+		argList [1] = 1;
+		OS.XtSetValues (focusHandle, argList, argList.length / 2);
+		overrideTranslations ();
+	}
+	if (XmProcessTraversal (focusHandle, OS.XmTRAVERSE_CURRENT)) return true;
+	if (force) {
+		state &= ~FOCUS_FORCED;
+		argList [1] = 0;
+		OS.XtSetValues (focusHandle, argList, argList.length / 2);
+	}
+	return false;
 }
 
 /**
@@ -2033,6 +2048,7 @@ public void setEnabled (boolean enabled) {
  */
 public boolean setFocus () {
 	checkWidget();
+	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return forceFocus ();
 }
 /**
@@ -2261,7 +2277,7 @@ boolean setTabGroupFocus () {
 }
 boolean setTabItemFocus () {
 	if (!isShowing ()) return false;
-	return setFocus ();
+	return forceFocus ();
 }
 /**
  * Sets the receiver's size to the point specified by the arguments.
@@ -2347,7 +2363,14 @@ public void setVisible (boolean visible) {
 	boolean fixFocus = false;
 	if (!visible) fixFocus = isFocusAncestor ();	
 	OS.XtSetMappedWhenManaged (topHandle, visible);	
-	if (fixFocus) fixFocus ();	
+	if (fixFocus) fixFocus ();
+	/*
+	* It is possible (but unlikely) that application code could
+	* have disposed the widget in the FocusOut event that is
+	* triggered by invoking fixFocus() if the widget being hidden
+	* has focus.  If this happens, just return; 
+	*/
+	if (isDisposed ()) return;
 	sendEvent (visible ? SWT.Show : SWT.Hide);
 }
 void setZOrder (Control control, boolean above) {
@@ -2802,7 +2825,9 @@ int XButtonPress (int w, int client_data, int call_data, int continue_to_dispatc
 		postEvent (SWT.DragDetect, event);
 	}
 	if (xEvent.button == 3) {
-		setFocus ();
+		if (menu != null || hooks (SWT.MenuDetect)) {
+			if (!isFocusControl ()) setFocus ();
+		}
 		showMenu (xEvent.x_root, xEvent.y_root);
 	}
 	int clickTime = display.getDoubleClickTime ();
@@ -2949,10 +2974,8 @@ int xFocusIn (XFocusChangeEvent xEvent) {
 	return 0;
 }
 int xFocusOut (XFocusChangeEvent xEvent) {
-	int focusHandle = OS.XtWindowToWidget (xEvent.display, xEvent.window);
-	if (!hasIMSupport ()) {
-		OS.XmImUnsetFocus (focusHandle);
-	} 
+	int focusHandle = OS.XtWindowToWidget (xEvent.display, xEvent.window);	
+	if (!hasIMSupport ()) OS.XmImUnsetFocus (focusHandle);
 
 	/*
 	* Bug in Motif.  For some reason, when the widget font is
@@ -2969,12 +2992,24 @@ int xFocusOut (XFocusChangeEvent xEvent) {
 		int [] argList2 = {OS.XmNfontList, fontList};
 		OS.XmImSetValues (focusHandle, argList2, argList2.length / 2);
 	}
-
+	
+	/* Set the focus out event */
 	if (display.postFocusOut) {
 		postEvent (SWT.FocusOut);
 	} else {
 		sendEvent (SWT.FocusOut);
 		// widget could be disposed at this point
+	}
+
+	/* Restore XmNtraversalOn if it was focus was forced */
+	if (handle == 0) return 0;
+	if ((style & SWT.NO_FOCUS) != 0) {
+		int [] argList = new int [] {OS.XmNtraversalOn, 0};
+		OS.XtGetValues (focusHandle, argList, argList.length / 2);
+		if (argList [1] != 0 && (state & FOCUS_FORCED) != 0) {
+			argList [1] = 0;
+			OS.XtSetValues (focusHandle, argList, argList.length / 2);
+		}
 	}
 	return 0;
 }

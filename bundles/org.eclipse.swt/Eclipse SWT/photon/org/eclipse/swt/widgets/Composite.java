@@ -517,18 +517,20 @@ int Ph_EV_BUT_PRESS (int widget, int info) {
 	if (result != OS.Pt_CONTINUE)return result;
 	if ((state & CANVAS) != 0) {
 		/* Set focus for a CANVAS with no children */
-		if ((style & SWT.NO_FOCUS) == 0 && OS.PtWidgetChildFront (handle) == 0) {
-			if (info == 0) return OS.Pt_END;
-			PtCallbackInfo_t cbinfo = new PtCallbackInfo_t ();
-			OS.memmove (cbinfo, info, PtCallbackInfo_t.sizeof);
-			if (cbinfo.event == 0) return OS.Pt_END;
-			PhEvent_t ev = new PhEvent_t ();
-			OS.memmove (ev, cbinfo.event, PhEvent_t.sizeof);
-			int data = OS.PhGetData (cbinfo.event);
-			if (data == 0) return OS.Pt_END;
-			PhPointerEvent_t pe = new PhPointerEvent_t ();
-			OS.memmove (pe, data, PhPointerEvent_t.sizeof);
-			if (pe.buttons == OS.Ph_BUTTON_SELECT) setFocus ();
+		if ((style & SWT.NO_FOCUS) == 0 && hooksKeys ()) {
+			if (OS.PtWidgetChildFront (handle) == 0) {
+				if (info == 0) return OS.Pt_END;
+				PtCallbackInfo_t cbinfo = new PtCallbackInfo_t ();
+				OS.memmove (cbinfo, info, PtCallbackInfo_t.sizeof);
+				if (cbinfo.event == 0) return OS.Pt_END;
+				PhEvent_t ev = new PhEvent_t ();
+				OS.memmove (ev, cbinfo.event, PhEvent_t.sizeof);
+				int data = OS.PhGetData (cbinfo.event);
+				if (data == 0) return OS.Pt_END;
+				PhPointerEvent_t pe = new PhPointerEvent_t ();
+				OS.memmove (pe, data, PhPointerEvent_t.sizeof);
+				if (pe.buttons == OS.Ph_BUTTON_SELECT) setFocus ();
+			}
 		}
 	}
 	return result;
@@ -685,7 +687,6 @@ public boolean setFocus () {
 		Control child = children [i];
 		if (child.getVisible () && child.setFocus ()) return true;
 	}
-	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return super.setFocus ();
 }
 
@@ -707,29 +708,15 @@ public void setLayout (Layout layout) {
 
 boolean setTabGroupFocus () {
 	if (isTabItem ()) return setTabItemFocus ();
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus && setTabItemFocus ()) return true;
-	}
+	boolean takeFocus = (style & SWT.NO_FOCUS) == 0;
+	if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
+	if (takeFocus && setTabItemFocus ()) return true;
 	Control [] children = _getChildren ();
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
 		if (child.isTabItem () && child.setTabItemFocus ()) return true;
 	}
 	return false;
-}
-
-boolean setTabItemFocus () {
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus) {
-			if (!isShowing ()) return false;
-			if (forceFocus ()) return true;
-		}
-	}
-	return super.setTabItemFocus ();
 }
 
 /**

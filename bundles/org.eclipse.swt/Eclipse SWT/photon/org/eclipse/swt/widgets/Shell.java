@@ -1112,10 +1112,12 @@ public void setVisible (boolean visible) {
 	OS.PtSetResource (shellHandle, OS.Pt_ARG_FLAGS, flags, OS.Pt_DELAY_REALIZE);
 	if (visible) {
 		sendEvent (SWT.Show);
+		if (isDisposed ()) return;
 		OS.PtRealizeWidget (shellHandle);
 	} else {
 		OS.PtUnrealizeWidget (shellHandle);
 		sendEvent(SWT.Hide);
+		if (isDisposed ()) return;
 	}
 
 	/*

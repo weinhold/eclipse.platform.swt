@@ -55,13 +55,16 @@ public class Browser extends Composite {
 	int refCount = 0;
 	int request;
 	String html;
+	Point location;
+	Point size;
 
 	/* External Listener management */
+	CloseWindowListener[] closeWindowListeners = new CloseWindowListener[0];
 	LocationListener[] locationListeners = new LocationListener[0];
 	OpenWindowListener[] openWindowListeners = new OpenWindowListener[0];
 	ProgressListener[] progressListeners = new ProgressListener[0];
 	StatusTextListener[] statusTextListeners = new StatusTextListener[0];
-	VisibilityListener[] visibilityListeners = new VisibilityListener[0];
+	VisibilityWindowListener[] visibilityWindowListeners = new VisibilityWindowListener[0];
 
 	static nsIAppShell AppShell;
 	static AppFileLocProvider LocProvider; 
@@ -306,6 +309,32 @@ static Browser findBrowser(Control control, int gtkHandle) {
  *
  * @since 3.0
  */
+public void addCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);	
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length + 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, closeWindowListeners.length);
+	closeWindowListeners = newCloseWindowListeners;
+	closeWindowListeners[closeWindowListeners.length - 1] = listener;
+}
+
+/**	 
+ * Adds the listener to receive events.
+ * <p>
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ *
+ * @since 3.0
+ */
 public void addLocationListener(LocationListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
@@ -410,13 +439,13 @@ public void addStatusTextListener(StatusTextListener listener) {
  *
  * @since 3.0
  */
-public void addVisibilityListener(VisibilityListener listener) {
+public void addVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length + 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, visibilityListeners.length);
-	visibilityListeners = newVisibilityListeners;
-	visibilityListeners[visibilityListeners.length - 1] = listener;
+	VisibilityWindowListener[] newVisibilityWindowListeners = new VisibilityWindowListener[visibilityWindowListeners.length + 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityWindowListeners, 0, visibilityWindowListeners.length);
+	visibilityWindowListeners = newVisibilityWindowListeners;
+	visibilityWindowListeners[visibilityWindowListeners.length - 1] = listener;
 }
 
 /**
@@ -680,8 +709,14 @@ static String error(int code) {
 }
 
 void onDispose() {
+	int rc = webBrowser.RemoveWebBrowserListener(weakReference.getAddress(), nsIWebProgressListener.NS_IWEBPROGRESSLISTENER_IID);
+	if (rc != XPCOM.NS_OK) error(rc);
+
+	rc = webBrowser.SetParentURIContentListener(0);
+	if (rc != XPCOM.NS_OK) error(rc);
+	
 	int[] result = new int[1];
-	int rc = webBrowser.QueryInterface(nsIBaseWindow.NS_IBASEWINDOW_IID, result);
+	rc = webBrowser.QueryInterface(nsIBaseWindow.NS_IBASEWINDOW_IID, result);
 	if (rc != XPCOM.NS_OK) error(rc);
 	if (result[0] == 0) error(XPCOM.NS_ERROR_NO_INTERFACE);
 	
@@ -790,6 +825,44 @@ public void refresh() {
 	*/
 	if (rc != XPCOM.NS_OK && rc != XPCOM.NS_ERROR_INVALID_POINTER) error(rc);	
 	webNavigation.Release();
+}
+
+/**	 
+ * Removes the listener.
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
+public void removeCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	if (closeWindowListeners.length == 0) return;
+	int index = -1;
+	for (int i = 0; i < closeWindowListeners.length; i++) {
+		if (listener == closeWindowListeners[i]){
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return;
+	if (closeWindowListeners.length == 1) {
+		closeWindowListeners = new CloseWindowListener[0];
+		return;
+	}
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length - 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, index);
+	System.arraycopy(closeWindowListeners, index + 1, newCloseWindowListeners, index, closeWindowListeners.length - index - 1);
+	closeWindowListeners = newCloseWindowListeners;
 }
 
 /**	 
@@ -960,26 +1033,26 @@ public void removeStatusTextListener(StatusTextListener listener) {
  * 
  * @since 3.0
  */
-public void removeVisibilityListener(VisibilityListener listener) {
+public void removeVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	if (visibilityListeners.length == 0) return;
+	if (visibilityWindowListeners.length == 0) return;
 	int index = -1;
-	for (int i = 0; i < visibilityListeners.length; i++) {
-		if (listener == visibilityListeners[i]){
+	for (int i = 0; i < visibilityWindowListeners.length; i++) {
+		if (listener == visibilityWindowListeners[i]){
 			index = i;
 			break;
 		}
 	}
 	if (index == -1) return;
-	if (visibilityListeners.length == 1) {
-		visibilityListeners = new VisibilityListener[0];
+	if (visibilityWindowListeners.length == 1) {
+		visibilityWindowListeners = new VisibilityWindowListener[0];
 		return;
 	}
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length - 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, index);
-	System.arraycopy(visibilityListeners, index + 1, newVisibilityListeners, index, visibilityListeners.length - index - 1);
-	visibilityListeners = newVisibilityListeners;
+	VisibilityWindowListener[] newVisibilityWindowListeners = new VisibilityWindowListener[visibilityWindowListeners.length - 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityWindowListeners, 0, index);
+	System.arraycopy(visibilityWindowListeners, index + 1, newVisibilityWindowListeners, index, visibilityWindowListeners.length - index - 1);
+	visibilityWindowListeners = newVisibilityWindowListeners;
 }
 
 /**
@@ -1536,10 +1609,23 @@ int SetChromeFlags(int aChromeFlags) {
 }
    
 int DestroyBrowserWindow() {
+	WindowEvent newEvent = new WindowEvent(this);
+	newEvent.display = getDisplay();
+	newEvent.widget = this;
+	for (int i = 0; i < closeWindowListeners.length; i++)
+		closeWindowListeners[i].close(newEvent);
+	/*
+	* Note on Mozilla.  The DestroyBrowserWindow notification cannot be cancelled.
+	* The browser widget cannot be used after this notification has been received.
+	* The application is advised to close the window hosting the browser widget.
+	* The browser widget must be disposed in all cases.
+	*/
+	dispose();
 	return XPCOM.NS_OK;
 }
    	
 int SizeBrowserTo(int aCX, int aCY) {
+	size = new Point(aCX, aCY);
 	return XPCOM.NS_OK;
 }
 
@@ -1560,6 +1646,7 @@ int ExitModalEventLoop(int aStatus) {
 /* nsIEmbeddingSiteWindow */ 
    
 int SetDimensions(int flags, int x, int y, int cx, int cy) {
+	if (flags == nsIEmbeddingSiteWindow.DIM_FLAGS_POSITION) location = new Point(x, y);
 	return XPCOM.NS_OK;   	
 }	
 
@@ -1576,15 +1663,19 @@ int GetVisibility(int value) {
 }
    
 int SetVisibility(int value) {
-	VisibilityEvent event = new VisibilityEvent(this);
+	WindowEvent event = new WindowEvent(this);
 	event.display = getDisplay();
 	event.widget = this;
 	if (value == 1) {
-		for (int i = 0; i < visibilityListeners.length; i++)
-			visibilityListeners[i].show(event);
+		event.location = location;
+		event.size = size;
+		for (int i = 0; i < visibilityWindowListeners.length; i++)
+			visibilityWindowListeners[i].show(event);
+		location = null;
+		size = null;
 	} else {
-		for (int i = 0; i < visibilityListeners.length; i++)
-			visibilityListeners[i].hide(event);
+		for (int i = 0; i < visibilityWindowListeners.length; i++)
+			visibilityWindowListeners[i].hide(event);
 	}
 	return XPCOM.NS_OK;     	
 }

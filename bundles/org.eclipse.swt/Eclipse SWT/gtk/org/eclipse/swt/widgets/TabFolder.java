@@ -615,6 +615,7 @@ void setForegroundColor (GdkColor color) {
  */
 public void setSelection (int index) {
 	checkWidget ();
+	if (!(0 <= index && index < getItemCount ())) return;
 	setSelection (index, false);
 }
 
@@ -663,12 +664,12 @@ public void setSelection (TabItem [] items) {
 	checkWidget();
 	if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (items.length == 0) {
-		setSelection (-1);
-		return;
-	}
-	for (int i=items.length-1; i>=0; --i) {
-		int index = indexOf (items [i]);
-		if (index != -1) setSelection (index);
+		setSelection (-1, false);
+	} else {
+		for (int i=items.length-1; i>=0; --i) {
+			int index = indexOf (items [i]);
+			if (index != -1) setSelection (index, false);
+		}
 	}
 }
 

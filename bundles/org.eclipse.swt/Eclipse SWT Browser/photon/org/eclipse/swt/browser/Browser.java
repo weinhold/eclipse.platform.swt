@@ -43,11 +43,12 @@ public class Browser extends Composite {
 	int totalProgress = 25;
 	
 	/* External Listener management */
+	CloseWindowListener[] closeWindowListeners = new CloseWindowListener[0];
 	LocationListener[] locationListeners = new LocationListener[0];
 	OpenWindowListener[] openWindowListeners = new OpenWindowListener[0];
 	ProgressListener[] progressListeners = new ProgressListener[0];
 	StatusTextListener[] statusTextListeners = new StatusTextListener[0];
-	VisibilityListener[] visibilityListeners = new VisibilityListener[0];
+	VisibilityWindowListener[] visibilityWindowListeners = new VisibilityWindowListener[0];
 	
 	/* Package Name */
 	static final String PACKAGE_PREFIX = "org.eclipse.swt.browser."; //$NON-NLS-1$
@@ -178,6 +179,32 @@ static int webProc(int handle, int data, int info) {
  *
  * @since 3.0
  */
+public void addCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);	
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length + 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, closeWindowListeners.length);
+	closeWindowListeners = newCloseWindowListeners;
+	closeWindowListeners[closeWindowListeners.length - 1] = listener;
+}
+
+/**	 
+ * Adds the listener to receive events.
+ * <p>
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ *
+ * @since 3.0
+ */
 public void addLocationListener(LocationListener listener) {
 	checkWidget();
 	if (listener == null)
@@ -285,13 +312,13 @@ public void addStatusTextListener(StatusTextListener listener) {
  *
  * @since 3.0
  */
-public void addVisibilityListener(VisibilityListener listener) {
+public void addVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length + 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, visibilityListeners.length);
-	visibilityListeners = newVisibilityListeners;
-	visibilityListeners[visibilityListeners.length - 1] = listener;
+	VisibilityWindowListener[] newVisibilityWindowListeners = new VisibilityWindowListener[visibilityWindowListeners.length + 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityWindowListeners, 0, visibilityWindowListeners.length);
+	visibilityWindowListeners = newVisibilityWindowListeners;
+	visibilityWindowListeners[visibilityWindowListeners.length - 1] = listener;
 }
 
 /**
@@ -552,6 +579,44 @@ public void refresh() {
  * 
  * @since 3.0
  */
+public void removeCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	if (closeWindowListeners.length == 0) return;
+	int index = -1;
+	for (int i = 0; i < closeWindowListeners.length; i++) {
+		if (listener == closeWindowListeners[i]){
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return;
+	if (closeWindowListeners.length == 1) {
+		closeWindowListeners = new CloseWindowListener[0];
+		return;
+	}
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length - 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, index);
+	System.arraycopy(closeWindowListeners, index + 1, newCloseWindowListeners, index, closeWindowListeners.length - index - 1);
+	closeWindowListeners = newCloseWindowListeners;
+}
+
+/**	 
+ * Removes the listener.
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
 public void removeLocationListener(LocationListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
@@ -704,26 +769,26 @@ public void removeStatusTextListener(StatusTextListener listener) {
  * 
  * @since 3.0
  */
-public void removeVisibilityListener(VisibilityListener listener) {
+public void removeVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	if (visibilityListeners.length == 0) return;
+	if (visibilityWindowListeners.length == 0) return;
 	int index = -1;
-	for (int i = 0; i < visibilityListeners.length; i++) {
-		if (listener == visibilityListeners[i]){
+	for (int i = 0; i < visibilityWindowListeners.length; i++) {
+		if (listener == visibilityWindowListeners[i]){
 			index = i;
 			break;
 		}
 	}
 	if (index == -1) return;
-	if (visibilityListeners.length == 1) {
-		visibilityListeners = new VisibilityListener[0];
+	if (visibilityWindowListeners.length == 1) {
+		visibilityWindowListeners = new VisibilityWindowListener[0];
 		return;
 	}
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length - 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, index);
-	System.arraycopy(visibilityListeners, index + 1, newVisibilityListeners, index, visibilityListeners.length - index - 1);
-	visibilityListeners = newVisibilityListeners;
+	VisibilityWindowListener[] newVisibilityListeners = new VisibilityWindowListener[visibilityWindowListeners.length - 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityListeners, 0, index);
+	System.arraycopy(visibilityWindowListeners, index + 1, newVisibilityListeners, index, visibilityWindowListeners.length - index - 1);
+	visibilityWindowListeners = newVisibilityListeners;
 }
 
 /**

@@ -313,6 +313,7 @@ public class OS {
 	public static final byte[] button_relief = signal("button_relief");
 	public static final byte[] focus_line_width = signal("focus_line_width");
 	public static final byte[] foreground_gdk = signal("foreground-gdk");
+	public static final byte[] horizontal_separator = signal("horizontal_separator");
 	public static final byte[] interior_focus = signal("interior_focus");
 	public static final byte[] mode = signal("mode");
 	public static final byte[] xalign = signal("xalign");
@@ -550,6 +551,7 @@ public static final synchronized native void gdk_window_set_back_pixmap(int wind
 public static final synchronized native void gdk_window_set_cursor(int window, int cursor);
 public static final synchronized native void gdk_window_set_decorations(int window, int decorations);
 public static final synchronized native void gdk_window_set_icon(int window, int icon_window, int pixmap, int mask);
+public static final synchronized native void gdk_window_set_icon_list(int window, int pixbufs);
 public static final synchronized native void gdk_window_set_override_redirect(int window, boolean override_redirect);
 public static final synchronized native void gdk_window_shape_combine_region (int window, int  shape_region, int offset_x,  int offset_y);
 public static final synchronized native void gdk_window_show(int window);

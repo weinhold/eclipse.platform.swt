@@ -543,8 +543,8 @@ public void setSelection (int value) {
 /**
  * Sets the size of the receiver's thumb relative to the
  * difference between its maximum and minimum values.  This new
- * value will be ignored if it is less than one or is greater than the
- * size of the receiver's current range.
+ * value will be ignored if it is less than one, and will be
+ * clamped if it exceeds the receiver's current range.
  *
  * @param value the new thumb value, which must be at least one and not
  * larger than the size of the current range
@@ -563,7 +563,6 @@ public void setThumb (int value) {
 	info.cbSize = SCROLLINFO.sizeof;
 	info.fMask = OS.SIF_PAGE | OS.SIF_RANGE | OS.SIF_DISABLENOSCROLL;
 	OS.GetScrollInfo (handle, OS.SB_CTL, info);
-	if (info.nMax - info.nMin - value < 0) return;
 	info.nPage = value;
 	if (info.nPage != 0) info.nPage++;
 	OS.SetScrollInfo (handle, OS.SB_CTL, info, true);
@@ -621,7 +620,6 @@ public void setValues (int selection, int minimum, int maximum, int thumb, int i
 	if (minimum < 0) return;
 	if (maximum < 0) return;
 	if (thumb < 1) return;
-	if (maximum - minimum - thumb < 0) return;
 	if (increment < 1) return;
 	if (pageIncrement < 1) return;
 	this.increment = increment;

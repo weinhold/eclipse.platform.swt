@@ -163,6 +163,7 @@ void createHandle (int index) {
 		OS.XmNhighlightThickness, display.textHighlightThickness,
 		OS.XmNborderWidth, (style & SWT.BORDER) != 0 ? 1 : 0,
 		OS.XmNorientation, ((style & SWT.H_SCROLL) != 0) ? OS.XmHORIZONTAL : OS.XmVERTICAL,
+		OS.XmNtraversalOn, 1,
 	};
 	int parentHandle = parent.handle;
 	handle = OS.XmCreateScrollBar (parentHandle, null, argList, argList.length / 2);
@@ -449,10 +450,13 @@ public void setSelection (int value) {
 public void setThumb (int value) {
 	checkWidget();
 	if (value < 1) return;
-	int [] argList = {OS.XmNsliderSize, value};
+	int [] argList = {OS.XmNminimum, 0, OS.XmNmaximum, 0};
+	OS.XtGetValues (handle, argList, argList.length / 2);
+	value = Math.min (value, argList [3] - argList [1]);
+	int [] argList2 = {OS.XmNsliderSize, value};
 	boolean warnings = display.getWarnings ();
 	display.setWarnings (false);
-	OS.XtSetValues (handle, argList, argList.length / 2);
+	OS.XtSetValues (handle, argList2, argList2.length / 2);
 	display.setWarnings (warnings);
 }
 /**
@@ -481,9 +485,9 @@ public void setValues (int selection, int minimum, int maximum, int thumb, int i
 	if (minimum < 0) return;
 	if (maximum < 0) return;
 	if (thumb < 1) return;
-	if (maximum - minimum - thumb < 0) return;
 	if (increment < 1) return;
 	if (pageIncrement < 1) return;
+	thumb = Math.min (thumb, maximum - minimum);
 	int [] argList = {
 		OS.XmNvalue, selection,
 		OS.XmNminimum, minimum,

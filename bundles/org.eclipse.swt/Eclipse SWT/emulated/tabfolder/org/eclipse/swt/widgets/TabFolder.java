@@ -1017,6 +1017,7 @@ public void setFont(Font font) {
  */
 public void setSelection(int index) {
 	checkWidget();
+	if (!(0 <= index && index < items.length)) return;
 	setSelection(index, false);
 }
 /**

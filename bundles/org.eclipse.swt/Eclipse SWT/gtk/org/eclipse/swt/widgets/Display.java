@@ -841,6 +841,12 @@ public Point getCursorLocation () {
 	return new Point (x [0], y [0]);
 }
 
+public Point getCursorSize () {
+	checkDevice ();
+	/* Standard cursor size is defined in documentation for gdk_cursor_new_from_pixmap */
+	return new Point (16, 16);
+}
+
 /**
  * Returns the application defined property of the receiver
  * with the specified name, or null if it has not been set.

@@ -364,6 +364,30 @@ int kEventControlSetFocusPart (int nextHandler, int theEvent, int userData) {
 	return result;
 }
 
+int kEventRawKey (int nextHandler, int theEvent, int userData) {
+	/*
+	* Feature in the Macintosh.  For some reason, the default handler
+	* does not issue kEventTextInputUnicodeForKeyEvent when the user
+	* types Command+Space.  The fix is to look for this case and
+	* send the key from kEventRawKeyDown instead.
+	* 
+	* NOTE: This code relies on Command+Space being consumed and
+	* will deliver two events if this ever changes.
+	*/	
+	if ((state & CANVAS) != 0) {
+		int [] keyCode = new int [1];
+		OS.GetEventParameter (theEvent, OS.kEventParamKeyCode, OS.typeUInt32, null, keyCode.length * 4, null, keyCode);
+		if (keyCode [0] == 49 /* Space */) {
+			int [] modifiers = new int [1];
+			OS.GetEventParameter (theEvent, OS.kEventParamKeyModifiers, OS.typeUInt32, null, 4, null, modifiers);
+			if (modifiers [0] == OS.cmdKey) {
+				if (!sendKeyEvent (SWT.KeyDown, theEvent)) return OS.noErr;
+			}
+		}
+	}
+	return OS.eventNotHandledErr;
+}
+
 int kEventTextInputUnicodeForKeyEvent (int nextHandler, int theEvent, int userData) {
 	int result = super.kEventTextInputUnicodeForKeyEvent (nextHandler, theEvent, userData);
 	if ((state & CANVAS) != 0) {
@@ -498,7 +522,6 @@ public boolean setFocus () {
 	for (int i= 0; i < children.length; i++) {
 		if (children [i].setFocus ()) return true;
 	}
-	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return super.setFocus ();
 }
 
@@ -518,25 +541,12 @@ public void setLayout (Layout layout) {
 	this.layout = layout;
 }
 
-boolean setTabItemFocus () {
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus) {
-			if (!isShowing ()) return false;
-			if (forceFocus ()) return true;
-		}
-	}
-	return super.setTabItemFocus ();
-}
 
 boolean setTabGroupFocus () {
 	if (isTabItem ()) return setTabItemFocus ();
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus && setTabItemFocus ()) return true;
-	}
+	boolean takeFocus = (style & SWT.NO_FOCUS) == 0;
+	if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
+	if (takeFocus && setTabItemFocus ()) return true;
 	Control [] children = _getChildren ();
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
@@ -567,16 +577,6 @@ public void setTabList (Control [] tabList) {
 			Control control = tabList [i];
 			if (control == null) error (SWT.ERROR_INVALID_ARGUMENT);
 			if (control.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
-			/*
-			* This code is intentionally commented.
-			* Tab lists are currently only supported
-			* for the direct children of a composite.
-			*/
-//			Shell shell = control.getShell ();
-//			while (control != shell && control != this) {
-//				control = control.parent;
-//			}
-//			if (control != this) error (SWT.ERROR_INVALID_PARENT);
 			if (control.parent != this) error (SWT.ERROR_INVALID_PARENT);
 		}
 		Control [] newList = new Control [tabList.length];

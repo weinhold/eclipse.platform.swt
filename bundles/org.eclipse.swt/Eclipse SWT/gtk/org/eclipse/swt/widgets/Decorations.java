@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.gtk.*;
 import org.eclipse.swt.graphics.*;
@@ -90,6 +89,7 @@ import org.eclipse.swt.graphics.*;
 public class Decorations extends Canvas {
 	String text;
 	Image image;
+	Image [] images = new Image [0];
 	boolean minimized, maximized;
 	Menu menuBar;
 	Menu [] menus;
@@ -148,6 +148,52 @@ static int checkStyle (int style) {
 		style |= SWT.TITLE;
 	}
 	return style;
+}
+
+void _setImages (Image [] images) {
+	int pixbufs = 0;
+	if (images != null) {
+		for (int i = 0; i < images.length; i++) {
+			Image icon = images [i];
+			int [] w = new int [1], h = new int [1];
+			OS.gdk_drawable_get_size (icon.pixmap, w, h);
+			int width = w [0], height = h [0]; 	
+			boolean hasMask = icon.mask != 0;
+			int pixbuf = OS.gdk_pixbuf_new (OS.GDK_COLORSPACE_RGB, hasMask, 8, width, height);
+			if (pixbuf == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+			int colormap = OS.gdk_colormap_get_system ();
+			OS.gdk_pixbuf_get_from_drawable (pixbuf, icon.pixmap, colormap, 0, 0, 0, 0, width, height);
+			if (hasMask) {
+				int gdkMaskImagePtr = OS.gdk_drawable_get_image (icon.mask, 0, 0, width, height);
+				if (gdkMaskImagePtr == 0) SWT.error (SWT.ERROR_NO_HANDLES);
+				int stride = OS.gdk_pixbuf_get_rowstride (pixbuf);
+				int pixels = OS.gdk_pixbuf_get_pixels (pixbuf);
+				byte [] line = new byte [stride];
+				for (int y=0; y<height; y++) {
+					int offset = pixels + (y * stride);
+					OS.memmove (line, offset, stride);
+					for (int x=0; x<width; x++) {
+						if (OS.gdk_image_get_pixel (gdkMaskImagePtr, x, y) == 0) {
+							line[x*4+3] = 0;
+						}
+					}
+					OS.memmove (offset, line, stride);
+				}
+				OS.g_object_unref (gdkMaskImagePtr);
+			}
+			pixbufs = OS.g_list_append (pixbufs, pixbuf);			
+		}
+	}
+	int window = OS.GTK_WIDGET_WINDOW (topHandle ());
+	OS.gdk_window_set_icon_list (window, pixbufs);
+	int [] data = new int [1];
+	int temp = pixbufs;
+	while (temp != 0) {
+		OS.memmove (data, temp, 4);
+		OS.g_object_unref (data [0]);
+		temp = OS.g_list_next (temp);
+	}
+	if (pixbufs != 0) OS.g_list_free (pixbufs);
 }
 
 void add (Menu menu) {
@@ -262,8 +308,13 @@ public Button getDefaultButton () {
  * </ul>
  */
 public Image getImage () {
-	checkWidget();
+	checkWidget ();
 	return image;
+}
+
+public Image [] getImages () {
+	checkWidget ();
+	return images;
 }
 
 /**
@@ -383,6 +434,7 @@ void releaseWidget () {
 	menus = null;
 	super.releaseWidget ();
 	image = null;
+	images = null;
 }
 
 boolean restoreFocus () {
@@ -451,15 +503,19 @@ public void setDefaultButton (Button button) {
  * </ul>
  */
 public void setImage (Image image) {
-	checkWidget();
+	checkWidget ();
 	this.image = image;
-	int pixmap = 0, mask = 0;
-	if (image != null) {
-		pixmap = image.pixmap;
-		mask = image.mask;
+	_setImages (image != null ? new Image [] {image} : null);
+}
+
+public void setImages (Image [] images) {
+	checkWidget ();
+	if (images == null) error (SWT.ERROR_INVALID_ARGUMENT);
+	for (int i = 0; i < images.length; i++) {
+		if (images [i] == null || images [i].isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
 	}
-	int window = OS.GTK_WIDGET_WINDOW(topHandle());
-	OS.gdk_window_set_icon (window, 0, pixmap, mask);
+	this.images = images;
+	_setImages (images);
 }
 
 /**

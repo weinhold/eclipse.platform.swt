@@ -26,7 +26,7 @@ import org.eclipse.swt.accessibility.*;
  * <dd>LEFT_TO_RIGHT, RIGHT_TO_LEFT</dd>
  * <dt><b>Events:</b>
  * <dd>FocusIn, FocusOut, Help, KeyDown, KeyUp, MouseDoubleClick, MouseDown, MouseEnter,
- *     MouseExit, MouseHover, MouseUp, MouseMove, Move, Paint, Resize</dd>
+ *     MouseExit, MouseHover, MouseUp, MouseMove, Move, Paint, Resize, Traverse</dd>
  * </dl>
  * <p>
  * Only one of LEFT_TO_RIGHT or RIGHT_TO_LEFT may be specified.
@@ -2027,6 +2027,7 @@ public void setEnabled (boolean enabled) {
  */
 public boolean setFocus () {
 	checkWidget ();
+	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return forceFocus ();
 }
 
@@ -2304,7 +2305,7 @@ boolean setTabGroupFocus () {
 
 boolean setTabItemFocus () {
 	if (!isShowing ()) return false;
-	return setFocus ();
+	return forceFocus ();
 }
 
 /**
@@ -2370,12 +2371,19 @@ public void setVisible (boolean visible) {
 	if (drawCount != 0) {
 		state = visible ? state & ~HIDDEN : state | HIDDEN;
 	} else {
+		/*
+		 * It is possible (but unlikely), that application
+		 * code could have disposed the widget in the FocusOut
+		 * event that is triggered by ShowWindow if the widget
+		 * being hidden has focus.  If this happens, just return.
+		 */
 		OS.ShowWindow (handle, visible ? OS.SW_SHOW : OS.SW_HIDE);
+		if (isDisposed ()) return;
 	}
 	if (!visible) {
 		/*
 		* It is possible (but unlikely), that application
-		* code could have disposed the widget in the show
+		* code could have disposed the widget in the hide
 		* event.  If this happens, just return.
 		*/
 		sendEvent (SWT.Hide);
@@ -4126,14 +4134,16 @@ LRESULT WM_SYSCHAR (int wParam, int lParam) {
 	if (!hooks (SWT.KeyDown) && !display.filters (SWT.KeyDown)) {
 		return null;
 	}
+	
+	/* Call the window proc to determine whether it is a system key or mnemonic */
 	display.mnemonicKeyHit = true;
 	int result = callWindowProc (OS.WM_SYSCHAR, wParam, lParam);
 	boolean consumed = false;
 	if (!display.mnemonicKeyHit) {
 		consumed = !sendKeyEvent (SWT.KeyDown, OS.WM_SYSCHAR, wParam, lParam);
+		// widget could be disposed at this point
 	}
 	consumed |= display.mnemonicKeyHit;
-	// widget could be disposed at this point
 	display.mnemonicKeyHit = false;
 	return consumed ? LRESULT.ONE : new LRESULT (result);
 }
@@ -4257,15 +4267,21 @@ LRESULT WM_SYSCOMMAND (int wParam, int lParam) {
 
 LRESULT WM_SYSKEYDOWN (int wParam, int lParam) {
 	/*
-	* Feature in Windows.  WM_SYSKEYDOWN is sent when
-	* the user presses ALT-<aKey> or F10 without the ALT key.
-	* In order to issue events for F10 (without the ALT key)
-	* but ignore all other key presses without the ALT key,
-	* make F10 a special case.
+	* Feature in Windows.  When WM_SYSKEYDOWN is sent,
+	* the user pressed ALT+<key> or F10 to get to the
+	* menu bar.  In order to issue events for F10 but
+	* ignore other key presses when the ALT is not down,
+	* make sure that either F10 was pressed or that ALT
+	* is pressed.
 	*/
 	if (wParam != OS.VK_F10) {
 		/* Make sure WM_SYSKEYDOWN was sent by ALT-<aKey>. */
 		if ((lParam & 0x20000000) == 0) return null;
+	}
+	
+	/* Ignore well known system keys */
+	switch (wParam) {
+		case OS.VK_F4: return null;
 	}
 	
 	/* Ignore repeating modifier keys by testing key down state */

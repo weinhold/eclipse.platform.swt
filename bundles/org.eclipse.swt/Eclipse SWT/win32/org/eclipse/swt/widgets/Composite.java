@@ -435,7 +435,6 @@ public boolean setFocus () {
 		Control child = children [i];
 		if (child.setFocus ()) return true;
 	}
-	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return super.setFocus ();
 }
 
@@ -477,16 +476,6 @@ public void setTabList (Control [] tabList) {
 			Control control = tabList [i];
 			if (control == null) error (SWT.ERROR_INVALID_ARGUMENT);
 			if (control.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
-			/*
-			* This code is intentionally commented.
-			* Tab lists are currently only supported
-			* for the direct children of a composite.
-			*/
-//			Shell shell = control.getShell ();
-//			while (control != shell && control != this) {
-//				control = control.parent;
-//			}
-//			if (control != this) error (SWT.ERROR_INVALID_PARENT);
 			if (control.parent != this) error (SWT.ERROR_INVALID_PARENT);
 		}
 		Control [] newList = new Control [tabList.length];
@@ -509,11 +498,9 @@ void setResizeChildren (boolean resize) {
 
 boolean setTabGroupFocus () {
 	if (isTabItem ()) return setTabItemFocus ();
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus && setTabItemFocus ()) return true;
-	}
+	boolean takeFocus = (style & SWT.NO_FOCUS) == 0;
+	if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
+	if (takeFocus && setTabItemFocus ()) return true;
 	Control [] children = _getChildren ();
 	for (int i=0; i<children.length; i++) {
 		Control child = children [i];
@@ -524,18 +511,6 @@ boolean setTabGroupFocus () {
 		if (child.isTabItem () && child.setTabItemFocus ()) return true;
 	}
 	return false;
-}
-
-boolean setTabItemFocus () {
-	if ((style & SWT.NO_FOCUS) == 0) {
-		boolean takeFocus = true;
-		if ((state & CANVAS) != 0) takeFocus = hooksKeys ();
-		if (takeFocus) {
-			if (!isShowing ()) return false;
-			if (forceFocus ()) return true;
-		}
-	}
-	return super.setTabItemFocus ();
 }
 
 String toolTipText (NMTTDISPINFO hdr) {
@@ -596,8 +571,7 @@ LRESULT WM_GETDLGCODE (int wParam, int lParam) {
 			int flags = OS.DLGC_WANTALLKEYS | OS.DLGC_WANTARROWS | OS.DLGC_WANTTAB;
 			return new LRESULT (flags);
 		}
-		int count = getChildrenCount ();
-		if (count != 0) return new LRESULT (OS.DLGC_STATIC);
+		if (OS.GetWindow (handle, OS.GW_CHILD) != 0) return new LRESULT (OS.DLGC_STATIC);
 	}
 	return result;
 }
@@ -616,8 +590,9 @@ LRESULT WM_LBUTTONDOWN (int wParam, int lParam) {
 
 	/* Set focus for a canvas with no children */
 	if ((state & CANVAS) != 0) {
-		if ((style & SWT.NO_FOCUS) != 0) return result;
-		if (OS.GetWindow (handle, OS.GW_CHILD) == 0) setFocus ();
+		if ((style & SWT.NO_FOCUS) == 0 && hooksKeys ()) {
+			if (OS.GetWindow (handle, OS.GW_CHILD) == 0) setFocus ();
+		}
 	}
 	return result;
 }
@@ -831,6 +806,7 @@ LRESULT WM_PRINTCLIENT (int wParam, int lParam) {
 	LRESULT result = super.WM_PRINTCLIENT (wParam, lParam);
 	if (result != null) return result;
 	if ((state & CANVAS) != 0) {
+		forceResize ();
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		if ((style & SWT.NO_BACKGROUND) == 0) {
@@ -898,7 +874,7 @@ LRESULT WM_SIZE (int wParam, int lParam) {
 					display.msgHook = OS.SetWindowsHookEx (OS.WH_GETMESSAGE, display.getMsgProc, OS.GetLibraryHandle(), threadId);
 				}
 			}
-			OS.PostThreadMessage (threadId, OS.WM_APP + 4, hwndChild, lParam);
+			OS.PostThreadMessage (threadId, Display.SWT_RESIZE, hwndChild, lParam);
 		}
 	}
 	return result;

@@ -336,7 +336,10 @@ int actionProc (int theControl, int partCode) {
 int appleEventProc (int nextHandler, int theEvent, int userData) {
 	int [] aeEventID = new int [1];
 	if (OS.GetEventParameter (theEvent, OS.kEventParamAEEventID, OS.typeType, null, 4, null, aeEventID) == OS.noErr) {
-		if (aeEventID [0] == OS.kAEQuitApplication) close ();
+		if (aeEventID [0] == OS.kAEQuitApplication) {
+			close ();
+			return OS.noErr;
+		}
 	}
 	return OS.eventNotHandledErr;
 }
@@ -977,6 +980,11 @@ public Point getCursorLocation () {
 	org.eclipse.swt.internal.carbon.Point pt = new org.eclipse.swt.internal.carbon.Point ();
 	OS.GetGlobalMouse (pt);
 	return new Point (pt.h, pt.v);
+}
+
+public Point getCursorSize () {
+	checkDevice ();
+	return new Point (16, 16);
 }
 
 /**

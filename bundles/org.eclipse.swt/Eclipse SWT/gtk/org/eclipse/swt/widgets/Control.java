@@ -1602,6 +1602,7 @@ int gtk_button_press_event (int widget, int event) {
 	Shell shell = _getShell ();
 	GdkEventButton gdkEvent = new GdkEventButton ();
 	OS.memmove (gdkEvent, event, GdkEventButton.sizeof);
+	if (gdkEvent.type == OS.GDK_3BUTTON_PRESS) return 0;
 	display.dragStartX = (int) gdkEvent.x;
 	display.dragStartY = (int) gdkEvent.y;
 	display.dragging = false;
@@ -2123,6 +2124,7 @@ void releaseWidget () {
 	toolTipText = null;
 	parent = null;
 	layoutData = null;
+	accessible = null;
 }
 
 void sendFocusEvent (int type) {
@@ -2410,6 +2412,7 @@ public void setEnabled (boolean enabled) {
  */
 public boolean setFocus () {
 	checkWidget();
+	if ((style & SWT.NO_FOCUS) != 0) return false;
 	return forceFocus ();
 }
 
@@ -2600,7 +2603,7 @@ boolean setTabGroupFocus () {
 }
 boolean setTabItemFocus () {
 	if (!isShowing ()) return false;
-	return setFocus ();
+	return forceFocus ();
 }
 
 /**
@@ -2643,7 +2646,25 @@ public void setVisible (boolean visible) {
 	if (visible) {
 		sendEvent (SWT.Show);
 		OS.gtk_widget_show (topHandle);
-	} else {	
+	} else {
+		/*
+		* Bug in GTK.  Invoking gtk_widget_hide() on a widget that has
+		* focus causes a focus_out_event to be sent. If the client disposes
+		* the widget inside the event, GTK GP's.  The fix is to reassign focus
+		* before hiding the widget.
+		* 
+		* NOTE: In order to stop the same widget from taking focus,
+		* temporarily clear and set the GTK_VISIBLE flag.
+		*/
+		if (!visible && isFocusAncestor ()) {
+			int flags = OS.GTK_WIDGET_FLAGS (topHandle);
+			OS.GTK_WIDGET_UNSET_FLAGS (topHandle, OS.GTK_VISIBLE);
+			fixFocus ();
+			if (isDisposed ()) return;
+			if ((flags & OS.GTK_VISIBLE) != 0) {
+				OS.GTK_WIDGET_SET_FLAGS (topHandle, OS.GTK_VISIBLE);
+			}
+		}
 		OS.gtk_widget_hide (topHandle);
 		sendEvent (SWT.Hide);
 	}

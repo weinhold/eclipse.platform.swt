@@ -11,6 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.ole.win32.*;
 import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.ole.win32.*;
@@ -42,15 +43,18 @@ public class Browser extends Composite {
 
 	boolean backwardEnabled;
 	boolean forwardEnabled;
+	Point location;
+	Point size;
 
 	String html;
 
 	/* External Listener management */
+	CloseWindowListener[] closeWindowListeners = new CloseWindowListener[0];
 	LocationListener[] locationListeners = new LocationListener[0];
 	OpenWindowListener[] openWindowListeners = new OpenWindowListener[0];
 	ProgressListener[] progressListeners = new ProgressListener[0];
 	StatusTextListener[] statusTextListeners = new StatusTextListener[0];
-	VisibilityListener[] visibilityListeners = new VisibilityListener[0];
+	VisibilityWindowListener[] visibilityWindowListeners = new VisibilityWindowListener[0];
 	
 	static final int BeforeNavigate2 = 0xfa;
 	static final int CommandStateChange = 0x69;
@@ -58,8 +62,14 @@ public class Browser extends Composite {
 	static final int NewWindow2 = 0xfb;
 	static final int OnVisible = 0xfe;
 	static final int ProgressChange = 0x6c;
+	static final int RegisterAsBrowser = 0x228;
 	static final int StatusTextChange = 0x66;
-	
+	static final int WindowClosing = 0x107;
+	static final int WindowSetHeight = 0x10b;
+	static final int WindowSetLeft = 0x108;
+	static final int WindowSetTop = 0x109;
+	static final int WindowSetWidth = 0x10a;
+
 	static final short CSC_UPDATECOMMANDS = -1;
 	static final short CSC_NAVIGATEFORWARD = 1;
 	static final short CSC_NAVIGATEBACK = 2;
@@ -194,9 +204,7 @@ public Browser(Composite parent, int style) {
 								if (OS.CreateStreamOnHGlobal(hGlobal, true, ppstm) == OS.S_OK) {
 									int[] rgdispid = auto.getIDsOfNames(new String[] {"Document"}); //$NON-NLS-1$
 									Variant pVarResult = auto.getProperty(rgdispid[0]);
-									pVarResult = auto.getProperty(rgdispid[0]);
 									IDispatch dispatchDocument = pVarResult.getDispatch();
-									pVarResult.dispose();
 									int[] ppvObject = new int[1];
 									int result = dispatchDocument.QueryInterface(COM.IIDIPersistStreamInit, ppvObject);
 									if (result == OS.S_OK) {
@@ -206,7 +214,12 @@ public Browser(Composite parent, int style) {
 										}
 										persistStreamInit.Release();
 									}
-									dispatchDocument.Release();
+									pVarResult.dispose();
+									/*
+									* This code is intentionally commented.  The IDispatch obtained from a Variant
+									* did not increase the reference count for the enclosed interface.
+									*/
+									//dispatchDocument.Release();
 									IUnknown stream = new IUnknown(ppstm[0]);
 									stream.Release();
 								} else {
@@ -244,36 +257,50 @@ public Browser(Composite parent, int style) {
 					break;
 				}
 				case NewWindow2 : {
-					OpenWindowEvent openEvent = new OpenWindowEvent(Browser.this);
-					openEvent.display = getDisplay();
-					openEvent.widget = Browser.this;
+					WindowEvent newEvent = new WindowEvent(Browser.this);
+					newEvent.display = getDisplay();
+					newEvent.widget = Browser.this;
 					for (int i = 0; i < openWindowListeners.length; i++)
-						openWindowListeners[i].open(openEvent);
-					Browser browser = openEvent.browser;
+						openWindowListeners[i].open(newEvent);
+					Browser browser = newEvent.browser;
 					boolean doit = browser != null && !browser.isDisposed();
 					if (doit) {
 						Variant variant = new Variant(browser.auto);
 						IDispatch iDispatch = variant.getDispatch();
-						variant.dispose();
 						Variant ppDisp = event.arguments[0];
 						int byref = ppDisp.getByRef();
 						if (byref != 0) COM.MoveMemory(byref, new int[] {iDispatch.getAddress()}, 4);
-						iDispatch.Release();
+						/*
+						* This code is intentionally commented.  A Variant constructed from an
+						* OleAutomation object does not increase its reference count.  The IDispatch
+						* obtained from this Variant did not increase the reference count for the
+						* OleAutomation instance either. 
+						*/
+						//variant.dispose();
+						//iDispatch.Release();
 					}
+					Variant cancel = event.arguments[1];
+					int pCancel = cancel.getByRef();
+					COM.MoveMemory(pCancel, new short[]{doit ? COM.VARIANT_FALSE : COM.VARIANT_TRUE}, 2);
 					break;
 				}
 				case OnVisible : {
 					Variant arg1 = event.arguments[0];
 					boolean visible = arg1.getBoolean();
-					VisibilityEvent newEvent = new VisibilityEvent(Browser.this);
+					WindowEvent newEvent = new WindowEvent(Browser.this);
 					newEvent.display = getDisplay();
 					newEvent.widget = Browser.this;
 					if (visible) {
-						for (int i = 0; i < visibilityListeners.length; i++)
-							visibilityListeners[i].show(newEvent);
+						for (int i = 0; i < visibilityWindowListeners.length; i++) {
+							newEvent.location = location;
+							newEvent.size = size;
+							visibilityWindowListeners[i].show(newEvent);
+							location = null;
+							size = null;
+						}
 					} else {
-						for (int i = 0; i < visibilityListeners.length; i++)
-							visibilityListeners[i].hide(newEvent);
+						for (int i = 0; i < visibilityWindowListeners.length; i++)
+							visibilityWindowListeners[i].hide(newEvent);
 					}
 					break;
 				}
@@ -306,6 +333,42 @@ public Browser(Composite parent, int style) {
 					}
 					break;
 				}
+				case WindowClosing : {
+					WindowEvent newEvent = new WindowEvent(Browser.this);
+					newEvent.display = getDisplay();
+					newEvent.widget = Browser.this;
+					for (int i = 0; i < closeWindowListeners.length; i++)
+						closeWindowListeners[i].close(newEvent);
+					Variant cancel = event.arguments[1];
+					int pCancel = cancel.getByRef();
+					COM.MoveMemory(pCancel, new short[]{COM.VARIANT_FALSE}, 2);
+					dispose();
+					break;
+				}
+				case WindowSetHeight : {
+					if (size == null) size = new Point(0, 0);
+					Variant arg1 = event.arguments[0];
+					size.y = arg1.getInt();
+					break;
+				}
+				case WindowSetLeft : {
+					if (location == null) location = new Point(0, 0);
+					Variant arg1 = event.arguments[0];
+					location.x = arg1.getInt();
+					break;
+				}
+				case WindowSetTop : {
+					if (location == null) location = new Point(0, 0);
+					Variant arg1 = event.arguments[0];
+					location.y = arg1.getInt();
+					break;
+				}
+				case WindowSetWidth : {
+					if (size == null) size = new Point(0, 0);
+					Variant arg1 = event.arguments[0];
+					size.x = arg1.getInt();
+					break;
+				}
 			}
 			
 			/*
@@ -324,6 +387,41 @@ public Browser(Composite parent, int style) {
 	site.addEventListener(OnVisible, listener);
 	site.addEventListener(ProgressChange, listener);
 	site.addEventListener(StatusTextChange, listener);
+	site.addEventListener(WindowClosing, listener);
+	site.addEventListener(WindowSetHeight, listener);
+	site.addEventListener(WindowSetLeft, listener);
+	site.addEventListener(WindowSetTop, listener);
+	site.addEventListener(WindowSetWidth, listener);
+		
+	Variant variant = new Variant(true);
+	auto.setProperty(RegisterAsBrowser, variant);
+	variant.dispose();
+}
+
+/**	 
+ * Adds the listener to receive events.
+ * <p>
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ *
+ * @since 3.0
+ */
+public void addCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);	
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length + 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, closeWindowListeners.length);
+	closeWindowListeners = newCloseWindowListeners;
+	closeWindowListeners[closeWindowListeners.length - 1] = listener;
 }
 
 /**	 
@@ -447,13 +545,13 @@ public void addStatusTextListener(StatusTextListener listener) {
  *
  * @since 3.0
  */
-public void addVisibilityListener(VisibilityListener listener) {
+public void addVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length + 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, visibilityListeners.length);
-	visibilityListeners = newVisibilityListeners;
-	visibilityListeners[visibilityListeners.length - 1] = listener;
+	VisibilityWindowListener[] newVisibilityWindowListeners = new VisibilityWindowListener[visibilityWindowListeners.length + 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityWindowListeners, 0, visibilityWindowListeners.length);
+	visibilityWindowListeners = newVisibilityWindowListeners;
+	visibilityWindowListeners[visibilityWindowListeners.length - 1] = listener;
 }
 
 /**
@@ -546,6 +644,44 @@ public void refresh() {
 	checkWidget();
 	int[] rgdispid = auto.getIDsOfNames(new String[] { "Refresh" }); //$NON-NLS-1$
 	auto.invoke(rgdispid[0]);
+}
+
+/**	 
+ * Removes the listener.
+ *
+ * @param listener the listener
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * 
+ * @exception SWTError <ul>
+ *    <li>ERROR_THREAD_INVALID_ACCESS when called from the wrong thread</li>
+ *    <li>ERROR_WIDGET_DISPOSED when the widget has been disposed</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
+public void removeCloseWindowListener(CloseWindowListener listener) {
+	checkWidget();
+	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	if (closeWindowListeners.length == 0) return;
+	int index = -1;
+	for (int i = 0; i < closeWindowListeners.length; i++) {
+		if (listener == closeWindowListeners[i]){
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return;
+	if (closeWindowListeners.length == 1) {
+		closeWindowListeners = new CloseWindowListener[0];
+		return;
+	}
+	CloseWindowListener[] newCloseWindowListeners = new CloseWindowListener[closeWindowListeners.length - 1];
+	System.arraycopy(closeWindowListeners, 0, newCloseWindowListeners, 0, index);
+	System.arraycopy(closeWindowListeners, index + 1, newCloseWindowListeners, index, closeWindowListeners.length - index - 1);
+	closeWindowListeners = newCloseWindowListeners;
 }
 
 /**	 
@@ -716,26 +852,26 @@ public void removeStatusTextListener(StatusTextListener listener) {
  * 
  * @since 3.0
  */
-public void removeVisibilityListener(VisibilityListener listener) {
+public void removeVisibilityWindowListener(VisibilityWindowListener listener) {
 	checkWidget();
 	if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	if (visibilityListeners.length == 0) return;
+	if (visibilityWindowListeners.length == 0) return;
 	int index = -1;
-	for (int i = 0; i < visibilityListeners.length; i++) {
-		if (listener == visibilityListeners[i]){
+	for (int i = 0; i < visibilityWindowListeners.length; i++) {
+		if (listener == visibilityWindowListeners[i]){
 			index = i;
 			break;
 		}
 	}
 	if (index == -1) return;
-	if (visibilityListeners.length == 1) {
-		visibilityListeners = new VisibilityListener[0];
+	if (visibilityWindowListeners.length == 1) {
+		visibilityWindowListeners = new VisibilityWindowListener[0];
 		return;
 	}
-	VisibilityListener[] newVisibilityListeners = new VisibilityListener[visibilityListeners.length - 1];
-	System.arraycopy(visibilityListeners, 0, newVisibilityListeners, 0, index);
-	System.arraycopy(visibilityListeners, index + 1, newVisibilityListeners, index, visibilityListeners.length - index - 1);
-	visibilityListeners = newVisibilityListeners;
+	VisibilityWindowListener[] newVisibilityWindowListeners = new VisibilityWindowListener[visibilityWindowListeners.length - 1];
+	System.arraycopy(visibilityWindowListeners, 0, newVisibilityWindowListeners, 0, index);
+	System.arraycopy(visibilityWindowListeners, index + 1, newVisibilityWindowListeners, index, visibilityWindowListeners.length - index - 1);
+	visibilityWindowListeners = newVisibilityWindowListeners;
 }
 
 /**

@@ -226,25 +226,17 @@ void destroyItem (TabItem item) {
 		if (items [index] == item) break;
 		index++;
 	}
-	if (index == count) return;	// not found
+	if (index == count) return;
 	int selectionIndex = OS.GetControl32BitValue (handle) - 1;
 	--count;
 	OS.SetControl32BitMaximum (handle, count);
-	if (count == 0) {
-		items = new TabItem [4];
-		return;
-	}
 	System.arraycopy (items, index + 1, items, index, count - index);
 	items [count] = null;
-	if (index == selectionIndex) {
-		setSelection (Math.max (0, selectionIndex - 1));
-		selectionIndex = getSelectionIndex ();
-		if (selectionIndex != -1) {
-			Event event = new Event ();
-			event.item = items [selectionIndex];
-			sendEvent (SWT.Selection, event);
-			// the widget could be destroyed at this point
-		}
+	if (count == 0) {
+		items = new TabItem [4];
+	}
+	if (count > 0 && index == selectionIndex) {
+		setSelection (Math.max (0, selectionIndex - 1), true);
 	}
 }
 
@@ -520,12 +512,12 @@ public void setSelection (TabItem [] items) {
 	checkWidget ();
 	if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (items.length == 0) {
-		setSelection (-1);
-		return;
-	}
-	for (int i=items.length - 1; i>=0; --i) {
-		int index = indexOf (items [i]);
-		if (index != -1) setSelection (index);
+		setSelection (-1, false);
+	} else {
+		for (int i=items.length - 1; i>=0; --i) {
+			int index = indexOf (items [i]);
+			if (index != -1) setSelection (index, false);
+		}
 	}
 }
 
@@ -544,6 +536,8 @@ public void setSelection (TabItem [] items) {
  */
 public void setSelection (int index) {
 	checkWidget ();
+	int count = OS.GetControl32BitMaximum (handle);
+	if (!(0 <= index && index < count)) return;
 	setSelection (index, false);
 }
 

@@ -775,16 +775,17 @@ public String getText () {
  */
 public String getText (int start, int end) {
 	checkWidget();
-	if (!(0 <= start && start <= end)) error (SWT.ERROR_INVALID_RANGE);
-	if (echoCharacter != '\0') {
-		if (hiddenText.length () <= end) error (SWT.ERROR_INVALID_RANGE);
-		return hiddenText.substring (start, end + 1);
-	}
-	if (OS.XmTextGetLastPosition (handle) <= end) error (SWT.ERROR_INVALID_RANGE);
+	if (!(start <= end && 0 <= end)) return "";
+	boolean hasEcho = echoCharacter != '\0';
+	int length = hasEcho ? hiddenText.length () : OS.XmTextGetLastPosition (handle);
+	if (length == 0) return "";
+	start = Math.max (0, start);
+	end = Math.min (end, length - 1);
+	if (hasEcho) return hiddenText.substring (start, end + 1);
 	int numChars = end - start + 1;
-	int length = numChars * OS.MB_CUR_MAX () + 1;
-	byte [] buffer = new byte [length];
-	int code = OS.XmTextGetSubstring (handle, start, numChars, length, buffer);
+	int bufLength = numChars * OS.MB_CUR_MAX () + 1;
+	byte [] buffer = new byte [bufLength];
+	int code = OS.XmTextGetSubstring (handle, start, numChars, bufLength, buffer);
 	switch (code) {
 		case OS.XmCOPY_FAILED:
 		case OS.XmCOPY_TRUNCATED:

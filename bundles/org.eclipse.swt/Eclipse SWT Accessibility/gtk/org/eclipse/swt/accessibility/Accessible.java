@@ -13,6 +13,7 @@ package org.eclipse.swt.accessibility;
 
 import java.util.*;
 import org.eclipse.swt.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.widgets.*;
 
 /**
@@ -32,10 +33,15 @@ public class Accessible {
 	AccessibleObject accessibleObject;
 	Control control;
 	
-	Accessible (Control control, int widgetHandle) {
+	Accessible (Control control) {
 		super ();
 		this.control = control;
-		AccessibleFactory.registerAccessible (this, widgetHandle);
+		AccessibleFactory.registerAccessible (this);
+		control.addDisposeListener (new DisposeListener () {
+			public void widgetDisposed (DisposeEvent e) {
+				release ();
+			}
+		});
 	}	
 	
 	/**
@@ -121,6 +127,15 @@ public class Accessible {
 		textListeners.addElement (listener);		
 	}
 	
+	/**
+	 * Gets the control for this Accessible object. 
+	 *
+	 * @since 3.0
+	 */
+	public Control getControl() {
+		return control;
+	}
+
 	/* checkWidget was copied from Widget, and rewritten to work in this package */
 	void checkWidget () {
 		if (!isValidThread ()) SWT.error (SWT.ERROR_THREAD_INVALID_ACCESS);
@@ -133,6 +148,10 @@ public class Accessible {
 		return result;
 	}
 
+	int getControlHandle () {
+		return control.handle;
+	}
+	
 	AccessibleControlListener[] getControlListeners () {
 		AccessibleControlListener[] result = new AccessibleControlListener [controlListeners.size ()];
 		controlListeners.copyInto (result);
@@ -159,7 +178,7 @@ public class Accessible {
 	 * @return the platform specific accessible object
 	 */
 	public static Accessible internal_new_Accessible (Control control) {
-		return new Accessible (control, control.handle);
+		return new Accessible (control);
 	}
 
 	/* isValidThread was copied from Widget, and rewritten to work in this package */
@@ -167,6 +186,16 @@ public class Accessible {
 		return control.getDisplay ().getThread () == Thread.currentThread ();
 	}
 	
+	void release () {
+		AccessibleFactory.unregisterAccessible (Accessible.this);
+		if (accessibleObject != null) {
+			accessibleObject.release ();
+			accessibleObject = null;
+		}
+		accessibleListeners = null;
+		controlListeners = null;
+		textListeners = null;
+	}
 	/**
 	 * Removes the listener from the collection of listeners who will
 	 * be notifed when an accessible client asks for custom control

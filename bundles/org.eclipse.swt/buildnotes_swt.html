@@ -12,6 +12,93 @@
 Eclipse Platform Build Notes<br>
 SWT</h1>
 
+<h2> SWT Build 3.0 035 - Tuesday January 13, 2004 </h2>
+
+<h3><a NAME="Problem reports fixed"></a>Problem reports fixed</h3>
+<blockquote> 
+46800:  Arrow button doesn't receive focus  
+<br>49154:  Combo behavior not very user-friendly   
+<br>49534:  Javadoc of 'Control' should mention 'Traverse' event  
+<br>32828:  Loss of the modal context  
+<br>49471:  M6 image leak   
+<br>47279:  OS.ExpandEnvironmentStrings crashes on zero-length string  
+<br>49502:  Snippet 90 miss class specification  
+<br>49503:  Snippet 98 missing import statements  
+<br>49723:  StyledText is leaking StyleRange objects again  
+<br>49401:  SWT M6 outdated Manifest File prevents use of SWT_AWT from within Eclipse  
+<br>49381:  SWT.RIGHT does not work in Text  
+<br>49488:  swt_awt.c and swt_awt.rc files not in source bundle  
+<br>45149:  The position of IME input field is wrong.  
+</blockquote>
+
+<h2> SWT Build 3.0 034 - Monday December 15, 2003 </h2>
+
+<h3><a NAME="Problem reports fixed"></a>Problem reports fixed</h3>
+<blockquote>
+39606:  JAWS 4.5 not reading tabs    
+<br>48263: EC: gtk allows TabItem.setControl(...) value to be non-child of TabFolder.    
+<br>48343:  DCR: Provide means to get preferred cursor size
+<br>47928:  overly stringent bounds tests in Text.getText
+<br>48233:  [KeyBindings] shortcut Command+Space not working
+<br>22228:  [Workbench] program icon in ALT+TAB window looks ugly
+<br>48271:  EC: Control.setVisible doesn't do isDisposed() check
+</blockquote>
+
+<h2> SWT Build 3.0 033 - Tuesday December 9, 2003 </h2>
+
+<h3><a NAME="Breaking Changes"></a>Breaking Changes</h3>
+<blockquote>
+<code>Slider.setThumb(int), Slider.setValues(...), ScrollBar.setThumb(int)</code> and
+<code>ScrollBar.setValues(...)</code> now clamps the passed thumb value if it exceeds
+the receiver's range.
+</blockquote>
+
+<h3><a NAME="Problem reports fixed"></a>Problem reports fixed</h3>
+<blockquote>
+48036:  [browser] crash on IE when using javascript to close more...
+<br>48022:  3 mouse clicks cause 4 mouseDown events
+<br>47894:  Combo layout problems
+<br>47916:  [browser] crash on IE when setting text multiple time wit...
+<br>47885:  [browser] provide a resize event
+<br>48168:  [browser] breaking change - changing names of WindowEvents
+<br>45989:  Slider/Scrollbar API doc
+<br>47898:  StyledText leaking StyleRanges
+<br>47190:  Documentation missing
+<br>48297:  [browser] investigate support for Mozilla Firebird
+</blockquote>
+
+<h2> SWT Build 3.0 032 - Tuesday December 2, 2003 </h2>
+
+<h3><a NAME="New APIs"></a>New APIs</h3>
+<blockquote>
+org.eclipse.swt.awt.SWT_AWT class added for Windows, GTK and Motif - the class is not internal anymore
+</blockquote>
+
+<h3><a NAME="Problem reports fixed"></a>Problem reports fixed</h3>
+<blockquote>
+33687:  Combo widget does not size itself to handle largest entry
+<br>47170:  cheese when resize with focus ring
+<br>47557:  No images returned by Program.getImageData()
+<br>47245:  setEditable() method for Combo or CCombo
+<br>47468:  Support "full keyboard access" mode.
+<br>38149:  SHIFT + spacebar doesn't work
+<br>46810:  unexpected behavior for TableItem.setBackground() when co...
+<br>46641:  Browser widget: footprint and guidelines question
+<br>46707:  NPE when closing eclipse.
+<br>47366:  [New Look] Area not painted when tab in the background
+<br>46751:  [browser] Javascript window.close() does not work in the ...
+<br>46896:  CCombo setEnabled
+<br>47109:  Resize buttons horizontally leaves cheese
+<br>47530:  [New Look] Cheese when adding to a banner
+<br>47143:  List.add() != List.getItems() if string contains '\n'
+<br>34797:  API: Clipboard:isDisposed
+<br>47426:  [browser] breaking change - Replace NewWindowEvent with O...
+<br>29396:  Unable to get session data when using internal browser
+<br>47039:  Inconsistent shutdown
+<br>47391:  Combo.deselect(int) and deselectAll() doesn't work
+<br>44567:  Clipboard.dispose throws NPE
+</blockquote>
+
 <h2> SWT Build 3.0 031 - Tuesday November 25, 2003 </h2>
 
 <h3><a NAME="Problem reports fixed"></a>Problem reports fixed</h3>

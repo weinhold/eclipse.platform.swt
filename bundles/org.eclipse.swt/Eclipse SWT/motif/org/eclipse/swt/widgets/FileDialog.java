@@ -182,13 +182,15 @@ int itemSelected (int widget, int client, int call) {
 		ptr = buffer [0];
 	}
 	if (ptr == 0) return 0;
+	Display display = parent.getDisplay ();
+	int [] table = new int [] {display.tabMapping, display.crMapping};
 	int address = OS.XmStringUnparse (
 		ptr,
 		null,
 		OS.XmCHARSET_TEXT,
 		OS.XmCHARSET_TEXT,
-		null,
-		0,
+		table,
+		table.length,
 		OS.XmOUTPUT_ALL);
 	if (itemCount == 0) OS.XmStringFree (ptr);
 	if (address == 0) return 0;
@@ -210,13 +212,15 @@ int okPressed (int widget, int client, int call) {
 	OS.XtGetValues (dialog, argList, argList.length / 2);
 	
 	int xmString1 = argList [1];
+	Display display = parent.getDisplay ();
+	int [] table = new int [] {display.tabMapping, display.crMapping};
 	int ptr = OS.XmStringUnparse (
 		xmString1,
 		null,
 		OS.XmCHARSET_TEXT,
 		OS.XmCHARSET_TEXT,
-		null,
-		0,
+		table,
+		table.length,
 		OS.XmOUTPUT_ALL);
 	if (ptr != 0) {
 		int length = OS.strlen (ptr);
@@ -245,8 +249,8 @@ int okPressed (int widget, int client, int call) {
 				null,
 				OS.XmCHARSET_TEXT,
 				OS.XmCHARSET_TEXT,
-				null,
-				0,
+				table,
+				table.length,
 				OS.XmOUTPUT_ALL);
 			if (address != 0) {
 				int length = OS.strlen (address);
@@ -294,8 +298,8 @@ int okPressed (int widget, int client, int call) {
 		null,
 		OS.XmCHARSET_TEXT,
 		OS.XmCHARSET_TEXT,
-		null,
-		0,
+		table,
+		table.length,
 		OS.XmOUTPUT_ALL);
 	if (ptr != 0) {
 		int length = OS.strlen (ptr);

@@ -11,12 +11,11 @@
 package org.eclipse.swt.program;
 
 
-import org.eclipse.swt.internal.*;
-import org.eclipse.swt.internal.gtk.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
-
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.internal.*;
+import org.eclipse.swt.internal.gtk.*;
+import org.eclipse.swt.widgets.*;
 
 import java.io.*;
 import java.util.Iterator;
@@ -41,11 +40,11 @@ public final class Program {
 	 */
 	boolean gnomeExpectUri;
 
-	static private final String   desktopData = "Program_DESKTOP";
-		
+	static final String DESKTOP_DATA = "Program_DESKTOP";
 	static final int DESKTOP_UNKNOWN = 0;
-	static final int DESKTOP_KDE = 1;		// Linux
-	static final int DESKTOP_GNOME = 2;		// Linux
+	static final int DESKTOP_KDE = 1;
+	static final int DESKTOP_GNOME = 2;
+	static final int PREFERRED_ICON_SIZE = 16;
 	
 /**
  * Prevents uninitialized instances from being created outside the package.
@@ -55,20 +54,12 @@ Program() {
 
 /* Determine the desktop for the given display. */
 static int getDesktop(Display display) {
-	if (display == null) return DESKTOP_UNKNOWN;
-	
-	// If the desktop type for this display is already known, return it.
-	Integer desktopValue = (Integer) display.getData( desktopData );
-	if (desktopValue != null) {
-		return desktopValue.intValue();
-	}
+	if (display == null) return DESKTOP_UNKNOWN;	
+	Integer desktopValue = (Integer)display.getData(DESKTOP_DATA);
+	if (desktopValue != null) return desktopValue.intValue();
 	int desktop = DESKTOP_UNKNOWN;
-
-	if (isGnomeDesktop()) {
-		if (gnome_init()) desktop = DESKTOP_GNOME;
-	}
-	// Save the desktop type on the display itself.
-	display.setData( desktopData, new Integer(desktop) );
+	if (isGnomeDesktop() && gnome_init()) desktop = DESKTOP_GNOME;
+	display.setData(DESKTOP_DATA, new Integer(desktop));
 	return desktop;
 }
 
@@ -91,8 +82,8 @@ public static Program findProgram(String extension) {
  *  API: When support for multiple displays is added, this method will
  *       become public and the original method above can be deprecated.
  */
-private static Program findProgram(Display display, String extension) {
-	if (extension == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+static Program findProgram(Display display, String extension) {
+	if (extension == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (extension.length() == 0) return null;
 	if (extension.charAt(0) != '.') extension = "." + extension;
 	String command = null;
@@ -102,35 +93,21 @@ private static Program findProgram(Display display, String extension) {
 	if (desktop == DESKTOP_GNOME) mimeInfo = gnome_getMimeInfo(display);
 	if (mimeInfo == null) return null;
 
-	// Find the data type matching the extension.
+	/* Find the data type matching the extension. */
 	Iterator keys = mimeInfo.keySet().iterator();
 	while (name == null && keys.hasNext()) {
-		String mimeType = (String) keys.next();
-		Vector mimeExts = (Vector) mimeInfo.get(mimeType);
+		String mimeType = (String)keys.next();
+		Vector mimeExts = (Vector)mimeInfo.get(mimeType);
 		for (int index = 0; index < mimeExts.size(); index++){
-			if (extension.equals(mimeExts.elementAt(index) )) {
+			if (extension.equals(mimeExts.elementAt(index))) {
 				name = mimeType;
 				break;
 			}
 		}
-	}			
-	if (name == null) return null;
-
-	// Get the corresponding command for the mime type.
-	boolean[] gnomeExpectUri = null;
-	if (desktop == DESKTOP_GNOME) {
-		gnomeExpectUri = new boolean[1];
-		command = gnome_getMimeTypeCommand(name, gnomeExpectUri);
 	}
-	if (command == null) return null;
-	
-	// Return the corresponding program.
-	Program program   = new Program();
-	program.name      = name;
-	program.command   = command;
-	if (desktop == DESKTOP_GNOME) program.gnomeExpectUri = gnomeExpectUri[0];
-	program.extension = extension;
-	program.display   = display;
+	if (name == null) return null;
+	Program program = null;
+	if (desktop == DESKTOP_GNOME) program = gnome_getProgram(display, name);
 	return program;
 }
 
@@ -147,27 +124,26 @@ public static String[] getExtensions() {
  *  API: When support for multiple displays is added, this method will
  *       become public and the original method above can be deprecated.
  */
-private static String[] getExtensions(Display display) {
+static String[] getExtensions(Display display) {
 	int desktop = getDesktop(display);
 	Hashtable mimeInfo = null;
 	if (desktop == DESKTOP_GNOME) mimeInfo = gnome_getMimeInfo(display);
 	if (mimeInfo == null) return new String[0];
 
-			
-	// Create a unique set of the file extensions.
+	/* Create a unique set of the file extensions. */
 	Vector extensions = new Vector();
 	Iterator keys = mimeInfo.keySet().iterator();
 	while (keys.hasNext()) {
 		String mimeType = (String)keys.next();
-		Vector mimeExts = (Vector)mimeInfo.get( mimeType );
+		Vector mimeExts = (Vector)mimeInfo.get(mimeType);
 		for (int index = 0; index < mimeExts.size(); index++){
-			if (!extensions.contains(mimeExts.elementAt(index) )) {
-				extensions.addElement(mimeExts.elementAt(index) );
+			if (!extensions.contains(mimeExts.elementAt(index))) {
+				extensions.addElement(mimeExts.elementAt(index));
 			}
 		}
 	}
 			
-	// Return the list of extensions.
+	/* Return the list of extensions. */
 	String[] extStrings = new String[extensions.size()];
 	for (int index = 0; index < extensions.size(); index++) {
 		extStrings[index] = (String)extensions.elementAt(index);
@@ -188,64 +164,33 @@ public static Program[] getPrograms() {
  *  API: When support for multiple displays is added, this method will
  *       become public and the original method above can be deprecated.
  */
-private static Program[] getPrograms(Display display) {
+static Program[] getPrograms(Display display) {
 	int desktop = getDesktop(display);
 	Hashtable mimeInfo = null;
 	if (desktop == DESKTOP_GNOME) mimeInfo = gnome_getMimeInfo(display);
 	if (mimeInfo == null) return new Program[0];
 			
-	// Create a list of programs with commands.
+	/* Create a list of programs with commands. */
 	Vector programs = new Vector();
 	boolean[] gnomeExpectUri = null;
 	if (desktop == DESKTOP_GNOME) gnomeExpectUri = new boolean[1];
 	Iterator keys = mimeInfo.keySet().iterator();
 	while (keys.hasNext()) {
-		String mimeType  = (String)keys.next();
-		Vector mimeExts  = (Vector)mimeInfo.get(mimeType);
+		String mimeType = (String)keys.next();
+		Vector mimeExts = (Vector)mimeInfo.get(mimeType);
 		String extension = "";
-		if (mimeExts.size() > 0){
-			extension = (String)mimeExts.elementAt(0);
-		}
-		String command = null;
-		if (desktop == DESKTOP_GNOME) command = gnome_getMimeTypeCommand( mimeType, gnomeExpectUri);
-		if (command != null) {
-			Program program = new Program ();
-			program.name = mimeType;
-			program.command = command;
-			if (desktop == DESKTOP_GNOME) {
-				program.gnomeExpectUri = gnomeExpectUri[0];
-				program.imageData = gnome_getMimeIcon(mimeType);
-			}
-			program.extension = extension;
-			program.display = display;
-			programs.addElement(program);
-		}
+		if (mimeExts.size() > 0) extension = (String)mimeExts.elementAt(0);
+		Program program = null;
+		if (desktop == DESKTOP_GNOME) program = gnome_getProgram(display, mimeType);
+		if (program != null) programs.addElement(program);
 	}
 			
-	// Return the list of programs to the user.
+	/* Return the list of programs to the user. */
 	Program[] programList = new Program[programs.size()];
 	for (int index = 0; index < programList.length; index++) {
 		programList[index] = (Program)programs.elementAt(index);
 	}
 	return programList;
-}
-
-private static boolean isGnomeDesktop() {
-	/*
-	 * A Gnome Window Manager is detected by looking for a specific
-	 * property on the root window.
-	 */
-	byte[] name = Converter.wcsToMbcs(null, "_WIN_SUPPORTING_WM_CHECK", true);
-	int atom = OS.gdk_atom_intern(name, true);
-	if (atom == OS.GDK_NONE) return false;	
-	int[] actualType = new int[1];
-	int[] actualFormat = new int[1];
-	int[] actualLength = new int[1];
-	int[] data = new int[1];
-	if (!OS.gdk_property_get(OS.GDK_ROOT_PARENT(), atom, OS.XA_CARDINAL,
-		0, 1, 0, actualType, actualFormat, actualLength, data)) return false;
-	if (data[0] != 0) OS.g_free(data[0]);
-	return actualLength[0] > 0;
 }
 
 /*
@@ -254,7 +199,7 @@ private static boolean isGnomeDesktop() {
  * in the map is the mime type name. The value is
  * a vector of the associated file extensions.
  */
-private static Hashtable gnome_getMimeInfo(Display display) {
+static Hashtable gnome_getMimeInfo(Display display) {
 	Hashtable mimeInfo = new Hashtable();
 	int[] mimeData = new int[1];
 	int[] extensionData = new int[1];
@@ -291,103 +236,79 @@ private static Hashtable gnome_getMimeInfo(Display display) {
 	return mimeInfo;
 }
 
-private static String gnome_getMimeTypeCommand(String mimeType, boolean gnomeExpectUri[]) {
-	String command = null;
+static Program gnome_getProgram(Display display, String mimeType) {
+	Program program = null;
 	GnomeVFSMimeApplication application = new GnomeVFSMimeApplication();
 	byte[] mimeTypeBuffer = Converter.wcsToMbcs(null, mimeType, true);
 	int ptr = GNOME.gnome_vfs_mime_get_default_application(mimeTypeBuffer);
 	if (ptr != 0) {
+		program = new Program();
+		program.display = display;
+		program.name = mimeType;
 		GNOME.memmove(application, ptr, GnomeVFSMimeApplication.sizeof);
-		int	length = OS.strlen(application.command);
+		int length = OS.strlen(application.command);
 		byte[] buffer = new byte[length];
-		OS.memmove(buffer, application.command, length);
-		command = new String(Converter.mbcsToWcs(null, buffer));
-		gnomeExpectUri[0] = application.expects_uris == GNOME.GNOME_VFS_MIME_APPLICATION_ARGUMENT_TYPE_URIS;
+		OS.memmove(buffer, application.command, length);		
+		program.command = new String(Converter.mbcsToWcs(null, buffer));
+		program.gnomeExpectUri = application.expects_uris == GNOME.GNOME_VFS_MIME_APPLICATION_ARGUMENT_TYPE_URIS;
+		
+		length = OS.strlen(application.id);
+		buffer = new byte[length + 1];
+		OS.memmove(buffer, application.id, length);
+		/* 
+		* Note.  gnome_icon_theme_new uses g_object_new to allocate the data it returns.
+		* Use g_object_unref to free the pointer it returns.
+		*/
+		int icon_theme = GNOME.gnome_icon_theme_new();
+		int icon_name = GNOME.gnome_icon_lookup(icon_theme, 0, null, buffer, 0, mimeTypeBuffer, 
+				GNOME.GNOME_ICON_LOOKUP_FLAGS_NONE, null);
+		int path = 0;
+		if (icon_name != 0) path = GNOME.gnome_icon_theme_lookup_icon(icon_theme, icon_name, PREFERRED_ICON_SIZE, null, null);
+		GNOME.g_object_unref(icon_theme);
+		if (path != 0) {
+			length = OS.strlen(path);
+			if (length > 0) {
+				buffer = new byte[length];
+				OS.memmove(buffer, path, length);
+				String result = new String(Converter.mbcsToWcs(null, buffer));
+				try {
+					program.imageData = new ImageData(result);
+				} catch (Exception e) {
+				}
+			}
+			GNOME.g_free(icon_name);
+			GNOME.g_free(path);
+		}
 		GNOME.gnome_vfs_mime_application_free(ptr);
 	}
-	return command;
+	return program;
 }
 
-private static ImageData gnome_getMimeIcon(String mimeType) {
-	byte[] app_id = Converter.wcsToMbcs(null, "swt", true);
-	int ptr = OS.g_malloc(app_id.length);
-	OS.memmove(ptr, app_id, app_id.length);
-	int[] argv =  {ptr, 0};
-	/* 
-	* Note.  gnome_program_locate_file requires gnome_program_init to have been called at least
-	* once otherwise it outputs an error message.  The workaround is to call gnome_program_init
-	* with the minimal amount of arguments required to register as a Gnome application. 
-	*/
-	int program = GNOME.gnome_program_init(app_id, app_id, GNOME.LIBGNOME_MODULE(), 1, argv, GNOME.GNOME_PARAM_NONE);
-	OS.g_free(ptr);
-	byte[] mimeTypeBuffer = Converter.wcsToMbcs(null, mimeType, true);
-	ptr = GNOME.gnome_vfs_mime_get_icon(mimeTypeBuffer);
-	if (ptr == 0) return null;
-	int path = GNOME.gnome_program_locate_file(program, GNOME.GNOME_FILE_DOMAIN_PIXMAP, ptr, true, 0);
-	OS.g_free(ptr);
-	OS.g_free(program);
-	if (path == 0) return null;
-	int length = OS.strlen(path);
-	if (length == 0) return null;
-	byte[] buffer = new byte[length];
-	OS.memmove(buffer, path, length);
-	OS.g_free(path);
-	String result = new String(Converter.mbcsToWcs(null, buffer));
-	ImageData data = null;
+static boolean gnome_init() {
 	try {
-		data = new ImageData(result);
-	} catch (Exception e) {
+		Library.loadLibrary("swt-gnome");
+		return GNOME.gnome_vfs_init();
+	} catch (Throwable e) {
+		return false;
 	}
-	return data;
 }
 
-// Private method for parsing a command line into its arguments.
-private static String[] parseCommand(String cmd) {
-	Vector args = new Vector();
-	int sIndex = 0;
-	int eIndex;
-	while (sIndex < cmd.length()) {
-		// Trim initial white space of argument.
-		while (sIndex < cmd.length() && Compatibility.isWhitespace(cmd.charAt(sIndex))) {
-			sIndex++;
-		}
-		if (sIndex < cmd.length()) {
-			// If the command is a quoted string
-			if (cmd.charAt(sIndex) == '"' || cmd.charAt(sIndex) == '\'') {
-				// Find the terminating quote (or end of line).
-				// This code currently does not handle escaped characters (e.g., " a\"b").
-				eIndex = sIndex + 1;
-				while (eIndex < cmd.length() && cmd.charAt(eIndex) != cmd.charAt(sIndex)) {
-					eIndex++;
-				}
-				if (eIndex >= cmd.length()) { // the terminating quote was not found
-					// Add the argument as is with only one initial quote.
-					args.addElement(cmd.substring(sIndex, eIndex));
-				}
-				// else add the argument, trimming off the quotes.
-				else {
-					args.addElement(cmd.substring( sIndex+1, eIndex));
-				}
-				sIndex = eIndex + 1;
-			}
-			
-			// else use white space for the delimiters.
-			else {
-				eIndex = sIndex;
-				while (eIndex < cmd.length() && !Compatibility.isWhitespace(cmd.charAt(eIndex))) {
-					eIndex++;
-				}
-				args.addElement(cmd.substring(sIndex, eIndex));
-				sIndex = eIndex + 1;
-			}
-		}
-	}
-	
-	String[] strings = new String[args.size()];
-	for (int index =0; index < args.size(); index++) {
-		strings[index] = (String)args.elementAt(index);
-	}
-	return strings;
+static boolean isGnomeDesktop() {
+	/*
+	 * A Gnome Window Manager is detected by looking for a specific
+	 * property on the root window.
+	 */
+	byte[] name = Converter.wcsToMbcs(null, "_WIN_SUPPORTING_WM_CHECK", true);
+	int atom = OS.gdk_atom_intern(name, true);
+	if (atom == OS.GDK_NONE) return false;	
+	int[] actualType = new int[1];
+	int[] actualFormat = new int[1];
+	int[] actualLength = new int[1];
+	int[] data = new int[1];
+	if (!OS.gdk_property_get(OS.GDK_ROOT_PARENT(), atom, OS.XA_CARDINAL,
+		0, 1, 0, actualType, actualFormat, actualLength, data)) return false;
+	if (data[0] != 0) OS.g_free(data[0]);
+	return actualLength[0] > 0;
 }
 
 /**
@@ -410,27 +331,89 @@ public static boolean launch(String fileName) {
  *  API: When support for multiple displays is added, this method will
  *       become public and the original method above can be deprecated.
  */
-private static boolean launch(Display display, String fileName) {
+static boolean launch(Display display, String fileName) {
 	if (fileName == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	
-	// If the argument appears to be a data file (it has an extension)
+	/* If the argument appears to be a data file (it has an extension) */
 	int index = fileName.lastIndexOf('.');
 	if (index > 0) {
-		// Find the associated program, if one is defined.
+		/* Find the associated program, if one is defined. */
 		String extension = fileName.substring(index);
 		Program program = Program.findProgram(display, extension); 
 		
-		// If the associated program is defined and can be executed, return.
+		/* If the associated program is defined and can be executed, return. */
 		if (program != null && program.execute(fileName)) return true;
 	}
 	
-	// Otherwise, the argument was the program itself.
+	/* Otherwise, the argument was the program itself. */
 	try {
 		Compatibility.exec(fileName);
 		return true;
 	} catch (IOException e) {
 		return false;
 	}
+}
+
+static String[] parseCommand(String cmd) {
+	Vector args = new Vector();
+	int sIndex = 0;
+	int eIndex;
+	while (sIndex < cmd.length()) {
+		/* Trim initial white space of argument. */
+		while (sIndex < cmd.length() && Compatibility.isWhitespace(cmd.charAt(sIndex))) {
+			sIndex++;
+		}
+		if (sIndex < cmd.length()) {
+			/* If the command is a quoted string */
+			if (cmd.charAt(sIndex) == '"' || cmd.charAt(sIndex) == '\'') {
+				/* Find the terminating quote (or end of line).
+				 * This code currently does not handle escaped characters (e.g., " a\"b").
+				 */
+				eIndex = sIndex + 1;
+				while (eIndex < cmd.length() && cmd.charAt(eIndex) != cmd.charAt(sIndex)) eIndex++;
+				if (eIndex >= cmd.length()) { 
+					/* The terminating quote was not found
+					 * Add the argument as is with only one initial quote.
+					 */
+					args.addElement(cmd.substring(sIndex, eIndex));
+				}
+				else {
+					/* Add the argument, trimming off the quotes. */
+					args.addElement(cmd.substring(sIndex+1, eIndex));
+				}
+				sIndex = eIndex + 1;
+			}			
+			else {
+				/* Use white space for the delimiters. */
+				eIndex = sIndex;
+				while (eIndex < cmd.length() && !Compatibility.isWhitespace(cmd.charAt(eIndex))) eIndex++;
+				args.addElement(cmd.substring(sIndex, eIndex));
+				sIndex = eIndex + 1;
+			}
+		}
+	}
+	
+	String[] strings = new String[args.size()];
+	for (int index =0; index < args.size(); index++) {
+		strings[index] = (String)args.elementAt(index);
+	}
+	return strings;
+}
+
+/**
+ * Returns true if the receiver and the argument represent
+ * the same program.
+ * 
+ * @return true if the programs are the same
+ */
+public boolean equals(Object other) {
+	if (this == other) return true;
+	if (other instanceof Program) {
+		final Program program = (Program)other;
+		return display == program.display && extension.equals(program.extension) &&
+			name.equals(program.name) && command.equals(program.command);
+	}
+	return false;
 }
 
 /**
@@ -452,11 +435,11 @@ public boolean execute (String fileName) {
 	int desktop = getDesktop(display);
 	if (desktop == DESKTOP_GNOME) {		
 		if (gnomeExpectUri) {
-			/* convert the given path into a URL */
+			/* Convert the given path into a URL */
 			fileName = "file://" + fileName;
 		}
 
-		// Parse the command into its individual arguments.
+		/* Parse the command into its individual arguments. */
 		String[] args = parseCommand(command);
 		int fileArg = -1;
 		int index;
@@ -469,16 +452,15 @@ public boolean execute (String fileName) {
 			}
 		}
 	
-		// If a file name was given but the command did not have "%f"
+		/* If a file name was given but the command did not have "%f" */
 		if ((fileName.length() > 0) && (fileArg < 0)) {
 			String[] newArgs = new String[args.length + 1];
-			for (index = 0; index < args.length; index++)
-				newArgs[index] = args[index];
+			for (index = 0; index < args.length; index++) newArgs[index] = args[index];
 			newArgs[args.length] = fileName;
 			args = newArgs;
 		}
 	
-		// Execute the command.
+		/* Execute the command. */
 		try {
 			Compatibility.exec(args);
 		} catch (IOException e) {
@@ -514,22 +496,6 @@ public String getName () {
 }
 
 /**
- * Returns true if the receiver and the argument represent
- * the same program.
- * 
- * @return true if the programs are the same
- */
-public boolean equals(Object other) {
-	if (this == other) return true;
-	if (other instanceof Program) {
-		final Program program = (Program)other;
-		return display == program.display && extension.equals(program.extension) &&
-			name.equals(program.name) && command.equals(program.command);
-	}
-	return false;
-}
-
-/**
  * Returns a hash code suitable for this object.
  * 
  * @return a hash code
@@ -538,16 +504,7 @@ public int hashCode() {
 	return extension.hashCode() ^ name.hashCode() ^ command.hashCode() ^ display.hashCode();
 }
 
-public String toString () {
+public String toString() {
 	return "Program {" + name + "}";
-}
-
-static boolean gnome_init () {
-	try {
-		Library.loadLibrary("swt-gnome");
-		return GNOME.gnome_vfs_init();
-	} catch (Throwable e) {
-		return false;
-	}
 }
 }

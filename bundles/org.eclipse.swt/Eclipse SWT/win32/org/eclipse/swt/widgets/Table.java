@@ -439,13 +439,14 @@ public void deselect (int [] indices) {
 	lvItem.stateMask = OS.LVIS_SELECTED;
 	for (int i=0; i<indices.length; i++) {
 		/*
-		 * An index of -1 will apply the change to all
-		 * items.  Ensure that indices are greater than -1.
-		 */
-		if (indices [i] < 0) continue;
-		ignoreSelect = true;
-		OS.SendMessage (handle, OS.LVM_SETITEMSTATE, indices [i], lvItem);
-		ignoreSelect = false;
+		* An index of -1 will apply the change to all
+		* items.  Ensure that indices are greater than -1.
+		*/
+		if (indices [i] >= 0) {
+			ignoreSelect = true;
+			OS.SendMessage (handle, OS.LVM_SETITEMSTATE, indices [i], lvItem);
+			ignoreSelect = false;
+		}
 	}
 }
 
@@ -464,9 +465,9 @@ public void deselect (int [] indices) {
 public void deselect (int index) {
 	checkWidget ();
 	/*
-	 * An index of -1 will apply the change to all
-	 * items.  Ensure that index is greater than -1.
-	 */
+	* An index of -1 will apply the change to all
+	* items.  Ensure that index is greater than -1.
+	*/
 	if (index < 0) return;
 	LVITEM lvItem = new LVITEM ();
 	lvItem.stateMask = OS.LVIS_SELECTED;
@@ -495,9 +496,9 @@ public void deselect (int start, int end) {
 	LVITEM lvItem = new LVITEM ();
 	lvItem.stateMask = OS.LVIS_SELECTED;
 	/*
-	 * An index of -1 will apply the change to all
-	 * items.  Ensure that indices are greater than -1.
-	 */
+	* An index of -1 will apply the change to all
+	* items.  Ensure that indices are greater than -1.
+	*/
 	start = Math.max (0, start);
 	for (int i=start; i<=end; i++) {
 		ignoreSelect = true;
@@ -1163,17 +1164,20 @@ void releaseWidget () {
 	int itemCount = OS.SendMessage (handle, OS.LVM_GETITEMCOUNT, 0, 0);
 
 	/*
-	* Feature in Windows.  When there are a large number
+	* Feature in Windows 98.  When there are a large number
 	* of columns and items in a table (>1000) where each
 	* of the subitems in the table has a string, it is much
 	* faster to delete each item with LVM_DELETEITEM rather
 	* than using LVM_DELETEALLITEMS.  The fix is to detect
-	* this case and delete the items, one by one.
+	* this case and delete the items, one by one.  The fact
+	* that the fix is only necessary on Windows 98 was
+	* confirmed using version 5.81 of COMCTL32.DLL on both
+	* Windows 98 and NT.
 	*
 	* NOTE: LVM_DELETEALLITEMS is also sent by the table
 	* when the table is destroyed.
 	*/	
-	if (columnCount > 1) {
+	if (OS.IsWin95 && columnCount > 1) {
 		/* Turn off redraw and leave it off */
 		OS.SendMessage (handle, OS.WM_SETREDRAW, 0, 0);
 		for (int i=itemCount-1; i>=0; --i) {
@@ -1344,17 +1348,20 @@ public void removeAll () {
 	int itemCount = OS.SendMessage (handle, OS.LVM_GETITEMCOUNT, 0, 0);
 	
 	/*
-	* Feature in Windows.  When there are a large number
+	* Feature in Windows 98.  When there are a large number
 	* of columns and items in a table (>1000) where each
 	* of the subitems in the table has a string, it is much
 	* faster to delete each item with LVM_DELETEITEM rather
 	* than using LVM_DELETEALLITEMS.  The fix is to detect
-	* this case and delete the items, one by one.
+	* this case and delete the items, one by one.  The fact
+	* that the fix is only necessary on Windows 98 was
+	* confirmed using version 5.81 of COMCTL32.DLL on both
+	* Windows 98 and NT.
 	*
 	* NOTE: LVM_DELETEALLITEMS is also sent by the table
 	* when the table is destroyed.
 	*/	
-	if (columnCount > 1) {
+	if (OS.IsWin95 && columnCount > 1) {
 		boolean redraw = drawCount == 0 && OS.IsWindowVisible (handle);
 		if (redraw) OS.SendMessage (handle, OS.WM_SETREDRAW, 0, 0);
 		int index = itemCount - 1;
@@ -1463,10 +1470,11 @@ public void select (int [] indices) {
 		* An index of -1 will apply the change to all
 	 	* items.  Ensure that indices are greater than -1.
 	 	*/
-		if (indices [i] < 0) continue;
-		ignoreSelect = true;
-		OS.SendMessage (handle, OS.LVM_SETITEMSTATE, indices [i], lvItem);
-		ignoreSelect = false;
+		if (indices [i] >= 0) {
+			ignoreSelect = true;
+			OS.SendMessage (handle, OS.LVM_SETITEMSTATE, indices [i], lvItem);
+			ignoreSelect = false;
+		}
 	}
 }
 
@@ -1485,9 +1493,9 @@ public void select (int [] indices) {
 public void select (int index) {
 	checkWidget ();
 	/*
-	 * An index of -1 will apply the change to all
-	 * items.  Ensure that index is greater than -1.
-	 */
+	* An index of -1 will apply the change to all
+	* items.  Ensure that index is greater than -1.
+	*/
 	if (index < 0) return;
 	LVITEM lvItem = new LVITEM ();
 	lvItem.state = OS.LVIS_SELECTED;
@@ -1518,9 +1526,9 @@ public void select (int start, int end) {
 	lvItem.state = OS.LVIS_SELECTED;
 	lvItem.stateMask = OS.LVIS_SELECTED;
 	/*
-	 * An index of -1 will apply the change to all
-	 * items.  Ensure that indices are greater than -1.
-	 */
+	* An index of -1 will apply the change to all
+	* items.  Ensure that indices are greater than -1.
+	*/
 	start = Math.max (0, start);
 	for (int i=start; i<=end; i++) {
 		ignoreSelect = true;
@@ -1716,9 +1724,9 @@ void setCheckboxImageList (int width, int height) {
 void setFocusIndex (int index) {
 //	checkWidget ();	
 	/*
-	 * An index of -1 will apply the change to all
-	 * items.  Ensure that index is greater than -1.
-	 */
+	* An index of -1 will apply the change to all
+	* items.  Ensure that index is greater than -1.
+	*/
 	if (index < 0) return;
 	LVITEM lvItem = new LVITEM ();
 	lvItem.state = OS.LVIS_FOCUSED;
@@ -1848,14 +1856,16 @@ public void setRedraw (boolean redraw) {
 	if (redraw) {
 		if (--drawCount == 0) {
 			/*
-			* This code is intentionally commented.  When many items
-			* are added to a table, it is slightly faster to temporarily
-			* unsubclass the window proc so that messages are dispatched
-			* directly to the table.  This is optimization is dangerous
-			* because any operation can occur when redraw is turned off,
-			* even operations where the table must be subclassed in order
-			* to have the correct behavior or work around a Windows bug.
-			* For now, don't attempt it.
+			* When many items are added to a table, it is faster to
+			* temporarily unsubclass the window proc so that messages
+			* are dispatched directly to the table.
+			*
+			* NOTE: This is optimization somewhat dangerous because any
+			* operation can occur when redraw is turned off, even operations
+			* where the table must be subclassed in order to have the correct
+			* behavior or work around a Windows bug.
+			* 
+			* This code is intentionally commented. 
 			*/
 //			subclass ();
 			
@@ -1928,14 +1938,16 @@ public void setRedraw (boolean redraw) {
 			if (hwndHeader != 0) OS.SendMessage (hwndHeader, OS.WM_SETREDRAW, 0, 0);
 			
 			/*
-			* This code is intentionally commented.  When many items
-			* are added to a table, it is slightly faster to temporarily
-			* unsubclass the window proc so that messages are dispatched
-			* directly to the table.  This is optimization is dangerous
-			* because any operation can occur when redraw is turned off,
-			* even operations where the table must be subclassed in order
-			* to have the correct behavior or work around a Windows bug.
-			* For now, don't attempt it.
+			* When many items are added to a table, it is faster to
+			* temporarily unsubclass the window proc so that messages
+			* are dispatched directly to the table.
+			*
+			* NOTE: This is optimization somewhat dangerous because any
+			* operation can occur when redraw is turned off, even operations
+			* where the table must be subclassed in order to have the correct
+			* behavior or work around a Windows bug.
+			*
+			* This code is intentionally commented. 
 			*/
 //			unsubclass ();
 		}

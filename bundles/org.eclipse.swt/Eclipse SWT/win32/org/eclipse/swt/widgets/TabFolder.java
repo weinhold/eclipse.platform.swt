@@ -45,13 +45,13 @@ public class TabFolder extends Composite {
 	TabItem [] items;
 	ImageList imageList;
 	static final int TabFolderProc;
-	static final TCHAR TabFolderClass = new TCHAR (0, "SWT_" + OS.WC_TABCONTROL, true);
+	static final TCHAR TabFolderClass = new TCHAR (0, OS.WC_TABCONTROL, true);
 	
 	/*
-	 * These are the undocumented control id's for the children of
-	 * a tab control.  Since there are no constants for these values,
-	 * they may change with different versions of Windows.
-	 */
+	* These are the undocumented control id's for the children of
+	* a tab control.  Since there are no constants for these values,
+	* they may change with different versions of Windows.
+	*/
 	static final int ID_UPDOWN = 1;
 	
 	static {
@@ -63,23 +63,31 @@ public class TabFolder extends Composite {
 		* register a new window class without these bits and
 		* implement special code that damages only the exposed
 		* area.
+		* 
+		* NOTE:  Screen readers look for the exact class name
+		* of the control in order to provide the correct kind
+		* of assistance.  Therefore, it is critical that the
+		* new window class have the same name.  It is possible
+		* to register a local window class with the same name
+		* as a global class.  Since bits that affect painting
+		* are being cleared, it is possible that other native
+		* code, other than SWT, could create a control with
+		* this class name, causing them to get pixel corruption.
 		*/
 		WNDCLASS lpWndClass = new WNDCLASS ();
 		TCHAR WC_TABCONTROL = new TCHAR (0, OS.WC_TABCONTROL, true);
 		OS.GetClassInfo (0, WC_TABCONTROL, lpWndClass);
 		TabFolderProc = lpWndClass.lpfnWndProc;
 		int hInstance = OS.GetModuleHandle (null);
-		if (!OS.GetClassInfo (hInstance, TabFolderClass, lpWndClass)) {
-			int hHeap = OS.GetProcessHeap ();
-			lpWndClass.hInstance = hInstance;
-			lpWndClass.style &= ~(OS.CS_HREDRAW | OS.CS_VREDRAW);
-			int byteCount = TabFolderClass.length () * TCHAR.sizeof;
-			int lpszClassName = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
-			OS.MoveMemory (lpszClassName, TabFolderClass, byteCount);
-			lpWndClass.lpszClassName = lpszClassName;
-			OS.RegisterClass (lpWndClass);
-//			OS.HeapFree (hHeap, 0, lpszClassName);
-		}
+		int hHeap = OS.GetProcessHeap ();
+		lpWndClass.hInstance = hInstance;
+		lpWndClass.style &= ~(OS.CS_HREDRAW | OS.CS_VREDRAW | OS.CS_GLOBALCLASS);
+		int byteCount = TabFolderClass.length () * TCHAR.sizeof;
+		int lpszClassName = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+		OS.MoveMemory (lpszClassName, TabFolderClass, byteCount);
+		lpWndClass.lpszClassName = lpszClassName;
+		OS.RegisterClass (lpWndClass);
+//		OS.HeapFree (hHeap, 0, lpszClassName);	
 	}
 
 /**
@@ -277,14 +285,7 @@ void destroyItem (TabItem item) {
 		items = new TabItem [4];
 	}
 	if (count > 0 && index == selectionIndex) {
-		setSelection (Math.max (0, selectionIndex - 1));
-		selectionIndex = getSelectionIndex ();
-		if (selectionIndex != -1) {
-			Event event = new Event ();
-			event.item = items [selectionIndex];
-			sendEvent (SWT.Selection, event);
-			// the widget could be destroyed at this point
-		}
+		setSelection (Math.max (0, selectionIndex - 1), true);
 	}
 }
 
@@ -560,19 +561,19 @@ public void setSelection (TabItem [] items) {
 	checkWidget ();
 	if (items == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (items.length == 0) {
-		setSelection (-1);
-		return;
-	}
-	for (int i=items.length-1; i>=0; --i) {
-		int index = indexOf (items [i]);
-		if (index != -1) setSelection (index);
+		setSelection (-1, false);
+	} else {
+		for (int i=items.length-1; i>=0; --i) {
+			int index = indexOf (items [i]);
+			if (index != -1) setSelection (index, false);
+		}
 	}
 }
 
 /**
  * Selects the item at the given zero-relative index in the receiver. 
  * If the item at the index was already selected, it remains selected.
- * The current selected is first cleared, then the new items are
+ * The current selection is first cleared, then the new items are
  * selected. Indices that are out of range are ignored.
  *
  * @param index the index of the item to select
@@ -584,6 +585,8 @@ public void setSelection (TabItem [] items) {
  */
 public void setSelection (int index) {
 	checkWidget ();
+	int count = OS.SendMessage (handle, OS.TCM_GETITEMCOUNT, 0, 0);
+	if (!(0 <= index && index < count)) return;
 	setSelection (index, false);
 }
 

@@ -371,10 +371,17 @@ public void setIncrement (int value) {
  */
 public void setMaximum (int value) {
 	checkWidget ();
-	int minimum = getMinimum ();
+	int hAdjustment = OS.gtk_range_get_adjustment (handle);
+	GtkAdjustment adjustment = new GtkAdjustment ();
+	OS.memmove (adjustment, hAdjustment);
+	int minimum = (int) adjustment.lower;
 	if (value <= minimum) return;
+	adjustment.upper = value;
+	adjustment.page_size = Math.min (adjustment.page_size, value - minimum);
+	adjustment.value = Math.min (adjustment.value, value - adjustment.page_size);
+	OS.memmove (hAdjustment, adjustment);
 	OS.g_signal_handlers_block_matched (handle, OS.G_SIGNAL_MATCH_DATA, 0, 0, 0, 0, VALUE_CHANGED);
-	OS.gtk_range_set_range (handle, minimum, value);
+	OS.gtk_adjustment_changed (hAdjustment);
 	OS.g_signal_handlers_unblock_matched (handle, OS.G_SIGNAL_MATCH_DATA, 0, 0, 0, 0, VALUE_CHANGED);
 }
 
@@ -393,10 +400,17 @@ public void setMaximum (int value) {
 public void setMinimum (int value) {
 	checkWidget ();
 	if (value < 0) return;
-	int maximum = getMaximum ();
+	int hAdjustment = OS.gtk_range_get_adjustment (handle);
+	GtkAdjustment adjustment = new GtkAdjustment ();
+	OS.memmove (adjustment, hAdjustment);
+	int maximum = (int) adjustment.upper;
 	if (value >= maximum) return;
+	adjustment.lower = value;
+	adjustment.page_size = Math.min (adjustment.page_size, maximum - value);
+	adjustment.value = Math.max (adjustment.value, value);
+	OS.memmove (hAdjustment, adjustment);
 	OS.g_signal_handlers_block_matched (handle, OS.G_SIGNAL_MATCH_DATA, 0, 0, 0, 0, VALUE_CHANGED);
-	OS.gtk_range_set_range (handle, value, maximum);
+	OS.gtk_adjustment_changed (hAdjustment);
 	OS.g_signal_handlers_unblock_matched (handle, OS.G_SIGNAL_MATCH_DATA, 0, 0, 0, 0, VALUE_CHANGED);
 }
 
@@ -460,7 +474,7 @@ public void setThumb (int value) {
 	int hAdjustment = OS.gtk_range_get_adjustment (handle);
 	GtkAdjustment adjustment = new GtkAdjustment ();
 	OS.memmove (adjustment, hAdjustment);
-	if (value > adjustment.upper - adjustment.lower) return;
+	value = (int) Math.min (value, adjustment.upper - adjustment.lower);
 	adjustment.page_size = (double) value;
 	adjustment.value = Math.min (adjustment.value, adjustment.upper - value);
 	OS.memmove (hAdjustment, adjustment);
@@ -495,9 +509,9 @@ public void setValues (int selection, int minimum, int maximum, int thumb, int i
 	if (minimum < 0) return;
 	if (maximum < 0) return;
 	if (thumb < 1) return;
-	if (maximum - minimum - thumb < 0) return;
 	if (increment < 1) return;
 	if (pageIncrement < 1) return;
+	thumb = Math.min (thumb, maximum - minimum);
 	int hAdjustment = OS.gtk_range_get_adjustment (handle);
 	GtkAdjustment adjustment = new GtkAdjustment ();
 	OS.memmove (adjustment, hAdjustment);

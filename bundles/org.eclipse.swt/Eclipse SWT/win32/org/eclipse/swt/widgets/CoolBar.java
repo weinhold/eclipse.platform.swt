@@ -912,6 +912,30 @@ LRESULT WM_COMMAND (int wParam, int lParam) {
 	return LRESULT.ZERO;
 }
 
+LRESULT WM_ERASEBKGND (int wParam, int lParam) {
+	LRESULT result = super.WM_ERASEBKGND (wParam, lParam);
+	if (result != null) return result;
+		
+	/*
+	* Feature in Windows.  For some reason, Windows
+	* does not fully erase the area that the cool bar
+	* occupies when the size of the cool bar is larger
+	* than the space occupied by the cool bar items.
+	* The fix is to erase the cool bar background.
+	* 
+	* NOTE: On versions of Windows prior to XP, for
+	* some reason, the cool bar draws separators in
+	* WM_ERASEBKGND.  Therefore it is essential to run
+	* the cool bar window proc after the background has
+	* been erased.
+	* 
+	* On XP, this work around is unnecessary because
+	* the background is drawn using NM_CUSTOMDRAW.
+	*/
+	if (COMCTL32_MAJOR < 6) drawBackground (wParam);
+	return null;
+}
+
 LRESULT WM_NOTIFY (int wParam, int lParam) {
 	/*
 	* Feature in Windows.  When the cool bar window
@@ -1003,27 +1027,22 @@ LRESULT wmNotifyChild (int wParam, int lParam) {
 			break;
 		case OS.NM_CUSTOMDRAW:
 			/*
-			* Feature in Windows.  For some reason, Windows
-			* does not fully erase the area that the cool bar
-			* occupies when the size of the cool bar is larger
-			* than the space occupied by the cool bar items.
-			* The fix is to erase the cool bar background in
-			* all cases.
-			*
-			* NOTE:  This work around is unnecessary on XP
-			* and interferes with the drawing of the theme.
+			* Bug in Windows.  On versions of Windows prior to XP,
+			* drawing the background color in NM_CUSTOMDRAW erases
+			* the separators.  The fix is to draw the background
+			* in WM_ERASEBKGND.
 			*/
-			if (COMCTL32_MAJOR >= 6) {
-				if (background == -1) break;
-			}
-			NMCUSTOMDRAW nmcd = new NMCUSTOMDRAW ();
-			OS.MoveMemory (nmcd, lParam, NMCUSTOMDRAW.sizeof);
-			switch (nmcd.dwDrawStage) {
-				case OS.CDDS_PREERASE:
-					return new LRESULT (OS.CDRF_NOTIFYPOSTERASE);
-				case OS.CDDS_POSTERASE :
-					drawBackground(nmcd.hdc);
-					break;
+			if (COMCTL32_MAJOR < 6) break;
+			if (background != -1) {
+				NMCUSTOMDRAW nmcd = new NMCUSTOMDRAW ();
+				OS.MoveMemory (nmcd, lParam, NMCUSTOMDRAW.sizeof);
+				switch (nmcd.dwDrawStage) {
+					case OS.CDDS_PREERASE:
+						return new LRESULT (OS.CDRF_NOTIFYPOSTERASE);
+					case OS.CDDS_POSTERASE:
+						drawBackground(nmcd.hdc);
+						break;
+				}
 			}
 			break;
 	}

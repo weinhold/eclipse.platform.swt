@@ -307,13 +307,12 @@ void createRenderers (int columnHandle, int modelIndex, boolean check, int colum
 	/* Set alignment */
 	if ((columnStyle & SWT.RIGHT) != 0) {
 		OS.g_object_set (textRenderer, OS.xalign, 1f, 0);
-		OS.g_object_set (pixbufRenderer, OS.xalign, 1f, 0);
-		OS.gtk_tree_view_column_pack_start (columnHandle, pixbufRenderer, true);
-		OS.gtk_tree_view_column_pack_start (columnHandle, textRenderer, false);
+		OS.gtk_tree_view_column_pack_start (columnHandle, pixbufRenderer, false);
+		OS.gtk_tree_view_column_pack_start (columnHandle, textRenderer, true);
 		OS.gtk_tree_view_column_set_alignment (columnHandle, 1f);
 	} else if ((columnStyle & SWT.CENTER) != 0) {
-		OS.g_object_set (pixbufRenderer, OS.xalign, 1f, 0);
-		OS.gtk_tree_view_column_pack_start (columnHandle, pixbufRenderer, true);
+		OS.g_object_set (textRenderer, OS.xalign, 0.5f, 0);
+		OS.gtk_tree_view_column_pack_start (columnHandle, pixbufRenderer, false);
 		OS.gtk_tree_view_column_pack_end (columnHandle, textRenderer, true);
 		OS.gtk_tree_view_column_set_alignment (columnHandle, 0.5f);
 	} else {
@@ -324,6 +323,7 @@ void createRenderers (int columnHandle, int modelIndex, boolean check, int colum
 
 	/* Add attributes */
 	OS.gtk_tree_view_column_add_attribute (columnHandle, pixbufRenderer, "pixbuf", modelIndex);
+	OS.gtk_tree_view_column_add_attribute (columnHandle, pixbufRenderer, "cell-background-gdk", BACKGROUND_COLUMN);
 	OS.gtk_tree_view_column_add_attribute (columnHandle, textRenderer, "text", modelIndex + 1);
 	OS.gtk_tree_view_column_add_attribute (columnHandle, textRenderer, "foreground-gdk", FOREGROUND_COLUMN);
 	OS.gtk_tree_view_column_add_attribute (columnHandle, textRenderer, "background-gdk", BACKGROUND_COLUMN);
@@ -849,22 +849,16 @@ public int getItemCount () {
  */
 public int getItemHeight () {
 	checkWidget();
-	if (itemCount == 0) {
-		int column = OS.gtk_tree_view_get_column (handle, 0);
-		int list = OS.gtk_tree_view_column_get_cell_renderers (column);
-		int length = OS.g_list_length (list);
-		int renderer = OS.g_list_nth_data (list, length - 1);
-		OS.g_list_free (list);
-		int [] w = new int [1], h = new int [1];
-		OS.gtk_cell_renderer_get_size (renderer, handle, null, null, null, w, h);
-		return h [0];
-	}
-	GdkRectangle rect = new GdkRectangle ();
-	int path = OS.gtk_tree_path_new_first ();
-	OS.gtk_widget_realize (handle);
-	OS.gtk_tree_view_get_cell_area (handle, path, 0, rect);
-	OS.gtk_tree_path_free (path);
-	return rect.height;
+	int column = OS.gtk_tree_view_get_column (handle, 0);
+	int list = OS.gtk_tree_view_column_get_cell_renderers (column);
+	int length = OS.g_list_length (list);
+	int renderer = OS.g_list_nth_data (list, length - 1);
+	OS.g_list_free (list);
+	int [] h = new int [1];
+	OS.gtk_cell_renderer_get_size (renderer, handle, null, null, null, null, h);
+	int[] separator = new int [1];
+	OS.gtk_widget_style_get (handle, OS.horizontal_separator, separator, 0);
+	return h [0] + separator [0];
 }
 
 /**

@@ -179,12 +179,11 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	while (hItem != 0) {
 		rect.left = hItem;
 		if (OS.SendMessage (handle, OS.TVM_GETITEMRECT, 1, rect) != 0) {
-			width = Math.max (width, rect.right - rect.left);
+			width = Math.max (width, rect.right);
 			height += rect.bottom - rect.top;
 		}
 		hItem = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_NEXT, hItem);
 	}
-	width = width * 2;
 	if (width == 0) width = DEFAULT_WIDTH;
 	if (height == 0) height = DEFAULT_HEIGHT;
 	if (wHint != SWT.DEFAULT) width = wHint;
@@ -469,7 +468,7 @@ public int getItemHeight () {
 }
 
 /**
- * Returns the number of items contained in the receiver
+ * Returns the items contained in the receiver
  * that are direct item children of the receiver.  These
  * are the roots of the tree.
  * <p>
@@ -478,7 +477,7 @@ public int getItemHeight () {
  * not affect the receiver. 
  * </p>
  *
- * @return the number of items
+ * @return the items
  *
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
@@ -1173,6 +1172,7 @@ void showItem (int hItem) {
 		RECT itemRect = new RECT ();
 		itemRect.left = hItem;
 		if (OS.SendMessage (handle, OS.TVM_GETITEMRECT, 1, itemRect) != 0) {
+			forceResize ();
 			RECT rect = new RECT ();
 			OS.GetClientRect (handle, rect);
 			POINT pt = new POINT ();
@@ -1301,8 +1301,27 @@ LRESULT WM_CHAR (int wParam, int lParam) {
 	* proc in these cases.
 	*/
 	switch (wParam) {
-		case OS.VK_ESCAPE:
 		case OS.VK_RETURN:
+			/*
+			* Feature in Windows.  Windows sends NM_RETURN from WM_KEYDOWN
+			* instead of using WM_CHAR.  This means that application code
+			* that expects to consume the key press and therefore avoid the
+			* SWT.DefaultSelection event from WM_CHAR will fail.  The fix
+			* is to implement SWT.DefaultSelection in WM_CHAR instead of
+			* using NM_RETURN.
+			*/
+			Event event = new Event ();
+			int hItem = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
+			if (hItem != 0) {
+				TVITEM tvItem = new TVITEM ();
+				tvItem.hItem = hItem;
+				tvItem.mask = OS.TVIF_PARAM;
+				OS.SendMessage (handle, OS.TVM_GETITEM, 0, tvItem);
+				event.item = items [tvItem.lParam];
+			}
+			postEvent (SWT.DefaultSelection, event);
+			//FALL THROUGH
+		case OS.VK_ESCAPE:
 		case OS.VK_SPACE: return LRESULT.ZERO;
 	}
 	return result;
@@ -1890,7 +1909,6 @@ LRESULT wmNotifyChild (int wParam, int lParam) {
 			OS.SendMessage (handle, OS.TVM_HITTEST, 0, lpht);
 			if ((lpht.flags & OS.TVHT_ONITEM) == 0) break;
 			// FALL THROUGH
-		case OS.NM_RETURN:
 		case OS.TVN_SELCHANGEDA:
 		case OS.TVN_SELCHANGEDW:
 			if (!ignoreSelect) {

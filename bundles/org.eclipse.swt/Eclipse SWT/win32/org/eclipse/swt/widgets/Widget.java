@@ -50,22 +50,11 @@ public abstract class Widget {
 	Object data;
 
 	/* Global state flags */
-//	static final int AUTOMATIC		= 1<<0;
-//	static final int ACTIVE			= 1<<1;
-//	static final int GRAB			= 1<<2;
-//	static final int MULTIEXPOSE	= 1<<3;
-//	static final int RESIZEREDRAW	= 1<<4;
-//	static final int WRAP			= 1<<5;
-	static final int DISABLED		= 1<<6;
-	static final int HIDDEN			= 1<<7;
-//	static final int FOREGROUND		= 1<<8;
-//	static final int BACKGROUND		= 1<<9;
-	static final int DISPOSED		= 1<<10;
-//	static final int HANDLE			= 1<<11;
-	static final int CANVAS			= 1<<12;
-//	static final int MOVED			= 1<<13;
-//	static final int RESIZED		= 1<<14;
-	static final int KEYED_DATA		= 1<<15;
+	static final int DISPOSED		= 1<<0;
+	static final int CANVAS			= 1<<1;
+	static final int KEYED_DATA		= 1<<2;
+	static final int DISABLED		= 1<<3;
+	static final int HIDDEN			= 1<<4;
 	
 	/* Default widths for widgets */
 	static final int DEFAULT_WIDTH	= 64;
@@ -650,9 +639,6 @@ char mbcsToWcs (int ch, int codePage) {
  * @param eventType the type of event which has occurred
  * @param event the event data
  *
- * @exception IllegalArgumentException <ul>
- *    <li>ERROR_NULL_ARGUMENT - if the event is null</li>
- * </ul>
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
@@ -660,7 +646,7 @@ char mbcsToWcs (int ch, int codePage) {
  */
 public void notifyListeners (int eventType, Event event) {
 	checkWidget();
-	if (event == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (event == null) event = new Event ();
 	sendEvent (eventType, event);
 }
 
@@ -1012,7 +998,7 @@ boolean setKeyState (Event event, int type, int wParam, int lParam) {
 	* Feature in Windows.  When the user presses Ctrl+Backspace
 	* or Ctrl+Enter, Windows sends a WM_CHAR with Delete (0x7F)
 	* and '\n' instead of '\b' and '\r'.  This is the correct
-	* platform behavior but is not portable.  The fix is detect
+	* platform behavior but is not portable.  The fix is to detect
 	* these cases and convert the character.
 	*/
 	switch (display.lastAscii) {

@@ -22,6 +22,8 @@ class AccessibleObject {
 	Accessible accessible;
 	AccessibleObject parent;
 	Hashtable children = new Hashtable (9);
+	// a lightweight object does not correspond to a concrete gtk widget, but
+	// to a logical child of a widget (eg.- a CTabItem, which is simply drawn) 
 	boolean isLightweight = false;
 
 	static int actionNamePtr = -1;
@@ -599,9 +601,6 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_caret_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
-		// TODO next line is workaround for disposed widget exception;
-		// should not be needed  
-		if (object.accessible.control.isDisposed()) return 0;
 		int parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -644,9 +643,6 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_character_count");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
-		// TODO next line is workaround for disposed widget exception;
-		// should not be needed  
-		if (object.accessible.control.isDisposed()) return 0;
 		String text = object.getText ();
 		if (text != null) return text.length ();
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
@@ -688,9 +684,6 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_selection");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
-		// TODO next line is workaround for disposed widget exception;
-		// should not be needed  
-		if (object.accessible.control.isDisposed ()) return 0;
 		OS.memmove (start_offset, new int[] {0}, 4);
 		OS.memmove (end_offset, new int[] {0}, 4);
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
@@ -1180,17 +1173,8 @@ class AccessibleObject {
 		return 0;
 	}
 
-	void dispose () {
-		if (DEBUG) System.out.println("AccessibleObject.dispose: " + handle);
-		Enumeration elements = children.elements ();
-		while (elements.hasMoreElements ()) {
-			AccessibleObject child = (AccessibleObject) elements.nextElement ();
-			if (child.isLightweight) OS.g_object_unref (child.handle);
-		}
-		if (parent != null) parent.removeChild (this, false);
-	}
-
 	AccessibleListener[] getAccessibleListeners () {
+		if (accessible == null) return new AccessibleListener [0];
 		return accessible.getAccessibleListeners ();
 	}
 
@@ -1222,6 +1206,7 @@ class AccessibleObject {
 	}
 	
 	AccessibleControlListener[] getControlListeners () {
+		if (accessible == null) return new AccessibleControlListener [0];
 		return accessible.getControlListeners ();
 	}
 
@@ -1258,6 +1243,7 @@ class AccessibleObject {
 	}
 	
 	AccessibleTextListener[] getTextListeners () {
+		if (accessible == null) return new AccessibleTextListener [0];
 		return accessible.getTextListeners ();
 	}
 
@@ -1270,7 +1256,7 @@ class AccessibleObject {
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object != null) {
 			AccessibleObjects.remove (new Integer (atkObject));
-			object.dispose ();
+			object.release ();
 		}
 		return 0;
 	}
@@ -1319,6 +1305,17 @@ class AccessibleObject {
 		return index;
 	}
 
+	void release () {
+		if (DEBUG) System.out.println("AccessibleObject.release: " + handle);
+		accessible = null;
+		Enumeration elements = children.elements ();
+		while (elements.hasMoreElements ()) {
+			AccessibleObject child = (AccessibleObject) elements.nextElement ();
+			if (child.isLightweight) OS.g_object_unref (child.handle);
+		}
+		if (parent != null) parent.removeChild (this, false);
+	}
+	
 	void removeChild (AccessibleObject child, boolean unref) {
 		children.remove (new Integer (child.handle));
 		if (unref && child.isLightweight) OS.g_object_unref (child.handle);
@@ -1388,6 +1385,7 @@ class AccessibleObject {
 				}
 			} else {
 				// an array of Accessible children was answered
+				int childIndex = 0;
 				for (int i = 0; i < event.children.length; i++) {
 					AccessibleObject object = null;
 					try {
@@ -1395,8 +1393,10 @@ class AccessibleObject {
 					} catch (ClassCastException e) {
 						// a non-Accessible value was given so nothing to do here 
 					}
-					object.index = i;
-					childrenCopy.remove (new Integer (object.handle));
+					if (object != null) {
+						object.index = childIndex++;
+						childrenCopy.remove (new Integer (object.handle));
+					}
 				}
 			}
 			// remove previous children of self which were not answered

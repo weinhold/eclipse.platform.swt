@@ -89,7 +89,8 @@ import org.eclipse.swt.graphics.*;
  */
 
 public class Decorations extends Canvas {
-	Image image, icon;
+	Image image, smallImage, largeImage;
+	Image [] images = new Image [0];
 	Menu menuBar;
 	Menu [] menus;
 	MenuItem [] items;
@@ -495,6 +496,38 @@ public Image getImage () {
 	return image;
 }
 
+/**
+ * Returns the receiver's images if they had previously been 
+ * set using <code>setImages()</code>. Images are typically
+ * displayed by the window manager when the instance is
+ * marked as iconified, and may also be displayed somewhere
+ * in the trim when the instance is in normal or maximized
+ * states. Depending where the icon is displayed, the platform
+ * chooses the icon with the "best" size. It is expected that
+ * the array will contain the same icon rendered at different
+ * resolutions.
+ * 
+ * <p>
+ * Note: This method will return an empty array if called before
+ * <code>setImages()</code> is called. It does not provide
+ * access to a window manager provided, "default" image
+ * even if one exists.
+ * </p>
+ * 
+ * @return the images
+ *
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
+public Image [] getImages () {
+	checkWidget ();
+	return images;
+}
+
 public Point getLocation () {
 	checkWidget ();
 	if (!OS.IsWinCE) {
@@ -582,11 +615,7 @@ public Point getSize () {
 			return new Point (width, height);
 		}
 	}
-	RECT rect = new RECT ();
-	OS.GetWindowRect (handle, rect);
-	int width = rect.right - rect.left;
-	int height = rect.bottom - rect.top;
-	return new Point (width, height);
+	return super.getSize ();
 }
 
 /**
@@ -663,8 +692,10 @@ void releaseWidget () {
 	}
 	menus = null;
 	super.releaseWidget ();
-	if (icon != null) icon.dispose ();
-	icon = image = null;
+	if (smallImage != null) smallImage.dispose ();
+	if (largeImage != null) largeImage.dispose ();
+	smallImage = largeImage = image = null;
+	images = null;
 	items = null;
 	savedFocus = null;
 	defaultButton = saveDefault = null;
@@ -786,6 +817,11 @@ void setDefaultButton (Button button, boolean save) {
 public void setImage (Image image) {
 	checkWidget ();
 	if (image != null && image.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+	this.image = image;
+	setImages (image, null);
+}
+
+void setImages (Image image, Image [] images) {
 	/*
 	* Feature in WinCE.  WM_SETICON and WM_GETICON set the icon
 	* for the window class, not the window instance.  This means
@@ -795,30 +831,63 @@ public void setImage (Image image) {
 	* 
 	* On WinCE PPC, icons in windows are not displayed anyways.
 	*/
-	if (OS.IsWinCE) {
-		this.image = image;
-		return;
-	}
-	int hImage = 0;
-	if (icon != null) icon.dispose ();
-	icon = null;
+	if (OS.IsWinCE) return;
+	if (smallImage != null) smallImage.dispose ();
+	if (largeImage != null) largeImage.dispose ();
+	smallImage = largeImage = null;
+	int hSmallIcon = 0, hLargeIcon = 0;
+	Image smallIcon = null, largeIcon = null;
+	int smallWidth = 0x7FFFFFFF, largeWidth = 0x7FFFFFFF;
 	if (image != null) {
-		switch (image.type) {
-			case SWT.BITMAP:
-				ImageData data = image.getImageData ();
-				ImageData mask = data.getTransparencyMask ();
-				icon = new Image (display, data, mask);
-				hImage = icon.handle;
-				break;
-			case SWT.ICON:
-				hImage = image.handle;
-				break;
-			default:
-				return;
+		Rectangle rect = image.getBounds ();
+		smallWidth = Math.abs (rect.width - OS.GetSystemMetrics (OS.SM_CXSMICON));
+		smallIcon = image;
+		largeWidth = Math.abs (rect.width - OS.GetSystemMetrics (OS.SM_CXICON)); 
+		largeIcon = image;
+	}
+	if (images != null) {
+		for (int i = 0; i < images.length; i++) {
+			Rectangle rect = images [i].getBounds ();
+			int value = Math.abs (rect.width - OS.GetSystemMetrics (OS.SM_CXSMICON));
+			if (value < smallWidth) {
+				smallWidth = value;
+				smallIcon = images [i];
+			}
+			value = Math.abs (rect.width - OS.GetSystemMetrics (OS.SM_CXICON));
+			if (value < largeWidth) {
+				largeWidth = value;
+				largeIcon = images [i];
+			}
 		}
 	}
-	this.image = image;
-	OS.SendMessage (handle, OS.WM_SETICON, OS.ICON_BIG, hImage);
+	if (smallIcon != null) {
+		switch (smallIcon.type) {
+			case SWT.BITMAP:
+				ImageData data = smallIcon.getImageData ();
+				ImageData mask = data.getTransparencyMask ();
+				smallImage = new Image (display, data, mask);
+				hSmallIcon = smallImage.handle;
+				break;
+			case SWT.ICON:
+				hSmallIcon = smallIcon.handle;
+				break;
+		}
+	}
+	OS.SendMessage (handle, OS.WM_SETICON, OS.ICON_SMALL, hSmallIcon);
+	if (largeIcon != null) {
+		switch (largeIcon.type) {
+			case SWT.BITMAP:
+				ImageData data = largeIcon.getImageData ();
+				ImageData mask = data.getTransparencyMask ();
+				largeImage = new Image (display, data, mask);
+				hLargeIcon = largeImage.handle;
+				break;
+			case SWT.ICON:
+				hLargeIcon = largeIcon.handle;
+				break;
+		}
+	}
+	OS.SendMessage (handle, OS.WM_SETICON, OS.ICON_BIG, hLargeIcon);
 	
 	/*
 	* Bug in Windows.  When WM_SETICON is used to remove an
@@ -828,11 +897,44 @@ public void setImage (Image image) {
 	* The fix is to force a redraw.
 	*/
 	if (!OS.IsWinCE) {
-		if (icon == null && (style & SWT.BORDER) != 0) {
+		if (hSmallIcon == 0 && hLargeIcon == 0 && (style & SWT.BORDER) != 0) {
 			int flags = OS.RDW_FRAME | OS.RDW_INVALIDATE;
 			OS.RedrawWindow (handle, null, 0, flags);
 		}
 	}
+}
+
+/**
+ * Sets the receiver's images to the argument, which may
+ * be an empty array. Images are typically displayed by the
+ * window manager when the instance is marked as iconified,
+ * and may also be displayed somewhere in the trim when the
+ * instance is in normal or maximized states. Depending where
+ * the icon is displayed, the platform chooses the icon with
+ * the "best" size. It is expected that the array will contain
+ * the same icon rendered at different resolutions.
+ * 
+ * @param images the new image array
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the array of images is null</li>
+ *    <li>ERROR_INVALID_ARGUMENT - if one of the images has been disposed</li>
+ * </ul>
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ * 
+ * @since 3.0
+ */
+public void setImages (Image [] images) {
+	checkWidget ();
+	if (images == null) error (SWT.ERROR_INVALID_ARGUMENT);
+	for (int i = 0; i < images.length; i++) {
+		if (images [i] == null || images [i].isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+	}
+	this.images = images;
+	setImages (null, images);
 }
 
 /**
@@ -1326,10 +1428,10 @@ int widgetStyle () {
 
 int windowProc (int hwnd, int msg, int wParam, int lParam) {
 	switch (msg) {
-		case OS.WM_APP:
-		case OS.WM_APP+1:
+		case Display.SWT_GETACCEL:
+		case Display.SWT_GETACCELCOUNT:
 			if (hAccel == -1) createAccelerators ();
-			return msg == OS.WM_APP ? nAccel : hAccel;
+			return msg == Display.SWT_GETACCELCOUNT ? nAccel : hAccel;
 	}
 	return super.windowProc (hwnd, msg, wParam, lParam);
 }

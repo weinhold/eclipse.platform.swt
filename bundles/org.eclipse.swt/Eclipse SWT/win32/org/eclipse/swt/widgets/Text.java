@@ -425,6 +425,14 @@ void fixAlignment () {
 	int bits0 = OS.GetWindowLong (handle, OS.GWL_EXSTYLE);
 	int bits1 = OS.GetWindowLong (handle, OS.GWL_STYLE);
 	if ((style & SWT.LEFT_TO_RIGHT) != 0) {
+		/*
+		* Bug in Windows 98. When the edit control is created
+		* with the style ES_RIGHT it automatically sets the 
+		* WS_EX_LEFTSCROLLBAR bit.  The fix is to clear the
+		* bit when the orientation of the control is left
+		* to right.
+		*/
+		bits0 &= ~OS.WS_EX_LEFTSCROLLBAR;
 		if ((style & SWT.RIGHT) != 0) {
 			bits0 |= OS.WS_EX_RIGHT;
 			bits1 |= OS.ES_RIGHT;
@@ -843,7 +851,8 @@ public String getText () {
 }
 
 /**
- * Gets a range of text.
+ * Gets a range of text.  Returns an empty string if the
+ * start of the range is greater than the end.
  * <p>
  * Indexing is zero based.  The range of
  * a selection is from 0..N-1 where N is
@@ -854,9 +863,6 @@ public String getText () {
  * @param end the end of the range
  * @return the range of text
  *
- * @exception IllegalArgumentException <ul>
- *    <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number of characters minus 1 (inclusive), or if start is greater than end</li>
- * </ul>
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
@@ -864,11 +870,11 @@ public String getText () {
  */
 public String getText (int start, int end) {
 	checkWidget ();
+	if (!(start <= end && 0 <= end)) return "";
 	int length = OS.GetWindowTextLength (handle);
 	if (OS.IsDBLocale) length = mbcsToWcsPos (length);
-	if (!(0 <= start && start <= end && end < length)) {
-		error (SWT.ERROR_INVALID_RANGE);
-	}
+	start = Math.max (0, start);
+	end = Math.min (end, length - 1);
 	/*
 	* NOTE: The current implementation uses substring ()
 	* which can reference a potentially large character
@@ -1712,12 +1718,13 @@ int wcsToMbcsPos (int wcsPos) {
 }
 
 int widgetStyle () {
-	int bits = super.widgetStyle ();
+	int bits = super.widgetStyle () | OS.ES_AUTOHSCROLL;
 	if ((style & SWT.PASSWORD) != 0) bits |= OS.ES_PASSWORD;
 	if ((style & SWT.CENTER) != 0) bits |= OS.ES_CENTER;
+	if ((style & SWT.RIGHT) != 0) bits |= OS.ES_RIGHT;
 	if ((style & SWT.READ_ONLY) != 0) bits |= OS.ES_READONLY;
-	if ((style & SWT.SINGLE) != 0) return bits | OS.ES_AUTOHSCROLL;
-	bits |= OS.ES_MULTILINE | OS.ES_AUTOHSCROLL | OS.ES_NOHIDESEL;	
+	if ((style & SWT.SINGLE) != 0) return bits;
+	bits |= OS.ES_MULTILINE | OS.ES_NOHIDESEL | OS.ES_AUTOVSCROLL;	
 	if ((style & SWT.WRAP) != 0) bits &= ~(OS.WS_HSCROLL | OS.ES_AUTOHSCROLL);
 	return bits;
 }

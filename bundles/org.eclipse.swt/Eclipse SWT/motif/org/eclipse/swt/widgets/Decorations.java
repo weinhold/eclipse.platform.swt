@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
-
 import org.eclipse.swt.internal.motif.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
@@ -90,6 +89,7 @@ import org.eclipse.swt.graphics.*;
 public class Decorations extends Canvas {
 	String label;
 	Image image;
+	Image [] images = new Image [0];
 	int dialogHandle;
 	boolean minimized, maximized;
 	Menu menuBar;
@@ -140,6 +140,31 @@ Decorations () {
 public Decorations (Composite parent, int style) {
 	super (parent, checkStyle (style));
 }
+
+void _setImages (Image [] images) {
+	Image icon = images != null && images.length > 0 ? icon = images [0] : null;
+	int pixmap = 0, mask = 0;
+	if (icon != null) {
+		switch (icon.type) {
+			case SWT.BITMAP:
+				pixmap = icon.pixmap;
+				break;
+			case SWT.ICON:
+				pixmap = icon.pixmap;
+				mask = icon.mask;
+				break;
+			default:
+				error (SWT.ERROR_INVALID_IMAGE);
+		}
+	}
+	int [] argList = {
+		OS.XmNiconPixmap, pixmap,
+		OS.XmNiconMask, mask,
+	};
+	int topHandle = topHandle ();
+	OS.XtSetValues (topHandle, argList, argList.length / 2);
+}
+
 void add (Menu menu) {
 	if (menus == null) menus = new Menu [4];
 	for (int i=0; i<menus.length; i++) {
@@ -341,6 +366,8 @@ void releaseWidget () {
 	menuBar = null;
 	menus = null;
 	super.releaseWidget ();
+	image = null;
+	images = null;
 	defaultButton = saveDefault = null;
 	label = null;
 }
@@ -433,29 +460,21 @@ void setDefaultButton (Button button, boolean save) {
  */
 public void setImage (Image image) {
 	checkWidget();
-	int pixmap = 0, mask = 0;
-	if (image != null) {
-		if (image.isDisposed()) error(SWT.ERROR_INVALID_ARGUMENT);
-		switch (image.type) {
-			case SWT.BITMAP:
-				pixmap = image.pixmap;
-				break;
-			case SWT.ICON:
-				pixmap = image.pixmap;
-				mask = image.mask;
-				break;
-			default:
-				error (SWT.ERROR_INVALID_IMAGE);
-		}
-	}
+	if (image != null && image.isDisposed()) error(SWT.ERROR_INVALID_ARGUMENT);
 	this.image = image;
-	int [] argList = {
-		OS.XmNiconPixmap, pixmap,
-		OS.XmNiconMask, mask,
-	};
-	int topHandle = topHandle ();
-	OS.XtSetValues (topHandle, argList, argList.length / 2);
+	_setImages (image != null ? new Image [] {image} : null);
 }
+
+public void setImages (Image [] images) {
+	checkWidget ();
+	if (images == null) error (SWT.ERROR_INVALID_ARGUMENT);
+	for (int i = 0; i < images.length; i++) {
+		if (images [i] == null || images [i].isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+	}
+	this.images = images;
+	_setImages (images);
+}
+
 /**
  * Sets the maximized state of the receiver.
  * If the argument is <code>true</code> causes the receiver
