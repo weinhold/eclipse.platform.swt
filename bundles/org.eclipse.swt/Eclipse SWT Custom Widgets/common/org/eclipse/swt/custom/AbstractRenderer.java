@@ -1,8 +1,8 @@
-/*
- * (c) Copyright 2001 MyCorporation.
- * All Rights Reserved.
- */
 package org.eclipse.swt.custom;
+/*
+ * (c) Copyright IBM Corp. 2002.
+ * All Rights Reserved
+ */
 
 import java.util.*;
 
@@ -15,16 +15,16 @@ import org.eclipse.swt.graphics.*;
  */
 abstract class AbstractRenderer {
 	private Device device;
+	private Font regularFont;
+	private Font boldFont;
 	private boolean isBidi;
-	private int lineEndSpaceWidth;
+	private int leftMargin;
 	private int tabLength;
 	private int tabWidth;						// width of a tab character in the current GC
 	private int lineHeight;
-	private Font boldFont;
-	private Font regularFont;
-	private int leftMargin;
+	private int lineEndSpaceWidth;
 	
-AbstractRenderer(Device device, Font regularFont, boolean isBidi, int lineEndSpaceWidth, int leftMargin) {
+AbstractRenderer(Device device, Font regularFont, boolean isBidi, int leftMargin) {
 	FontData fontData = regularFont.getFontData()[0];
 
 	fontData.setStyle(fontData.getStyle() | SWT.BOLD);
@@ -32,7 +32,6 @@ AbstractRenderer(Device device, Font regularFont, boolean isBidi, int lineEndSpa
 	this.device = device;
 	this.regularFont = regularFont;	
 	this.isBidi = isBidi;
-	this.lineEndSpaceWidth = lineEndSpaceWidth;
 	this.leftMargin = leftMargin;
 }
 /**
@@ -68,9 +67,10 @@ void calculateLineHeight() {
 	GC gc = getGC();
 	
 	lineHeight = gc.getFontMetrics().getHeight();	
+	lineEndSpaceWidth = gc.stringExtent(" ").x;
 	disposeGC(gc);
 }
-protected void dispose() {
+void dispose() {
 	if (boldFont != null) {
 		boldFont.dispose();
 		boldFont = null;
@@ -182,7 +182,7 @@ protected abstract void drawLineSelectionBackground(String line, int lineOffset,
  * @param bidi the bidi object to use for measuring and rendering 
  * 	text in bidi locales. null when not in bidi mode.
  */
-void drawStyledLine(String line, int lineOffset, int renderOffset, StyleRange[] styles, int paintX, int paintY, GC gc, Color lineBackground, Color lineForeground, FontData currentFont, StyledTextBidi bidi) {
+private void drawStyledLine(String line, int lineOffset, int renderOffset, StyleRange[] styles, int paintX, int paintY, GC gc, Color lineBackground, Color lineForeground, FontData currentFont, StyledTextBidi bidi) {
 	int lineLength = line.length();
 	int horizontalScrollOffset = getHorizontalPixel();
 	Color background = gc.getBackground();
@@ -280,7 +280,7 @@ void drawStyledLine(String line, int lineOffset, int renderOffset, StyleRange[] 
  * 	length is outside the specified text. In bidi mode this value is 
  * 	the same as the paintX input parameter.
  */
-int drawText(String text, int startOffset, int length, int paintX, int paintY, GC gc, StyledTextBidi bidi) {
+private int drawText(String text, int startOffset, int length, int paintX, int paintY, GC gc, StyledTextBidi bidi) {
 	int endOffset = startOffset + length;
 	int textLength = text.length();
 	int horizontalScrollOffset = getHorizontalPixel();
@@ -559,7 +559,7 @@ StyledTextBidi getStyledTextBidi(String lineText, int lineOffset, GC gc, StyleRa
  * @param x the x location in front of a tab
  * @return the next tab stop for the specified x location.
  */
-int getTabStop(int x) {
+private int getTabStop(int x) {
 	int spaceWidth = tabWidth / tabLength;
 
 	// make sure tab stop is at least one space width apart 
@@ -621,7 +621,7 @@ protected abstract boolean isFullLineSelection();
  * @param currentBackground background color currently set in gc
  * @param newBackground new background color of gc
  */
-Color setLineBackground(GC gc, Color currentBackground, Color newBackground) {
+private Color setLineBackground(GC gc, Color currentBackground, Color newBackground) {
 	if (currentBackground.equals(newBackground) == false) {
 		gc.setBackground(newBackground);
 	}
@@ -636,7 +636,7 @@ Color setLineBackground(GC gc, Color currentBackground, Color newBackground) {
  * @param style desired style of the font in gc. Can be one of 
  * 	SWT.NORMAL, SWT.BOLD
  */
-void setLineFont(GC gc, FontData currentFont, int style) {
+private void setLineFont(GC gc, FontData currentFont, int style) {
 	if (currentFont.getStyle() != style) {
 		if (style == SWT.BOLD) {
 			currentFont.setStyle(style);
@@ -658,7 +658,7 @@ void setLineFont(GC gc, FontData currentFont, int style) {
  * @param currentForeground	foreground color currently set in gc
  * @param newForeground new foreground color of gc
  */
-Color setLineForeground(GC gc, Color currentForeground, Color newForeground) {
+private Color setLineForeground(GC gc, Color currentForeground, Color newForeground) {
 	if (currentForeground.equals(newForeground) == false) {
 		gc.setForeground(newForeground);
 	}
@@ -693,7 +693,7 @@ void setTabLength(int tabLength) {
  * @return x location where drawing stopped or 0 if the startOffset or 
  * 	length is outside the specified text.
  */
-int styledTextWidth(String text, int textStartOffset, StyleRange[] lineStyles, int paintX, GC gc, FontData fontData) {
+private int styledTextWidth(String text, int textStartOffset, StyleRange[] lineStyles, int paintX, GC gc, FontData fontData) {
 	String textSegment;
 	int textLength = text.length();
 	int textIndex = 0;

@@ -1,8 +1,8 @@
-/*
- * (c) Copyright 2001 MyCorporation.
- * All Rights Reserved.
- */
 package org.eclipse.swt.custom;
+/*
+ * (c) Copyright IBM Corp. 2002.
+ * All Rights Reserved
+ */
 
 import java.util.*;
 
@@ -16,8 +16,8 @@ import org.eclipse.swt.graphics.*;
 class DisplayRenderer extends AbstractRenderer {
 	private StyledText parent;
 	
-DisplayRenderer(Device device, Font regularFont, StyledText parent, boolean isBidi, int tabLength, int lineEndSpaceWidth, int leftMargin) {
-	super(device, regularFont, isBidi, lineEndSpaceWidth, leftMargin);
+DisplayRenderer(Device device, Font regularFont, StyledText parent, boolean isBidi, int tabLength, int leftMargin) {
+	super(device, regularFont, isBidi, leftMargin);
 	this.parent = parent;
 	calculateLineHeight();
 	setTabLength(tabLength);

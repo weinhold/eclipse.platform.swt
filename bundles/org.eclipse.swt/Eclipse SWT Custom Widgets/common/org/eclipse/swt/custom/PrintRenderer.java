@@ -1,8 +1,8 @@
-/*
- * (c) Copyright 2001 MyCorporation.
- * All Rights Reserved.
- */
 package org.eclipse.swt.custom;
+/*
+ * (c) Copyright IBM Corp. 2002.
+ * All Rights Reserved
+ */
 
 import java.util.*;
 
@@ -25,9 +25,8 @@ class PrintRenderer extends AbstractRenderer {
 PrintRenderer(
 		Device device, GC gc, StyledTextContent logicalContent, 
 		Hashtable lineBackgrounds, Hashtable lineStyles, Hashtable bidiSegments,
-		Font regularFont, boolean isBidi, int tabLength, int lineEndSpaceWidth, 
-		int leftMargin, Rectangle clientArea) {
-	super(device, regularFont, isBidi, lineEndSpaceWidth, leftMargin);
+		Font regularFont, boolean isBidi, int tabLength, Rectangle clientArea) {
+	super(device, regularFont, isBidi, clientArea.x);
 	this.logicalContent = logicalContent;
 	this.lineBackgrounds = lineBackgrounds;
 	this.lineStyles = lineStyles;

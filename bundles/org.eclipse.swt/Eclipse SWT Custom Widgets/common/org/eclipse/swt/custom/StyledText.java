@@ -452,9 +452,9 @@ public class StyledText extends Canvas {
 
 	Printing(StyledText parent, Printer printer) {
 		PrinterData data = printer.getPrinterData();
-
-		singleLine = parent.isSingleLine();
+		
 		this.printer = printer;
+		singleLine = parent.isSingleLine();
 		startPage = 1;
 		endPage = Integer.MAX_VALUE;
 		if (data.scope == PrinterData.PAGE_RANGE) {
@@ -511,7 +511,7 @@ public class StyledText extends Canvas {
 			}
 			lineStyles.put(new Integer(lineOffset), event);
 		}
-	}		
+	}
 	StyledTextContent copyContent(StyledTextContent original) {
 		StyledTextContent copy = new DefaultContent();
 		int lineCount = original.getLineCount();
@@ -555,7 +555,6 @@ public class StyledText extends Canvas {
 			Point dpi = printer.getDPI();
 			FontData displayFontData = getFont().getFontData()[0];
 			Font printerFont = new Font(printer, displayFontData.getName(), displayFontData.getHeight(), SWT.NORMAL);
-			int lineEndSpaceWidth;
 			
 			clientArea = printer.getClientArea();
 			// one inch margin around text
@@ -566,12 +565,10 @@ public class StyledText extends Canvas {
 			
 			gc = new GC(printer);
 			gc.setFont(printerFont);			
-			lineEndSpaceWidth = gc.stringExtent(" ").x;
 			renderer = new PrintRenderer(
 				printer, gc, printerContent, 
 				lineBackgrounds, lineStyles, bidiSegments,
-				printerFont, isBidi(), tabLength, 
-				lineEndSpaceWidth, clientArea.x, clientArea);
+				printerFont, isBidi(), tabLength, clientArea);
 			pageSize = clientArea.height / renderer.getLineHeight();
 			startLine = (startPage - 1) * pageSize;
 			endLine = endPage * pageSize;
@@ -950,7 +947,7 @@ public class StyledText extends Canvas {
 			if (event != null) {
 				styles = renderer.filterLineStyles(event.styles);
 			}
-			width = textWidth(line, lineOffset, 0, line.length(), styles, 0, gc, currentFont);
+			width = renderer.textWidth(line, lineOffset, 0, line.length(), styles, 0, gc, currentFont);
 		}
 		return width + leftMargin;
 	}
@@ -3010,8 +3007,8 @@ int getCaretOffsetAtX(String line, int lineOffset, int lineXOffset) {
 	int high = line.length();
 	while (high - low > 1) {
 		offset = (high + low) / 2;
-		int x = textWidth(line, lineOffset, 0, offset, styles, 0, gc, currentFont) + leftMargin;
-		int charWidth = textWidth(line, lineOffset, 0, offset + 1, styles, 0, gc, currentFont) + leftMargin - x;
+		int x = renderer.textWidth(line, lineOffset, 0, offset, styles, 0, gc, currentFont) + leftMargin;
+		int charWidth = renderer.textWidth(line, lineOffset, 0, offset + 1, styles, 0, gc, currentFont) + leftMargin - x;
 		if (lineXOffset <= x + charWidth / 2) {
 			high = offset;			
 		}
@@ -3543,7 +3540,7 @@ int getOffsetAtX(String line, int lineOffset, int lineXOffset) {
 			offset = (high + low) / 2;
 			// Restrict right/high search boundary only if x is within searched text segment.
 			// Fixes 1GL4ZVE.			
-			if (lineXOffset < textWidth(line, lineOffset, 0, offset + 1, styles, 0, gc, currentFont)) {
+			if (lineXOffset < renderer.textWidth(line, lineOffset, 0, offset + 1, styles, 0, gc, currentFont)) {
 				high = offset;			
 			}
 			else 
@@ -4605,9 +4602,9 @@ void handlePaint(Event event) {
 	event.gc.setBackground(background);
 	event.gc.fillRectangle(0, 0, clientArea.width, topMargin);
 	event.gc.fillRectangle(0, 0, leftMargin, renderHeight);	
-//	event.gc.fillRectangle(
-//		0, clientArea.height - bottomMargin, 
-//		clientArea.width, bottomMargin);
+	event.gc.fillRectangle(
+		0, clientArea.height - bottomMargin, 
+		clientArea.width, bottomMargin);
 	event.gc.fillRectangle(
 		clientArea.width - rightMargin, 0, 
 		rightMargin, renderHeight);
@@ -4757,17 +4754,14 @@ void handleVerticalScroll(Event event) {
  * Presently only regular and bold fonts are supported.
  */
 void initializeFonts() {
-	GC gc = new GC(this);
-
-	lineEndSpaceWidth = gc.stringExtent(" ").x;
 	if (renderer != null) {
 		renderer.dispose();
 	}
 	renderer = new DisplayRenderer(
 		getDisplay(), getFont(), this, isBidi(), 
-		tabLength, lineEndSpaceWidth, leftMargin);
+		tabLength, leftMargin);
 	lineHeight = renderer.getLineHeight();
-	gc.dispose();
+	lineEndSpaceWidth = renderer.getLineEndSpaceWidth();
 }
 /**
  * Executes the action.
@@ -6969,28 +6963,6 @@ int textWidth(String line, int lineIndex, int length, GC gc) {
 		width = renderer.textWidth(line, lineOffset, 0, length, styles, 0, gc, gc.getFont().getFontData()[0]);
 	}
 	return width;
-}
-/**
- * Returns the width of the specified text. Expand tabs to tab stops using
- * the widget tab width.
- * <p>
- *
- * @param text text to be measured.
- * @param lineOffset offset of the first character in the line. 
- * @param startOffset offset of the character to start measuring and 
- * 	expand tabs.
- * @param length number of characters to measure. Tabs are counted 
- * 	as one character in this parameter.
- * @param styles line styles
- * @param startXOffset x position of "startOffset" in "text". Used for
- * 	calculating tab stops
- * @param gc GC to use for measuring text
- * @param fontData the font currently set in gc. Cached for better performance.
- * @return width of the text with tabs expanded to tab stops or 0 if the 
- * 	startOffset or length is outside the specified text.
- */
-int textWidth(String text, int lineOffset, int startOffset, int length, StyleRange[] lineStyles, int startXOffset, GC gc, FontData fontData) {
-	return renderer.textWidth(text, lineOffset, startOffset, length, lineStyles, startXOffset, gc, fontData);
 }
 /**
  * Updates the caret direction when a delete operation occured based on 
