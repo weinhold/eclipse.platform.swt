@@ -335,7 +335,7 @@ Pseudo code for getSelectionLineStyles
 		}
 	}
 */
-protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
+protected StyleRange[] mergeSelectionLineStyles(StyleRange[] styles) {
 	Point selection = parent.internalGetSelection();	
 	int selectionStart = selection.x;
 	int selectionEnd = selection.y;

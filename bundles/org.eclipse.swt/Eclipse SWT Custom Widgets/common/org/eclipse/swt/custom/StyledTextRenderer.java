@@ -154,7 +154,7 @@ void drawLine(String line, int lineIndex, int paintY, GC gc, Color widgetBackgro
 	if (selectionStart != selectionEnd && 
 		((selectionStart >= lineOffset && selectionStart < lineOffset + lineLength) || 
 		 (selectionStart < lineOffset && selectionEnd > lineOffset))) {
-		styles = getSelectionLineStyles(styles);
+		styles = mergeSelectionLineStyles(styles);
 	}
 	if (isBidi()) {
 		int paintX = bidiTextWidth(line, 0, 0, 0, bidi);
@@ -166,6 +166,7 @@ void drawLine(String line, int lineIndex, int paintY, GC gc, Color widgetBackgro
 }
 /** 
  * Draws the background of the line selection.
+ * Implemented by subclasses for optional selection rendering.
  * </p>
  *
  * @param line the line to draw
@@ -445,6 +446,7 @@ private StyleRange[] getFontStyleRanges(StyleRange[] styles, int lineOffset, int
 protected abstract int[] getBidiSegments(int lineOffset, String lineText);
 /**
  * Returns the GC to use for rendering and measuring.
+ * Allows subclasses to reuse GCs.
  * </p>
  * @return the GC to use for rendering and measuring.
  */
@@ -478,7 +480,7 @@ int getLineEndSpaceWidth() {
 }
 /**
  * Returns the line background data for the given line or null if 
- * there is none.
+ * there is none. 
  * </p>
  * @param lineOffset offset of the line start relative to the start
  * 	of the content.
@@ -577,6 +579,7 @@ StyledTextEvent getLineStyleData(StyledTextEvent event, int lineOffset, String l
 protected abstract StyledTextEvent getLineStyleData(int lineOffset, String line);
 /**
  * Returns the widget selection.
+ * Implemented by subclasses for optional selection rendering.
  * </p>
  * @return the widget selection.
  */
@@ -584,12 +587,13 @@ protected abstract Point getSelection();
 /**
  * Merges the selection into the styles that are passed in.
  * The font style of existing style ranges is preserved in the selection.
+ * Implemented by subclasses for optional selection rendering.
  * </p>
  * @param styles the existing styles that the selection should be 
  * 	applied to.
  * @return the selection style range merged with the existing styles
  */
-protected abstract StyleRange[] getSelectionLineStyles(StyleRange[] styles);
+protected abstract StyleRange[] mergeSelectionLineStyles(StyleRange[] styles);
 /**
  * Returns a StyledTextBidi object for the specified line.
  * </p>
@@ -686,6 +690,7 @@ boolean isBidi() {
 }
 /**
  * Returns whether the widget was created with the SWT.FULL_SELECTION style.
+ * Implemented by subclasses for optional selection rendering.
  * </p>
  * @return true=the widget is running in full line selection mode, 
  * 	false=otherwise

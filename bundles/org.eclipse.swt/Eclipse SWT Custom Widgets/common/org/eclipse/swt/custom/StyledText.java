@@ -1326,7 +1326,7 @@ public StyledText(Composite parent, int style) {
 	}
 	clipboard = new Clipboard(display);
 	installDefaultContent();
-	initializeFonts();
+	initializeRenderer();
 	if ((style & SWT.WRAP) != 0) {
 		setWordWrap(true);
 	}
@@ -4795,7 +4795,7 @@ void handleVerticalScroll(Event event) {
  * Initializes the fonts used to render font styles.
  * Presently only regular and bold fonts are supported.
  */
-void initializeFonts() {
+void initializeRenderer() {
 	if (renderer != null) {
 		renderer.dispose();
 	}
@@ -6050,22 +6050,22 @@ public void setCaretOffset(int offset) {
  *    <li>ERROR_NULL_ARGUMENT when listener is null</li>
  * </ul>
  */
-public void setContent(StyledTextContent content) {
+public void setContent(StyledTextContent newContent) {
 	checkWidget();	
-	if (content == null) {
+	if (newContent == null) {
 		SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	}
-	if (this.content != null) {
-		this.content.removeTextChangeListener(textChangeListener);
+	if (content != null) {
+		content.removeTextChangeListener(textChangeListener);
 	}	
-	logicalContent = content;
+	logicalContent = newContent;
 	if (wordWrap) {
-	    this.content = new WrappedContent(renderer, logicalContent);
+	    content = new WrappedContent(renderer, logicalContent);
 	}
 	else {
-	    this.content = logicalContent;
+	    content = logicalContent;
 	}
-	this.content.addTextChangeListener(textChangeListener);
+	content.addTextChangeListener(textChangeListener);
 	reset();
 }
 /** 
@@ -6116,7 +6116,7 @@ public void setFont(Font font) {
 	int oldLineHeight = lineHeight;
 	
 	super.setFont(font);	
-	initializeFonts();
+	initializeRenderer();
 	// keep the same top line visible. fixes 5815
 	if (lineHeight != oldLineHeight) {
 		setVerticalScrollOffset(verticalScrollOffset * lineHeight / oldLineHeight, true);

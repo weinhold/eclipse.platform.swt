@@ -11,6 +11,10 @@ import org.eclipse.swt.graphics.*;
 /**
  * A PrintRenderer renders the content of a StyledText widget on 
  * a printer device.
+ * Print rendering may occur in a non-UI thread. Therefore all 
+ * requests for styles, content and any other information normally 
+ * stored in the StyledText widget are served from cached data.
+ * Caching also guarantees immutable data for threaded printing.
  */
 class PrintRenderer extends StyledTextRenderer {
 	StyledTextContent logicalContent;		// logical, unwrapped, content
@@ -77,6 +81,8 @@ protected void drawLineSelectionBackground(String line, int lineOffset, StyleRan
 /**
  * Returns from cache the text segments that should be treated as 
  * if they had a different direction than the surrounding text.
+ * <p>
+ * Use cached data.
  * </p>
  *
  * @param lineOffset offset of the first character in the line. 
@@ -135,7 +141,7 @@ protected int[] getBidiSegments(int lineOffset, String lineText) {
 	return segments;
 }
 /**
- * Returns the client area to print in.
+ * Returns the printer client area.
  * </p>
  * @return the visible client area that can be used for rendering.
  * @see StyledTextRenderer#getClientArea
@@ -146,6 +152,8 @@ protected Rectangle getClientArea() {
 /**
  * Returns the <class>StyledTextContent</class> to use for line offset
  * calculations.
+ * This is the wrapped content, calculated in the constructor from the 
+ * logical printing content.
  * </p>
  * @return the <class>StyledTextContent</class> to use for line offset
  * calculations.
@@ -155,6 +163,8 @@ protected StyledTextContent getContent() {
 }
 /**
  * Returns the printer GC to use for rendering and measuring.
+ * There can be only one GC for each printer device at any given
+ * time.
  * </p>
  * @return the printer GC to use for rendering and measuring.
  */
@@ -236,7 +246,7 @@ protected Point getSelection() {
  * @return the same styles that were passed into the method.
  * @see StyledTextRenderer#getSelectionLineStyles
  */
-protected StyleRange[] getSelectionLineStyles(StyleRange[] styles) {
+protected StyleRange[] mergeSelectionLineStyles(StyleRange[] styles) {
 	return styles;
 }
 /**
