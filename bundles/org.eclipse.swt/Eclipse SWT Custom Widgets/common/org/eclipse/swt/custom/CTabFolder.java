@@ -1299,12 +1299,11 @@ private void updateCloseBar() {
 	gc.fillRectangle(0, 0, imageHeight, imageHeight);
 	gc.setForeground(black);
 	
-	gc.drawLine(-1, 0,           imageHeight - 1, imageHeight);
-	gc.drawLine( 0, 0,           imageHeight,     imageHeight);
-	gc.drawLine( 1, 0,           imageHeight + 1, imageHeight);
-	gc.drawLine(-2, imageHeight, imageHeight - 2, 0);
-	gc.drawLine(-1, imageHeight, imageHeight - 1, 0);
-	gc.drawLine( 0, imageHeight, imageHeight,     0);
+	int h = (imageHeight /2 )* 2;
+	gc.drawLine( 0, 0,     h - 2, h - 2);
+	gc.drawLine( 1, 0,     h,     h - 1);
+	gc.drawLine( 0, h - 2, h - 2, 0);
+	gc.drawLine( 1, h - 2, h - 1, 0);
 	
 	gc.dispose();
 	
