@@ -30,22 +30,22 @@ public class BidiText {
 	public static final int LINKAFTER = 4;
 
 	/*
-	 * Public character class constants are the same as Windows 
-	 * platform constants. 
-	 * Saves conversion of class array in getRenderInfo to arbitrary 
+	 * Public character class constants are the same as Windows
+	 * platform constants.
+	 * Saves conversion of class array in getRenderInfo to arbitrary
 	 * constants for now.
 	 */
 	public static final int CLASS_HEBREW = 2;
 	public static final int CLASS_ARABIC = 2;
 	public static final int CLASS_LOCALNUMBER = 4;
-				
+
 	// GetCharacterPlacement constants
 	static final int GCP_REORDER = 0x0002;
 	static final int GCP_GLYPHSHAPE = 0x0010;
 	static final int GCP_LIGATE = 0x0020;
 	static final int GCP_CLASSIN = 0x00080000;
 	static final byte GCPCLASS_ARABIC = 2;
-	static final byte GCPCLASS_HEBREW = 2;	
+	static final byte GCPCLASS_HEBREW = 2;
 	static final byte GCPCLASS_LOCALNUMBER = 4;
 	static final int GCPGLYPH_LINKBEFORE = 0x8000;
 	static final int GCPGLYPH_LINKAFTER = 0x4000;
@@ -59,129 +59,12 @@ public class BidiText {
 	static final int HKL_PREV = 0;
 
 /*
- *  Wraps GetFontLanguageInfo and GetCharacterPlacement functions.
+ *	Wraps GetFontLanguageInfo and GetCharacterPlacement functions.
  *
  *	gc, text & flags are input parameters
- *  classBuffer is input/output parameter
+ *	classBuffer is input/output parameter
  *	order & dx are output parameters
  */
-public static byte[] getRenderInfo_COPY2(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags, int [] offsets) {
-	int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
-	int hHeap = OS.GetProcessHeap();
-	int[] lpCs = new int[8];
-	int cs = OS.GetTextCharset(gc.handle);
-	OS.TranslateCharsetInfo(cs, lpCs, OS.TCI_SRCCHARSET);
-	byte[] textBuffer = Converter.wcsToMbcs(lpCs[1], text, false);
-	int byteCount = textBuffer.length;
-	boolean linkBefore = (flags & LINKBEFORE) == LINKBEFORE;
-	boolean linkAfter = (flags & LINKAFTER) == LINKAFTER;
-
-	GCP_RESULTS result = new GCP_RESULTS();
-	result.lStructSize = GCP_RESULTS.sizeof;
-	result.nGlyphs = byteCount;
-	int lpOrder = result.lpOrder = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
-	int lpDx = result.lpDx = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
-	int lpClass = result.lpClass = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
-	int lpGlyphs = result.lpGlyphs = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 2);
-				
-	// set required dwFlags
-	int dwFlags = 0;
-	int glyphFlags = 0;
-	if (((fontLanguageInfo & GCP_REORDER) == GCP_REORDER)) {
-		dwFlags |= GCP_REORDER;
-	}
-	if ((fontLanguageInfo & GCP_LIGATE) == GCP_LIGATE) {
-		dwFlags |= GCP_LIGATE;
-		glyphFlags |= 0;
-	}
-	if ((fontLanguageInfo & GCP_GLYPHSHAPE) == GCP_GLYPHSHAPE) {
-		dwFlags |= GCP_GLYPHSHAPE;
-		if (linkBefore) {
-			glyphFlags |= GCPGLYPH_LINKBEFORE;
-		}		
-		if (linkAfter) {
-			glyphFlags |= GCPGLYPH_LINKAFTER;
-		}
-	}
-	byte[] lpGlyphs2;
-	if (linkBefore || linkAfter) {
-		lpGlyphs2 = new byte[2];
-		lpGlyphs2[0]=(byte)glyphFlags;
-		lpGlyphs2[1]=(byte)(glyphFlags >> 8);
-	}
-	else {
-		lpGlyphs2 = new byte[] {(byte) glyphFlags};
-	}
-	OS.MoveMemory(result.lpGlyphs, lpGlyphs2, lpGlyphs2.length);
-	
-	if ((flags & CLASSIN) == CLASSIN) {
-		// set classification values for the substring
-		dwFlags |= GCP_CLASSIN;
-		OS.MoveMemory(result.lpClass, classBuffer, classBuffer.length);
-	}
-
-	byte[] glyphBuffer = new byte[result.nGlyphs * 2];
-	for (int i=0; i<offsets.length; i+=2) {
-		int offset = offsets [i];
-		int length = offsets [i+1] - offsets [i];
-
-		result.lpOrder = lpOrder + offset * 4;
-		result.lpDx = lpDx + offset * 4;
-		result.lpClass = lpClass + offset;
-		result.lpGlyphs = lpGlyphs + offset * 2;	
-		
-		//BAD?
-		result.nGlyphs = length;
-		byte [] textBuffer2 = new byte [length];
-		System.out.println ("TEXT=" + text + " LENGTH=" + text.length());
-		System.out.println ("OFFSET=" + offset + " LENGTH=" + length);
-		System.arraycopy (textBuffer, offset, textBuffer2, 0, length);
-		OS.GetCharacterPlacement(gc.handle, textBuffer2, textBuffer2.length, 0, result, dwFlags);
-	
-		if (dx != null) {
-			int [] dx2 = new int [length];
-//			OS.MoveMemory(dx, result.lpDx, dx.length * 4);
-			OS.MoveMemory(dx2, result.lpDx, dx2.length * 4);
-			System.arraycopy (dx2, 0, dx, offset, length);
-		}
-		if (order != null) {
-			int [] order2 = new int [length];
-//			OS.MoveMemory(order, result.lpOrder, order.length * 4);
-			OS.MoveMemory(order2, result.lpOrder, order2.length * 4);
-			for (int j=0; j<length; j++) {
-				order2 [j] += offset;
-			}
-			System.arraycopy (order2, 0, order, offset, length);
-		}
-		if (classBuffer != null) {
-			byte [] classBuffer2 = new byte [length];
-//			OS.MoveMemory(classBuffer, result.lpClass, classBuffer.length);
-			OS.MoveMemory(classBuffer2, result.lpClass, classBuffer2.length);
-			System.arraycopy (classBuffer2, 0, classBuffer, offset, length);
-		}
-		byte[] glyphBuffer2 = new byte[result.nGlyphs * 2];
-//		OS.MoveMemory(glyphBuffer, result.lpGlyphs, glyphBuffer.length);
-		OS.MoveMemory(glyphBuffer2, result.lpGlyphs, glyphBuffer2.length);
-		System.arraycopy (glyphBuffer2, 0, glyphBuffer, offset * 2, length * 2);	
-	}
-	
-	for (int j=0; j<glyphBuffer.length; j++) {
-//		System.out.print (glyphBuffer [j] + " ");
-	}
-//	System.out.println (" ");
-	for (int j=0; j<offsets.length; j++) {
-		System.out.print (offsets [j] + " ");
-	}
-	System.out.println (" ");
-			
-	/* Free the memory that was allocated. */
-	OS.HeapFree(hHeap, 0, lpGlyphs);
-	OS.HeapFree(hHeap, 0, lpClass);
-	OS.HeapFree(hHeap, 0, lpDx);	
-	OS.HeapFree(hHeap, 0, lpOrder);	
-	return glyphBuffer;
-}
-
 public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags, int [] offsets) {
 	int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
 	int hHeap = OS.GetProcessHeap();
@@ -200,7 +83,7 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 	int lpDx = result.lpDx = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
 	int lpClass = result.lpClass = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
 	int lpGlyphs = result.lpGlyphs = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 2);
-				
+
 	// set required dwFlags
 	int dwFlags = 0;
 	int glyphFlags = 0;
@@ -215,7 +98,7 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 		dwFlags |= GCP_GLYPHSHAPE;
 		if (linkBefore) {
 			glyphFlags |= GCPGLYPH_LINKBEFORE;
-		}		
+		}
 		if (linkAfter) {
 			glyphFlags |= GCPGLYPH_LINKAFTER;
 		}
@@ -230,35 +113,34 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 		lpGlyphs2 = new byte[] {(byte) glyphFlags};
 	}
 	OS.MoveMemory(result.lpGlyphs, lpGlyphs2, lpGlyphs2.length);
-	
+
 	if ((flags & CLASSIN) == CLASSIN) {
 		// set classification values for the substring
 		dwFlags |= GCP_CLASSIN;
 		OS.MoveMemory(result.lpClass, classBuffer, classBuffer.length);
 	}
-
+		
+	int glyphCount = 0;
 	byte[] glyphBuffer = new byte[result.nGlyphs * 2];
 	for (int i=0; i<offsets.length-1; i++) {
 		int offset = offsets [i];
 		int length = offsets [i+1] - offsets [i];
 
-		//BAD?
+
+		// The number of glyphs expected is <= length (segment length);
+		// the actual number returned may be less in case of Arabic ligatures.
 		result.nGlyphs = length;
 		byte [] textBuffer2 = new byte [length];
-//		System.out.println ("TEXT=" + text + " LENGTH=" + text.length());
-//		System.out.println ("OFFSET=" + offset + " LENGTH=" + length);
 		System.arraycopy (textBuffer, offset, textBuffer2, 0, length);
 		OS.GetCharacterPlacement(gc.handle, textBuffer2, textBuffer2.length, 0, result, dwFlags);
-	
+
 		if (dx != null) {
 			int [] dx2 = new int [length];
-//			OS.MoveMemory(dx, result.lpDx, dx.length * 4);
 			OS.MoveMemory(dx2, result.lpDx, dx2.length * 4);
 			System.arraycopy (dx2, 0, dx, offset, length);
 		}
 		if (order != null) {
 			int [] order2 = new int [length];
-//			OS.MoveMemory(order, result.lpOrder, order.length * 4);
 			OS.MoveMemory(order2, result.lpOrder, order2.length * 4);
 			for (int j=0; j<length; j++) {
 				order2 [j] += offset;
@@ -267,36 +149,103 @@ public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] class
 		}
 		if (classBuffer != null) {
 			byte [] classBuffer2 = new byte [length];
-//			OS.MoveMemory(classBuffer, result.lpClass, classBuffer.length);
 			OS.MoveMemory(classBuffer2, result.lpClass, classBuffer2.length);
 			System.arraycopy (classBuffer2, 0, classBuffer, offset, length);
 		}
 		byte[] glyphBuffer2 = new byte[result.nGlyphs * 2];
-//		OS.MoveMemory(glyphBuffer, result.lpGlyphs, glyphBuffer.length);
 		OS.MoveMemory(glyphBuffer2, result.lpGlyphs, glyphBuffer2.length);
-		System.arraycopy (glyphBuffer2, 0, glyphBuffer, offset * 2, length * 2);
-		
-		result.lpOrder += length * 4;
-		result.lpDx += length * 4;
+		System.arraycopy (glyphBuffer2, 0, glyphBuffer, glyphCount, glyphBuffer2.length);
+		glyphCount += glyphBuffer2.length;
+
+		// We concatenate successive results of calls to GCP.
+		// For Arabic, it is the only good method since the number of output
+		// glyphs might be less than the number of input characters.
+		// This assumes that the whole line is built by successive adjacent
+		// segments without overlapping.
+		result.lpOrder += length * 4;			// are those 4 lines really needed ?
+		result.lpDx += length * 4;				// (asks Mati)
 		result.lpClass += length;
-		result.lpGlyphs += length * 2;	
+		result.lpGlyphs += length * 2;
 	}
-	
-	for (int j=0; j<glyphBuffer.length; j++) {
-//		System.out.print (glyphBuffer [j] + " ");
-	}
-//	System.out.println (" ");
-	for (int j=0; j<offsets.length; j++) {
-//		System.out.print (offsets [j] + " ");
-	}
-//	System.out.println (" ");
-			
+
 	/* Free the memory that was allocated. */
 	OS.HeapFree(hHeap, 0, lpGlyphs);
 	OS.HeapFree(hHeap, 0, lpClass);
-	OS.HeapFree(hHeap, 0, lpDx);	
-	OS.HeapFree(hHeap, 0, lpOrder);	
+	OS.HeapFree(hHeap, 0, lpDx);
+	OS.HeapFree(hHeap, 0, lpOrder);
 	return glyphBuffer;
+}
+
+public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags) {
+		int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
+		int hHeap = OS.GetProcessHeap();
+		int[] lpCs = new int[8];
+		int cs = OS.GetTextCharset(gc.handle);
+		OS.TranslateCharsetInfo(cs, lpCs, OS.TCI_SRCCHARSET);
+		byte[] textBuffer = Converter.wcsToMbcs(lpCs[1], text, false);
+		int byteCount = textBuffer.length;
+		boolean linkBefore = (flags & LINKBEFORE) == LINKBEFORE;
+		boolean linkAfter = (flags & LINKAFTER) == LINKAFTER;
+
+		GCP_RESULTS result = new GCP_RESULTS();
+		result.lStructSize = GCP_RESULTS.sizeof;
+		result.nGlyphs = byteCount;
+
+		result.lpOrder = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
+		result.lpDx = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
+		result.lpClass = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+		result.lpGlyphs = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 2);
+
+		// set required dwFlags
+		int dwFlags = 0;
+		int glyphFlags = 0;
+		if (((fontLanguageInfo & GCP_REORDER) == GCP_REORDER)) {
+				dwFlags |= GCP_REORDER;
+		}
+		if ((fontLanguageInfo & GCP_LIGATE) == GCP_LIGATE) {
+				dwFlags |= GCP_LIGATE;
+				glyphFlags |= 0;
+		}
+		if ((fontLanguageInfo & GCP_GLYPHSHAPE) == GCP_GLYPHSHAPE) {
+				dwFlags |= GCP_GLYPHSHAPE;
+				if (linkBefore) {
+						glyphFlags |= GCPGLYPH_LINKBEFORE;
+				}
+				if (linkAfter) {
+						glyphFlags |= GCPGLYPH_LINKAFTER;
+				}
+		}
+		byte[] lpGlyphs;
+		if (linkBefore || linkAfter) {
+				lpGlyphs = new byte[2];
+				lpGlyphs[0]=(byte)glyphFlags;
+				lpGlyphs[1]=(byte)(glyphFlags >> 8);
+		}
+		else {
+				lpGlyphs = new byte[] {(byte) glyphFlags};
+		}
+		OS.MoveMemory(result.lpGlyphs, lpGlyphs, lpGlyphs.length);
+
+		if ((flags & CLASSIN) == CLASSIN) {
+				// set classification values for the substring
+				dwFlags |= GCP_CLASSIN;
+				OS.MoveMemory(result.lpClass, classBuffer, classBuffer.length);
+		}
+		OS.GetCharacterPlacement(gc.handle, textBuffer, byteCount, 0, result, dwFlags);
+
+		if (dx != null) OS.MoveMemory(dx, result.lpDx, dx.length * 4);
+		if (order != null) OS.MoveMemory(order, result.lpOrder, order.length * 4);
+		if (classBuffer != null) OS.MoveMemory(classBuffer, result.lpClass, classBuffer.length);
+
+		byte[] glyphBuffer = new byte[result.nGlyphs * 2];
+		OS.MoveMemory(glyphBuffer, result.lpGlyphs, glyphBuffer.length);
+
+		/* Free the memory that was allocated. */
+		OS.HeapFree(hHeap, 0, result.lpGlyphs);
+		OS.HeapFree(hHeap, 0, result.lpClass);
+		OS.HeapFree(hHeap, 0, result.lpDx);
+		OS.HeapFree(hHeap, 0, result.lpOrder);
+		return glyphBuffer;
 }
 
 /*
@@ -320,85 +269,7 @@ public static void drawGlyphs(GC gc, byte[] renderBuffer, int[] renderDx, int x,
 	OS.ExtTextOut(gc.handle, x, y, ETO_GLYPH_INDEX, rect, renderBuffer, renderBuffer.length / 2, renderDx);
 }
 /*
- *  Wraps GetFontLanguageInfo and GetCharacterPlacement functions.
  *
- *	gc, text & flags are input parameters
- *  classBuffer is input/output parameter
- *	order & dx are output parameters
- */
-public static byte[] getRenderInfo(GC gc, String text, int[] order, byte[] classBuffer, int[] dx, int flags) {
-	int fontLanguageInfo = OS.GetFontLanguageInfo(gc.handle);
-	int hHeap = OS.GetProcessHeap();
-	int[] lpCs = new int[8];
-	int cs = OS.GetTextCharset(gc.handle);
-	OS.TranslateCharsetInfo(cs, lpCs, OS.TCI_SRCCHARSET);
-	byte[] textBuffer = Converter.wcsToMbcs(lpCs[1], text, false);
-	int byteCount = textBuffer.length;
-	boolean linkBefore = (flags & LINKBEFORE) == LINKBEFORE;
-	boolean linkAfter = (flags & LINKAFTER) == LINKAFTER;
-
-	GCP_RESULTS result = new GCP_RESULTS();
-	result.lStructSize = GCP_RESULTS.sizeof;
-	result.nGlyphs = byteCount;
-
-	result.lpOrder = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
-	result.lpDx = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 4);
-	result.lpClass = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
-	result.lpGlyphs = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, byteCount * 2);
-				
-	// set required dwFlags
-	int dwFlags = 0;
-	int glyphFlags = 0;
-	if (((fontLanguageInfo & GCP_REORDER) == GCP_REORDER)) {
-		dwFlags |= GCP_REORDER;
-	}
-	if ((fontLanguageInfo & GCP_LIGATE) == GCP_LIGATE) {
-		dwFlags |= GCP_LIGATE;
-		glyphFlags |= 0;
-	}
-	if ((fontLanguageInfo & GCP_GLYPHSHAPE) == GCP_GLYPHSHAPE) {
-		dwFlags |= GCP_GLYPHSHAPE;
-		if (linkBefore) {
-			glyphFlags |= GCPGLYPH_LINKBEFORE;
-		}		
-		if (linkAfter) {
-			glyphFlags |= GCPGLYPH_LINKAFTER;
-		}
-	}
-	byte[] lpGlyphs;
-	if (linkBefore || linkAfter) {
-		lpGlyphs = new byte[2];
-		lpGlyphs[0]=(byte)glyphFlags;
-		lpGlyphs[1]=(byte)(glyphFlags >> 8);
-	}
-	else {
-		lpGlyphs = new byte[] {(byte) glyphFlags};
-	}
-	OS.MoveMemory(result.lpGlyphs, lpGlyphs, lpGlyphs.length);
-	
-	if ((flags & CLASSIN) == CLASSIN) {
-		// set classification values for the substring
-		dwFlags |= GCP_CLASSIN;
-		OS.MoveMemory(result.lpClass, classBuffer, classBuffer.length);
-	}	
-	OS.GetCharacterPlacement(gc.handle, textBuffer, byteCount, 0, result, dwFlags);
-	
-	if (dx != null) OS.MoveMemory(dx, result.lpDx, dx.length * 4);
-	if (order != null) OS.MoveMemory(order, result.lpOrder, order.length * 4);
-	if (classBuffer != null) OS.MoveMemory(classBuffer, result.lpClass, classBuffer.length);
-
-	byte[] glyphBuffer = new byte[result.nGlyphs * 2];
-	OS.MoveMemory(glyphBuffer, result.lpGlyphs, glyphBuffer.length);	
-
-	/* Free the memory that was allocated. */
-	OS.HeapFree(hHeap, 0, result.lpGlyphs);
-	OS.HeapFree(hHeap, 0, result.lpClass);
-	OS.HeapFree(hHeap, 0, result.lpDx);	
-	OS.HeapFree(hHeap, 0, result.lpOrder);	
-	return glyphBuffer;
-}
-/*
- * 
  */
 public static int getKeyboardLanguage() {
 	int layout = OS.GetKeyboardLayout(0);
@@ -411,7 +282,7 @@ public static int getKeyboardLanguage() {
 	return KEYBOARD_LATIN;
 }
 /*
- * 
+ *
  */
 static int[] getKeyboardLanguageList() {
 	int maxSize = 10;
@@ -422,26 +293,26 @@ static int[] getKeyboardLanguageList() {
 	return list;
 }
 /*
- * 
+ *
  */
 public static void removeLanguageListener (int hwnd) {
 	map.remove (new Integer (hwnd));
 	OS.SetWindowLong (hwnd, OS.GWL_WNDPROC, oldProc);
-}		
+}
 /*
- * 
+ *
  */
 public static void setKeyboardLanguage(int language) {
 	// don't switch the keyboard if it doesn't need to be
 	if (language == getKeyboardLanguage()) return;
-	
-	boolean isBidiLang = (language == KEYBOARD_HEBREW) || (language == KEYBOARD_ARABIC);		
+
+	boolean isBidiLang = (language == KEYBOARD_HEBREW) || (language == KEYBOARD_ARABIC);
 	// get the corresponding WIN language id for the
 	// language
 	if (isBidiLang) {
 		int langId;
 		if (language == KEYBOARD_HEBREW) langId = LANG_HEBREW;
-		else langId = LANG_ARABIC;		
+		else langId = LANG_ARABIC;
 		// get the list of active languages
 		int[] list = getKeyboardLanguageList();
 		// set to first language of the given type
