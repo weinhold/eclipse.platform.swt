@@ -362,13 +362,22 @@ public void setHotImage (Image image) {
 	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
 	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
 	if ((style & SWT.SEPARATOR) != 0) return;
+
+	/* TEMPORARY CODE: remove when when FLAT tool bars are implemented */
+	if ((parent.style & SWT.FLAT) != 0) setImage (image);
+
 	hotImage = image;
 }
 
 public void setImage (Image image) {
 	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
 	if (!isValidWidget ()) error (SWT.ERROR_WIDGET_DISPOSED);
-	if ((style & SWT.SEPARATOR) != 0) return;
+	if ((style & SWT.SEPARATOR) != 0) return;	
+	super.setImage (image);
+
+	/* TEMPORARY CODE: remove when when FLAT tool bars are implemented */
+	if ((parent.style & SWT.FLAT) != 0 && hotImage != null) return;
+
 	int imageHandle = 0;
 	int type = OS.Pt_Z_STRING;
 	if (image != null) {
