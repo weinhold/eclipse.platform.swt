@@ -19,11 +19,15 @@ public class TableCell extends Composite {
 public TableCell (Table table, int style) {
 	super(table, style);
 	this.table = table;
-	this.setLayout(new FillLayout());
+	
 	cellTable = new Table(this, SWT.NONE);
 	cellTable.setBackground(getDisplay().getSystemColor(SWT.COLOR_RED));
+	cellTable.setFont(table.getFont());
+	cellTable.setForeground(table.getForeground());
+	//cellTable.setBackground(table.getBackground());
 	cellItem = new TableItem(cellTable, SWT.NONE);
 	cellTable.setSelection(0);
+	
 	scrollListener = new Listener() {
 		public void handleEvent(Event e) {
 			switch (e.type) {
@@ -42,29 +46,41 @@ public TableCell (Table table, int style) {
 	tableListener = new Listener() {
 		public void handleEvent(Event e) {
 			switch (e.type) {
-				case SWT.Resize:    resize(); break;
 				case SWT.KeyDown:   onKeyDown(e); break;
 				case SWT.Selection: onSelection(e); break;
 				case SWT.MouseDown: onMouseDown(e); break;
+				case SWT.FocusIn:   onFocus(e); break;
 			}
 		}
 	};
-	table.addListener(SWT.Resize,    tableListener);
 	table.addListener(SWT.KeyDown,   tableListener);
 	table.addListener(SWT.Selection, tableListener);
 	table.addListener(SWT.MouseDown, tableListener);
-	
-	cellTable.addListener(SWT.KeyDown, new Listener() {
-		public void handleEvent(Event e) {
-			onCellKeyDown(e);
-		}
-	});
+	table.addListener(SWT.FocusIn,   tableListener);
 	
 	columnListener = new Listener() {
 		public void handleEvent(Event e) {
 			resize();
 		}
 	};
+	
+	cellTable.addListener(SWT.KeyDown, new Listener() {
+		public void handleEvent(Event e) {
+			onCellKeyDown(e);
+		}
+	});
+	cellTable.addListener(SWT.Traverse, new Listener() {
+		public void handleEvent(Event e) {
+			onCellTraverse(e);
+		}
+	});
+	
+	addListener(SWT.Resize, new Listener() {
+		public void handleEvent(Event e) {
+			Point size = getSize();
+			cellTable.setBounds(0, -2, size.x, size.y + 2);
+		}
+	});
 }
 public void dispose () {
 	setColumn(-1);
@@ -88,28 +104,34 @@ public TableItem getRow() {
 }
 private void onCellKeyDown(Event e){
 	if (row == null) return;
-	TableItem oldRow = row;
-	int oldColumn = column;
-	if (e.keyCode == SWT.ARROW_LEFT) setColumn(Math.max(column - 1, 0));
-	if (e.keyCode == SWT.ARROW_RIGHT) setColumn(Math.min(column + 1, table.getColumnCount() - 1));
-	if (e.keyCode == SWT.ARROW_UP) {
-		int index = table.indexOf(row);
-		int newIndex = Math.max( index - 1, 0);
-		if (index != newIndex) {
-			row = table.getItem(newIndex);
-			table.setSelection(newIndex);
-		}
-	}
-	if (e.keyCode == SWT.ARROW_DOWN) {
-		int index = table.indexOf(row);
-		int newIndex = Math.min( index + 1, table.getItemCount() - 1);
-		if (index != newIndex) {
-			row = table.getItem(newIndex);
-			table.setSelection(newIndex);
-		}
-	}
-	if (row == oldRow && column == oldColumn) return;
+	int newColumn = column;
+	if (e.keyCode == SWT.ARROW_LEFT)  newColumn = Math.max(column - 1, 0);
+	if (e.keyCode == SWT.ARROW_RIGHT) newColumn = Math.min(column + 1, table.getColumnCount() - 1);
+	if (column == newColumn) return;
+	setColumn(newColumn);
 	updateCell();
+}
+private void onCellTraverse(Event e) {
+	if (row == null) return;
+	
+	int index = table.indexOf(row);
+	int newIndex = index;
+	if (e.detail == SWT.TRAVERSE_ARROW_PREVIOUS && e.keyCode == SWT.ARROW_UP) {
+		newIndex = Math.max(index - 1, 0);
+	}
+	if (e.detail == SWT.TRAVERSE_ARROW_NEXT && e.keyCode == SWT.ARROW_DOWN) {
+		newIndex = Math.min(index + 1, table.getItemCount() - 1);
+	}
+	if (index == newIndex) return;
+	row = table.getItem(newIndex);
+	table.setSelection(newIndex);
+	table.showItem(row);	
+	updateCell();
+	e.doit = false;
+}
+
+private void onFocus(Event e) {
+	//cellTable.setFocus();
 }
 private void onMouseDown(Event e) {
 	// find column at coordinates
@@ -169,12 +191,11 @@ private void updateCell() {
 		cellItem.setText(row.getText(column));
 		cellItem.setImage(row.getImage(column));
 		cellTable.pack();
-		setFocus();
+		//cellTable.setFocus ();
 	}
 	resize();
 }
 private void resize() {
-System.out.println("resize");
 	if (row != null && column != -1) {
 		setBounds (row.getBounds(column));
 	} else {
@@ -191,7 +212,7 @@ private void setColumn(int column) {
 		}
 		this.column = -1;
 	}
-	if (column > -1) {
+	if (column != -1) {
 		TableColumn tableColumn = table.getColumn(column);
 		if (tableColumn != null && !tableColumn.isDisposed()) {
 			tableColumn.addListener(SWT.Resize, columnListener);
