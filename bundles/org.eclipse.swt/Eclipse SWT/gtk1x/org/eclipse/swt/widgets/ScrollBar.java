@@ -169,8 +169,7 @@ public boolean getEnabled () {
  */
 public int getIncrement () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.step_increment;
 }
 
@@ -186,8 +185,7 @@ public int getIncrement () {
  */
 public int getMaximum () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.upper;
 }
 
@@ -203,8 +201,7 @@ public int getMaximum () {
  */
 public int getMinimum () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.lower;
 }
 
@@ -222,8 +219,7 @@ public int getMinimum () {
  */
 public int getPageIncrement () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.page_increment;
 }
 
@@ -254,8 +250,7 @@ public Scrollable getParent () {
  */
 public int getSelection () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.value;
 }
 
@@ -293,8 +288,7 @@ public Point getSize () {
  */
 public int getThumb () {
 	checkWidget ();
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	return (int) adjustment.page_size;
 }
 
@@ -443,10 +437,9 @@ public void setEnabled (boolean enabled) {
 public void setIncrement (int value) {
 	checkWidget ();
 	if (value < 1) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.step_increment = (float) value;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
@@ -467,10 +460,9 @@ public void setIncrement (int value) {
 public void setMaximum (int value) {
 	checkWidget ();
 	if (value < 0) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.upper = (float) value;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
@@ -491,10 +483,9 @@ public void setMaximum (int value) {
 public void setMinimum (int value) {
 	checkWidget ();
 	if (value < 0) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.lower = (float) value;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
@@ -516,10 +507,9 @@ public void setMinimum (int value) {
 public void setPageIncrement (int value) {
 	checkWidget ();
 	if (value < 1) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.page_increment = (float) value;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
@@ -562,10 +552,9 @@ public void setSelection (int value) {
 public void setThumb (int value) {
 	checkWidget ();
 	if (value < 1) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.page_size = (float) value;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_signal_handler_unblock_by_data (handle, SWT.Selection);
@@ -601,15 +590,14 @@ public void setValues (int selection, int minimum, int maximum, int thumb, int i
 	if (maximum - minimum - thumb < 0) return;
 	if (increment < 1) return;
 	if (pageIncrement < 1) return;
-	GtkAdjustment adjustment = new GtkAdjustment ();
-	OS.memmove (adjustment, handle, GtkAdjustment.sizeof);
+	GtkAdjustment adjustment = new GtkAdjustment (handle);
 	adjustment.lower = minimum;
 	adjustment.upper = maximum;
 	adjustment.step_increment = increment;
 	adjustment.page_increment = pageIncrement;
 	adjustment.page_size = thumb;
 	adjustment.value = selection;
-	OS.memmove (handle, adjustment, GtkAdjustment.sizeof);
+	OS.memmove (handle, adjustment);
 	OS.gtk_signal_handler_block_by_data (handle, SWT.Selection);
 	OS.gtk_adjustment_changed (handle);
 	OS.gtk_adjustment_value_changed (handle);

@@ -106,12 +106,14 @@ Trim _getTrim() {
 void initializeTrim() { trim = new Trim(); }
 
 void _fillBin(int binHandle, int childHandle) {
+	/*
 	GtkBin bin = new GtkBin();
 	OS.memmove(bin, binHandle, GtkBin.sizeof);
 	bin.child = childHandle;
 	OS.memmove(binHandle, bin, GtkBin.sizeof);
 	OS.gtk_widget_set_parent(childHandle, binHandle);
-}
+	*/
+	OS.gtk_container_add(binHandle, childHandle);}
 
 /*
  * Subclasses must only use super.configure()

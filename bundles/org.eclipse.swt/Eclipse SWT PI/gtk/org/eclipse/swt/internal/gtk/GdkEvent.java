@@ -20,6 +20,6 @@ public class GdkEvent {
 
 	GdkEvent() {};
 	public  GdkEvent(int ptr) {
-		OS.memmove(this, ptr, 0);
+		OS.memmove(this, ptr);
 	}
 }
