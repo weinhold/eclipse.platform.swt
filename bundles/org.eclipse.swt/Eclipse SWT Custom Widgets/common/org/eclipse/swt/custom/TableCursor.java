@@ -180,11 +180,11 @@ void keyDown (Event event) {
 void paint (Event event) {
 	GC gc = event.gc;
 	Display display = getDisplay ();
-	gc.setForeground (display.getSystemColor (SWT.COLOR_LIST_SELECTION_TEXT));
-	gc.setBackground (display.getSystemColor (SWT.COLOR_LIST_SELECTION));
+	gc.setBackground (display.getSystemColor (SWT.COLOR_LIST_SELECTION_TEXT));
+	gc.setForeground (display.getSystemColor (SWT.COLOR_LIST_SELECTION));
 	gc.fillRectangle (event.x, event.y, event.width, event.height);
 	TableItem item = table.getItems () [row];
-	int x = 1, y = 1;
+	int x = 2, y = 0;
 	Image image = item.getImage (column);
 	if (image != null) {
 		gc.drawImage (image, x, y);
@@ -194,8 +194,8 @@ void paint (Event event) {
 	if (isFocusControl ()) {
 		gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 		gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-		Rectangle rect = getClientArea ();
-		gc.drawFocus (rect.x, rect.y, rect.width, rect.height);
+		Point size = getSize ();
+		gc.drawFocus (0, 0, size.x, size.y);
 	}
 	
 }
@@ -259,7 +259,7 @@ public void setVisible (boolean visible) {
 }
 
 void resize () {
-	TableItem item = table.getItems () [row];
+	TableItem item = table.getItem (row);
 	setBounds (item.getBounds (column));
 }
 
