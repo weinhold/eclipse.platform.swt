@@ -747,47 +747,6 @@ void drawBorder(GC gc) {
 void drawChevron(GC gc) {
 	if (chevronRect.width == 0 || chevronRect.height == 0) return;
 	int x = chevronRect.x, y = chevronRect.y, width = chevronRect.width, height = chevronRect.height;
-//	int[] shape = null;
-//	if (onBottom) {
-//		shape = new int[BOTTOM_LEFT_CORNER.length + BOTTOM_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x+2;
-//		shape[index++] = y;
-//		for (int i = 0; i < BOTTOM_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+2+BOTTOM_LEFT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < BOTTOM_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width+BOTTOM_RIGHT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width;
-//		shape[index++] = y;
-//	} else {
-//		shape = new int[TOP_LEFT_CORNER.length+TOP_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x+2;
-//		shape[index++] = y+height;
-//		for (int i = 0; i < TOP_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+2+TOP_LEFT_CORNER[2*i];
-//			shape[index++] = y+TOP_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < TOP_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width+TOP_RIGHT_CORNER[2*i];
-//			shape[index++] = y+TOP_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width;
-//		shape[index++] = y+height;
-//	}
-//	// Shape is non-rectangular, fill in gaps with parent colours	
-//	Region r = new Region();
-//	r.add(chevronRect);
-//	r.subtract(shape);
-//	gc.setBackground(getParent().getBackground());
-//	fillRegion(gc, r);
-//	r.dispose();
-//	// draw shape
-//	drawSelectionBackground(gc, chevronRect.y, shape);
 	
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
@@ -796,7 +755,8 @@ void drawChevron(GC gc) {
 	
 	// draw chevron (6x5)
 	int indent = (tabHeight - 5)/2;
-	gc.setForeground(selectionForeground);
+	Color color = single ? selectionForeground : getParent().getForeground();
+	gc.setForeground(color);
 	gc.drawLine(x+7,  y+indent,   x+9,  y+indent+2);
 	gc.drawLine(x+8,  y+indent+3, x+7,  y+indent+4);
 	gc.drawLine(x+8,  y+indent+2, x+8,  y+indent+2);
@@ -807,49 +767,6 @@ void drawChevron(GC gc) {
 void drawClose(GC gc) {
 	if (closeRect.width == 0 || closeRect.height == 0) return;
 	int x = closeRect.x, y = closeRect.y, width = closeRect.width, height = closeRect.height;
-//	int[] shape = null;
-//	if (onBottom) {
-//		shape = new int[BOTTOM_LEFT_CORNER.length+BOTTOM_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x+2;
-//		shape[index++] = y;
-//		for (int i = 0; i < BOTTOM_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+2+BOTTOM_LEFT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < BOTTOM_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width+BOTTOM_RIGHT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width;
-//		shape[index++] = y;
-//	} else {
-//		shape = new int[TOP_LEFT_CORNER.length+TOP_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x+2;
-//		shape[index++] = y+height;
-//		for (int i = 0; i < TOP_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+2+TOP_LEFT_CORNER[2*i];
-//			shape[index++] = y+TOP_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < TOP_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width+TOP_RIGHT_CORNER[2*i];
-//			shape[index++] = y+TOP_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width;
-//		shape[index++] = y+height;
-//	}
-//	
-//	// Shape is non-rectangular, fill in gaps with parent colours	
-//	Region r = new Region();
-//	r.add(closeRect);
-//	r.subtract(shape);
-//	gc.setBackground(getParent().getBackground());
-//	fillRegion(gc, r);
-//	r.dispose();
-//	
-//	// draw shape
-//	drawSelectionBackground(gc, y, shape);
 	
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
@@ -858,7 +775,8 @@ void drawClose(GC gc) {
 	
 	// draw X (6x5)
 	int indent = (tabHeight - 5)/2;
-	gc.setForeground(selectionForeground);
+	Color color = single ? selectionForeground : getParent().getForeground();
+	gc.setForeground(color);
 	gc.drawLine(x+6, y+indent,   x+10, y+indent+5);
 	gc.drawLine(x+7, y+indent,   x+11, y+indent+5);
 	gc.drawLine(x+6, y+indent+5, x+10, y+indent);
@@ -867,48 +785,6 @@ void drawClose(GC gc) {
 void drawExpand(GC gc) {
 	if (expandRect.width == 0 || expandRect.height == 0) return;
 	int x = expandRect.x, y = expandRect.y, width = expandRect.width, height = expandRect.height;
-//	int[] shape = null;
-//	if (onBottom) {
-//		shape = new int[BOTTOM_LEFT_CORNER.length+BOTTOM_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x;
-//		shape[index++] = y;
-//		for (int i = 0; i < BOTTOM_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+BOTTOM_LEFT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < BOTTOM_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width-2+BOTTOM_RIGHT_CORNER[2*i];
-//			shape[index++] = y+height+BOTTOM_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width-2;
-//		shape[index++] = y;
-//	} else {
-//		shape = new int[TOP_LEFT_CORNER.length+TOP_RIGHT_CORNER.length+4];
-//		int index = 0;
-//		shape[index++] = x;
-//		shape[index++] = y+height;
-//		for (int i = 0; i < TOP_LEFT_CORNER.length/2; i++) {
-//			shape[index++] = x+TOP_LEFT_CORNER[2*i];
-//			shape[index++] = y+TOP_LEFT_CORNER[2*i+1];
-//		}
-//		for (int i = 0; i < TOP_RIGHT_CORNER.length/2; i++) {
-//			shape[index++] = x+width-2+TOP_RIGHT_CORNER[2*i];
-//			shape[index++] = y+TOP_RIGHT_CORNER[2*i+1];
-//		}
-//		shape[index++] = x+width-2;
-//		shape[index++] = y+height;
-//	}
-//	// Shape is non-rectangular, fill in gaps with parent colours	
-//	Region r = new Region();
-//	r.add(expandRect);
-//	r.subtract(shape);
-//	gc.setBackground(getParent().getBackground());
-//	fillRegion(gc, r);
-//	r.dispose();
-//	// draw shape
-//	gc.setBackground(getBackground());
-//	gc.fillPolygon(shape);
 	
 	if (!single) {
 		gc.setBackground(getParent().getBackground());
@@ -930,8 +806,9 @@ void drawExpand(GC gc) {
 	if (!expanded && !onBottom) {
 		points = new int[] {x+7,y+indent-2, x+11,y+indent+2, x+7,y+indent+6};
 	}
-	//gc.setBackground(getForeground());
-	gc.setBackground(selectionForeground);
+	
+	Color color = single ? selectionForeground : getParent().getForeground();
+	gc.setBackground(color);
 	gc.fillPolygon(points);
 }
 void drawSelectionBackground(GC gc, int y, int[] shape) {
