@@ -1,6 +1,9 @@
+package org.eclipse.swt.custom;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.events.*;
 
 public class TableCursor extends Canvas {
 	Table table;
@@ -56,6 +59,40 @@ public TableCursor (Table parent, int style) {
 	if (vBar != null) {
 		vBar.addListener (SWT.Selection, resizeListener);
 	}
+}
+
+/**
+ * Adds the listener to the collection of listeners who will
+ * be notified when the receiver's selection changes, by sending
+ * it one of the messages defined in the <code>SelectionListener</code>
+ * interface.
+ * <p>
+ * When <code>widgetSelected</code> is called, the item field of the event object is valid.
+ * If the reciever has <code>SWT.CHECK</code> style set and the check selection changes,
+ * the event object detail field contains the value <code>SWT.CHECK</code>.
+ * <code>widgetDefaultSelected</code> is typically called when an item is double-clicked.
+ * </p>
+ *
+ * @param listener the listener which should be notified
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+ * </ul>
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ *
+ * @see SelectionListener
+ * @see #removeSelectionListener
+ * @see SelectionEvent
+ */
+public void addSelectionListener(SelectionListener listener) {
+	checkWidget ();
+	if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Selection, typedListener);
+	addListener (SWT.DefaultSelection, typedListener);
 }
 
 void dispose (Event event) {
@@ -143,11 +180,12 @@ void keyDown (Event event) {
 }
 
 void focusOut (Event event) {
-	setVisible (false);
+	//setVisible (false);
 }
 
 void paint (Event event) {
 	GC gc = event.gc;
+System.out.println("painting "+ event.x+" "+event.y+" "+event.width +" "+event.height);
 	Display display = getDisplay ();
 	gc.setForeground (display.getSystemColor (SWT.COLOR_LIST_SELECTION_TEXT));
 	gc.setBackground (display.getSystemColor (SWT.COLOR_LIST_SELECTION));
@@ -170,11 +208,13 @@ void paint (Event event) {
 }
 
 void tableFocusIn (Event event) {
+	if (isDisposed()) return;
 	setVisible (true);
 	setFocus ();
 }
 
 void tableMouseDown (Event event) {
+	if (isDisposed()) return;
 	Point pt = new Point (event.x, event.y);
 	Rectangle clientRect = table.getClientArea ();
 	int columns = table.getColumnCount ();
@@ -229,5 +269,11 @@ void resize () {
 	setBounds (item.getBounds (column));
 }
 
+public int getColumn () {
+	return column;
+}
+public TableItem getRow() {
+	return table.getItem(row);
+}
 }
 
