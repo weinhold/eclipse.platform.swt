@@ -1,5 +1,10 @@
 package org.eclipse.swt.custom;
 
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved
+ */
+ 
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
@@ -15,6 +20,7 @@ public class TableCell extends Composite {
 	Listener columnListener;
 	Image image;
 	String text;
+	boolean ctrlset = false;
 
 public TableCell (Table table, int style) {
 	super(table, style);
@@ -45,12 +51,14 @@ public TableCell (Table table, int style) {
 				case SWT.Selection: onTableSelection(e); break;
 				case SWT.MouseDown: onTableMouseDown(e); break;
 				case SWT.FocusIn:   onTableFocusIn(e); break;
+				case SWT.KeyUp:   onTableKeyUp(e); break;
 			}
 		}
 	};
 	table.addListener(SWT.Selection, tableListener);
 	table.addListener(SWT.MouseDown, tableListener);
 	table.addListener(SWT.FocusIn,   tableListener);
+	table.addListener(SWT.KeyUp,   tableListener);
 	
 	columnListener = new Listener() {
 		public void handleEvent(Event e) {
@@ -120,14 +128,27 @@ private void onTraverse(Event e) {
 	if (index == newIndex && column == newColumn) return;
 	row = table.getItem(newIndex);
 	table.showItem(row);
-	table.setSelection(new TableItem[] {row});
 	setColumn(newColumn);
-	notifyListeners(SWT.Selection, new Event());
 	updateCell();
+	table.setSelection(new TableItem[] {row});
+	notifyListeners(SWT.Selection, new Event());
 	e.doit = false;
 }
 
 private void onTableFocusIn(Event e) {
+	if (ctrlset) return;
+	getDisplay().asyncExec(new Runnable () {
+		public void run() {
+			if (!isDisposed() && table.isFocusControl()) {
+				setVisible(true);
+				setFocus();
+			}
+		}
+	});
+}
+private void onTableKeyUp(Event e) {
+	if ((e.stateMask & SWT.CTRL) != 0) return;
+	ctrlset = false;
 	getDisplay().asyncExec(new Runnable () {
 		public void run() {
 			if (!isDisposed() && table.isFocusControl()) {
@@ -146,6 +167,10 @@ private void onFocusChange(Event e) {
 private void onKeyDown(Event e) {
 	if (e.character == SWT.CR) {
 		notifyListeners(SWT.DefaultSelection, new Event());
+	}
+	if ((e.stateMask & SWT.CTRL) != 0) {
+		ctrlset = true;
+		table.forceFocus();
 	}
 }
 private void onTableMouseDown(Event e) {
@@ -279,4 +304,3 @@ public String getText() {
 	return (text == null) ? "" : text;
 }
 }
-
