@@ -550,6 +550,7 @@ void postEvent (int eventType, Event event) {
 }
 
 int processEvent (int eventNumber, int int0, int int1, int int2) {
+	System.out.println("event: "+eventNumber);
 	switch (eventNumber) {
 		case SWT.Arm:				return processArm           	(int0, int1, int2);
 		case SWT.Collapse:			return processCollapse      	(int0, int1, int2);
@@ -680,7 +681,6 @@ int processVerify (int int0, int int1, int int2) {
 }
 
 void signal_connect (int handle, String eventName, int swtEvent, int numArgs) {
-	byte [] buffer = Converter.wcsToMbcs (null, eventName, true);
 	int proc=0;
 	switch (numArgs) {
 		case 2: proc=getDisplay().windowProc2; break;
@@ -689,7 +689,9 @@ void signal_connect (int handle, String eventName, int swtEvent, int numArgs) {
 		case 5: proc=getDisplay().windowProc5; break;
 		default: error(SWT.ERROR_INVALID_ARGUMENT);
 	}
-	OS.gtk_signal_connect (handle, buffer, proc, swtEvent);
+	/*OS.g_signal_connect (handle, eventName, proc, swtEvent);*/
+	byte [] buffer = Converter.wcsToMbcs (null, eventName, true);
+	OS.gtk_signal_connect(handle, buffer, proc, swtEvent);
 }
 void signal_connect_after (int handle, String eventName, int swtEvent, int numArgs) {
 	byte [] buffer = Converter.wcsToMbcs (null, eventName, true);

@@ -145,8 +145,8 @@ void hookEvents () {
 		OS.gtk_widget_add_events (boxHandle, mask);
 		signal_connect_after (boxHandle, "motion_notify_event", SWT.MouseMove, 3);
 		signal_connect_after (boxHandle, "key_release_event", SWT.KeyUp, 3);
-	}
-	signal_connect (handle, "clicked", SWT.Selection, 2);*/
+	}*/
+	signal_connect (handle, "clicked", SWT.Selection, 2);
 }
 
 void createWidget (int index) {

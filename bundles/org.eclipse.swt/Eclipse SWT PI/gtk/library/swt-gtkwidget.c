@@ -91,6 +91,12 @@ JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1REA
 	return (jboolean) GTK_WIDGET_REALISED((GtkWidget*)wid);
 }
 
+JNIEXPORT jboolean JNICALL Java_org_eclipse_swt_internal_gtk_OS_GTK_1WIDGET_1VISIBLE
+  (JNIEnv *env, jclass that, jint wid)
+{
+	return (jboolean) GTK_WIDGET_VISIBLE((GtkWidget*)wid);
+}
+
 /* Functions */
 
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1widget_1destroy

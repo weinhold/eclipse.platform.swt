@@ -22,19 +22,13 @@
 #include <assert.h>
 
 
-
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_check_version
- * Signature:	
+ * General
  */
+
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1check_1version
   (JNIEnv *env, jclass that, jint required_major, jint required_minor, jint required_micro)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_check_version");
-#endif
-
 	return (jint)gtk_check_version(required_major, required_minor, required_micro);
 }
 
@@ -109,25 +103,33 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1main_1quit
 	gtk_main_quit();
 }
 
-/*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_main_iteration
- * Signature:	
- */
 JNIEXPORT jint JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1main_1iteration
   (JNIEnv *env, jclass that)
 {
-#ifdef DEBUG_CALL_PRINTS
-	fprintf(stderr, "gtk_main_iteration");
-#endif
-
 	return (jint)gtk_main_iteration();
 }
 
+
 /*
- * Class:	org_eclipse_swt_internal_gtk_OS
- * Method:	gtk_grab_add
- * Signature:	
+ * GLIB
+ */
+
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_g_1signal_1connect
+  (JNIEnv *env, jclass that, jint instance, jstring signel, jint handler, jint data)
+{
+  jbyte *signal1;
+  signal1 = (*env)->GetStringUTFChars(env, signal, NULL);
+  g_signal_connect(instance, signal, handler, data);
+  (*env)->ReleaseStringUTFChars(env, signal, signal1);
+}
+
+
+
+
+
+
+/*
+ *  Others - FIXME: please classify
  */
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1grab_1add
   (JNIEnv *env, jclass that, jint widget)

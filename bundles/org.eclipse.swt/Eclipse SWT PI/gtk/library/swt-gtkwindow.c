@@ -59,6 +59,30 @@ JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1set_1re
 	gtk_window_set_resizable((GtkWindow*)window, (gboolean)resizable);
 }
 
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1get_1position
+  (JNIEnv *env, jclass that, jint window, jintArray px, jintArray py)
+{
+  jint *px1 = NULL;
+  jint *py1 = NULL;
+  if (px) px1 = (*env)->GetIntArrayElements(env, px, NULL);
+  if (py) py1 = (*env)->GetIntArrayElements(env, py, NULL);
+  gtk_window_get_position((GtkWindow*)window, (gint*)px1, (gint*)py1);
+  if (px) (*env)->ReleaseByteArrayElements(env, px, px1, 0);
+  if (py) (*env)->ReleaseByteArrayElements(env, py, py1, 0);
+}
+
+JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1get_1size
+  (JNIEnv *env, jclass that, jint window, jintArray px, jintArray py)
+{
+  jint *px1 = NULL;
+  jint *py1 = NULL;
+  if (px) px1 = (*env)->GetIntArrayElements(env, px, NULL);
+  if (py) py1 = (*env)->GetIntArrayElements(env, py, NULL);
+  gtk_window_get_size((GtkWindow*)window, (gint*)px1, (gint*)py1);
+  if (px) (*env)->ReleaseByteArrayElements(env, px, px1, 0);
+  if (py) (*env)->ReleaseByteArrayElements(env, py, py1, 0);
+}
+
 JNIEXPORT void JNICALL Java_org_eclipse_swt_internal_gtk_OS_gtk_1window_1move
   (JNIEnv *env, jclass that, jint window, jint x, jint y)
 {

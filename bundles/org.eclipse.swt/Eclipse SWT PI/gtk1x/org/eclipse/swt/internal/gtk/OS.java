@@ -231,6 +231,11 @@ public class OS {
  *         Native methods.
  */
 
+/* GLIB */
+
+public static final native void g_signal_connect (int handle, String eventName, int proc, int swtEvent);
+public static final native void g_signal_connect_after (int handle, String eventName, int proc, int swtEvent);
+
 
 /*
  * Main loop
