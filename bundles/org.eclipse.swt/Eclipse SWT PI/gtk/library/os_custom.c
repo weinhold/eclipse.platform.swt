@@ -332,26 +332,6 @@ JNIEXPORT jint JNICALL OS_NATIVE(gtk_1rc_1style_1get_1color_1flags)
 }
 #endif
 
-#ifndef NO_gtk_1rc_1style_1set_1xthickness
-JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1xthickness)
-	(JNIEnv *env, jclass that, jint arg0, jint arg1)
-{
-	NATIVE_ENTER(env, that, "gtk_1rc_1style_1set_1xthickness\n")
-	((GtkRcStyle *)arg0)->xthickness = arg1;
-	NATIVE_EXIT(env, that, "gtk_1rc_1style_1set_1xthickness\n")
-}
-#endif
-
-#ifndef NO_gtk_1rc_1style_1set_1ythickness
-JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1ythickness)
-	(JNIEnv *env, jclass that, jint arg0, jint arg1)
-{
-	NATIVE_ENTER(env, that, "gtk_1rc_1style_1set_1ythickness\n")
-	((GtkRcStyle *)arg0)->ythickness = arg1;
-	NATIVE_EXIT(env, that, "gtk_1rc_1style_1set_1ythickness\n")
-}
-#endif
-
 #ifndef NO_gtk_1rc_1style_1set_1bg
 JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1bg)
 	(JNIEnv *env, jclass that, jint arg0, jint arg1, jobject arg2)
@@ -381,6 +361,26 @@ JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1color_1flags)
 	NATIVE_ENTER(env, that, "gtk_1rc_1style_1set_1color_1flags\n")
 	((GtkRcStyle *)arg0)->color_flags[arg1] = arg2;
 	NATIVE_EXIT(env, that, "gtk_1rc_1style_1set_1color_1flags\n")
+}
+#endif
+
+#ifndef NO_gtk_1rc_1style_1set_1xthickness
+JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1xthickness)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	NATIVE_ENTER(env, that, "gtk_1rc_1style_1set_1xthickness\n")
+	((GtkRcStyle *)arg0)->xthickness = arg1;
+	NATIVE_EXIT(env, that, "gtk_1rc_1style_1set_1xthickness\n")
+}
+#endif
+
+#ifndef NO_gtk_1rc_1style_1set_1ythickness
+JNIEXPORT void JNICALL OS_NATIVE(gtk_1rc_1style_1set_1ythickness)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	NATIVE_ENTER(env, that, "gtk_1rc_1style_1set_1ythickness\n")
+	((GtkRcStyle *)arg0)->ythickness = arg1;
+	NATIVE_EXIT(env, that, "gtk_1rc_1style_1set_1ythickness\n")
 }
 #endif
 

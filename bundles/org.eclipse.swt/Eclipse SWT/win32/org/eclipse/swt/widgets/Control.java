@@ -51,8 +51,6 @@ public abstract class Control extends Widget implements Drawable {
 	Object layoutData;
 	Accessible accessible;
 	int drawCount, foreground, background;
-	
-	static final short [] ACCENTS = new short [] {'~', '`', '\'', '^', '"'};
 
 /**
  * Prevents uninitialized instances from being created outside the package.
@@ -2539,7 +2537,7 @@ boolean translateMnemonic (MSG msg) {
 	Decorations shell = menuShell ();
 	if (shell.isVisible () && shell.isEnabled ()) {
 		display.lastAscii = msg.wParam;
-		display.lastNull = false;
+		display.lastNull = display.lastDead = false;
 		Event event = new Event ();
 		event.detail = SWT.TRAVERSE_MNEMONIC;
 		if (setKeyState (event, SWT.Traverse, msg.wParam, msg.lParam)) {
@@ -2660,7 +2658,7 @@ boolean translateTraversal (MSG msg) {
 	display.lastKey = lastKey;
 	display.lastAscii = lastAscii;
 	display.lastVirtual = lastVirtual;
-	display.lastNull = false;
+	display.lastNull = display.lastDead = false;
 	if (!setKeyState (event, SWT.Traverse, msg.wParam, msg.lParam)) return false;
 	Shell shell = getShell ();
 	Control control = this;
@@ -3029,7 +3027,7 @@ LRESULT WM_CHAR (int wParam, int lParam) {
 	display.lastAscii = wParam;
 	display.lastNull = wParam == 0;
 	if (!sendKeyEvent (SWT.KeyDown, OS.WM_CHAR, wParam, lParam)) {
-		return LRESULT.ZERO;
+		return LRESULT.ONE;
 	}
 	// widget could be disposed at this point
 	return null;
@@ -3205,14 +3203,14 @@ LRESULT WM_IME_CHAR (int wParam, int lParam) {
 	Display display = this.display;
 	display.lastKey = 0;
 	display.lastAscii = wParam;
-	display.lastVirtual = display.lastNull = false;
+	display.lastVirtual = display.lastNull = display.lastDead = false;
 	if (!sendKeyEvent (SWT.KeyDown, OS.WM_IME_CHAR, wParam, lParam)) {
-		return LRESULT.ZERO;
+		return LRESULT.ONE;
 	}
 	sendKeyEvent (SWT.KeyUp, OS.WM_IME_CHAR, wParam, lParam);
 	// widget could be disposed at this point
 	display.lastKey = display.lastAscii = 0;
-	return LRESULT.ZERO;
+	return LRESULT.ONE;
 }
 
 LRESULT WM_IME_COMPOSITION (int wParam, int lParam) {
@@ -3290,8 +3288,8 @@ LRESULT WM_KEYDOWN (int wParam, int lParam) {
 	
 	/* Clear last key and last ascii because a new key has been typed */
 	display.lastAscii = display.lastKey = 0;
-	display.lastVirtual = display.lastNull = false;
-
+	display.lastVirtual = display.lastNull = display.lastDead = false;
+	
 	/*
 	* Do not report a lead byte as a key pressed.
 	*/
@@ -3313,44 +3311,34 @@ LRESULT WM_KEYDOWN (int wParam, int lParam) {
 	* Bug in Windows 95 and NT.  When the user types an accent key such
 	* as ^ to get an accented character on a German keyboard, the accent
 	* key should be ignored and the next key that the user types is the
-	* accented key.  On Windows 95 and NT, a call to ToAscii (), clears the
-	* accented state such that the next WM_CHAR loses the accent.  The fix
-	* is to detect the accent key stroke (called a dead key) by testing the
-	* high bit of the value returned by MapVirtualKey ().  A further problem
-	* is that the high bit on Windows NT is bit 32 while the high bit on
-	* Windows 95 is bit 16.  They should both be bit 32.
+	* accented key.  The fix is to detect the accent key stroke (called
+	* a dead key) by testing the high bit of the value returned by
+	* MapVirtualKey().  A further problem is that the high bit on
+	* Windows NT is bit 32 while the high bit on Windows 95 is bit 16.
+	* They should both be bit 32.
+	*
+	* When the user types an accent key that does not correspond to a
+	* virtual key, MapVirtualKey() won't set the high bit to indicate
+	* a dead key.  This happens when an accent key, such as '^' is the
+	* result of a modifier such as Shift key and MapVirtualKey() always
+	* returns the unshifted key.  The fix is to peek for a WM_DEADCHAR
+	* and avoid issuing the event. 
 	* 
-	* NOTE: This code is used to avoid a call to ToAscii ().
+	* NOTE: On Windows 95 and NT, a call to ToAscii(), clears the
+	* accented state such that the next WM_CHAR loses the accent.
+	* This makes is critical that the accent key is detected.
 	*/
 	if (OS.IsWinNT) {
 		if ((mapKey & 0x80000000) != 0) return null;
 	} else {
 		if ((mapKey & 0x8000) != 0) return null;
 	}
-	
-	/*
-	* Bug in Windows.  When the accent key is generated on an international
-	* keyboard using Ctrl+Alt or the special key, MapVirtualKey () does not
-	* have the high bit set indicating that this is an accent key stroke.
-	* The fix is to iterate through all known accent, mapping them back to
-	* their corresponding virtual key and key state.  If the virtual key
-	* and key state match the current key, then this is an accent that has
-	* been generated using an international keyboard and calling ToAscii ()
-	* will clear the accent state.
-	* 
-	* NOTE: This code is used to avoid a call to ToAscii ().
-	*/
-	if (!OS.IsWinCE) {
-		if (OS.GetKeyState (OS.VK_CONTROL) < 0 && OS.GetKeyState (OS.VK_MENU) < 0) {
-			for (int i=0; i<ACCENTS.length; i++) {
-				int value = OS.VkKeyScan (ACCENTS [i]);
-				if ((value & 0xFF) == wParam && (value & 0x600) == 0x600) {
-					display.lastVirtual = mapKey == 0;
-					display.lastKey = display.lastVirtual ? wParam : mapKey;
-					return null;
-				}
-			}
-		}
+	MSG msg = new MSG ();
+	if (OS.PeekMessage (msg, handle, OS.WM_DEADCHAR, OS.WM_DEADCHAR, OS.PM_NOREMOVE)) {
+		display.lastDead = true;
+		display.lastVirtual = mapKey == 0;
+		display.lastKey = display.lastVirtual ? wParam : mapKey;
+		return null;
 	}
 	
 	/*
@@ -3472,7 +3460,7 @@ LRESULT WM_KEYDOWN (int wParam, int lParam) {
 		display.lastAscii = display.controlKey (display.lastAscii);
 	}
 	if (!sendKeyEvent (SWT.KeyDown, OS.WM_KEYDOWN, wParam, lParam)) {
-		return LRESULT.ZERO;
+		return LRESULT.ONE;
 	}
 	// widget could be disposed at this point
 	return null;
@@ -3485,7 +3473,7 @@ LRESULT WM_KEYUP (int wParam, int lParam) {
 	if (OS.IsWinCE) {
 		if (OS.VK_APP1 <= wParam && wParam <= OS.VK_APP6) {
 			display.lastKey = display.lastAscii = 0;
-			display.lastVirtual = display.lastNull = false;
+			display.lastVirtual = display.lastNull = display.lastDead = false;
 			Event event = new Event ();
 			event.detail = wParam - OS.VK_APP1 + 1;
 			/* Check the bit 30 to get the key state */
@@ -3502,7 +3490,7 @@ LRESULT WM_KEYUP (int wParam, int lParam) {
 	*/
 	if (!hooks (SWT.KeyUp) && !display.filters (SWT.KeyUp)) {
 		display.lastKey = display.lastAscii = 0;
-		display.lastVirtual = display.lastNull = false;
+		display.lastVirtual = display.lastNull = display.lastDead = false;
 		return null;
 	}
 	
@@ -3519,46 +3507,19 @@ LRESULT WM_KEYUP (int wParam, int lParam) {
 	* Bug in Windows 95 and NT.  When the user types an accent key such
 	* as ^ to get an accented character on a German keyboard, the accent
 	* key should be ignored and the next key that the user types is the
-	* accented key.  On Windows 95 and NT, a call to ToAscii (), clears the
-	* accented state such that the next WM_CHAR loses the accent.  The fix
-	* is to detect the accent key stroke (called a dead key) by testing the
-	* high bit of the value returned by MapVirtualKey ().  A further problem
-	* is that the high bit on Windows NT is bit 32 while the high bit on
-	* Windows 95 is bit 16.  They should both be bit 32.
-	* 
-	* NOTE: This code is used to avoid a call to ToAscii ().
-	* 
+	* accented key. The fix is to detect the accent key stroke (called
+	* a dead key) by testing the high bit of the value returned by
+	* MapVirtualKey ().  A further problem is that the high bit on
+	* Windows NT is bit 32 while the high bit on Windows 95 is bit 16.
+	* They should both be bit 32.
 	*/
 	if (OS.IsWinNT) {
 		if ((mapKey & 0x80000000) != 0) return null;
 	} else {
 		if ((mapKey & 0x8000) != 0) return null;
 	}
-	
-	/*
-	* Bug in Windows.  When the accent key is generated on an international
-	* keyboard using Ctrl+Alt or the special key, MapVirtualKey () does not
-	* have the high bit set indicating that this is an accent key stroke.
-	* The fix is to iterate through all known accent, mapping them back to
-	* their corresponding virtual key and key state.  If the virtual key
-	* and key state match the current key, then this is an accent that has
-	* been generated using an international keyboard.
-	* 
-	* NOTE: This code is used to avoid a call to ToAscii ().
-	*/
-	if (!OS.IsWinCE) {
-		if (OS.GetKeyState (OS.VK_CONTROL) < 0 && OS.GetKeyState (OS.VK_MENU) < 0) {
-			for (int i=0; i<ACCENTS.length; i++) {
-				int value = OS.VkKeyScan (ACCENTS [i]);
-				if ((value & 0xFF) == wParam && (value & 0x600) == 0x600) {
-					display.lastKey = display.lastAscii = 0;
-					display.lastVirtual = display.lastNull = false;
-					return null;
-				}
-			}
-		}
-	}
-	
+	if (display.lastDead) return null;
+
 	/*
 	* NOTE: On Windows 98, keypad keys are virtual despite the
 	* fact that a WM_CHAR is issued.  On Windows 2000 and XP,
@@ -3579,17 +3540,17 @@ LRESULT WM_KEYUP (int wParam, int lParam) {
 		if (wParam == OS.VK_CANCEL) display.lastVirtual = true;
 		if (display.lastKey == 0) {
 			display.lastAscii = 0;
-			display.lastNull = false;
+			display.lastNull = display.lastDead = false;
 			return null;
 		}
 	}
 	LRESULT result = null;
 	if (!sendKeyEvent (SWT.KeyUp, OS.WM_KEYUP, wParam, lParam)) {
-		result = LRESULT.ZERO;
+		result = LRESULT.ONE;
 	}
 	// widget could be disposed at this point
 	display.lastKey = display.lastAscii = 0;
-	display.lastVirtual = display.lastNull = false;
+	display.lastVirtual = display.lastNull = display.lastDead = false;
 	return result;
 }
 
@@ -4167,12 +4128,14 @@ LRESULT WM_SYSCHAR (int wParam, int lParam) {
 	}
 	display.mnemonicKeyHit = true;
 	int result = callWindowProc (OS.WM_SYSCHAR, wParam, lParam);
+	boolean consumed = false;
 	if (!display.mnemonicKeyHit) {
-		sendKeyEvent (SWT.KeyDown, OS.WM_SYSCHAR, wParam, lParam);
+		consumed = !sendKeyEvent (SWT.KeyDown, OS.WM_SYSCHAR, wParam, lParam);
 	}
+	consumed |= display.mnemonicKeyHit;
 	// widget could be disposed at this point
 	display.mnemonicKeyHit = false;
-	return new LRESULT (result);
+	return consumed ? LRESULT.ONE : new LRESULT (result);
 }
 
 LRESULT WM_SYSCOLORCHANGE (int wParam, int lParam) {
@@ -4318,7 +4281,7 @@ LRESULT WM_SYSKEYDOWN (int wParam, int lParam) {
 	
 	/* Clear last key and last ascii because a new key has been typed */
 	display.lastAscii = display.lastKey = 0;
-	display.lastVirtual = display.lastNull = false;
+	display.lastVirtual = display.lastNull = display.lastDead = false;
 
 	/* If are going to get a WM_SYSCHAR, ignore this message. */
 	/*
@@ -4381,7 +4344,7 @@ LRESULT WM_SYSKEYDOWN (int wParam, int lParam) {
 	}
 
 	if (!sendKeyEvent (SWT.KeyDown, OS.WM_SYSKEYDOWN, wParam, lParam)) {
-		return LRESULT.ZERO;
+		return LRESULT.ONE;
 	}
 	// widget could be disposed at this point
 	return null;

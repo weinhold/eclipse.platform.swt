@@ -588,6 +588,15 @@ void releaseWidget () {
 		Shell shell = getShell ();
 		int focusProc = display.focusProc;
 		OS.XtRemoveEventHandler (shell.shellHandle, OS.FocusChangeMask, false, focusProc, handle);
+		if (clientWindow != 0) {
+			boolean warnings = display.getWarnings ();
+			display.setWarnings (false);
+			int xDisplay = OS.XtDisplay (handle);
+			OS.XUnmapWindow (xDisplay, clientWindow);
+			OS.XReparentWindow (xDisplay, clientWindow, OS.XDefaultRootWindow (xDisplay), 0, 0);
+			OS.XSync (xDisplay, false);
+			display.setWarnings (warnings);
+		}
 		setClientWindow (0);
 	}
 	releaseChildren ();
@@ -799,7 +808,7 @@ boolean translateMnemonic (Event event, Control control) {
 	return false;
 }
 boolean translateTraversal (int key, XKeyEvent xEvent) {
-	if ((style & SWT.EMBEDDED) != 0) return false;
+	if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) return false;
 	return super.translateTraversal (key, xEvent);
 }
 int XButtonPress (int w, int client_data, int call_data, int continue_to_dispatch) {
@@ -869,32 +878,42 @@ int XExposure (int w, int client_data, int call_data, int continue_to_dispatch) 
 }
 int xFocusIn (XFocusChangeEvent xEvent) {
 	int result = super.xFocusIn (xEvent);
-	if (handle != 0 && (style & SWT.EMBEDDED) != 0) {
-		sendClientEvent (0, OS.XEMBED_FOCUS_IN, OS.XEMBED_FOCUS_CURRENT, 0, 0);
+	if (handle != 0) {
+		if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
+			sendClientEvent (0, OS.XEMBED_FOCUS_IN, OS.XEMBED_FOCUS_CURRENT, 0, 0);
+		}
 	}
 	return result;
 }
 int xFocusOut (XFocusChangeEvent xEvent) {
 	int result = super.xFocusOut (xEvent);
-	if (handle != 0 && (style & SWT.EMBEDDED) != 0) {
-		sendClientEvent (0, OS.XEMBED_FOCUS_OUT, 0, 0, 0);
+	if (handle != 0) {
+		if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
+			sendClientEvent (0, OS.XEMBED_FOCUS_OUT, 0, 0, 0);
+		}
 	}
 	return result;
 }
 int XKeyPress (int w, int client_data, int call_data, int continue_to_dispatch) {
-	if ((style & SWT.EMBEDDED) != 0) {
-		if (fowardKeyEvent (call_data)) return 0;
+	int result = super.XKeyPress (w, client_data, call_data, continue_to_dispatch);
+	if (result == 0) {
+		if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
+			if (fowardKeyEvent (call_data)) return 0;
+		}
 	}
-	return super.XKeyPress (w, client_data, call_data, continue_to_dispatch);
+	return result;
 }
 int XKeyRelease (int w, int client_data, int call_data, int continue_to_dispatch) {
-	if ((style & SWT.EMBEDDED) != 0) {
-		if (fowardKeyEvent (call_data)) return 0;
+	int result = super.XKeyRelease (w, client_data, call_data, continue_to_dispatch);
+	if (result == 0) {
+		if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
+			if (fowardKeyEvent (call_data)) return 0;
+		}
 	}
-	return super.XKeyRelease (w, client_data, call_data, continue_to_dispatch);
+	return result;
 }
 int XNonMaskable (int w, int client_data, int call_data, int continue_to_dispatch) {
-	if ((style & SWT.EMBEDDED) != 0) {
+	if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
 		XEvent xEvent = new XEvent ();
 		OS.memmove (xEvent, call_data, XEvent.sizeof);
 		if (xEvent.type == OS.ClientMessage) {
@@ -932,7 +951,7 @@ int XNonMaskable (int w, int client_data, int call_data, int continue_to_dispatc
 }
 int XPropertyChange (int w, int client_data, int call_data, int continue_to_dispatch) {
 	int result = super.XPropertyChange (w, client_data, call_data, continue_to_dispatch);
-	if ((style & SWT.EMBEDDED) != 0) {
+	if ((state & CANVAS) != 0 && (style & SWT.EMBEDDED) != 0) {
 		XPropertyEvent xPropertyEvent = new XPropertyEvent ();
 		OS.memmove(xPropertyEvent, call_data, XPropertyEvent.sizeof);
 		if (xPropertyEvent.window == clientWindow) {

@@ -780,17 +780,17 @@ public String getText (int start, int end) {
 		if (hiddenText.length () <= end) error (SWT.ERROR_INVALID_RANGE);
 		return hiddenText.substring (start, end + 1);
 	}
-	int textLength = OS.XmTextGetLastPosition (handle);
-	if (textLength <= end) error (SWT.ERROR_INVALID_RANGE);
+	if (OS.XmTextGetLastPosition (handle) <= end) error (SWT.ERROR_INVALID_RANGE);
 	int numChars = end - start + 1;
-	int length = (numChars * 4 /* MB_CUR_MAX */) + 1;
+	int length = numChars * OS.MB_CUR_MAX () + 1;
 	byte [] buffer = new byte [length];
 	int code = OS.XmTextGetSubstring (handle, start, numChars, length, buffer);
-	if (code == OS.XmCOPY_FAILED) return "";
-	char [] unicode = Converter.mbcsToWcs (getCodePage (), buffer);
-	if (code == OS.XmCOPY_TRUNCATED) {
-		numChars = OS.XmTextGetLastPosition (handle) - start;
+	switch (code) {
+		case OS.XmCOPY_FAILED:
+		case OS.XmCOPY_TRUNCATED:
+			error (SWT.ERROR_CANNOT_GET_TEXT);
 	}
+	char [] unicode = Converter.mbcsToWcs (getCodePage (), buffer);
 	return new String (unicode, 0, numChars);
 }
 /**
