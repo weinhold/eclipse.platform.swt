@@ -193,13 +193,29 @@ static int getMsgProc(int code, int wParam, int lParam) {
 			if (widget != null && widget instanceof OleClientSite) {
 				OleClientSite site = (OleClientSite)widget;
 				if (site.handle == hwnd) {
-					OleFrame frame = site.frame;
-					if (frame.translateOleAccelerator(msg)) {
+					boolean consumed = false;
+					/* Allow activeX control to translate accelerators except when a menu is active. */
+					int thread = OS.GetWindowThreadProcessId(msg.hwnd, null);
+					GUITHREADINFO  lpgui = new GUITHREADINFO();
+					lpgui.cbSize = GUITHREADINFO.sizeof;
+					boolean rc = OS.GetGUIThreadInfo(thread, lpgui);
+					int mask = OS.GUI_INMENUMODE | OS.GUI_INMOVESIZE | OS.GUI_POPUPMENUMODE | OS.GUI_SYSTEMMENUMODE;
+					if (!rc || (lpgui.flags & mask) == 0) {
+						OleFrame frame = site.frame;
+						consumed = frame.translateOleAccelerator(msg);
+					}
+					/* Allow OleClientSite to process key events before activeX control */
+					if (!consumed) {
+						int hwndOld = msg.hwnd;
+						msg.hwnd = site.handle;
+						consumed = OS.DispatchMessage (msg) == 1;
+						msg.hwnd = hwndOld;
+					}
+					if (consumed) {
 						// In order to prevent this message from also being processed
 						// by the application, zero out message, wParam and lParam
 						msg.message = OS.WM_NULL;
-						msg.wParam = 0;
-						msg.lParam = 0;
+						msg.wParam = msg.lParam = 0;
 						OS.MoveMemory(lParam, msg, MSG.sizeof);
 						return 0;
 					}

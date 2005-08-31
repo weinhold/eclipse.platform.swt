@@ -28,7 +28,7 @@ public class Library {
 	/**
 	 * SWT revision number (must be >= 0)
 	 */
-	static int REVISION = 0;
+	static int REVISION = 1;
 
 /**
  * Returns the SWT version as an integer in the standard format

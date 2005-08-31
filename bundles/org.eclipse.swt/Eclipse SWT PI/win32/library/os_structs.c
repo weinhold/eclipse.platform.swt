@@ -914,6 +914,70 @@ void setGRADIENT_RECTFields(JNIEnv *env, jobject lpObject, GRADIENT_RECT *lpStru
 }
 #endif
 
+#ifndef NO_GUITHREADINFO
+typedef struct GUITHREADINFO_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID bottom, right, top, left, hwndCaret, hwndMoveSize, hwndMenuOwner, hwndCapture, hwndFocus, hwndActive, flags, cbSize;
+} GUITHREADINFO_FID_CACHE;
+
+GUITHREADINFO_FID_CACHE GUITHREADINFOFc;
+
+void cacheGUITHREADINFOFields(JNIEnv *env, jobject lpObject)
+{
+	if (GUITHREADINFOFc.cached) return;
+	GUITHREADINFOFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	GUITHREADINFOFc.bottom = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "bottom", "I");
+	GUITHREADINFOFc.right = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "right", "I");
+	GUITHREADINFOFc.top = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "top", "I");
+	GUITHREADINFOFc.left = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "left", "I");
+	GUITHREADINFOFc.hwndCaret = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndCaret", "I");
+	GUITHREADINFOFc.hwndMoveSize = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndMoveSize", "I");
+	GUITHREADINFOFc.hwndMenuOwner = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndMenuOwner", "I");
+	GUITHREADINFOFc.hwndCapture = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndCapture", "I");
+	GUITHREADINFOFc.hwndFocus = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndFocus", "I");
+	GUITHREADINFOFc.hwndActive = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "hwndActive", "I");
+	GUITHREADINFOFc.flags = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "flags", "I");
+	GUITHREADINFOFc.cbSize = (*env)->GetFieldID(env, GUITHREADINFOFc.clazz, "cbSize", "I");
+	GUITHREADINFOFc.cached = 1;
+}
+
+GUITHREADINFO *getGUITHREADINFOFields(JNIEnv *env, jobject lpObject, GUITHREADINFO *lpStruct)
+{
+	if (!GUITHREADINFOFc.cached) cacheGUITHREADINFOFields(env, lpObject);
+	lpStruct->rcCaret.bottom = (*env)->GetIntField(env, lpObject, GUITHREADINFOFc.bottom);
+	lpStruct->rcCaret.right = (*env)->GetIntField(env, lpObject, GUITHREADINFOFc.right);
+	lpStruct->rcCaret.top = (*env)->GetIntField(env, lpObject, GUITHREADINFOFc.top);
+	lpStruct->rcCaret.left = (*env)->GetIntField(env, lpObject, GUITHREADINFOFc.left);
+	lpStruct->hwndCaret = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndCaret);
+	lpStruct->hwndMoveSize = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndMoveSize);
+	lpStruct->hwndMenuOwner = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndMenuOwner);
+	lpStruct->hwndCapture = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndCapture);
+	lpStruct->hwndFocus = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndFocus);
+	lpStruct->hwndActive = (HWND)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.hwndActive);
+	lpStruct->flags = (DWORD)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.flags);
+	lpStruct->cbSize = (DWORD)(*env)->GetIntField(env, lpObject, GUITHREADINFOFc.cbSize);
+	return lpStruct;
+}
+
+void setGUITHREADINFOFields(JNIEnv *env, jobject lpObject, GUITHREADINFO *lpStruct)
+{
+	if (!GUITHREADINFOFc.cached) cacheGUITHREADINFOFields(env, lpObject);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.bottom, (jint)lpStruct->rcCaret.bottom);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.right, (jint)lpStruct->rcCaret.right);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.top, (jint)lpStruct->rcCaret.top);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.left, (jint)lpStruct->rcCaret.left);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndCaret, (jint)lpStruct->hwndCaret);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndMoveSize, (jint)lpStruct->hwndMoveSize);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndMenuOwner, (jint)lpStruct->hwndMenuOwner);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndCapture, (jint)lpStruct->hwndCapture);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndFocus, (jint)lpStruct->hwndFocus);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.hwndActive, (jint)lpStruct->hwndActive);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.flags, (jint)lpStruct->flags);
+	(*env)->SetIntField(env, lpObject, GUITHREADINFOFc.cbSize, (jint)lpStruct->cbSize);
+}
+#endif
+
 #ifndef NO_HDITEM
 typedef struct HDITEM_FID_CACHE {
 	int cached;
