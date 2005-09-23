@@ -484,10 +484,6 @@ byte[] convertYCbCrToRGB() {
 	}
 	return rgbData;
 }
-byte[] convertYIQToRGB() {
-	/* Unsupported CMYK format. Answer an empty byte array. */
-	return new byte[0];
-}
 void decodeACCoefficients(int[] dataUnit, int iComp) {
 	int[] sParams = scanHeader.componentParameters[componentIds[iComp]];
 	JPEGHuffmanTable acTable = acHuffmanTables[sParams[AC]];
@@ -597,12 +593,12 @@ int refineAC(int ac, int approxBit) {
 	if (ac > 0) {
 		int bit = nextBit();
 		if (bit != 0) {
-			ac = ac + (1 << approxBit);
+			ac += 1 << approxBit;
 		}
 	} else if (ac < 0) {
 		int bit = nextBit();
 		if (bit != 0) {
-			ac = ac + (-1 << approxBit);
+			ac += -1 << approxBit;
 		}
 	}
 	return ac;
@@ -620,7 +616,7 @@ void decodeDCCoefficient(int[] dataUnit, int iComp, boolean first, int approxBit
 		if (nBits != 0) {
 			int bits = receive(nBits);
 			int diff = extendBy(bits, nBits);
-			lastDC = lastDC + diff;
+			lastDC += diff;
 			precedingDCs[iComp] = lastDC;
 		}
 		if (progressive) {
@@ -637,25 +633,14 @@ void dequantize(int[] dataUnit, int iComp) {
 	}
 }
 byte[] decodeImageComponents() {
-	int[] compIds = new int[nComponents];
-	int compIdsIndex = 0;
-	for (int i = 0; i < nComponents; i++) {
-		compIds[compIdsIndex] = i + 1;
-		compIdsIndex++;
+	if (nComponents == 3) { // compIds 1, 2, 3
+		return convertYCbCrToRGB();
 	}
-	if ((compIds.length == 3) &&
-		(compIds[0] == 1) &&
-		(compIds[1] == 2) &&
-		(compIds[2] == 3)) {
-			return convertYCbCrToRGB();
-	}
-	if ((compIds.length == 3) &&
-		(compIds[0] == 1) &&
-		(compIds[1] == 4) &&
-		(compIds[2] == 5)) {
-			return convertYIQToRGB();
-	}
-	if (compIds.length == 4) {
+//	if (nComponents == 3) { // compIds 1, 4, 5
+//		Unsupported CMYK format.
+//		return convertYIQToRGB();
+//	}
+	if (nComponents == 4) {
 		return convertCMYKToRGB();
 	}
 	return convertYToRGB();
@@ -770,8 +755,7 @@ int decodeUsingTable(JPEGHuffmanTable huffmanTable) {
 		code = code * 2 + nextBit();
 		i++;
 	}
-	int j = valPtrs[i];
-	j = j + code - minCodes[i];
+	int j = valPtrs[i] + code - minCodes[i];
 	return huffVals[j];
 }
 void emit(int huffCode, int nBits) {
@@ -990,17 +974,17 @@ void forwardDCT(int[] dataUnit) {
 		int z4 = tmp5 + tmp7;
 		int z5 = (z3 + z4) * FIX_1_175875602;	// sqrt(2) * c3
 
-		tmp4 = tmp4 * FIX_0_298631336;	// sqrt(2) * (-c1+c3+c5-c7)
-		tmp5 = tmp5 * FIX_2_053119869;	// sqrt(2) * ( c1+c3-c5+c7)
-		tmp6 = tmp6 * FIX_3_072711026;	// sqrt(2) * ( c1+c3+c5-c7)
-		tmp7 = tmp7 * FIX_1_501321110;	// sqrt(2) * ( c1+c3-c5-c7)
-		z1 = z1 * (0 - FIX_0_899976223);	// sqrt(2) * (c7-c3)
-		z2 = z2 * (0 - FIX_2_562915447);	// sqrt(2) * (-c1-c3)
-		z3 = z3 * (0 - FIX_1_961570560);	// sqrt(2) * (-c3-c5)
-		z4 = z4 * (0 - FIX_0_390180644);	// sqrt(2) * (c5-c3)
+		tmp4 *= FIX_0_298631336;	// sqrt(2) * (-c1+c3+c5-c7)
+		tmp5 *= FIX_2_053119869;	// sqrt(2) * ( c1+c3-c5+c7)
+		tmp6 *= FIX_3_072711026;	// sqrt(2) * ( c1+c3+c5-c7)
+		tmp7 *= FIX_1_501321110;	// sqrt(2) * ( c1+c3-c5-c7)
+		z1 *= 0 - FIX_0_899976223;	// sqrt(2) * (c7-c3)
+		z2 *= 0 - FIX_2_562915447;	// sqrt(2) * (-c1-c3)
+		z3 *= 0 - FIX_1_961570560;	// sqrt(2) * (-c3-c5)
+		z4 *= 0 - FIX_0_390180644;	// sqrt(2) * (c5-c3)
 
-		z3 = z3 + z5;
-		z4 = z4 + z5;
+		z3 += z5;
+		z4 += z5;
 
 		n = tmp4 + z1 + z3 + 1024;
 		dataUnit[rIndex + 7] = n >> 11;
@@ -1074,17 +1058,17 @@ void forwardDCT(int[] dataUnit) {
 		int z4 = tmp5 + tmp7;
 		int z5 = (z3 + z4) * FIX_1_175875602;	// sqrt(2) * c3
 
-		tmp4 = tmp4 * FIX_0_298631336;	// sqrt(2) * (-c1+c3+c5-c7)
-		tmp5 = tmp5 * FIX_2_053119869;	// sqrt(2) * ( c1+c3-c5+c7)
-		tmp6 = tmp6 * FIX_3_072711026;	// sqrt(2) * ( c1+c3+c5-c7)
-		tmp7 = tmp7 * FIX_1_501321110;	// sqrt(2) * ( c1+c3-c5-c7)
-		z1 = z1 * (0 - FIX_0_899976223);	// sqrt(2) * (c7-c3)
-		z2 = z2 * (0 - FIX_2_562915447);	// sqrt(2) * (-c1-c3)
-		z3 = z3 * (0 - FIX_1_961570560);	// sqrt(2) * (-c3-c5)
-		z4 = z4 * (0 - FIX_0_390180644);	// sqrt(2) * (c5-c3)
+		tmp4 *= FIX_0_298631336;	// sqrt(2) * (-c1+c3+c5-c7)
+		tmp5 *= FIX_2_053119869;	// sqrt(2) * ( c1+c3-c5+c7)
+		tmp6 *= FIX_3_072711026;	// sqrt(2) * ( c1+c3+c5-c7)
+		tmp7 *= FIX_1_501321110;	// sqrt(2) * ( c1+c3-c5-c7)
+		z1 *= 0 - FIX_0_899976223;	// sqrt(2) * (c7-c3)
+		z2 *= 0 - FIX_2_562915447;	// sqrt(2) * (-c1-c3)
+		z3 *= 0 - FIX_1_961570560;	// sqrt(2) * (-c3-c5)
+		z4 *= 0 - FIX_0_390180644;	// sqrt(2) * (c5-c3)
 
-		z3 = z3 + z5;
-		z4 = z4 + z5;
+		z3 += z5;
+		z4 += z5;
 
 		n = tmp4 + z1 + z3 + 131072;
 		dataUnit[c7] = n >> 18;
@@ -1222,8 +1206,8 @@ void inverseDCT(int[] dataUnit) {
 		 * row DCT calculations can be simplified this way.
 		 */
 		if (isZeroInRow(dataUnit, rIndex)) {
-			int dcVal = dataUnit[rIndex] * 4;
-			for (int i = rIndex; i < rIndex + 8; i++) {
+			int dcVal = dataUnit[rIndex] << 2;
+			for (int i = rIndex + 7; i >= rIndex; i--) {
 				dataUnit[i] = dcVal;
 			}
 		} else {
@@ -1236,8 +1220,8 @@ void inverseDCT(int[] dataUnit) {
 			int z1 = (z2 + z3) * FIX_0_541196100;
 			int tmp2 = z1 + (z3 * (0 - FIX_1_847759065));
 			int tmp3 = z1 + (z2 * FIX_0_765366865);
-			int tmp0 = (dataUnit[rIndex] + dataUnit[rIndex + 4]) * 8192;
-			int tmp1 = (dataUnit[rIndex] - dataUnit[rIndex + 4]) * 8192;
+			int tmp0 = (dataUnit[rIndex] + dataUnit[rIndex + 4]) << 13;
+			int tmp1 = (dataUnit[rIndex] - dataUnit[rIndex + 4]) << 13;
 			int tmp10 = tmp0 + tmp3;
 			int tmp13 = tmp0 - tmp3;
 			int tmp11 = tmp1 + tmp2;
@@ -1254,23 +1238,23 @@ void inverseDCT(int[] dataUnit) {
 			z2 = tmp1 + tmp2;
 			z3 = tmp0 + tmp2;
 			int z4 = tmp1 + tmp3;
-			int z5 = (z3 + z4)* FIX_1_175875602; /* sqrt(2) * c3 */
+			int z5 = (z3 + z4) * FIX_1_175875602; /* sqrt(2) * c3 */
 			  
-			tmp0 = tmp0 * FIX_0_298631336;		/* sqrt(2) * (-c1+c3+c5-c7) */
-			tmp1 = tmp1 * FIX_2_053119869;		/* sqrt(2) * ( c1+c3-c5+c7) */
-			tmp2 = tmp2 * FIX_3_072711026;		/* sqrt(2) * ( c1+c3+c5-c7) */
-			tmp3 = tmp3 * FIX_1_501321110;		/* sqrt(2) * ( c1+c3-c5-c7) */
-			z1 = z1 * (0 - FIX_0_899976223);	/* sqrt(2) * (c7-c3) */
-			z2 = z2 * (0 - FIX_2_562915447);	/* sqrt(2) * (-c1-c3) */
-			z3 = z3 * (0 - FIX_1_961570560);	/* sqrt(2) * (-c3-c5) */
-			z4 = z4 * (0 - FIX_0_390180644);	/* sqrt(2) * (c5-c3) */
+			tmp0 *= FIX_0_298631336;		/* sqrt(2) * (-c1+c3+c5-c7) */
+			tmp1 *= FIX_2_053119869;		/* sqrt(2) * ( c1+c3-c5+c7) */
+			tmp2 *= FIX_3_072711026;		/* sqrt(2) * ( c1+c3+c5-c7) */
+			tmp3 *= FIX_1_501321110;		/* sqrt(2) * ( c1+c3-c5-c7) */
+			z1 *= 0 - FIX_0_899976223;	/* sqrt(2) * (c7-c3) */
+			z2 *= 0 - FIX_2_562915447;	/* sqrt(2) * (-c1-c3) */
+			z3 *= 0 - FIX_1_961570560;	/* sqrt(2) * (-c3-c5) */
+			z4 *= 0 - FIX_0_390180644;	/* sqrt(2) * (c5-c3) */
 
-			z3 = z3 + z5;
-			z4 = z4 + z5;
-			tmp0 = tmp0 + z1 + z3;
-			tmp1 = tmp1 + z2 + z4;
-			tmp2 = tmp2 + z2 + z3;
-			tmp3 = tmp3 + z1 + z4;
+			z3 += z5;
+			z4 += z5;
+			tmp0 += z1 + z3;
+			tmp1 += z2 + z4;
+			tmp2 += z2 + z3;
+			tmp3 += z1 + z4;
 
 			dataUnit[rIndex] = (tmp10 + tmp3 + 1024) >> 11;
 			dataUnit[rIndex + 7] = (tmp10 - tmp3 + 1024) >> 11;
@@ -1311,13 +1295,15 @@ void inverseDCT(int[] dataUnit) {
 			 * Even part: reverse the even part of the forward DCT.
 			 * The rotator is sqrt(2)*c(-6).
 			 */
+			int z0 = dataUnit[c0];
 			int z2 = dataUnit[c2];
 			int z3 = dataUnit[c6];
+			int z4 = dataUnit[c4];
 			int z1 = (z2 + z3) * FIX_0_541196100;
 			int tmp2 = z1 + (z3 * (0 - FIX_1_847759065));
 			int tmp3 = z1 + (z2 * FIX_0_765366865);
-			int tmp0 = (dataUnit[c0] + dataUnit[c4]) * 8192;
-			int tmp1 = (dataUnit[c0] - dataUnit[c4]) * 8192;
+			int tmp0 = (z0 + z4) << 13;
+			int tmp1 = (z0 - z4) << 13;
 			int tmp10 = tmp0 + tmp3;
 			int tmp13 = tmp0 - tmp3;
 			int tmp11 = tmp1 + tmp2;
@@ -1333,25 +1319,25 @@ void inverseDCT(int[] dataUnit) {
 			z1 = tmp0 + tmp3;
 			z2 = tmp1 + tmp2;
 			z3 = tmp0 + tmp2;
-			int z4 = tmp1 + tmp3;
-			int z5 = (z3 + z4) * FIX_1_175875602;	/* sqrt(2) * c3 */
+			z4 = tmp1 + tmp3;
+			z0 = (z3 + z4) * FIX_1_175875602;	/* sqrt(2) * c3 */
 			
-			tmp0 = tmp0 * FIX_0_298631336;		/* sqrt(2) * (-c1+c3+c5-c7) */
-			tmp1 = tmp1 * FIX_2_053119869;		/* sqrt(2) * ( c1+c3-c5+c7) */
-			tmp2 = tmp2 * FIX_3_072711026;		/* sqrt(2) * ( c1+c3+c5-c7) */
-			tmp3 = tmp3 * FIX_1_501321110;		/* sqrt(2) * ( c1+c3-c5-c7) */
-			z1 = z1 * (0 - FIX_0_899976223);	/* sqrt(2) * (c7-c3) */
-			z2 = z2 * (0 - FIX_2_562915447);	/* sqrt(2) * (-c1-c3) */
-			z3 = z3 * (0 - FIX_1_961570560);	/* sqrt(2) * (-c3-c5) */
-			z4 = z4 * (0 - FIX_0_390180644);	/* sqrt(2) * (c5-c3) */
+			tmp0 *= FIX_0_298631336;		/* sqrt(2) * (-c1+c3+c5-c7) */
+			tmp1 *= FIX_2_053119869;		/* sqrt(2) * ( c1+c3-c5+c7) */
+			tmp2 *= FIX_3_072711026;		/* sqrt(2) * ( c1+c3+c5-c7) */
+			tmp3 *= FIX_1_501321110;		/* sqrt(2) * ( c1+c3-c5-c7) */
+			z1 *= 0 - FIX_0_899976223;	/* sqrt(2) * (c7-c3) */
+			z2 *= 0 - FIX_2_562915447;	/* sqrt(2) * (-c1-c3) */
+			z3 *= 0 - FIX_1_961570560;	/* sqrt(2) * (-c3-c5) */
+			z4 *= 0 - FIX_0_390180644;	/* sqrt(2) * (c5-c3) */
 			
-			z3 = z3 + z5;
-			z4 = z4 + z5;
+			z3 += z0;
+			z4 += z0;
 			
-			tmp0 = tmp0 + z1 + z3;
-			tmp1 = tmp1 + z2 + z4;
-			tmp2 = tmp2 + z2 + z3;
-			tmp3 = tmp3 + z1 + z4;
+			tmp0 += z1 + z3;
+			tmp1 += z2 + z4;
+			tmp2 += z2 + z3;
+			tmp3 += z1 + z4;
 
 			/* Final output stage: inputs are tmp10..tmp13, tmp0..tmp3 */
 			dataUnit[c0] = (tmp10 + tmp3 + 131072) >> 18;
@@ -1375,16 +1361,16 @@ boolean isFileFormat(LEDataInputStream stream) {
 	}
 }
 boolean isZeroInColumn(int[] dataUnit, int col) {
-	return (dataUnit[col + 8] + dataUnit[col + 16] +
-		dataUnit[col + 24] + dataUnit[col + 32] +
-		dataUnit[col + 40] + dataUnit[col + 48] +
-		dataUnit[col + 56]) == 0;
+	return dataUnit[col + 8] == 0 && dataUnit[col + 16] == 0
+			&& dataUnit[col + 24] == 0 && dataUnit[col + 32] == 0
+			&& dataUnit[col + 40] == 0 && dataUnit[col + 48] == 0
+			&& dataUnit[col + 56] == 0;
 }
 boolean isZeroInRow(int[] dataUnit, int rIndex) {
-	return (dataUnit[rIndex + 1] + dataUnit[rIndex + 2] +
-		dataUnit[rIndex + 3] + dataUnit[rIndex + 4] +
-		dataUnit[rIndex + 5] + dataUnit[rIndex + 6] +
-		dataUnit[rIndex + 7]) == 0;
+	return dataUnit[rIndex + 1] == 0 && dataUnit[rIndex + 2] == 0
+			&& dataUnit[rIndex + 3] == 0 && dataUnit[rIndex + 4] == 0
+			&& dataUnit[rIndex + 5] == 0 && dataUnit[rIndex + 6] == 0
+			&& dataUnit[rIndex + 7] == 0;
 }
 ImageData[] loadFromByteStream() {
 	JPEGStartOfImage soi = new JPEGStartOfImage(inputStream);
