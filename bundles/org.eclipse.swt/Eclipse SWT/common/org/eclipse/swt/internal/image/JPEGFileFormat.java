@@ -110,7 +110,24 @@ final class JPEGFileFormat extends FileFormat {
 	public static final int ID_Y		= 1 - 1;
 	public static final int ID_CB	= 2 - 1;
 	public static final int ID_CR	= 3 - 1;
-
+	public static final RGB[] RGB16 = new RGB[] {
+		new RGB(0,0,0),
+		new RGB(0x80,0,0),
+		new RGB(0,0x80,0),
+		new RGB(0x80,0x80,0),
+		new RGB(0,0,0x80),
+		new RGB(0x80,0,0x80),
+		new RGB(0,0x80,0x80),
+		new RGB(0xC0,0xC0,0xC0),
+		new RGB(0x80,0x80,0x80),
+		new RGB(0xFF,0,0),
+		new RGB(0,0xFF,0),
+		new RGB(0xFF,0xFF,0),
+		new RGB(0,0,0xFF),
+		new RGB(0xFF,0,0xFF),
+		new RGB(0,0xFF,0xFF),
+		new RGB(0xFF,0xFF,0xFF),
+	};
 	public static final int[] ExtendTest = {
 		0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 
 		4096, 8192, 16384, 32768, 65536, 131072, 262144
@@ -129,6 +146,7 @@ final class JPEGFileFormat extends FileFormat {
 		58, 59, 52, 45, 38, 31, 39, 46,
 		53, 60, 61, 54, 47, 55, 62, 63
 	};
+
 	public static int[] CrRTable, CbBTable, CrGTable, CbGTable;
 	public static int[] RYTable, GYTable, BYTable,
 		RCbTable, GCbTable, BCbTable, RCrTable, GCrTable, BCrTable, NBitsTable;
@@ -900,25 +918,7 @@ void expandImageComponents() {
 			int compHeight = frameComponent[CH];
 			int upCompWidth = compWidth * upH;
 			int upCompHeight = compHeight * upV;
-			RGB[] rgbs = new RGB[] {
-				new RGB(0,0,0),
-				new RGB(0x80,0,0),
-				new RGB(0,0x80,0),
-				new RGB(0x80,0x80,0),
-				new RGB(0,0,0x80),
-				new RGB(0x80,0,0x80),
-				new RGB(0,0x80,0x80),
-				new RGB(0xC0,0xC0,0xC0),
-				new RGB(0x80,0x80,0x80),
-				new RGB(0xFF,0,0),
-				new RGB(0,0xFF,0),
-				new RGB(0xFF,0xFF,0),
-				new RGB(0,0,0xFF),
-				new RGB(0xFF,0,0xFF),
-				new RGB(0,0xFF,0xFF),
-				new RGB(0xFF,0xFF,0xFF),
-			};
-			ImageData src = new ImageData(compWidth, compHeight, 8, new PaletteData(rgbs), 4, component);
+			ImageData src = new ImageData(compWidth, compHeight, 8, new PaletteData(RGB16), 4, component);
 			ImageData dest = src.scaledTo(upCompWidth, upCompHeight);
 			imageComponents[iComp] = dest.data;
 		}
