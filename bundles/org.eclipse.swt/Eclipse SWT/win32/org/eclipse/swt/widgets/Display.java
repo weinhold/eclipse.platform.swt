@@ -289,7 +289,10 @@ public class Display extends Device {
 	static final int SWT_RESIZE			= OS.WM_APP + 4;
 	static final int SWT_TRAYICONMSG	= OS.WM_APP + 5;
 	static int SWT_TASKBARCREATED;
-	
+
+	/* Workaround for Adobe Reader 7.0 */
+	int hitCount;
+
 	/* Package Name */
 	static final String PACKAGE_PREFIX = "org.eclipse.swt.widgets."; //$NON-NLS-1$
 	/*
@@ -3331,6 +3334,27 @@ static int wcsToMbcs (char ch) {
 }
 
 int windowProc (int hwnd, int msg, int wParam, int lParam) {
+	/*
+	* Bug in Adobe Reader 7.0.  For some reason, when Adobe
+	* Reader 7.0 is deactivated from within Internet Explorer,
+	* it sends thousands of consecutive WM_NCHITTEST messages
+	* to the control that is under the cursor.  It seems that
+	* if the control takes some time to respond to the message,
+	* Adobe stops sending them.  The fix is to detect this case
+	* and sleep.
+	* 
+	* NOTE: Under normal circumstances, Windows will never send
+	* consecutive WM_NCHITTEST messages to the same control without
+	* another message (normally WM_SETCURSOR) in between.
+	*/
+	if (msg == OS.WM_NCHITTEST) {
+		if (hitCount++ >= 1024) {
+			try {Thread.sleep (1);} catch (Throwable t) {}
+		}
+	} else {
+		hitCount = 0;
+	}
+
 	int index = OS.GetWindowLong (hwnd, OS.GWL_USERDATA) - 1;
 	if (0 <= index && index < controlTable.length) {
 		Control control = controlTable [index];
