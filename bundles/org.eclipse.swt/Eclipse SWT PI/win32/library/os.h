@@ -264,6 +264,8 @@
 #define NO_GetThemeSysSize
 #define NO_GetVersionExA
 #define NO_GetWindowLongA
+#define NO_GetWindowLongPtrA
+#define NO_GetWindowLongPtrW
 #define NO_GetWindowOrgEx
 #define NO_GetWindowPlacement
 #define NO_GetWindowTextA
@@ -393,6 +395,8 @@
 #define NO_SetStretchBltMode
 #define NO_SetTextAlign
 #define NO_SetWindowLongA
+#define NO_SetWindowLongPtrA
+#define NO_SetWindowLongPtrW
 #define NO_SetWindowOrgEx
 #define NO_SetWindowPlacement
 #define NO_SetWindowTextA
@@ -472,6 +476,7 @@
 
 #ifndef WIN32_PLATFORM_PSPC
 #define NO_MoveMemory__Lorg_eclipse_swt_internal_win32_NMRGINFO_2II
+#define NO_MoveMemory__Lorg_eclipse_swt_internal_win32_NMRGINFO_2JI
 #define NO_NMRGINFO
 #define NO_SHHandleWMSettingChange
 #define NO_SHRecognizeGesture
@@ -489,6 +494,15 @@
 #endif /* _WIN32_WCE */
 
 #define TrackMouseEvent _TrackMouseEvent
+#ifdef _WIN32_WCE
+#define NOTIFYICONDATAA_V2_SIZE     sizeof(NOTIFYICONDATAA)
+#define NOTIFYICONDATAW_V2_SIZE     sizeof(NOTIFYICONDATAW)
+#else
+#undef NOTIFYICONDATAA_V2_SIZE
+#undef NOTIFYICONDATAW_V2_SIZE
+#define NOTIFYICONDATAA_V2_SIZE     (FIELD_OFFSET(NOTIFYICONDATAA, dwInfoFlags)+sizeof(int))
+#define NOTIFYICONDATAW_V2_SIZE     (FIELD_OFFSET(NOTIFYICONDATAW, dwInfoFlags)+sizeof(int))
+#endif
 
 #include "os_custom.h"
 

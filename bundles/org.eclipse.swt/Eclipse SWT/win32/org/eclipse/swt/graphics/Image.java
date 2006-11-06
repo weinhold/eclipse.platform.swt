@@ -604,7 +604,7 @@ public Image (Device device, String filename) {
 						if (lockedBitmapData == 0) break;
 						Gdip.Bitmap_LockBits(bitmap, 0, 0, pixelFormat, lockedBitmapData);
 						BitmapData bitmapData = new BitmapData();
-						Gdip.MoveMemory(bitmapData, lockedBitmapData, BitmapData.sizeof);
+						Gdip.MoveMemory(bitmapData, lockedBitmapData);
 						int stride = bitmapData.Stride;
 						int pixels = bitmapData.Scan0;
 						byte[] line = new byte[stride];
