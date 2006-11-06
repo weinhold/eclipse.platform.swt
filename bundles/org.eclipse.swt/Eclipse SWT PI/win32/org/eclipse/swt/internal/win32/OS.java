@@ -34,6 +34,8 @@ public class OS extends Platform {
 	public static final int COMCTL32_MAJOR, COMCTL32_MINOR, COMCTL32_VERSION;
 	public static final int SHELL32_MAJOR, SHELL32_MINOR, SHELL32_VERSION;
 
+	public static final String NO_MANIFEST = "org.eclipse.swt.internal.win32.OS.NO_MANIFEST";
+
 	/*
 	* Flags for Window API GetVersionEx()
 	*/
@@ -79,30 +81,37 @@ public class OS extends Platform {
 		IsUnicode = !IsWin32s && !IsWin95;
 
 		/* Load the manifest to force the XP Theme */
-		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (5, 1)) {
-			TCHAR buffer = new TCHAR (0, OS.MAX_PATH);
-			int /*long*/ hModule = OS.GetLibraryHandle ();
-			while (OS.GetModuleFileName (hModule, buffer, buffer.length ()) == buffer.length ()) {
-				buffer = new TCHAR (0, buffer.length () + OS.MAX_PATH);
+		if (System.getProperty (NO_MANIFEST) == null) {
+			if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (5, 1)) {
+				TCHAR buffer = new TCHAR (0, OS.MAX_PATH);
+				int /*long*/ hModule = OS.GetLibraryHandle ();
+				while (OS.GetModuleFileName (hModule, buffer, buffer.length ()) == buffer.length ()) {
+					buffer = new TCHAR (0, buffer.length () + OS.MAX_PATH);
+				}
+				int /*long*/ hHeap = OS.GetProcessHeap ();
+				int byteCount = buffer.length () * TCHAR.sizeof;
+				int /*long*/ pszText = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+				OS.MoveMemory (pszText, buffer, byteCount);	
+				ACTCTX pActCtx = new ACTCTX ();
+				pActCtx.cbSize = ACTCTX.sizeof;
+				pActCtx.dwFlags = OS.ACTCTX_FLAG_RESOURCE_NAME_VALID;
+				pActCtx.lpSource = pszText;
+				pActCtx.lpResourceName = OS.MANIFEST_RESOURCE_ID;
+				int /*long*/ hActCtx = OS.CreateActCtx (pActCtx);
+				if (pszText != 0) OS.HeapFree (hHeap, 0, pszText);
+				int /*long*/ [] lpCookie = new int /*long*/ [1];
+				OS.ActivateActCtx (hActCtx, lpCookie);
+				/*
+				* NOTE:  A single activation context is created and activated
+				* for the entire lifetime of the program.  It is deactivated
+				* and released by Windows when the program exits.
+				*/
 			}
-			int /*long*/ hHeap = OS.GetProcessHeap ();
-			int byteCount = buffer.length () * TCHAR.sizeof;
-			int /*long*/ pszText = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
-			OS.MoveMemory (pszText, buffer, byteCount);	
-			ACTCTX pActCtx = new ACTCTX ();
-			pActCtx.cbSize = ACTCTX.sizeof;
-			pActCtx.dwFlags = OS.ACTCTX_FLAG_RESOURCE_NAME_VALID;
-			pActCtx.lpSource = pszText;
-			pActCtx.lpResourceName = OS.MANIFEST_RESOURCE_ID;
-			int /*long*/ hActCtx = OS.CreateActCtx (pActCtx);
-			if (pszText != 0) OS.HeapFree (hHeap, 0, pszText);
-			int /*long*/ [] lpCookie = new int /*long*/ [1];
-			OS.ActivateActCtx (hActCtx, lpCookie);
-			/*
-			* NOTE:  A single activation context is created and activated
-			* for the entire lifetime of the program.  It is deactivated
-			* and released by Windows when the program exits.
-			*/
+		}
+		
+		/* Make the process DPI aware for Windows Vista */
+		if (OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
+			OS.SetProcessDPIAware ();
 		}
 
 		/* Get the DBCS flag */
@@ -205,16 +214,20 @@ public class OS extends Platform {
 	public static final int ABS_UPHOT = 2;
 	public static final int ABS_UPNORMAL = 1;
 	public static final int ABS_UPPRESSED = 3;
-	public static final int ACTCTX_FLAG_PROCESSOR_ARCHITECTURE_VALID = 0x00000001;
-	public static final int ACTCTX_FLAG_LANGID_VALID = 0x00000002;
-	public static final int ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID = 0x00000004;
-	public static final int ACTCTX_FLAG_RESOURCE_NAME_VALID = 0x00000008;
-	public static final int ACTCTX_FLAG_SET_PROCESS_DEFAULT = 0x00000010;
-	public static final int ACTCTX_FLAG_APPLICATION_NAME_VALID = 0x00000020;
-	public static final int ACTCTX_FLAG_HMODULE_VALID = 0x00000080;
 	public static final int AC_SRC_OVER = 0;
 	public static final int AC_SRC_ALPHA = 1;
+	public static final int ACTCTX_FLAG_RESOURCE_NAME_VALID = 0x00000008;
+	public static final int ACTCTX_FLAG_SET_PROCESS_DEFAULT = 0x00000010;
 	public static final int ALTERNATE = 1;
+	public static final int AW_SLIDE = 0x00040000;
+	public static final int AW_ACTIVATE = 0x00020000;
+	public static final int AW_BLEND = 0x00080000;
+	public static final int AW_HIDE = 0x00010000;
+	public static final int AW_CENTER = 0x00000010;
+	public static final int AW_HOR_POSITIVE = 0x00000001;
+	public static final int AW_HOR_NEGATIVE = 0x00000002;
+	public static final int AW_VER_POSITIVE = 0x00000004;
+	public static final int AW_VER_NEGATIVE = 0x00000008;
 	public static final int BDR_RAISEDOUTER = 0x0001;
 	public static final int BDR_SUNKENOUTER = 0x0002;
 	public static final int BDR_RAISEDINNER = 0x0004;
@@ -364,6 +377,10 @@ public class OS extends Platform {
 	public static final int CDIS_HOT = 0x0040;
 	public static final int CDIS_MARKED = 0x0080;
 	public static final int CDIS_INDETERMINATE = 0x0100;
+	public static final int CDM_FIRST = 0x0400 + 100;
+	public static final int CDM_GETSPEC = CDM_FIRST;
+	public static final int CDN_FIRST = -601;
+	public static final int CDN_SELCHANGE = CDN_FIRST - 1;
 	public static final int CDRF_DODEFAULT = 0x00000000;
 	public static final int CDRF_NEWFONT = 0x00000002;
 	public static final int CDRF_NOTIFYITEMDRAW = 0x00000020;
@@ -414,6 +431,7 @@ public class OS extends Platform {
 	public static final int COLOR_GRAYTEXT = 0x11 | SYS_COLOR_INDEX_FLAG;
 	public static final int COLOR_HIGHLIGHT = 0xd | SYS_COLOR_INDEX_FLAG;
 	public static final int COLOR_HIGHLIGHTTEXT = 0xe | SYS_COLOR_INDEX_FLAG;
+	public static final int COLOR_HOTLIGHT = 26 | SYS_COLOR_INDEX_FLAG;
 	public static final int COLOR_INACTIVECAPTION = 0x3 | SYS_COLOR_INDEX_FLAG;
 	public static final int COLOR_INACTIVECAPTIONTEXT = 0x13 | SYS_COLOR_INDEX_FLAG;
 	public static final int COLOR_INFOBK = 0x18 | SYS_COLOR_INDEX_FLAG;
@@ -436,6 +454,7 @@ public class OS extends Platform {
 	public static final int CS_HREDRAW = 0x2;
 	public static final int CS_VREDRAW = 0x1;
 	public static final int CW_USEDEFAULT = 0x80000000;
+	public static final String DATETIMEPICK_CLASS = "SysDateTimePick32"; //$NON-NLS-1$
 	public static final int DCX_CACHE = 0x2;
 	public static final int DCX_CLIPCHILDREN = 0x8;
 	public static final int DCX_CLIPSIBLINGS = 0x10;
@@ -482,6 +501,17 @@ public class OS extends Platform {
 	public static final int DT_TOP = 0;
 	public static final int DT_VCENTER = 4;
 	public static final int DT_WORDBREAK = 0x10;
+	public static final int DTM_FIRST = 0x1000;
+	public static final int DTM_GETSYSTEMTIME = DTM_FIRST + 1; 
+	public static final int DTM_SETFORMAT = IsUnicode ? DTM_FIRST + 50 : DTM_FIRST + 5;
+	public static final int DTM_SETSYSTEMTIME = DTM_FIRST + 2;
+	public static final int DTN_FIRST = 0xFFFFFD08;
+	public static final int DTN_DATETIMECHANGE = DTN_FIRST + 1;
+	public static final int DTS_LONGDATEFORMAT = 0x0004;
+	public static final int DTS_SHORTDATECENTURYFORMAT = 0x000C;
+	public static final int DTS_SHORTDATEFORMAT = 0x0000;
+	public static final int DTS_TIMEFORMAT = 0x0009;
+	public static final int DTS_UPDOWN = 0x0001;
 	public static final int EBP_NORMALGROUPBACKGROUND = 5;
 	public static final int EBP_NORMALGROUPCOLLAPSE = 6;
 	public static final int EBP_NORMALGROUPEXPAND = 7;
@@ -555,6 +585,7 @@ public class OS extends Platform {
 	public static final int FALT = 0x10;
 	public static final int FCONTROL = 0x8;
 	public static final int FE_FONTSMOOTHINGCLEARTYPE = 0x0002;
+	public static final int FILE_ATTRIBUTE_NORMAL = 0x00000080; 
 	public static final int FNERR_INVALIDFILENAME = 0x3002;
 	public static final int FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100;
 	public static final int FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
@@ -565,6 +596,7 @@ public class OS extends Platform {
 	public static final int GBS_DISABLED = 2;
 	public static final int GCS_COMPSTR = 0x8;
 	public static final int GCS_RESULTSTR = 0x800;
+	public static final int GDT_VALID = 0;
 	public static final int GLPS_CLOSED = 1;
 	public static final int GLPS_OPENED = 2;
 	public static final int GM_ADVANCED = 2;
@@ -600,6 +632,7 @@ public class OS extends Platform {
 	public static final int GW_HWNDPREV = 0x3;
 	public static final int GW_OWNER = 0x4;
 	public static final int HBMMENU_CALLBACK = 0xffffffff;
+	public static final int HCBT_CREATEWND = 3;
 	public static final int HCF_HIGHCONTRASTON = 0x1;
 	public static final int HDF_BITMAP = 0x2000;
 	public static final int HDF_BITMAP_ON_RIGHT = 0x1000;
@@ -625,6 +658,7 @@ public class OS extends Platform {
 	public static final int HDM_GETITEM = IsUnicode ? HDM_GETITEMW : HDM_GETITEMA;
 	public static final int HDM_GETITEMRECT = HDM_FIRST + 7;
 	public static final int HDM_GETORDERARRAY = HDM_FIRST + 17;
+	public static final int HDM_HITTEST = HDM_FIRST + 6;
 	public static final int HDM_INSERTITEMA = HDM_FIRST + 1;
 	public static final int HDM_INSERTITEMW = HDM_FIRST + 10;
 	public static final int HDM_INSERTITEM = IsUnicode ? HDM_INSERTITEMW : HDM_INSERTITEMA;
@@ -660,6 +694,8 @@ public class OS extends Platform {
 	public static final int HDS_HIDDEN = 0x8;
 	public static final int HEAP_ZERO_MEMORY = 0x8;
 	public static final int HELPINFO_MENUITEM = 0x2;
+	public static final int HHT_ONDIVIDER = 0x4;
+	public static final int HHT_ONDIVOPEN = 0x8;
 	public static final int HICF_ARROWKEYS = 0x2;
 	public static final int HINST_COMMCTRL = 0xffffffff;
 	public static final int HKEY_CLASSES_ROOT = 0x80000000;
@@ -681,6 +717,7 @@ public class OS extends Platform {
 	public static final int HWND_TOPMOST = 0xffffffff;
 	public static final int HWND_NOTOPMOST = -2;
 	public static final int ICC_COOL_CLASSES = 0x400;
+	public static final int ICC_DATE_CLASSES = 0x100;
 	public static final int ICM_NOTOPEN = 0x0;
 	public static final int ICON_BIG = 0x1;
 	public static final int ICON_SMALL = 0x0;
@@ -895,6 +932,7 @@ public class OS extends Platform {
 	public static final int LVS_EX_SUBITEMIMAGES = 0x2;
 	public static final int LVS_EX_TRACKSELECT = 0x8;
 	public static final int LVS_EX_TWOCLICKACTIVATE = 0x80;
+	public static final int LVS_LIST = 0x3;
 	public static final int LVS_NOCOLUMNHEADER = 0x4000;
 	public static final int LVS_NOSCROLL = 0x2000;
 	public static final int LVS_OWNERDATA = 0x1000;
@@ -920,8 +958,15 @@ public class OS extends Platform {
 	public static final int MB_RTLREADING = 0x100000;
 	public static final int MB_SYSTEMMODAL = 0x1000;
 	public static final int MB_TASKMODAL = 0x2000;
+	public static final int MB_TOPMOST = 0x00040000;
 	public static final int MB_YESNO = 0x4;
 	public static final int MB_YESNOCANCEL = 0x3;
+	public static final int MCM_FIRST = 0x1000;
+	public static final int MCM_GETCURSEL = MCM_FIRST + 1;
+	public static final int MCM_SETCURSEL = MCM_FIRST + 2;
+	public static final int MCN_FIRST = 0xFFFFFD12;
+	public static final int MCN_SELCHANGE = MCN_FIRST + 1; 
+	public static final int MCM_GETMINREQRECT = MCM_FIRST + 9;
 	public static final int MDIS_ALLCHILDSTYLES = 0x0001;
 	public static final int MFS_CHECKED = 0x8;
 	public static final int MFS_DISABLED = 0x3;
@@ -948,6 +993,7 @@ public class OS extends Platform {
 	public static final int MIIM_STATE = 0x1;
 	public static final int MIIM_SUBMENU = 0x4;
 	public static final int MIIM_TYPE = 0x10;
+	public static final int MIM_BACKGROUND = 0x2;
 	public static final int MIM_STYLE = 0x10;
 	public static final int MK_CONTROL = 0x8;
 	public static final int MK_LBUTTON = 0x1;
@@ -961,6 +1007,7 @@ public class OS extends Platform {
 	public static final int MNS_CHECKORBMP = 0x4000000;
 	public static final int MONITOR_DEFAULTTONEAREST = 0x2;
 	public static final int MONITORINFOF_PRIMARY = 0x1;
+	public static final String MONTHCAL_CLASS = "SysMonthCal32"; //$NON-NLS-1$
 	public static final int MOUSEEVENTF_ABSOLUTE = 0x8000;
 	public static final int MOUSEEVENTF_LEFTDOWN = 0x0002; 
 	public static final int MOUSEEVENTF_LEFTUP = 0x0004; 
@@ -1030,6 +1077,7 @@ public class OS extends Platform {
 	public static final int ODT_MENU = 0x1;
 	public static final int OFN_ALLOWMULTISELECT = 0x200;
 	public static final int OFN_EXPLORER = 0x80000;
+	public static final int OFN_ENABLEHOOK = 0x20;
 	public static final int OFN_HIDEREADONLY = 0x4;
 	public static final int OFN_NOCHANGEDIR = 0x8;
 	public static final int OIC_BANG = 0x7F03;
@@ -1044,7 +1092,7 @@ public class OS extends Platform {
 	public static final int PBM_GETRANGE = 0x407;
 	public static final int PBM_SETBARCOLOR = 0x409;
 	public static final int PBM_SETBKCOLOR = 0x2001;
-	public static final int PBM_SETMARQUEE = OS.WM_USER + 10;
+	public static final int PBM_SETMARQUEE = 0x400 + 10;
 	public static final int PBM_SETPOS = 0x402;
 	public static final int PBM_SETRANGE32 = 0x406;
 	public static final int PBM_STEPIT = 0x405;
@@ -1075,9 +1123,6 @@ public class OS extends Platform {
 	public static final int PLANES = 0xe;
 	public static final int PM_NOREMOVE = 0x0;
 	public static final int PM_NOYIELD = 0x2;
-	public static final int PRF_CLIENT = 0x4;
-	public static final int PRF_ERASEBKGND = 0x8;
-	public static final int PRF_NONCLIENT = 0x2; 
 	public static final int QS_HOTKEY = 0x0080;
 	public static final int QS_KEY = 0x0001;
 	public static final int QS_MOUSEMOVE = 0x0002;
@@ -1089,8 +1134,6 @@ public class OS extends Platform {
 	public static final int QS_PAINT = 0x0020;
 	public static final int QS_SENDMESSAGE = 0x0040;
 	public static final int QS_ALLINPUT = QS_MOUSEMOVE | QS_MOUSEBUTTON | QS_KEY | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_SENDMESSAGE;
-	public static final int PROGRESSCHUNKSIZE = 2411;
-	public static final int PROGRESSSPACESIZE = 2412;
 	public static final int PM_QS_INPUT = QS_INPUT << 16;
 	public static final int PM_QS_POSTMESSAGE = (QS_POSTMESSAGE | QS_HOTKEY | QS_TIMER) << 16;
 	public static final int PM_QS_PAINT = QS_PAINT << 16;
@@ -1101,6 +1144,12 @@ public class OS extends Platform {
 	public static final int PP_BARVERT = 2;
 	public static final int PP_CHUNK = 3;
 	public static final int PP_CHUNKVERT = 4;
+	public static final int PRF_CHILDREN = 16;
+	public static final int PRF_CLIENT = 0x4;
+	public static final int PRF_ERASEBKGND = 0x8;
+	public static final int PRF_NONCLIENT = 0x2;
+	public static final int PROGRESSCHUNKSIZE = 2411;
+	public static final int PROGRESSSPACESIZE = 2412;
 	public static final int PS_DASH = 0x1;
 	public static final int PS_DASHDOT = 0x3;
 	public static final int PS_DASHDOTDOT = 0x4;
@@ -1222,6 +1271,9 @@ public class OS extends Platform {
 	public static final int SHCMBM_OVERRIDEKEY = 0x400 + 403;
 	public static final int SHCMBM_SETSUBMENU = 0x590;
 	public static final int SHCMBM_GETSUBMENU = 0x591;
+	public static final int SHGFI_ICON = 0x000000100;
+	public static final int SHGFI_SMALLICON= 0x1;
+	public static final int SHGFI_USEFILEATTRIBUTES = 0x000000010;
 	public static final int SHMBOF_NODEFAULT = 0x1;
 	public static final int SHMBOF_NOTIFY = 0x2;
 	public static final int SHRG_RETURNCMD = 0x1;
@@ -1289,6 +1341,7 @@ public class OS extends Platform {
 	public static final int SS_REALSIZEIMAGE = 0x800;
 	public static final int SS_RIGHT = 0x2;
 	public static final int STANDARD_RIGHTS_READ = 0x20000;
+	public static final int STARTF_USESHOWWINDOW = 0x1;
 	public static final int STD_COPY = 0x1;
 	public static final int STD_CUT = 0x0;
 	public static final int STD_FILENEW = 0x6;
@@ -1555,6 +1608,7 @@ public class OS extends Platform {
 	public static final int TVM_EXPAND = 0x1102;
 	public static final int TVM_GETBKCOLOR = 0x111f;
 	public static final int TVM_GETCOUNT = 0x1105;
+	public static final int TVM_GETEXTENDEDSTYLE = TV_FIRST + 45;
 	public static final int TVM_GETIMAGELIST = 0x1108;
 	public static final int TVM_GETITEM = IsUnicode ? 0x113e : 0x110c;
 	public static final int TVM_GETITEMHEIGHT = 0x111c;
@@ -1570,6 +1624,7 @@ public class OS extends Platform {
 	public static final int TVM_MAPHTREEITEMTOACCID = TV_FIRST + 43;
 	public static final int TVM_SELECTITEM = 0x110b;
 	public static final int TVM_SETBKCOLOR = 0x111d;
+	public static final int TVM_SETEXTENDEDSTYLE = OS.TV_FIRST + 44;
 	public static final int TVM_SETIMAGELIST = 0x1109;
 	public static final int TVM_SETINSERTMARK = 0x111a;
 	public static final int TVM_SETITEM = IsUnicode ? 0x113f : 0x110d;
@@ -1583,6 +1638,8 @@ public class OS extends Platform {
 	public static final int TVN_FIRST = 0xfffffe70;
 	public static final int TVN_GETDISPINFOA = TVN_FIRST - 3;
 	public static final int TVN_GETDISPINFOW = TVN_FIRST - 52;
+	public static final int TVN_ITEMCHANGINGW = TVN_FIRST - 17;
+	public static final int TVN_ITEMCHANGINGA = TVN_FIRST - 16;
 	public static final int TVN_ITEMEXPANDEDA = TVN_FIRST -6;
 	public static final int TVN_ITEMEXPANDEDW = TVN_FIRST - 55;
 	public static final int TVN_ITEMEXPANDINGW = 0xfffffe3a;
@@ -1595,6 +1652,16 @@ public class OS extends Platform {
 	public static final int TVSIL_NORMAL = 0x0;
 	public static final int TVSIL_STATE = 0x2;
 	public static final int TVS_DISABLEDRAGDROP = 0x10;
+	public static final int TVS_EX_MULTISELECT = 0x0002;
+	public static final int TVS_EX_DOUBLEBUFFER = 0x0004;
+	public static final int TVS_EX_NOINDENTSTATE = 0x0008;
+	public static final int TVS_EX_RICHTOOLTIP = 0x0010;
+	public static final int TVS_EX_AUTOHSCROLL = 0x0020;
+	public static final int TVS_EX_FADEINOUTEXPANDOS = 0x0040;
+	public static final int TVS_EX_PARTIALCHECKBOXES = 0x0080;
+	public static final int TVS_EX_EXCLUSIONCHECKBOXES = 0x0100;
+	public static final int TVS_EX_DIMMEDCHECKBOXES = 0x0200;
+	public static final int TVS_EX_DRAWIMAGEASYNC = 0x0400;
 	public static final int TVS_FULLROWSELECT = 0x1000;
 	public static final int TVS_HASBUTTONS = 0x1;
 	public static final int TVS_HASLINES = 0x2;
@@ -1603,6 +1670,7 @@ public class OS extends Platform {
 	public static final int TVS_NONEVENHEIGHT = 0x4000;
 	public static final int TVS_NOTOOLTIPS = 0x80;
 	public static final int TVS_SHOWSELALWAYS = 0x20;
+	public static final int TVS_TRACKSELECT = 0x200;
 	public static final int UDM_GETACCEL = 0x046C;
 	public static final int UDM_GETRANGE32 = 0x0470;
 	public static final int UDM_GETPOS = 0x468;
@@ -1695,6 +1763,7 @@ public class OS extends Platform {
 	public static final String WC_TABCONTROL = "SysTabControl32"; //$NON-NLS-1$
 	public static final String WC_TREEVIEW = "SysTreeView32"; //$NON-NLS-1$
 	public static final int WINDING = 2;
+	public static final int WH_CBT = 5;
 	public static final int WH_GETMESSAGE = 0x3;
 	public static final int WH_MSGFILTER = 0xFFFFFFFF;
 	public static final int WH_FOREGROUNDIDLE = 11;
@@ -1798,6 +1867,7 @@ public class OS extends Platform {
 	public static final int WM_SYSKEYDOWN = 0x104;
 	public static final int WM_SYSKEYUP = 0x105;
 	public static final int WM_TIMER = 0x113;
+	public static final int WM_THEMECHANGED = 0x031a;
 	public static final int WM_UNDO = 0x304;
 	public static final int WM_UPDATEUISTATE = 0x0128;
 	public static final int WM_USER = 0x400;
