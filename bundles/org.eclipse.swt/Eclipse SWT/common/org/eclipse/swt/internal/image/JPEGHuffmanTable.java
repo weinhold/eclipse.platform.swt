@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,8 +25,6 @@ final class JPEGHuffmanTable extends JPEGVariableSizeSegment {
 	JPEGHuffmanTable[] allTables;
 	int tableClass;
 	int tableIdentifier;
-	int[] dhCodes;
-	int[] dhCodeLengths;
 	int[] dhMaxCodes;
 	int[] dhMinCodes;
 	int[] dhValPtrs;
@@ -144,8 +142,8 @@ void initialize() {
 	JPEGHuffmanTable[] huffTables = new JPEGHuffmanTable[8]; // maximum is 4 AC + 4 DC
 	int huffTableCount = 0;
 	while (totalLength > 0) {
-		int tc = (reference[ofs] & 0xFF) / 16; // table class: AC (1) or DC (0)
-		int tid = (reference[ofs] & 0xFF) % 16; // table id: 0-1 baseline, 0-3 prog/ext
+		int tc = (reference[ofs] & 0xFF) >> 4; // table class: AC (1) or DC (0)
+		int tid = reference[ofs] & 0xF; // table id: 0-1 baseline, 0-3 prog/ext
 		ofs++;
 		
 		/* Read the 16 count bytes and add them together to get the table size. */
@@ -248,8 +246,6 @@ void initialize() {
 		dhtTable.tableClass = tc;
 		dhtTable.tableIdentifier = tid;
 		dhtTable.dhValues = huffVals;
-		dhtTable.dhCodes = huffCodes;
-		dhtTable.dhCodeLengths = huffCodeLengths;
 		dhtTable.dhMinCodes = minCodes;
 		dhtTable.dhMaxCodes = maxCodes;
 		dhtTable.dhValPtrs = valPtrs;

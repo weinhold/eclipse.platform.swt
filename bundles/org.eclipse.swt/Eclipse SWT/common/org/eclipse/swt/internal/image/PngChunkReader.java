@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,6 +29,7 @@ PngIhdrChunk getIhdrChunk() {
 	if (headerChunk == null) {
 		try { 
 			PngChunk chunk = PngChunk.readNextFromStream(inputStream);
+			if (chunk == null) SWT.error(SWT.ERROR_INVALID_IMAGE);
 			headerChunk = (PngIhdrChunk) chunk;
 			headerChunk.validate(readState, null);
 		} catch (ClassCastException e) {
@@ -42,6 +43,7 @@ PngChunk readNextChunk() {
 	if (headerChunk == null) return getIhdrChunk();
 	
 	PngChunk chunk = PngChunk.readNextFromStream(inputStream);
+	if (chunk == null) SWT.error(SWT.ERROR_INVALID_IMAGE);
 	switch (chunk.getChunkType()) {
 		case PngChunk.CHUNK_tRNS:
 			((PngTrnsChunk) chunk).validate(readState, headerChunk, paletteChunk);

@@ -1,18 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.swt.internal.image;
 
+import java.io.*;
 
 public class PngLzBlockReader {
-	boolean readHeader;
 	boolean isLastBlock;
 	byte compressionType;
 	int uncompressedBytesRemaining;
@@ -57,7 +57,6 @@ public class PngLzBlockReader {
 
 PngLzBlockReader(PngDecodingDataStream stream) {
 	this.stream = stream;
-	readHeader = false;
 	isLastBlock = false;
 }
 
@@ -65,7 +64,7 @@ void setWindowSize(int windowSize) {
 	window = new byte[windowSize];
 }	
 
-void readNextBlockHeader() {
+void readNextBlockHeader() throws IOException {
 	isLastBlock = stream.getNextIdatBit() != 0;
 	compressionType = (byte)(stream.getNextIdatBits(2) & 0xFF);
 	if (compressionType > 2) stream.error();	
@@ -84,7 +83,7 @@ void readNextBlockHeader() {
 	}
 }
 
-byte getNextByte() {
+byte getNextByte() throws IOException {
 	if (compressionType == UNCOMPRESSED) {
 		if (uncompressedBytesRemaining == 0) {
 			readNextBlockHeader();
@@ -104,7 +103,7 @@ byte getNextByte() {
 	}
 }
 
-private void assertBlockAtEnd() {
+private void assertBlockAtEnd() throws IOException {
 	if (compressionType == UNCOMPRESSED) {
 		if (uncompressedBytesRemaining > 0) stream.error();
 	} else if (copyBytesRemaining > 0 ||
@@ -113,7 +112,7 @@ private void assertBlockAtEnd() {
 		stream.error();		
 	}
 }
-void assertCompressedDataAtEnd() {
+void assertCompressedDataAtEnd() throws IOException {
 	assertBlockAtEnd();		
 	while (!isLastBlock) {
 		readNextBlockHeader();
@@ -121,7 +120,7 @@ void assertCompressedDataAtEnd() {
 	}	
 }
 
-private byte getNextCompressedByte() {
+private byte getNextCompressedByte() throws IOException {
 	if (copyBytesRemaining > 0) {
 		byte value = window[copyIndex];
 		window[windowIndex] = value;
