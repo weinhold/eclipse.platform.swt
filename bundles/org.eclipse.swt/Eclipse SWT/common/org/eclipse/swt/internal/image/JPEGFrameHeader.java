@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Common Public License v1.0
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -89,8 +89,8 @@ final class JPEGFrameHeader extends JPEGVariableSizeSegment {
 			int ofs = i * 3 + 10;
 			int ci = reference[ofs] & 0xFF;
 			componentIdentifiers[i] = ci;
-			int hi = (reference[ofs + 1] & 0xFF) / 16;
-			int vi = (reference[ofs + 1] & 0xFF) % 16;
+			int hi = (reference[ofs + 1] & 0xFF) >> 4;
+			int vi = reference[ofs + 1] & 0xF;
 			int tqi = reference[ofs + 2] & 0xFF;
 			if (hi > hmax) {
 				hmax = hi;
