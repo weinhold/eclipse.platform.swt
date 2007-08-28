@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 873;
-int OS_nativeFunctionCallCount[873];
+int OS_nativeFunctionCount = 887;
+int OS_nativeFunctionCallCount[887];
 char * OS_nativeFunctionNames[] = {
 	"ACCEL_1sizeof",
 	"ACTCTX_1sizeof",
@@ -46,6 +46,7 @@ char * OS_nativeFunctionNames[] = {
 	"BufferedPaintInit",
 	"BufferedPaintSetAlpha",
 	"BufferedPaintUnInit",
+	"CANDIDATEFORM_1sizeof",
 	"CHOOSECOLOR_1sizeof",
 	"CHOOSEFONT_1sizeof",
 	"COMBOBOXINFO_1sizeof",
@@ -289,6 +290,8 @@ char * OS_nativeFunctionNames[] = {
 	"GetObjectW__IILorg_eclipse_swt_internal_win32_LOGPEN_2",
 	"GetOpenFileNameA",
 	"GetOpenFileNameW",
+	"GetOutlineTextMetricsA",
+	"GetOutlineTextMetricsW",
 	"GetPaletteEntries",
 	"GetParent",
 	"GetPath",
@@ -407,12 +410,15 @@ char * OS_nativeFunctionNames[] = {
 	"ImmGetCompositionFontA",
 	"ImmGetCompositionFontW",
 	"ImmGetCompositionStringA",
-	"ImmGetCompositionStringW",
+	"ImmGetCompositionStringW__II_3CI",
+	"ImmGetCompositionStringW__II_3II",
 	"ImmGetContext",
 	"ImmGetConversionStatus",
 	"ImmGetDefaultIMEWnd",
 	"ImmGetOpenStatus",
+	"ImmNotifyIME",
 	"ImmReleaseContext",
+	"ImmSetCandidateWindow",
 	"ImmSetCompositionFontA",
 	"ImmSetCompositionFontW",
 	"ImmSetCompositionWindow",
@@ -598,6 +604,8 @@ char * OS_nativeFunctionNames[] = {
 	"OSVERSIONINFOEXA_1sizeof",
 	"OSVERSIONINFOEXW_1sizeof",
 	"OSVERSIONINFOW_1sizeof",
+	"OUTLINETEXTMETRICA_1sizeof",
+	"OUTLINETEXTMETRICW_1sizeof",
 	"OffsetRect",
 	"OffsetRgn",
 	"OleInitialize",
@@ -846,6 +854,8 @@ char * OS_nativeFunctionNames[] = {
 	"TCITEM_1sizeof",
 	"TEXTMETRICA_1sizeof",
 	"TEXTMETRICW_1sizeof",
+	"TF_1DA_1COLOR_1sizeof",
+	"TF_1DISPLAYATTRIBUTE_1sizeof",
 	"TOOLINFO_1sizeof",
 	"TRACKMOUSEEVENT_1sizeof",
 	"TRIVERTEX_1sizeof",
@@ -877,10 +887,14 @@ char * OS_nativeFunctionNames[] = {
 	"VtblCall__III",
 	"VtblCall__IIIII_3I",
 	"VtblCall__IIIJI_3J",
+	"VtblCall__III_3I_3I",
 	"VtblCall__IIJ",
 	"VtblCall__IIJII_3J",
 	"VtblCall__IIJJI_3J",
+	"VtblCall__IILorg_eclipse_swt_internal_win32_TF_1DISPLAYATTRIBUTE_2",
+	"VtblCall__IIS_3B_3B_3B",
 	"VtblCall__II_3CII_3I_3I",
+	"VtblCall__II_3I",
 	"WINDOWPLACEMENT_1sizeof",
 	"WINDOWPOS_1sizeof",
 	"WNDCLASS_1sizeof",

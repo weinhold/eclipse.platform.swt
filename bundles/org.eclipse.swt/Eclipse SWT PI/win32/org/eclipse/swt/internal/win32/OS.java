@@ -438,6 +438,7 @@ public class OS extends C {
 	public static final int CFM_WEIGHT = 0x400000;
 	public static final int CFS_POINT = 0x2;
 	public static final int CFS_RECT = 0x1;
+	public static final int CFS_EXCLUDE = 0x0080;
 	public static final int CF_EFFECTS = 0x100;
 	public static final int CF_INITTOLOGFONTSTRUCT = 0x40;
 	public static final int CF_SCREENFONTS = 0x1;
@@ -482,6 +483,7 @@ public class OS extends C {
 	public static final int CP_UTF8 = 65001;
 	public static final int CP_DROPDOWNBUTTON = 1;
 	public static final int CP_INSTALLED = 0x1;
+	public static final int CPS_COMPLETE = 0x1;
 	public static final int CS_BYTEALIGNWINDOW = 0x2000;
 	public static final int CS_DBLCLKS = 0x8;
 	public static final int CS_DROPSHADOW = 0x20000;
@@ -642,6 +644,9 @@ public class OS extends C {
 	public static final int GBS_NORMAL = 1;
 	public static final int GBS_DISABLED = 2;
 	public static final int GCS_COMPSTR = 0x8;
+	public static final int GCS_COMPATTR = 0x0010;
+	public static final int GCS_COMPCLAUSE = 0x0020;
+	public static final int GCS_CURSORPOS = 0x0080;
 	public static final int GCS_RESULTSTR = 0x800;
 	public static final int GDT_VALID = 0;
 	public static final int GET_FEATURE_FROM_PROCESS = 0x2;
@@ -813,6 +818,7 @@ public class OS extends C {
 	public static final int IME_CMODE_KATAKANA = 0x2;
 	public static final int IME_CMODE_NATIVE = 0x1;
 	public static final int IME_CMODE_ROMAN = 0x10;
+	public static final int IMEMOUSE_LDOWN = 1;
 	public static final int INFINITE = 0xffffffff;
 	public static final int INPUT_KEYBOARD = 1;
 	public static final int INPUT_MOUSE = 0;
@@ -1124,6 +1130,7 @@ public class OS extends C {
 	public static final int MSGF_SIZE = 4;
 	public static final int MSGF_USER = 4096;
 	public static final int MWMO_INPUTAVAILABLE = 0x4;
+	public static final int NI_COMPOSITIONSTR = 0x15;
 	public static final int NIF_ICON = 0x00000002;
 	public static final int NIF_INFO = 0x00000010;
 	public static final int NIF_MESSAGE = 0x00000001;
@@ -1585,6 +1592,21 @@ public class OS extends C {
 	public static final int TCS_TABS = 0x0;
 	public static final int TCS_TOOLTIPS = 0x4000;
 	public static final int TECHNOLOGY = 0x2;
+	public static final int TF_ATTR_INPUT = 0;
+	public static final int TF_ATTR_TARGET_CONVERTED = 1;
+	public static final int TF_ATTR_CONVERTED = 2;
+	public static final int TF_ATTR_TARGET_NOTCONVERTED = 3;
+	public static final int TF_ATTR_INPUT_ERROR = 4;
+	public static final int TF_ATTR_FIXEDCONVERTED = 5;
+	public static final int TF_ATTR_OTHER = -1;
+	public static final int TF_CT_NONE = 0;
+	public static final int TF_CT_SYSCOLOR = 1;
+	public static final int TF_CT_COLORREF = 2;
+	public static final int TF_LS_NONE = 0;
+	public static final int TF_LS_SOLID = 1;
+	public static final int TF_LS_DOT = 2;
+	public static final int TF_LS_DASH = 3;
+	public static final int TF_LS_SQUIGGLE = 4;
 	public static final int TIME_NOSECONDS = 0x2;
 	public static final int TIS_NORMAL = 1;
 	public static final int TIS_HOT = 2;
@@ -1917,7 +1939,9 @@ public class OS extends C {
 	public static final int WM_HOTKEY = 0x0312;
 	public static final int WM_HSCROLL = 0x114;
 	public static final int WM_IME_CHAR = 0x286;
-	public static final int WM_IME_COMPOSITION = 0x10f;
+	public static final int WM_IME_COMPOSITION = 0x10f;;
+	public static final int WM_IME_COMPOSITION_START = 0x010D;
+	public static final int WM_IME_ENDCOMPOSITION = 0x010E;
 	public static final int WM_INITDIALOG = 0x110;
 	public static final int WM_INITMENUPOPUP = 0x117;
 	public static final int WM_INPUTLANGCHANGE = 0x51;
@@ -2036,6 +2060,7 @@ public static final native int BLENDFUNCTION_sizeof ();
 public static final native int BP_PAINTPARAMS_sizeof ();
 public static final native int BROWSEINFO_sizeof ();
 public static final native int BUTTON_IMAGELIST_sizeof ();
+public static final native int CANDIDATEFORM_sizeof ();
 public static final native int CHOOSECOLOR_sizeof ();
 public static final native int CHOOSEFONT_sizeof ();
 public static final native int COMBOBOXINFO_sizeof ();
@@ -2107,6 +2132,8 @@ public static final native int OSVERSIONINFOA_sizeof ();
 public static final native int OSVERSIONINFOW_sizeof ();
 public static final native int OSVERSIONINFOEXA_sizeof ();
 public static final native int OSVERSIONINFOEXW_sizeof ();
+public static final native int OUTLINETEXTMETRICA_sizeof ();
+public static final native int OUTLINETEXTMETRICW_sizeof ();
 public static final native int PAINTSTRUCT_sizeof ();
 public static final native int POINT_sizeof ();
 public static final native int PRINTDLG_sizeof ();
@@ -2137,6 +2164,8 @@ public static final native int TBBUTTONINFO_sizeof ();
 public static final native int TCITEM_sizeof ();
 public static final native int TEXTMETRICA_sizeof ();
 public static final native int TEXTMETRICW_sizeof ();
+public static final native int TF_DA_COLOR_sizeof ();
+public static final native int TF_DISPLAYATTRIBUTE_sizeof ();
 public static final native int TOOLINFO_sizeof ();
 public static final native int TRACKMOUSEEVENT_sizeof ();
 public static final native int TRIVERTEX_sizeof ();
@@ -2505,6 +2534,11 @@ public static final int GetObject (int /*long*/ hgdiobj, int cbBuffer, int /*lon
 public static final boolean GetOpenFileName (OPENFILENAME lpofn) {
 	if (IsUnicode) return GetOpenFileNameW (lpofn);
 	return GetOpenFileNameA (lpofn);
+}
+
+public static final int GetOutlineTextMetrics (int /*long*/ hdc, int cbData,  OUTLINETEXTMETRIC lpOTM) {
+	if (IsUnicode) return GetOutlineTextMetricsW (hdc, cbData, (OUTLINETEXTMETRICW)lpOTM);
+	return GetOutlineTextMetricsA (hdc, cbData, (OUTLINETEXTMETRICA)lpOTM);
 }
 
 public static final int GetProfileString (TCHAR lpAppName, TCHAR lpKeyName, TCHAR lpDefault, TCHAR lpReturnedString, int nSize) {
@@ -3377,6 +3411,8 @@ public static final native int GetObjectA (int /*long*/ hgdiobj, int cbBuffer, i
 public static final native int GetObjectW (int /*long*/ hgdiobj, int cbBuffer, int /*long*/ lpvObject);
 public static final native boolean GetOpenFileNameW (OPENFILENAME lpofn);
 public static final native boolean GetOpenFileNameA (OPENFILENAME lpofn);
+public static final native int GetOutlineTextMetricsW (int /*long*/ hdc, int cbData, OUTLINETEXTMETRICW lpOTM);
+public static final native int GetOutlineTextMetricsA (int /*long*/ hdc, int cbData, OUTLINETEXTMETRICA lpOTM);
 public static final native int GetPath (int /*long*/ hdc, int[] lpPoints, byte[] lpTypes, int nSize);
 public static final native int GetPaletteEntries (int /*long*/ hPalette, int iStartIndex, int nEntries, byte[] logPalette);
 public static final native int /*long*/ GetParent (int /*long*/ hWnd);
@@ -3482,16 +3518,19 @@ public static final native boolean ImmDestroyContext (int /*long*/ hIMC);
 public static final native boolean ImmDisableTextFrameService (int idThread);
 public static final native boolean ImmGetCompositionFontW (int /*long*/ hIMC, LOGFONTW lplf);
 public static final native boolean ImmGetCompositionFontA (int /*long*/ hIMC, LOGFONTA lplf);
+public static final native int ImmGetCompositionStringW (int /*long*/ hIMC, int dwIndex, int [] lpBuf, int dwBufLen);
 public static final native int ImmGetCompositionStringW (int /*long*/ hIMC, int dwIndex, char [] lpBuf, int dwBufLen);
 public static final native int ImmGetCompositionStringA (int /*long*/ hIMC, int dwIndex, byte [] lpBuf, int dwBufLen);
 public static final native int /*long*/ ImmGetContext (int /*long*/ hWnd);
 public static final native boolean ImmGetConversionStatus (int /*long*/ hIMC, int [] lpfdwConversion, int [] lpfdwSentence);
 public static final native int /*long*/ ImmGetDefaultIMEWnd (int /*long*/ hWnd);
 public static final native boolean ImmGetOpenStatus (int /*long*/ hIMC);
+public static final native boolean ImmNotifyIME (int /*long*/ hIMC, int dwAction, int dwIndex, int dwValue);
 public static final native boolean ImmReleaseContext (int /*long*/ hWnd, int /*long*/ hIMC);
 public static final native boolean ImmSetCompositionFontW (int /*long*/ hIMC, LOGFONTW lplf);
 public static final native boolean ImmSetCompositionFontA (int /*long*/ hIMC, LOGFONTA lplf);
 public static final native boolean ImmSetCompositionWindow (int /*long*/ hIMC, COMPOSITIONFORM lpCompForm);
+public static final native boolean ImmSetCandidateWindow (int /*long*/ hIMC, CANDIDATEFORM lpCandidate);
 public static final native boolean ImmSetConversionStatus (int /*long*/ hIMC, int fdwConversion, int dwSentence);
 public static final native boolean ImmSetOpenStatus (int /*long*/ hIMC, boolean fOpen);
 public static final native void InitCommonControls ();
@@ -3872,8 +3911,11 @@ public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, int 
 public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, long arg0, long arg1, int arg2, long[] arg3);
 public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, int arg0, long arg1, int arg2, long[] arg3);
 public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, long arg0, int arg1, int arg2, long[] arg3);
-
+public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, short arg0, byte[] arg1, byte[] arg2, byte[] arg3);
 public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, char[] arg0, int arg1, int arg2, int[] arg3, int[] arg4);
+public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, int[] arg0);
+public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, int arg0, int /*long*/[] arg1, int[] arg2);
+public static final native int VtblCall (int fnNumber, int /*long*/ ppVtbl, TF_DISPLAYATTRIBUTE arg0);
 
 public static final native boolean WaitMessage ();
 public static final native int WideCharToMultiByte (int CodePage, int dwFlags, char [] lpWideCharStr, int cchWideChar, byte [] lpMultiByteStr, int cchMultiByte, byte [] lpDefaultChar, boolean [] lpUsedDefaultChar);

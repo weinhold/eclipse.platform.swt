@@ -107,6 +107,18 @@ void setBUTTON_IMAGELISTFields(JNIEnv *env, jobject lpObject, BUTTON_IMAGELIST *
 #define BUTTON_IMAGELIST_sizeof() 0
 #endif
 
+#ifndef NO_CANDIDATEFORM
+void cacheCANDIDATEFORMFields(JNIEnv *env, jobject lpObject);
+CANDIDATEFORM *getCANDIDATEFORMFields(JNIEnv *env, jobject lpObject, CANDIDATEFORM *lpStruct);
+void setCANDIDATEFORMFields(JNIEnv *env, jobject lpObject, CANDIDATEFORM *lpStruct);
+#define CANDIDATEFORM_sizeof() sizeof(CANDIDATEFORM)
+#else
+#define cacheCANDIDATEFORMFields(a,b)
+#define getCANDIDATEFORMFields(a,b,c) NULL
+#define setCANDIDATEFORMFields(a,b,c)
+#define CANDIDATEFORM_sizeof() 0
+#endif
+
 #ifndef NO_CHOOSECOLOR
 void cacheCHOOSECOLORFields(JNIEnv *env, jobject lpObject);
 CHOOSECOLOR *getCHOOSECOLORFields(JNIEnv *env, jobject lpObject, CHOOSECOLOR *lpStruct);
@@ -1031,6 +1043,42 @@ void setOSVERSIONINFOWFields(JNIEnv *env, jobject lpObject, OSVERSIONINFOW *lpSt
 #define OSVERSIONINFOW_sizeof() 0
 #endif
 
+#ifndef NO_OUTLINETEXTMETRIC
+void cacheOUTLINETEXTMETRICFields(JNIEnv *env, jobject lpObject);
+OUTLINETEXTMETRIC *getOUTLINETEXTMETRICFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRIC *lpStruct);
+void setOUTLINETEXTMETRICFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRIC *lpStruct);
+#define OUTLINETEXTMETRIC_sizeof() sizeof(OUTLINETEXTMETRIC)
+#else
+#define cacheOUTLINETEXTMETRICFields(a,b)
+#define getOUTLINETEXTMETRICFields(a,b,c) NULL
+#define setOUTLINETEXTMETRICFields(a,b,c)
+#define OUTLINETEXTMETRIC_sizeof() 0
+#endif
+
+#ifndef NO_OUTLINETEXTMETRICA
+void cacheOUTLINETEXTMETRICAFields(JNIEnv *env, jobject lpObject);
+OUTLINETEXTMETRICA *getOUTLINETEXTMETRICAFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRICA *lpStruct);
+void setOUTLINETEXTMETRICAFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRICA *lpStruct);
+#define OUTLINETEXTMETRICA_sizeof() sizeof(OUTLINETEXTMETRICA)
+#else
+#define cacheOUTLINETEXTMETRICAFields(a,b)
+#define getOUTLINETEXTMETRICAFields(a,b,c) NULL
+#define setOUTLINETEXTMETRICAFields(a,b,c)
+#define OUTLINETEXTMETRICA_sizeof() 0
+#endif
+
+#ifndef NO_OUTLINETEXTMETRICW
+void cacheOUTLINETEXTMETRICWFields(JNIEnv *env, jobject lpObject);
+OUTLINETEXTMETRICW *getOUTLINETEXTMETRICWFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRICW *lpStruct);
+void setOUTLINETEXTMETRICWFields(JNIEnv *env, jobject lpObject, OUTLINETEXTMETRICW *lpStruct);
+#define OUTLINETEXTMETRICW_sizeof() sizeof(OUTLINETEXTMETRICW)
+#else
+#define cacheOUTLINETEXTMETRICWFields(a,b)
+#define getOUTLINETEXTMETRICWFields(a,b,c) NULL
+#define setOUTLINETEXTMETRICWFields(a,b,c)
+#define OUTLINETEXTMETRICW_sizeof() 0
+#endif
+
 #ifndef NO_PAINTSTRUCT
 void cachePAINTSTRUCTFields(JNIEnv *env, jobject lpObject);
 PAINTSTRUCT *getPAINTSTRUCTFields(JNIEnv *env, jobject lpObject, PAINTSTRUCT *lpStruct);
@@ -1413,6 +1461,30 @@ void setTEXTMETRICWFields(JNIEnv *env, jobject lpObject, TEXTMETRICW *lpStruct);
 #define getTEXTMETRICWFields(a,b,c) NULL
 #define setTEXTMETRICWFields(a,b,c)
 #define TEXTMETRICW_sizeof() 0
+#endif
+
+#ifndef NO_TF_DA_COLOR
+void cacheTF_DA_COLORFields(JNIEnv *env, jobject lpObject);
+TF_DA_COLOR *getTF_DA_COLORFields(JNIEnv *env, jobject lpObject, TF_DA_COLOR *lpStruct);
+void setTF_DA_COLORFields(JNIEnv *env, jobject lpObject, TF_DA_COLOR *lpStruct);
+#define TF_DA_COLOR_sizeof() sizeof(TF_DA_COLOR)
+#else
+#define cacheTF_DA_COLORFields(a,b)
+#define getTF_DA_COLORFields(a,b,c) NULL
+#define setTF_DA_COLORFields(a,b,c)
+#define TF_DA_COLOR_sizeof() 0
+#endif
+
+#ifndef NO_TF_DISPLAYATTRIBUTE
+void cacheTF_DISPLAYATTRIBUTEFields(JNIEnv *env, jobject lpObject);
+TF_DISPLAYATTRIBUTE *getTF_DISPLAYATTRIBUTEFields(JNIEnv *env, jobject lpObject, TF_DISPLAYATTRIBUTE *lpStruct);
+void setTF_DISPLAYATTRIBUTEFields(JNIEnv *env, jobject lpObject, TF_DISPLAYATTRIBUTE *lpStruct);
+#define TF_DISPLAYATTRIBUTE_sizeof() sizeof(TF_DISPLAYATTRIBUTE)
+#else
+#define cacheTF_DISPLAYATTRIBUTEFields(a,b)
+#define getTF_DISPLAYATTRIBUTEFields(a,b,c) NULL
+#define setTF_DISPLAYATTRIBUTEFields(a,b,c)
+#define TF_DISPLAYATTRIBUTE_sizeof() 0
 #endif
 
 #ifndef NO_TOOLINFO

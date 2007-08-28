@@ -31,6 +31,7 @@
 #include <usp10.h>
 #include <uxtheme.h>
 #include <vfw.h>
+#include <msctf.h>
 #endif // _WIN32_WCE
 
 #if defined(WIN32_PLATFORM_PSPC) || defined(WIN32_PLATFORM_WFSP)
@@ -79,6 +80,9 @@
 #define NO_OSVERSIONINFOEX
 #define NO_OSVERSIONINFOEXA
 #define NO_OSVERSIONINFOEXW
+#define NO_OUTLINETEXTMETRIC
+#define NO_OUTLINETEXTMETRICA
+#define NO_OUTLINETEXTMETRICW
 #define NO_PRINTDLG
 #define NO_SCRIPT_ANALYSIS
 #define NO_SCRIPT_CONTROL
@@ -88,6 +92,8 @@
 #define NO_SCRIPT_FONTPROPERTIES
 #define NO_SCRIPT_PROPERTIES
 #define NO_SCRIPT_STATE
+#define NO_TF_DA_COLOR
+#define NO_TF_DISPLAYATTRIBUTE
 #define NO_TOOLINFO
 #define NO_TRACKMOUSEEVENT
 #define NO_TRIVERTEX
@@ -259,6 +265,8 @@
 #define NO_GetObjectA__IILorg_eclipse_swt_internal_win32_DIBSECTION_2
 #define NO_GetObjectA__IILorg_eclipse_swt_internal_win32_BITMAP_2
 #define NO_GetOpenFileNameA
+#define NO_GetOutlineTextMetricsA
+#define NO_GetOutlineTextMetricsW
 #define NO_GetPath
 #define NO_GetPolyFillMode
 #define NO_GetProcessHeaps
@@ -481,6 +489,8 @@
 #define NO_UnregisterClassA
 #define NO_VkKeyScanA
 #define NO_VkKeyScanW
+#define NO_VtblCall__IILorg_eclipse_swt_internal_win32_TF_1DISPLAYATTRIBUTE_2
+
 #define NO_WaitMessage
 #define NO_WindowFromDC
 

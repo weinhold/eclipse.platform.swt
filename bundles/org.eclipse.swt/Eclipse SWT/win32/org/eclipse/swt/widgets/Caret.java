@@ -263,18 +263,27 @@ void resizeIME () {
 	POINT ptCurrentPos = new POINT ();
 	if (!OS.GetCaretPos (ptCurrentPos)) return;
 	int hwnd = parent.handle;
-	RECT rect = new RECT ();
-	OS.GetClientRect (hwnd, rect);
-	COMPOSITIONFORM lpCompForm = new COMPOSITIONFORM ();
-	lpCompForm.dwStyle = OS.CFS_RECT;
-	lpCompForm.x = ptCurrentPos.x;
-	lpCompForm.y = ptCurrentPos.y;
-	lpCompForm.left = rect.left;
-	lpCompForm.right = rect.right;
-	lpCompForm.top = rect.top;
-	lpCompForm.bottom = rect.bottom;
 	int hIMC = OS.ImmGetContext (hwnd);
-	OS.ImmSetCompositionWindow (hIMC, lpCompForm);
+	if (parent.isInlineIMEEnabled ()) {
+		CANDIDATEFORM lpCandidate = new CANDIDATEFORM ();
+		lpCandidate.dwStyle = OS.CFS_EXCLUDE;
+		lpCandidate.ptCurrentPos = ptCurrentPos;
+		lpCandidate.rcArea = new RECT ();
+		OS.SetRect (lpCandidate.rcArea, ptCurrentPos.x, ptCurrentPos.y, ptCurrentPos.x + width, ptCurrentPos.y + height);
+		OS.ImmSetCandidateWindow (hIMC, lpCandidate);
+	} else {
+		RECT rect = new RECT ();
+		OS.GetClientRect (hwnd, rect);
+		COMPOSITIONFORM lpCompForm = new COMPOSITIONFORM ();
+		lpCompForm.dwStyle = OS.CFS_RECT;
+		lpCompForm.x = ptCurrentPos.x;
+		lpCompForm.y = ptCurrentPos.y;
+		lpCompForm.left = rect.left;
+		lpCompForm.right = rect.right;
+		lpCompForm.top = rect.top;
+		lpCompForm.bottom = rect.bottom;
+		OS.ImmSetCompositionWindow (hIMC, lpCompForm);
+	}
 	OS.ImmReleaseContext (hwnd, hIMC);
 }
 

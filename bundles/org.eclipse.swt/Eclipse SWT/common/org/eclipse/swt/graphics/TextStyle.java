@@ -58,11 +58,36 @@ public class TextStyle {
 	public boolean underline;
 	
 	/**
+	 * the underline color of the style
+	 * 
+	 * @since 3.4
+	 */	
+	public Color underlineColor;
+
+	/**
+	 * the underline style
+	 * 
+	 * @see SWT#UNDERLINE_SINGLE
+	 * @see SWT#UNDERLINE_DOUBLE 
+	 * @see SWT#UNDERLINE_ERROR
+	 * 
+	 * @since 3.4
+	 */	
+	public int underlineStyle;
+
+	/**
 	 * the strikeout flag of the style
 	 * 
 	 * @since 3.1
 	 */	
 	public boolean strikeout;
+	
+	/**
+	 * the strikeout color of the style
+	 * 
+	 * @since 3.4
+	 */	
+	public Color strikeoutColor;
 	
 	/**
 	 * the GlyphMetrics of the style
@@ -77,6 +102,14 @@ public class TextStyle {
 	 * @since 3.2
 	 */	
 	public int rise;
+
+/** 
+ * Create an empty text style.
+ *
+ * @since 3.4
+ */
+public TextStyle () {
+}
 	
 /** 
  * Create a new text style with the specified font, foreground
@@ -93,6 +126,28 @@ public TextStyle (Font font, Color foreground, Color background) {
 	this.font = font;
 	this.foreground = foreground;
 	this.background = background;
+}
+
+
+/** 
+ * Create a new text style from an existing text style.
+ * 
+ *@param style the style to copy 
+ *
+ * @since 3.4
+ */
+public TextStyle (TextStyle style) {
+	if (style == null) SWT.error (SWT.ERROR_INVALID_ARGUMENT);
+	font = style.font;
+	foreground = style.foreground;
+	background = style.background;
+	underline = style.underline;
+	underlineColor = style.underlineColor;
+	underlineStyle = style.underlineStyle;
+	strikeout = style.strikeout;
+	strikeoutColor = style.strikeoutColor;
+	metrics = style.metrics;
+	rise = style.rise;
 }
 
 /**
@@ -123,6 +178,13 @@ public boolean equals(Object object) {
 	if (underline != style.underline) return false;
 	if (strikeout != style.strikeout) return false;
 	if (rise != style.rise) return false;
+	if (underlineColor != null) {
+		if (!underlineColor.equals(style.underlineColor)) return false;
+	} else if (style.underlineColor != null) return false;
+	if (strikeoutColor != null) {
+		if (!strikeoutColor.equals(style.strikeoutColor)) return false;
+	} else if (style.strikeoutColor != null) return false;
+	if (underlineStyle != style.underlineStyle) return false;
 	return true;
 }
 
@@ -145,6 +207,9 @@ public int hashCode() {
 	if (underline) hash ^= hash;
 	if (strikeout) hash ^= hash;
 	hash ^= rise;
+	if (underlineColor != null) hash ^= underlineColor.hashCode();
+	if (strikeoutColor != null) hash ^= strikeoutColor.hashCode();
+	hash ^= underlineStyle;
 	return hash;
 }
 
