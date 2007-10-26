@@ -1760,5 +1760,15 @@ public static final native int Panel_WidthProperty();
 public static final native int Canvas_TopProperty();
 public static final native int Canvas_LeftProperty();
 public static final native int OuterGlowBitmapEffect_GlowSizeProperty();
-
+public static final native int gcnew_Int32Animation();
+public static final native int gcnew_DoubleAnimation();
+public static final native void Timeline_BeginTime(int sender, int value);
+public static final native void DoubleAnimation_To(int sender, double value);
+public static final native double DoubleAnimation_To(int sender);
+public static final native void Int32Animation_To(int sender, int value);
+public static final native int Int32Animation_To(int sender);
+public static final native void DoubleAnimation_From(int sender, double value);
+public static final native double DoubleAnimation_From(int sender);
+public static final native void Int32Animation_From(int sender, int value);
+public static final native int Int32Animation_From(int sender);
 }

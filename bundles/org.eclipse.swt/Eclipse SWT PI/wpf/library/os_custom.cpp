@@ -1485,4 +1485,17 @@ JNIEXPORT jint JNICALL OS_NATIVE(SWTAnimator_1IntValueProperty)
 }
 #endif
 
+#ifndef NO_Timeline_1BeginTime__II
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(Timeline_1BeginTime__II)(JNIEnv *env, jclass that, jint arg0, jint arg1);
+JNIEXPORT void JNICALL OS_NATIVE(Timeline_1BeginTime__II)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	OS_NATIVE_ENTER(env, that, Timeline_1BeginTime__II_FUNC);
+	TimeSpan^ span = (TimeSpan^)TO_OBJECT(arg1);
+	Timeline^ timeline = (Timeline^)TO_OBJECT(arg0);
+	timeline->BeginTime =  (Nullable<TimeSpan>(span));
+	OS_NATIVE_EXIT(env, that, Timeline_1BeginTime__II_FUNC);
+}
+#endif
+
 

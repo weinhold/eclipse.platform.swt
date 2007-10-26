@@ -5,36 +5,18 @@ import org.eclipse.swt.internal.wpf.*;
 import org.eclipse.swt.widgets.*;
 
 public class Animation {
-	public static final int NONE = 0;
-	public static final int LINEAR = 1 << 0;
-	public static final int SPLINE = 1 << 1;
-	public static final int DISCRETE = 1 << 2;
 	public static final int FOREVER = -1;
 	
 	static int count = 0;
 	
-	int handle, jniRef, style;
+	int handle, jniRef;
 	long beginTime, duration;
 	boolean disposed;
 	Widget widget;
 	boolean autoReverse;
 	int repeatCount = 1;
 	
-	public Animation(int style) {
-		this.style = style;
-	}
-
 	void addChildren() {
-	}
-	
-	static int checkStyle(int style) {
-		int mask = LINEAR | SPLINE | DISCRETE;
-		if ((style & mask) == 0) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		int bits = style & ~mask;
-		if ((style & LINEAR) != 0) return bits | LINEAR;
-		if ((style & SPLINE) != 0) return bits | SPLINE;
-		if ((style & DISCRETE) != 0) return bits | DISCRETE;
-		return bits;
 	}
 	
 	void create () {

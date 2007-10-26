@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1369;
-int OS_nativeFunctionCallCount[1369];
+int OS_nativeFunctionCount = 1380;
+int OS_nativeFunctionCallCount[1380];
 char * OS_nativeFunctionNames[] = {
 	"AccessText_1AccessKey",
 	"AccessText_1Text",
@@ -259,6 +259,10 @@ char * OS_nativeFunctionNames[] = {
 	"DockPanel_1DockProperty",
 	"DockPanel_1typeid",
 	"DoubleAnimationUsingKeyFrames_1KeyFrames",
+	"DoubleAnimation_1From__I",
+	"DoubleAnimation_1From__ID",
+	"DoubleAnimation_1To__I",
+	"DoubleAnimation_1To__ID",
 	"DoubleCollection_1Add",
 	"DoubleKeyFrameCollection_1Add",
 	"DoubleKeyFrame_1KeyTime",
@@ -536,6 +540,10 @@ char * OS_nativeFunctionNames[] = {
 	"InlineCollection_1Clear",
 	"InputEventArgs_1Timestamp",
 	"Int32AnimationUsingKeyFrames_1KeyFrames",
+	"Int32Animation_1From__I",
+	"Int32Animation_1From__II",
+	"Int32Animation_1To__I",
+	"Int32Animation_1To__II",
 	"Int32KeyFrame_1KeyTime",
 	"Int32KeyFrame_1Value",
 	"Int32Rect_1Empty",
@@ -977,7 +985,8 @@ char * OS_nativeFunctionNames[] = {
 	"TimeSpan_1TotalMilliseconds",
 	"TimelineGroup_1Children",
 	"Timeline_1AutoReverse",
-	"Timeline_1BeginTime",
+	"Timeline_1BeginTime__I",
+	"Timeline_1BeginTime__II",
 	"Timeline_1Completed",
 	"Timeline_1Duration__I",
 	"Timeline_1Duration__II",
@@ -1221,6 +1230,7 @@ char * OS_nativeFunctionNames[] = {
 	"gcnew_1DispatcherFrame",
 	"gcnew_1DispatcherHookEventHandler",
 	"gcnew_1DispatcherTimer",
+	"gcnew_1DoubleAnimation",
 	"gcnew_1DoubleAnimationUsingKeyFrames",
 	"gcnew_1DoubleCollection",
 	"gcnew_1DragDeltaEventHandler",
@@ -1256,6 +1266,7 @@ char * OS_nativeFunctionNames[] = {
 	"gcnew_1Image",
 	"gcnew_1ImageBrush",
 	"gcnew_1Int32",
+	"gcnew_1Int32Animation",
 	"gcnew_1Int32AnimationUsingKeyFrames",
 	"gcnew_1Int32Rect",
 	"gcnew_1IntPtr",

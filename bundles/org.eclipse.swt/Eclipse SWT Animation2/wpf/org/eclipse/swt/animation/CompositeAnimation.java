@@ -8,10 +8,7 @@ public class CompositeAnimation extends Animation {
 	int childCount = 0;
 	Animation[] animations = new Animation[4];
 	
-	public CompositeAnimation(int style) {
-		super(style);
-	}
-	
+
 	public void addAnimation(Animation animation) {
 		if (animations.length == childCount) {
 			Animation[] temp = new Animation[childCount + 4];

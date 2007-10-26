@@ -2990,6 +2990,54 @@ JNIEXPORT jint JNICALL OS_NATIVE(DoubleAnimationUsingKeyFrames_1KeyFrames)
 }
 #endif
 
+#ifndef NO_DoubleAnimation_1From__I
+extern "C" JNIEXPORT jdouble JNICALL OS_NATIVE(DoubleAnimation_1From__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jdouble JNICALL OS_NATIVE(DoubleAnimation_1From__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jdouble rc = 0;
+	OS_NATIVE_ENTER(env, that, DoubleAnimation_1From__I_FUNC);
+	rc = (jdouble)((DoubleAnimation^)TO_OBJECT(arg0))->From;
+	OS_NATIVE_EXIT(env, that, DoubleAnimation_1From__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_DoubleAnimation_1From__ID
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(DoubleAnimation_1From__ID)(JNIEnv *env, jclass that, jint arg0, jdouble arg1);
+JNIEXPORT void JNICALL OS_NATIVE(DoubleAnimation_1From__ID)
+	(JNIEnv *env, jclass that, jint arg0, jdouble arg1)
+{
+	OS_NATIVE_ENTER(env, that, DoubleAnimation_1From__ID_FUNC);
+	((DoubleAnimation^)TO_OBJECT(arg0))->From = (arg1);
+	OS_NATIVE_EXIT(env, that, DoubleAnimation_1From__ID_FUNC);
+}
+#endif
+
+#ifndef NO_DoubleAnimation_1To__I
+extern "C" JNIEXPORT jdouble JNICALL OS_NATIVE(DoubleAnimation_1To__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jdouble JNICALL OS_NATIVE(DoubleAnimation_1To__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jdouble rc = 0;
+	OS_NATIVE_ENTER(env, that, DoubleAnimation_1To__I_FUNC);
+	rc = (jdouble)((DoubleAnimation^)TO_OBJECT(arg0))->To;
+	OS_NATIVE_EXIT(env, that, DoubleAnimation_1To__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_DoubleAnimation_1To__ID
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(DoubleAnimation_1To__ID)(JNIEnv *env, jclass that, jint arg0, jdouble arg1);
+JNIEXPORT void JNICALL OS_NATIVE(DoubleAnimation_1To__ID)
+	(JNIEnv *env, jclass that, jint arg0, jdouble arg1)
+{
+	OS_NATIVE_ENTER(env, that, DoubleAnimation_1To__ID_FUNC);
+	((DoubleAnimation^)TO_OBJECT(arg0))->To = (arg1);
+	OS_NATIVE_EXIT(env, that, DoubleAnimation_1To__ID_FUNC);
+}
+#endif
+
 #ifndef NO_DoubleCollection_1Add
 extern "C" JNIEXPORT void JNICALL OS_NATIVE(DoubleCollection_1Add)(JNIEnv *env, jclass that, jint arg0, jdouble arg1);
 JNIEXPORT void JNICALL OS_NATIVE(DoubleCollection_1Add)
@@ -6297,6 +6345,54 @@ JNIEXPORT jint JNICALL OS_NATIVE(Int32AnimationUsingKeyFrames_1KeyFrames)
 	rc = (jint)TO_HANDLE(((Int32AnimationUsingKeyFrames^)TO_OBJECT(arg0))->KeyFrames);
 	OS_NATIVE_EXIT(env, that, Int32AnimationUsingKeyFrames_1KeyFrames_FUNC);
 	return rc;
+}
+#endif
+
+#ifndef NO_Int32Animation_1From__I
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Int32Animation_1From__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jint JNICALL OS_NATIVE(Int32Animation_1From__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, Int32Animation_1From__I_FUNC);
+	rc = (jint)((Int32Animation^)TO_OBJECT(arg0))->From;
+	OS_NATIVE_EXIT(env, that, Int32Animation_1From__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_Int32Animation_1From__II
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(Int32Animation_1From__II)(JNIEnv *env, jclass that, jint arg0, jint arg1);
+JNIEXPORT void JNICALL OS_NATIVE(Int32Animation_1From__II)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	OS_NATIVE_ENTER(env, that, Int32Animation_1From__II_FUNC);
+	((Int32Animation^)TO_OBJECT(arg0))->From = (arg1);
+	OS_NATIVE_EXIT(env, that, Int32Animation_1From__II_FUNC);
+}
+#endif
+
+#ifndef NO_Int32Animation_1To__I
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Int32Animation_1To__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jint JNICALL OS_NATIVE(Int32Animation_1To__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, Int32Animation_1To__I_FUNC);
+	rc = (jint)((Int32Animation^)TO_OBJECT(arg0))->To;
+	OS_NATIVE_EXIT(env, that, Int32Animation_1To__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_Int32Animation_1To__II
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(Int32Animation_1To__II)(JNIEnv *env, jclass that, jint arg0, jint arg1);
+JNIEXPORT void JNICALL OS_NATIVE(Int32Animation_1To__II)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	OS_NATIVE_ENTER(env, that, Int32Animation_1To__II_FUNC);
+	((Int32Animation^)TO_OBJECT(arg0))->To = (arg1);
+	OS_NATIVE_EXIT(env, that, Int32Animation_1To__II_FUNC);
 }
 #endif
 
@@ -11569,15 +11665,15 @@ JNIEXPORT void JNICALL OS_NATIVE(Timeline_1AutoReverse)
 }
 #endif
 
-#ifndef NO_Timeline_1BeginTime
-extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Timeline_1BeginTime)(JNIEnv *env, jclass that, jint arg0);
-JNIEXPORT jint JNICALL OS_NATIVE(Timeline_1BeginTime)
+#ifndef NO_Timeline_1BeginTime__I
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Timeline_1BeginTime__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jint JNICALL OS_NATIVE(Timeline_1BeginTime__I)
 	(JNIEnv *env, jclass that, jint arg0)
 {
 	jint rc = 0;
-	OS_NATIVE_ENTER(env, that, Timeline_1BeginTime_FUNC);
+	OS_NATIVE_ENTER(env, that, Timeline_1BeginTime__I_FUNC);
 	rc = (jint)TO_HANDLE(((Timeline^)TO_OBJECT(arg0))->BeginTime);
-	OS_NATIVE_EXIT(env, that, Timeline_1BeginTime_FUNC);
+	OS_NATIVE_EXIT(env, that, Timeline_1BeginTime__I_FUNC);
 	return rc;
 }
 #endif
@@ -14507,6 +14603,19 @@ JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1DispatcherTimer)
 }
 #endif
 
+#ifndef NO_gcnew_1DoubleAnimation
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1DoubleAnimation)(JNIEnv *env, jclass that);
+JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1DoubleAnimation)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, gcnew_1DoubleAnimation_FUNC);
+	rc = (jint)TO_HANDLE(gcnew DoubleAnimation());
+	OS_NATIVE_EXIT(env, that, gcnew_1DoubleAnimation_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_gcnew_1DoubleAnimationUsingKeyFrames
 extern "C" JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1DoubleAnimationUsingKeyFrames)(JNIEnv *env, jclass that);
 JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1DoubleAnimationUsingKeyFrames)
@@ -14880,6 +14989,19 @@ JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1Int32)
 	OS_NATIVE_ENTER(env, that, gcnew_1Int32_FUNC);
 	rc = (jint)TO_HANDLE(gcnew Int32(arg0));
 	OS_NATIVE_EXIT(env, that, gcnew_1Int32_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_gcnew_1Int32Animation
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1Int32Animation)(JNIEnv *env, jclass that);
+JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1Int32Animation)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, gcnew_1Int32Animation_FUNC);
+	rc = (jint)TO_HANDLE(gcnew Int32Animation());
+	OS_NATIVE_EXIT(env, that, gcnew_1Int32Animation_FUNC);
 	return rc;
 }
 #endif

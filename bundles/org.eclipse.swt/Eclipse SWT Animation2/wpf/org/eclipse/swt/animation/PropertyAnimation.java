@@ -16,16 +16,7 @@ public class PropertyAnimation extends Animation {
 	Object target;
 	Method method;
 	Class paramType;
-	int beginFrame, endFrame, animatorHandle;
-	double x1, y1, x2, y2;
-	
-	public PropertyAnimation(int style) {
-		super(style);
-		x1=0;
-		y1=0;
-		x2=1;
-		y2=1;
-	}
+	int animatorHandle;
 	
 	void create() {
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
@@ -36,78 +27,14 @@ public class PropertyAnimation extends Animation {
 			setTargetProperty();
 			register(widget);
 		}
-		updateKeyFrames();
+		updateFromToValues();
 	}
 
 	void createDoubleAnimation() {
-		int animation = OS.gcnew_DoubleAnimationUsingKeyFrames();
-		beginFrame = OS.gcnew_DiscreteDoubleKeyFrame();
-		if ((style & Animation.SPLINE) != 0) {
-			endFrame = OS.gcnew_SplineDoubleKeyFrame();
-			int keySpline = OS.gcnew_KeySpline(x1, y1, x2, y2);
-			OS.SplineDoubleKeyFrame_KeySpline(endFrame, keySpline);
-			OS.GCHandle_Free(keySpline);
-		} else if ((style & Animation.DISCRETE) != 0) {
-			endFrame = OS.gcnew_DiscreteDoubleKeyFrame();
-		} else {
-			endFrame = OS.gcnew_LinearDoubleKeyFrame();
-		}
-		int frames = OS.DoubleAnimationUsingKeyFrames_KeyFrames(animation);
-		OS.IList_Add(frames, beginFrame);
-		OS.IList_Add(frames, endFrame);
-		OS.GCHandle_Free(frames);
-		int children = OS.TimelineGroup_Children(handle);
-		OS.IList_Add(children, animation);
-		OS.GCHandle_Free(children);
-		OS.GCHandle_Free(animation);
 	}
 
 	void createIntegerAnimation() {
-		int animation = OS.gcnew_Int32AnimationUsingKeyFrames();
-		beginFrame = OS.gcnew_DiscreteInt32KeyFrame();
-		if ((style & Animation.SPLINE) != 0) {
-			endFrame = OS.gcnew_SplineInt32KeyFrame();
-			int keySpline = OS.gcnew_KeySpline(x1, y1, x2, y2);
-			OS.SplineInt32KeyFrame_KeySpline(endFrame, keySpline);
-			OS.GCHandle_Free(keySpline);
-		} else if ((style & Animation.DISCRETE) != 0) {
-			endFrame = OS.gcnew_DiscreteInt32KeyFrame();
-		} else {
-			endFrame = OS.gcnew_LinearInt32KeyFrame();
-		}
-		int frames = OS.Int32AnimationUsingKeyFrames_KeyFrames(animation);
-		OS.IList_Add(frames, beginFrame);
-		OS.IList_Add(frames, endFrame);
-		OS.GCHandle_Free(frames);
-		int children = OS.TimelineGroup_Children(handle);
-		OS.IList_Add(children, animation);
-		OS.GCHandle_Free(children);
-		OS.GCHandle_Free(animation);
 	}
-	
-//	int findWPFProperty() {
-//		int result = 0;
-//		int name = createDotNetString(property);
-//		int collection = OS.TypeDescriptor_GetProperties(targetHandle());
-//		int count = OS.ICollection_Count(collection);
-//		for (int i = 0; i < count; i++) {
-//			int prop = OS.IList_default(collection, i);
-//			int dpd = OS.DependencyPropertyDescriptor_FromProperty(prop);
-//			if (dpd != 0) {
-//				int propName = OS.MemberDescriptor_Name(dpd);
-//				if (OS.Object_Equals(name, propName)) {
-//					result = OS.DependencyPropertyDescriptor_DependencyProperty(dpd);
-//					i = count;
-//				}
-//				OS.GCHandle_Free(propName);
-//			}
-//			OS.GCHandle_Free(dpd);
-//			OS.GCHandle_Free(prop);
-//		}
-//		OS.GCHandle_Free(collection);
-//		OS.GCHandle_Free(name);
-//		return result;
-//	}
 	
 	void OnPropertyChanged(int object, int args) {
 		try {
@@ -184,10 +111,6 @@ public class PropertyAnimation extends Animation {
 		super.release();
 		if (animatorHandle != 0) OS.GCHandle_Free(animatorHandle);
 		animatorHandle = 0;
-		if (beginFrame != 0) OS.GCHandle_Free(beginFrame);
-		beginFrame = 0;
-		if (endFrame != 0) OS.GCHandle_Free(endFrame);
-		endFrame = 0;
 	}
 	
 	public void setFrom(Color from) {
@@ -234,15 +157,6 @@ public class PropertyAnimation extends Animation {
 	public void setProperty(String property) {
 		checkAnimation();
 		this.property = property;
-	}
-	
-	public void setSpline(double x1, double y1, double x2, double y2) {
-		checkAnimation();
-		if ((style & SPLINE) == 0) return;
-		this.x1 = x1;
-		this.y1 = y1;
-		this.x2 = x2;
-		this.y2 = y2;
 	}
 	
 	public void setTarget(Object target) {
@@ -318,40 +232,10 @@ public class PropertyAnimation extends Animation {
 	}
 	
 	long updateDuration(long delay) {
-		int timeSpan = OS.TimeSpan_FromMilliseconds(delay + beginTime);
-		int begin = OS.KeyTime_FromTimeSpan(timeSpan);
-		OS.GCHandle_Free(timeSpan);
-		timeSpan = OS.TimeSpan_FromMilliseconds(delay + beginTime + duration);
-		int end = OS.KeyTime_FromTimeSpan(timeSpan);
-		OS.GCHandle_Free(timeSpan);
-		if (paramType == Double.TYPE
-				|| paramType == Color.class
-				|| paramType == Transform.class) {
-			OS.DoubleKeyFrame_KeyTime(beginFrame, begin);
-			OS.DoubleKeyFrame_KeyTime(endFrame, end);
-		} else if (paramType == Integer.TYPE) {
-			OS.Int32KeyFrame_KeyTime(beginFrame, begin);
-			OS.Int32KeyFrame_KeyTime(endFrame, end);
-		} else {
-			throw new RuntimeException(paramType.getName() + " is not supported yet.");
-		}
-		OS.GCHandle_Free(begin);
-		OS.GCHandle_Free(end);
-		return delay+beginTime+duration;
+		return delay;
 	}
 	
-	void updateKeyFrames() {
-		if (paramType == Double.TYPE
-				|| paramType == Color.class
-				|| paramType == Transform.class) {
-			OS.DoubleKeyFrame_Value(beginFrame, from);
-			OS.DoubleKeyFrame_Value(endFrame, to);
-		} else if (paramType == Integer.TYPE) {
-			OS.Int32KeyFrame_Value(beginFrame, (int)from);
-			OS.Int32KeyFrame_Value(endFrame, (int)to);
-		} else {
-			throw new RuntimeException(paramType.getName() + " is not supported yet.");
-		}
+	void updateFromToValues() {
 	}
 
 }
