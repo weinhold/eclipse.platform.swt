@@ -31,6 +31,7 @@ typedef enum {
 	CreateProcessW_FUNC,
 	DeleteObject_FUNC,
 	DestroyIcon_FUNC,
+	DwmExtendFrameIntoClientArea_FUNC,
 	EnableWindow_FUNC,
 	ExtractIconExW_FUNC,
 	GetCursorPos_FUNC,

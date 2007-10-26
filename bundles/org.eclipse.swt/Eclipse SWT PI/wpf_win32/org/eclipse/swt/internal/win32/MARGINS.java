@@ -6,19 +6,14 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM Corporation - initial API and implementation
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+package org.eclipse.swt.internal.win32;
 
-#ifndef INC_win32_H
-#define INC_win32_H
-
-
-#include "swt.h"
-#include <ole2.h>
-#include <objbase.h>
-#include <string.h>
-#include <windows.h>
-#include <uxtheme.h>
-#include <dwmapi.h>
-
-#endif /* INC_win32_H */
+public class MARGINS {
+	public int cxLeftWidth;
+	public int cxRightWidth;
+	public int cyTopHeight;
+	public int cyBottomHeight;
+	public static int sizeof = 16;
+}

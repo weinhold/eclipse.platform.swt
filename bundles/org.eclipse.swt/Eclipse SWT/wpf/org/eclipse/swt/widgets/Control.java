@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
-import org.eclipse.swt.internal.wpf.*;
-import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.*;
-import org.eclipse.swt.events.*;
 import org.eclipse.swt.accessibility.*;
+import org.eclipse.swt.effects.*;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.internal.wpf.*;
 
 /**
  * Control is the abstract superclass of all windowed user interface classes.
@@ -608,6 +609,11 @@ void createWidget () {
 	}
 }
 
+public void setAlpha(int alpha) {
+	checkWidget ();
+	OS.UIElement_Opacity (handle, (alpha & 0xFF) / (double)0xFF);
+}
+
 void setClipping () {
 	//accept default clipping
 }
@@ -846,6 +852,12 @@ public Accessible getAccessible () {
 	checkWidget ();
 	if (accessible == null) accessible = new_Accessible (this);
 	return accessible;
+}
+
+
+public int getAlpha () {
+	checkWidget ();
+	return (int) (0XFF * OS.UIElement_Opacity (handle));
 }
 
 /**
@@ -1185,6 +1197,20 @@ public Point getSize () {
 public String getToolTipText () {
 	checkWidget ();
 	return toolTipText;
+}
+
+public Transform getTransform () {
+	int transform = OS.FrameworkElement_RenderTransform (handle);
+	int matrix = OS.MatrixTransform_Matrix (transform);
+	OS.GCHandle_Free (transform);
+	float m11 = (float) OS.Matrix_M11 (matrix);
+	float m12 = (float) OS.Matrix_M12 (matrix);
+	float m21 = (float) OS.Matrix_M21 (matrix);
+	float m22 = (float) OS.Matrix_M22 (matrix);
+	float dx = (float) OS.Matrix_OffsetX (matrix);
+	float dy = (float) OS.Matrix_OffsetY (matrix);
+	OS.GCHandle_Free (matrix);
+	return new Transform (display, m11, m12, m21, m22, dx, dy);
 }
 
 /**
@@ -1865,6 +1891,7 @@ public void redraw (int x, int y, int width, int height, boolean all) {
 }
 
 void register () {
+	super.register ();
 	display.addWidget (handle, this);
 }
 
@@ -2504,6 +2531,11 @@ public void setDragDetect (boolean dragDetect) {
 	}
 }
 
+public void setBitmapEffect(Effect effect){
+	OS.UIElement_BitmapEffect (handle, effect.handle);
+//	updateLayout(handle);
+}
+
 /**
  * Enables the receiver if the argument is <code>true</code>,
  * and disables it otherwise. A disabled control is typically
@@ -2900,6 +2932,18 @@ public void setToolTipText (String string) {
 	int strPtr = createDotNetString (string, false);
 	OS.FrameworkElement_ToolTip (handle, strPtr);
 	if (strPtr != 0) OS.GCHandle_Free (strPtr);
+}
+
+public void setTransform (Transform t) {
+	checkWidget ();
+	if (t == null) {
+		OS.FrameworkElement_RenderTransform (handle, 0);
+		return;
+	}
+	int matrixTransform = OS.gcnew_MatrixTransform (t.handle);
+//	OS.FrameworkElement_LayoutTransform (handle, matrixTransform);
+	OS.FrameworkElement_RenderTransform (handle, matrixTransform);
+	OS.GCHandle_Free (matrixTransform);
 }
 
 /**

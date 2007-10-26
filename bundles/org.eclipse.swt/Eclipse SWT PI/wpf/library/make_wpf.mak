@@ -35,7 +35,7 @@ DOTNET_HOME = C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727
 CFLAGS = -c -W2 -D_WIN32_DCOM -O2 -DVISTA -DSWT_VERSION=$(SWT_VERSION) -DNO_getenv $(NATIVE_STATS) $(TRYCATCH) /I"$(JAVA_HOME)\include" /I"$(JAVA_HOME)\include\win32" /I.
 CPPFLAGS = -clr /FU"$(WPF_HOME)\PresentationCore.dll" /FU"$(WPF_HOME)\PresentationFramework.dll" /FU$(DOTNET_HOME)\System.Data.dll /FU$(DOTNET_HOME)\System.dll /FU$(DOTNET_HOME)\System.Xml.dll /FU"$(WPF_HOME)\UIAutomationProvider.dll" /FU"$(WPF_HOME)\UIAutomationTypes.dll" /FU"$(WPF_HOME)\WindowsBase.dll" /FU$(DOTNET_HOME)\System.Drawing.dll /FU$(DOTNET_HOME)\System.Windows.Forms.dll  /FU"$(WPF_HOME)\WindowsFormsIntegration.dll"
 LFLAGS = -DLL -NODEFAULTLIB:"LIBCMT.LIB" -CLRTHREADATTRIBUTE:STA 
-WIN32LFLAGS = -DLL ole32.lib user32.lib gdi32.lib shell32.lib
+WIN32LFLAGS = -DLL ole32.lib user32.lib gdi32.lib shell32.lib dwmapi.lib
 
 all: $(SWT_LIB) $(SWT_WIN32_LIB)
 

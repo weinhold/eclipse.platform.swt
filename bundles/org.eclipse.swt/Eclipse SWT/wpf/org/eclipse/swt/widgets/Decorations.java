@@ -94,7 +94,7 @@ import org.eclipse.swt.graphics.*;
  */
 
 public class Decorations extends Canvas {
-	int shellHandle;
+	public int shellHandle;
 	Image image;
 //	Image image, smallImage, largeImage;
 	Image [] images;

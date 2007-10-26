@@ -67,5 +67,6 @@ public static final native int SHELLEXECUTEINFOW_sizeof();
 public static final native int STARTUPINFOW_sizeof();
 public static final native int ToUnicode(int wVirtKey, int wScanCode, byte [] lpKeyState, char [] pwszBuff, int cchBuff, int wFlags);
 
+public static final native void DwmExtendFrameIntoClientArea(int hwnd, MARGINS margins);
 
 }

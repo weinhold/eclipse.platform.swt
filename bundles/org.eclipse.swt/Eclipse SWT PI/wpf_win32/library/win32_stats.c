@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int Win32_nativeFunctionCount = 26;
-int Win32_nativeFunctionCallCount[26];
+int Win32_nativeFunctionCount = 27;
+int Win32_nativeFunctionCallCount[27];
 char * Win32_nativeFunctionNames[] = {
 	"CloseHandle",
 	"CreateCursor",
@@ -23,6 +23,7 @@ char * Win32_nativeFunctionNames[] = {
 	"CreateProcessW",
 	"DeleteObject",
 	"DestroyIcon",
+	"DwmExtendFrameIntoClientArea",
 	"EnableWindow",
 	"ExtractIconExW",
 	"GetCursorPos",

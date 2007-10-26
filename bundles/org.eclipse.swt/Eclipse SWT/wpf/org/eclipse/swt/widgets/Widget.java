@@ -450,7 +450,7 @@ boolean dragOverride () {
 	return false;
 }
 
-static void dumpObjectType (int object) {
+public static void dumpObjectType (int object) {
 	int objectType = OS.Object_GetType(object);
 	int type = OS.Type_FullName(objectType);
 	String typeName = createJavaString(type);
@@ -459,7 +459,7 @@ static void dumpObjectType (int object) {
 	System.out.println(typeName);
 }
 
-void dumpVisualTree (int visual, int depth) {
+public void dumpVisualTree (int visual, int depth) {
 	for (int i = 0; i < depth; i++) System.out.print ("\t");
 	int type = OS.Object_GetType (visual);
 	int typeNamePtr = OS.Type_FullName (type);
@@ -471,9 +471,10 @@ void dumpVisualTree (int visual, int depth) {
 	double actualWidth = OS.FrameworkElement_ActualWidth (visual);
 	double height = OS.FrameworkElement_Height (visual);
 	double actualHeight = OS.FrameworkElement_ActualHeight (visual);
+	double opacity = OS.UIElement_Opacity (visual);
 	String widgetName = createJavaString (name);
 	OS.GCHandle_Free (name);
-	System.out.println(typeName + " ["+widgetName+ " width=" + width + " actualWidth=" + actualWidth + " height=" + height + " actualHeight=" + actualHeight+"]");
+	System.out.println(typeName + " ["+widgetName+ " width=" + width + " actualWidth=" + actualWidth + " height=" + height + " actualHeight=" + actualHeight+" opacity="+opacity+"]");
 	int count = OS.VisualTreeHelper_GetChildrenCount(visual);
 	for (int i = 0; i < count; i++) {
 		int child = OS.VisualTreeHelper_GetChild (visual, i);
@@ -790,6 +791,10 @@ void postEvent (int eventType, Event event) {
 }
 
 void register () {
+//	Name Scope should most likely be on topHandle, but animation
+//	is using handle right now because topHandle isn't visible
+//	OS.NameScope_SetNameScope(topHandle(), display.nameScope);
+	OS.NameScope_SetNameScope(handle, display.nameScope);
 }
 
 /*

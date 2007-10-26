@@ -15,12 +15,12 @@ rem @echo off
 rem *****
 rem Java
 rem *****
-set JAVA_HOME=j:\teamswt\swt-builddir\ibm-jdk1.4.1
+set JAVA_HOME=C:\Java\jdk1.5.0_10
 
 rem ****** 
 rem MS-SDK
 rem ******
-call "J:\dev\PRODUCTS\PLATSDK\March2007VistaRTM\Bin\setenv.cmd" /vista
+call "C:\Program Files\Microsoft SDKs\Windows\v6.0\Bin\setenv.cmd" /vista
 
 rem ****** 
 rem OUTPUT DIR

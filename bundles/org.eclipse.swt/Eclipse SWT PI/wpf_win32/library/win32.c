@@ -124,6 +124,20 @@ JNIEXPORT jboolean JNICALL Win32_NATIVE(DestroyIcon)
 }
 #endif
 
+#ifndef NO_DwmExtendFrameIntoClientArea
+JNIEXPORT void JNICALL Win32_NATIVE(DwmExtendFrameIntoClientArea)
+	(JNIEnv *env, jclass that, jint arg0, jobject arg1)
+{
+	MARGINS _arg1, *lparg1=NULL;
+	Win32_NATIVE_ENTER(env, that, DwmExtendFrameIntoClientArea_FUNC);
+	if (arg1) if ((lparg1 = getMARGINSFields(env, arg1, &_arg1)) == NULL) goto fail;
+	DwmExtendFrameIntoClientArea((HWND)arg0, (MARGINS *)lparg1);
+fail:
+	if (arg1 && lparg1) setMARGINSFields(env, arg1, lparg1);
+	Win32_NATIVE_EXIT(env, that, DwmExtendFrameIntoClientArea_FUNC);
+}
+#endif
+
 #ifndef NO_EnableWindow
 JNIEXPORT void JNICALL Win32_NATIVE(EnableWindow)
 	(JNIEnv *env, jclass that, jint arg0, jboolean arg1)

@@ -23,6 +23,18 @@ void setICONINFOFields(JNIEnv *env, jobject lpObject, ICONINFO *lpStruct);
 #define ICONINFO_sizeof() 0
 #endif
 
+#ifndef NO_MARGINS
+void cacheMARGINSFields(JNIEnv *env, jobject lpObject);
+MARGINS *getMARGINSFields(JNIEnv *env, jobject lpObject, MARGINS *lpStruct);
+void setMARGINSFields(JNIEnv *env, jobject lpObject, MARGINS *lpStruct);
+#define MARGINS_sizeof() sizeof(MARGINS)
+#else
+#define cacheMARGINSFields(a,b)
+#define getMARGINSFields(a,b,c) NULL
+#define setMARGINSFields(a,b,c)
+#define MARGINS_sizeof() 0
+#endif
+
 #ifndef NO_POINT
 void cachePOINTFields(JNIEnv *env, jobject lpObject);
 POINT *getPOINTFields(JNIEnv *env, jobject lpObject, POINT *lpStruct);

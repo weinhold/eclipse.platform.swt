@@ -569,6 +569,26 @@ public void dispose () {
 //	if (oldDisplay != null) oldDisplay.update ();
 }
 
+public void extendFrameIntoClientArea(int left, int right, int top, int bottom) {
+	int source = OS.PresentationSource_FromVisual (shellHandle);
+	int hwnd = OS.HwndSource_Handle (source);
+	int brush = OS.Brushes_Transparent();
+	OS.Control_Background(shellHandle, brush);
+	OS.Panel_Background(handle, brush);
+	OS.GCHandle_Free(brush);
+	int compositionTarget = OS.HwndSource_CompositionTarget(source);
+	OS.GCHandle_Free(source);
+	OS.HwndTarget_BackgroundColor(compositionTarget, OS.Colors_Transparent);
+	OS.GCHandle_Free(compositionTarget);
+	MARGINS margins = new MARGINS();
+	margins.cxLeftWidth = left;
+	margins.cxRightWidth = right;
+	margins.cyBottomHeight = bottom;
+	margins.cyTopHeight = top;
+	Win32.DwmExtendFrameIntoClientArea(OS.IntPtr_ToInt32 (hwnd), margins);
+	OS.GCHandle_Free(hwnd);
+}
+
 Control findBackgroundControl () {
 	return background != -1 || backgroundImage != null ? this : null;
 }
@@ -606,10 +626,10 @@ public void forceActive () {
 	OS.Window_Activate (shellHandle);
 }
 
-/*public*/ int getAlpha () {
-	checkWidget ();
-	return 255;
-}
+///*public*/ int getAlpha () {
+//	checkWidget ();
+//	return 255;
+//}
 
 public Rectangle getBounds () {
 	checkWidget ();
@@ -1069,10 +1089,10 @@ void setActiveControl (Control control) {
 	}
 }
 
-/*public*/ void setAlpha (int alpha) {
-	checkWidget ();
-	/* Not implemented */
-}
+///*public*/ void setAlpha (int alpha) {
+//	checkWidget ();
+//	/* Not implemented */
+//}
 
 int setBounds (int x, int y, int width, int height, int flags) {
 	if (fullScreen) setFullScreen (false);
@@ -1146,9 +1166,10 @@ public void setFullScreen (boolean fullScreen) {
 	if(fullScreen) {
 		oldWindowStyle = OS.Window_WindowStyle (shellHandle);
 		oldWindowState = OS.Window_WindowState (shellHandle);
+		boolean visible = getVisible ();
 		OS.Window_Hide (shellHandle);
 		OS.Window_WindowStyle (shellHandle, OS.WindowStyle_None);
-		if (getVisible ()) OS.Window_Show (shellHandle);
+		if (visible) OS.Window_Show (shellHandle);
 		OS.Window_WindowState (shellHandle, OS.WindowState_Maximized);
 	} else {
 		OS.Window_WindowStyle (shellHandle, oldWindowStyle);
