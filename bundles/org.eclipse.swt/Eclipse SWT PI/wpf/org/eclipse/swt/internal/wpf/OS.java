@@ -1771,4 +1771,8 @@ public static final native void DoubleAnimation_From(int sender, double value);
 public static final native double DoubleAnimation_From(int sender);
 public static final native void Int32Animation_From(int sender, int value);
 public static final native int Int32Animation_From(int sender);
+public static final native void Timeline_DecelerationRatio(int sender, double value);
+public static final native double Timeline_DecelerationRatio(int sender);
+public static final native void Timeline_AccelerationRatio(int sender, double value);
+public static final native double Timeline_AccelerationRatio(int sender);
 }

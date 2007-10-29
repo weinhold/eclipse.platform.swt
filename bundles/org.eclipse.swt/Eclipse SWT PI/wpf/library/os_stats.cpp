@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1380;
-int OS_nativeFunctionCallCount[1380];
+int OS_nativeFunctionCount = 1384;
+int OS_nativeFunctionCallCount[1384];
 char * OS_nativeFunctionNames[] = {
 	"AccessText_1AccessKey",
 	"AccessText_1Text",
@@ -984,10 +984,14 @@ char * OS_nativeFunctionNames[] = {
 	"TimeSpan_1FromMilliseconds",
 	"TimeSpan_1TotalMilliseconds",
 	"TimelineGroup_1Children",
+	"Timeline_1AccelerationRatio__I",
+	"Timeline_1AccelerationRatio__ID",
 	"Timeline_1AutoReverse",
 	"Timeline_1BeginTime__I",
 	"Timeline_1BeginTime__II",
 	"Timeline_1Completed",
+	"Timeline_1DecelerationRatio__I",
+	"Timeline_1DecelerationRatio__ID",
 	"Timeline_1Duration__I",
 	"Timeline_1Duration__II",
 	"Timeline_1RepeatBehavior",

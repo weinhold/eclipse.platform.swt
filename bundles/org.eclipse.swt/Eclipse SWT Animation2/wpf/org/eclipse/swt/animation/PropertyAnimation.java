@@ -17,6 +17,8 @@ public class PropertyAnimation extends Animation {
 	Method method;
 	Class paramType;
 	int animatorHandle;
+	protected double decelerationRatio;
+	protected double accelerationRatio;
 	
 	void create() {
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
@@ -28,6 +30,7 @@ public class PropertyAnimation extends Animation {
 			register(widget);
 		}
 		updateFromToValues();
+		updateAccelRatios();
 	}
 
 	void createDoubleAnimation() {
@@ -238,4 +241,28 @@ public class PropertyAnimation extends Animation {
 	void updateFromToValues() {
 	}
 
+	public double getAccelerationRatio() {
+		checkAnimation();
+		return accelerationRatio;
+	}
+
+	public double getDecelerationRatio() {
+		checkAnimation();
+		return decelerationRatio;
+	}
+
+	public void setAccelerationRatio(double ratio) {
+		checkAnimation();
+		accelerationRatio = ratio;
+	}
+
+	public void setDecelerationRatio(double ratio) {
+		checkAnimation();
+		decelerationRatio = ratio;
+	}
+
+	private void updateAccelRatios() {
+		OS.Timeline_AccelerationRatio(handle, accelerationRatio);
+		OS.Timeline_DecelerationRatio(handle, decelerationRatio);
+	}
 }

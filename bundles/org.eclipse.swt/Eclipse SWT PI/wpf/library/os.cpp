@@ -11654,6 +11654,30 @@ JNIEXPORT jint JNICALL OS_NATIVE(TimelineGroup_1Children)
 }
 #endif
 
+#ifndef NO_Timeline_1AccelerationRatio__I
+extern "C" JNIEXPORT jdouble JNICALL OS_NATIVE(Timeline_1AccelerationRatio__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jdouble JNICALL OS_NATIVE(Timeline_1AccelerationRatio__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jdouble rc = 0;
+	OS_NATIVE_ENTER(env, that, Timeline_1AccelerationRatio__I_FUNC);
+	rc = (jdouble)((Timeline^)TO_OBJECT(arg0))->AccelerationRatio;
+	OS_NATIVE_EXIT(env, that, Timeline_1AccelerationRatio__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_Timeline_1AccelerationRatio__ID
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(Timeline_1AccelerationRatio__ID)(JNIEnv *env, jclass that, jint arg0, jdouble arg1);
+JNIEXPORT void JNICALL OS_NATIVE(Timeline_1AccelerationRatio__ID)
+	(JNIEnv *env, jclass that, jint arg0, jdouble arg1)
+{
+	OS_NATIVE_ENTER(env, that, Timeline_1AccelerationRatio__ID_FUNC);
+	((Timeline^)TO_OBJECT(arg0))->AccelerationRatio = (arg1);
+	OS_NATIVE_EXIT(env, that, Timeline_1AccelerationRatio__ID_FUNC);
+}
+#endif
+
 #ifndef NO_Timeline_1AutoReverse
 extern "C" JNIEXPORT void JNICALL OS_NATIVE(Timeline_1AutoReverse)(JNIEnv *env, jclass that, jint arg0, jboolean arg1);
 JNIEXPORT void JNICALL OS_NATIVE(Timeline_1AutoReverse)
@@ -11686,6 +11710,30 @@ JNIEXPORT void JNICALL OS_NATIVE(Timeline_1Completed)
 	OS_NATIVE_ENTER(env, that, Timeline_1Completed_FUNC);
 	((Timeline^)TO_OBJECT(arg0))->Completed += ((EventHandler^)TO_OBJECT(arg1));
 	OS_NATIVE_EXIT(env, that, Timeline_1Completed_FUNC);
+}
+#endif
+
+#ifndef NO_Timeline_1DecelerationRatio__I
+extern "C" JNIEXPORT jdouble JNICALL OS_NATIVE(Timeline_1DecelerationRatio__I)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jdouble JNICALL OS_NATIVE(Timeline_1DecelerationRatio__I)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jdouble rc = 0;
+	OS_NATIVE_ENTER(env, that, Timeline_1DecelerationRatio__I_FUNC);
+	rc = (jdouble)((Timeline^)TO_OBJECT(arg0))->DecelerationRatio;
+	OS_NATIVE_EXIT(env, that, Timeline_1DecelerationRatio__I_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_Timeline_1DecelerationRatio__ID
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(Timeline_1DecelerationRatio__ID)(JNIEnv *env, jclass that, jint arg0, jdouble arg1);
+JNIEXPORT void JNICALL OS_NATIVE(Timeline_1DecelerationRatio__ID)
+	(JNIEnv *env, jclass that, jint arg0, jdouble arg1)
+{
+	OS_NATIVE_ENTER(env, that, Timeline_1DecelerationRatio__ID_FUNC);
+	((Timeline^)TO_OBJECT(arg0))->DecelerationRatio = (arg1);
+	OS_NATIVE_EXIT(env, that, Timeline_1DecelerationRatio__ID_FUNC);
 }
 #endif
 

@@ -5,8 +5,6 @@ import org.eclipse.swt.internal.wpf.*;
 
 public class LinearPropertyAnimation extends PropertyAnimation {
 	int animation;
-	int beginFrame, endFrame, animatorHandle;
-	
 	void createDoubleAnimation() {
 		animation = OS.gcnew_DoubleAnimation();
 		int children = OS.TimelineGroup_Children(handle);
