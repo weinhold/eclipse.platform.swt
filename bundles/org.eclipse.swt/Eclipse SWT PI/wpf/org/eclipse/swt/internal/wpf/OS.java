@@ -1775,4 +1775,7 @@ public static final native void Timeline_DecelerationRatio(int sender, double va
 public static final native double Timeline_DecelerationRatio(int sender);
 public static final native void Timeline_AccelerationRatio(int sender, double value);
 public static final native double Timeline_AccelerationRatio(int sender);
+
+
+public static final native int gcnew_SWTAnimation(int jniRef);
 }

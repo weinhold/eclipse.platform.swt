@@ -16,10 +16,12 @@ public class PropertyAnimation extends Animation {
 	Object target;
 	Method method;
 	Class paramType;
-	int animatorHandle;
-	protected double decelerationRatio;
-	protected double accelerationRatio;
-	
+	int animatorHandle, customAnimation;
+	double decelerationRatio;
+	double accelerationRatio;
+	Object nextValue;
+	IInterpolator interpolator;
+		
 	void create() {
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 		if (handle == 0) {
@@ -33,6 +35,13 @@ public class PropertyAnimation extends Animation {
 		updateAccelRatios();
 	}
 
+	void createCustomAnimation() {
+		customAnimation = OS.gcnew_SWTAnimation(jniRef);
+		int children = OS.TimelineGroup_Children(handle);
+		OS.IList_Add(children, customAnimation);
+		OS.GCHandle_Free(children);
+	}
+	
 	void createDoubleAnimation() {
 	}
 
@@ -41,30 +50,36 @@ public class PropertyAnimation extends Animation {
 	
 	void OnPropertyChanged(int object, int args) {
 		try {
+			if (nextValue != null) {
+				method.invoke(target, new Object[] {nextValue});
+				return;
+			}
 			if (paramType == Double.TYPE
 					|| paramType == Color.class
 					|| paramType == Transform.class) {
 				double newValue = OS.DependencyPropertyChangedEventArgs_NewValueDouble(args);
-				Object[] methodArg = new Object[1];
+				Object methodArg;
 				if (paramType == Transform.class) {
 					Transform transform = getTransform(newValue);
-					methodArg[0] = transform;
+					methodArg = transform;
 				} else if (paramType == Color.class) {
 					Color color = getColor(newValue);
-					methodArg[0] = color;
+					methodArg = color;
 				} else {
-					methodArg[0] = new Double(newValue);
+					methodArg = new Double(newValue);
 				}
-				method.invoke(target, methodArg);
+				method.invoke(target, new Object[] {methodArg});
 				if (paramType == Transform.class) {
-					((Transform)methodArg[0]).dispose();
+					((Transform)methodArg).dispose();
 				}
-			} else if (paramType == Integer.TYPE) {
+				return;
+			} 
+			if (paramType == Integer.TYPE) {
 				int newValue = OS.DependencyPropertyChangedEventArgs_NewValueInt(args);
 				method.invoke(target, new Object[] {new Integer(newValue)});
-			} else {
-				throw new RuntimeException(paramType.getName() + " is not supported yet.");
-			}
+				return;
+			} 
+			throw new RuntimeException(paramType + " not supported yet");
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
@@ -72,6 +87,11 @@ public class PropertyAnimation extends Animation {
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public double getAccelerationRatio() {
+		checkAnimation();
+		return accelerationRatio;
 	}
 	
 	Color getColor(double newValue) {
@@ -84,6 +104,18 @@ public class PropertyAnimation extends Animation {
 		return new Color(colorFrom.getDevice(), current);
 	}
 
+	void GetCurrentValueCore(double currentTime) {
+		if (interpolator != null) {
+			try {
+				nextValue = interpolator.getCurrentValue(new Double(from), new Double(to), (long)currentTime, duration);
+				return;
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
+		}
+		nextValue = null;
+	}
+	
 	Transform getTransform(double newValue) {
 		Control control = (Control)target;
 		Transform transform = control.getTransform();
@@ -112,10 +144,22 @@ public class PropertyAnimation extends Animation {
 	
 	void release() {
 		super.release();
+		if (customAnimation != 0) OS.GCHandle_Free(customAnimation);
+		customAnimation = 0;
 		if (animatorHandle != 0) OS.GCHandle_Free(animatorHandle);
 		animatorHandle = 0;
 	}
-	
+
+	public void setAccelerationRatio(double ratio) {
+		checkAnimation();
+		accelerationRatio = ratio;
+	}
+
+	public void setDecelerationRatio(double ratio) {
+		checkAnimation();
+		decelerationRatio = ratio;
+	}
+
 	public void setFrom(Color from) {
 		checkAnimation();
 		colorFrom = from;
@@ -136,8 +180,16 @@ public class PropertyAnimation extends Animation {
 		this.from = 0;
 	}
 
+	public void setInterpolator(IInterpolator interpolator) {
+		checkAnimation();
+		this.interpolator = interpolator;
+	}
+	
 	void setParamType() {
-		paramType = Properties.getParamType(property);
+		if (interpolator == null) {
+			// if using custom interpolation we cannot use OS to set property.
+			paramType = Properties.getParamType(property);
+		}
 		if (paramType != null) return;
 		String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
 		Class clazz = target.getClass();
@@ -152,7 +204,7 @@ public class PropertyAnimation extends Animation {
 				}
 			}
 		}
-		if (method == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+//		if (method == null) error?
 		paramType = method.getParameterTypes()[0];
 		animatorHandle = OS.gcnew_SWTAnimator(jniRef);
 	}
@@ -175,32 +227,47 @@ public class PropertyAnimation extends Animation {
 		OS.GCHandle_Free(dp);		
 	}
 
+	public double getDecelerationRatio() {
+		checkAnimation();
+		return decelerationRatio;
+	}
+
 	int getDependencyProperty() {
+		if (interpolator != null) {
+			return OS.SWTAnimator_DoubleValueProperty();
+		}
 		int dp = Properties.getDependencyProperty(target, property);
 		if (dp == 0) {
-			if (paramType == Double.TYPE
+			if (paramType == null
+					|| paramType == Double.TYPE
 					|| paramType == Color.class
 					|| paramType == Transform.class) {
 				dp = OS.SWTAnimator_DoubleValueProperty();
 			} else if (paramType == Integer.TYPE) {
 				dp = OS.SWTAnimator_IntValueProperty();
 			} else {
-				throw new RuntimeException(paramType.getName() + " is not supported yet.");
+				throw new RuntimeException(paramType + " is not supported yet.");
 			}
 		}
 		return dp;
 	}
 
 	void createAnimation() {
+		if (interpolator != null) {
+			createCustomAnimation();
+			return;
+		}
 		if (paramType == Double.TYPE
 				|| paramType == Color.class
 				|| paramType == Transform.class) {
 			createDoubleAnimation();
-		} else if (paramType == Integer.TYPE) {
+			return;
+		} 
+		if (paramType == Integer.TYPE) {
 			createIntegerAnimation();
-		} else {
-			throw new RuntimeException(paramType.getName() + " is not supported yet.");
-		}
+			return;
+		} 
+		throw new RuntimeException(paramType + " is not supported yet.");
 	}
 
 	public void setTo(Color to) {
@@ -233,36 +300,28 @@ public class PropertyAnimation extends Animation {
 		}
 		return 0;
 	}
-	
-	long updateDuration(long delay) {
-		return delay;
-	}
-	
-	void updateFromToValues() {
-	}
-
-	public double getAccelerationRatio() {
-		checkAnimation();
-		return accelerationRatio;
-	}
-
-	public double getDecelerationRatio() {
-		checkAnimation();
-		return decelerationRatio;
-	}
-
-	public void setAccelerationRatio(double ratio) {
-		checkAnimation();
-		accelerationRatio = ratio;
-	}
-
-	public void setDecelerationRatio(double ratio) {
-		checkAnimation();
-		decelerationRatio = ratio;
-	}
 
 	private void updateAccelRatios() {
 		OS.Timeline_AccelerationRatio(handle, accelerationRatio);
 		OS.Timeline_DecelerationRatio(handle, decelerationRatio);
+	}
+	
+	long updateDuration(long delay) {
+		if (interpolator == null) return delay;
+		int timeSpan = OS.TimeSpan_FromMilliseconds(duration);
+		int dur = OS.gcnew_Duration(timeSpan);
+		OS.Timeline_Duration(customAnimation, dur);
+		OS.GCHandle_Free(dur);
+		OS.GCHandle_Free(timeSpan);
+		//set begin time
+		timeSpan = OS.TimeSpan_FromMilliseconds(delay + beginTime);
+		OS.Timeline_BeginTime(customAnimation, timeSpan);
+		OS.GCHandle_Free(timeSpan);		
+		return delay+beginTime+duration;
+	}
+	
+	void updateFromToValues() {
+		OS.DoubleAnimation_From(customAnimation, 0);
+		OS.DoubleAnimation_To(customAnimation, 1);
 	}
 }

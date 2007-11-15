@@ -1336,6 +1336,7 @@ typedef enum {
 	gcnew_1RoutedPropertyChangedEventHandlerObject_FUNC,
 	gcnew_1RowDefinition_FUNC,
 	gcnew_1Run_FUNC,
+	gcnew_1SWTAnimation_FUNC,
 	gcnew_1SWTAnimator_FUNC,
 	gcnew_1SWTCanvas_FUNC,
 	gcnew_1SWTSafeHandle_FUNC,

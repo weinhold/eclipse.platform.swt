@@ -238,6 +238,63 @@ private:
 	}
 };
 
+public ref class SWTAnimation : DoubleAnimation {
+private:
+	JniRefCookie^ cookie;
+	jmethodID GetCurrentValueCoreMID;
+public: 
+	SWTAnimation (JNIEnv* env, jint jniRef) {
+		cookie = gcnew JniRefCookie(env, jniRef);
+		jobject object = cookie->object;
+		if (object) {
+			jclass javaClass = env->GetObjectClass(object);
+			GetCurrentValueCoreMID = env->GetMethodID(javaClass, "GetCurrentValueCore", "(D)V");
+		}
+	}
+private:
+	SWTAnimation (JniRefCookie^ cookie, jmethodID methodID) {
+		this->cookie = cookie;
+		this->GetCurrentValueCoreMID = methodID;
+	}
+protected:
+	virtual Freezable^ CreateInstanceCore () override {
+		return gcnew SWTAnimation(cookie, GetCurrentValueCoreMID);
+	}
+	virtual double GetCurrentValueCore(double fromVal, double toVal, AnimationClock^ clock) override {
+		Nullable<TimeSpan> currentTime = clock->CurrentTime;
+		if (currentTime.HasValue) {
+			double ms = currentTime.Value.TotalMilliseconds;
+			callin(ms);
+		}
+		return DoubleAnimation::GetCurrentValueCore(fromVal, toVal, clock);
+	}
+private:
+	void callin (double args) {
+		jobject object = cookie->object;
+		if (object == NULL || GetCurrentValueCoreMID == NULL) return;
+		JNIEnv* env;
+		int result = 0;
+		bool detach = false;
+
+#ifdef JNI_VERSION_1_2
+		if (IS_JNI_1_2) {
+			jvm->GetEnv((void **)&env, JNI_VERSION_1_2);
+		}
+#endif
+		if (env == NULL) {
+			jvm->AttachCurrentThread((void **)&env, NULL);
+			if (IS_JNI_1_2) detach = true;
+		}
+		
+		if (env != NULL) {
+			if (!env->ExceptionOccurred()) {
+				env->CallVoidMethod(object, GetCurrentValueCoreMID, args);
+			}
+			if (detach) jvm->DetachCurrentThread();
+		}
+	}	
+};
+
 /*												*/
 /* Table and Tree Classes						*/
 /*												*/
@@ -1498,4 +1555,15 @@ JNIEXPORT void JNICALL OS_NATIVE(Timeline_1BeginTime__II)
 }
 #endif
 
-
+#ifndef NO_gcnew_1SWTAnimation
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1SWTAnimation)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jint JNICALL OS_NATIVE(gcnew_1SWTAnimation)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, gcnew_1SWTAnimation_FUNC);
+	rc = (jint)TO_HANDLE(gcnew SWTAnimation(env, arg0));
+	OS_NATIVE_EXIT(env, that, gcnew_1SWTAnimation_FUNC);
+	return rc;
+}
+#endif

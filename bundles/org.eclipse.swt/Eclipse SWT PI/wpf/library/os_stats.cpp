@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1384;
-int OS_nativeFunctionCallCount[1384];
+int OS_nativeFunctionCount = 1385;
+int OS_nativeFunctionCallCount[1385];
 char * OS_nativeFunctionNames[] = {
 	"AccessText_1AccessKey",
 	"AccessText_1Text",
@@ -1328,6 +1328,7 @@ char * OS_nativeFunctionNames[] = {
 	"gcnew_1RoutedPropertyChangedEventHandlerObject",
 	"gcnew_1RowDefinition",
 	"gcnew_1Run",
+	"gcnew_1SWTAnimation",
 	"gcnew_1SWTAnimator",
 	"gcnew_1SWTCanvas",
 	"gcnew_1SWTSafeHandle",
