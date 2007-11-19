@@ -472,6 +472,7 @@ public static final native double Canvas_GetLeft(int element);
 public static final native double Canvas_GetTop(int element);
 public static final native void Canvas_SetLeft(int element, double length);
 public static final native void Canvas_SetTop(int element, double length);
+public static final native int Canvas_typeid();
 public static final native int CharacterHit_FirstCharacterIndex(int sender);
 public static final native int CharacterHit_TrailingLength(int sender);
 public static final native int CheckBox_typeid();
@@ -1401,6 +1402,7 @@ public static final native void UIElement_KeyDown(int sender, int handler);
 public static final native int UIElement_DesiredSize(int sender);
 public static final native void UIElement_GiveFeedback(int sender, int handler);
 public static final native int UIElement_GiveFeedbackEvent();
+public static final native void UIElement_LayoutUpdated(int sender, int handler);
 public static final native void UIElement_Measure(int sender, int availableSize);
 public static final native void UIElement_MouseDown(int sender, int handler);
 public static final native void UIElement_MouseEnter(int sender, int handler);
@@ -1776,6 +1778,8 @@ public static final native double Timeline_DecelerationRatio(int sender);
 public static final native void Timeline_AccelerationRatio(int sender, double value);
 public static final native double Timeline_AccelerationRatio(int sender);
 
-
 public static final native int gcnew_SWTAnimation(int jniRef);
+public static final native int Type_GetMethod(int sender, int name, int bindingFlags);
+public static final native int ArrayList_ToArray(int sender);
+public static final native int MethodInfo_Invoke(int sender, int obj, int parameters);
 }

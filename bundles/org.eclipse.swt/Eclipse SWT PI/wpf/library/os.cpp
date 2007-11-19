@@ -244,6 +244,19 @@ JNIEXPORT void JNICALL OS_NATIVE(ArrayList_1RemoveAt)
 }
 #endif
 
+#ifndef NO_ArrayList_1ToArray
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(ArrayList_1ToArray)(JNIEnv *env, jclass that, jint arg0);
+JNIEXPORT jint JNICALL OS_NATIVE(ArrayList_1ToArray)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, ArrayList_1ToArray_FUNC);
+	rc = (jint)TO_HANDLE(((ArrayList^)TO_OBJECT(arg0))->ToArray());
+	OS_NATIVE_EXIT(env, that, ArrayList_1ToArray_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_ArrayList_1default__II
 extern "C" JNIEXPORT jint JNICALL OS_NATIVE(ArrayList_1default__II)(JNIEnv *env, jclass that, jint arg0, jint arg1);
 JNIEXPORT jint JNICALL OS_NATIVE(ArrayList_1default__II)
@@ -910,6 +923,19 @@ JNIEXPORT jint JNICALL OS_NATIVE(Canvas_1TopProperty)
 	OS_NATIVE_ENTER(env, that, Canvas_1TopProperty_FUNC);
 	rc = (jint)TO_HANDLE(Canvas::TopProperty);
 	OS_NATIVE_EXIT(env, that, Canvas_1TopProperty_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_Canvas_1typeid
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Canvas_1typeid)(JNIEnv *env, jclass that);
+JNIEXPORT jint JNICALL OS_NATIVE(Canvas_1typeid)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, Canvas_1typeid_FUNC);
+	rc = (jint)TO_HANDLE(Canvas::typeid);
+	OS_NATIVE_EXIT(env, that, Canvas_1typeid_FUNC);
 	return rc;
 }
 #endif
@@ -7334,6 +7360,19 @@ JNIEXPORT jint JNICALL OS_NATIVE(MessageBox_1Show)
 }
 #endif
 
+#ifndef NO_MethodInfo_1Invoke
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(MethodInfo_1Invoke)(JNIEnv *env, jclass that, jint arg0, jint arg1, jint arg2);
+JNIEXPORT jint JNICALL OS_NATIVE(MethodInfo_1Invoke)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1, jint arg2)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, MethodInfo_1Invoke_FUNC);
+	rc = (jint)TO_HANDLE(((MethodInfo^)TO_OBJECT(arg0))->Invoke((Object^)TO_OBJECT(arg1), (array<Object^>^)TO_OBJECT(arg2)));
+	OS_NATIVE_EXIT(env, that, MethodInfo_1Invoke_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_MouseButtonEventArgs_1ButtonState
 extern "C" JNIEXPORT jint JNICALL OS_NATIVE(MouseButtonEventArgs_1ButtonState)(JNIEnv *env, jclass that, jint arg0);
 JNIEXPORT jint JNICALL OS_NATIVE(MouseButtonEventArgs_1ButtonState)
@@ -12355,6 +12394,19 @@ JNIEXPORT jint JNICALL OS_NATIVE(Type_1FullName)
 }
 #endif
 
+#ifndef NO_Type_1GetMethod
+extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Type_1GetMethod)(JNIEnv *env, jclass that, jint arg0, jint arg1, jint arg2);
+JNIEXPORT jint JNICALL OS_NATIVE(Type_1GetMethod)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1, jint arg2)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, Type_1GetMethod_FUNC);
+	rc = (jint)TO_HANDLE(((Type^)TO_OBJECT(arg0))->GetMethod((String^)TO_OBJECT(arg1), (BindingFlags)arg2));
+	OS_NATIVE_EXIT(env, that, Type_1GetMethod_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_Type_1GetProperty
 extern "C" JNIEXPORT jint JNICALL OS_NATIVE(Type_1GetProperty)(JNIEnv *env, jclass that, jint arg0, jint arg1, jint arg2);
 JNIEXPORT jint JNICALL OS_NATIVE(Type_1GetProperty)
@@ -13025,6 +13077,17 @@ JNIEXPORT void JNICALL OS_NATIVE(UIElement_1KeyUp)
 	OS_NATIVE_ENTER(env, that, UIElement_1KeyUp_FUNC);
 	((UIElement^)TO_OBJECT(arg0))->KeyUp += ((KeyEventHandler^)TO_OBJECT(arg1));
 	OS_NATIVE_EXIT(env, that, UIElement_1KeyUp_FUNC);
+}
+#endif
+
+#ifndef NO_UIElement_1LayoutUpdated
+extern "C" JNIEXPORT void JNICALL OS_NATIVE(UIElement_1LayoutUpdated)(JNIEnv *env, jclass that, jint arg0, jint arg1);
+JNIEXPORT void JNICALL OS_NATIVE(UIElement_1LayoutUpdated)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1)
+{
+	OS_NATIVE_ENTER(env, that, UIElement_1LayoutUpdated_FUNC);
+	((UIElement^)TO_OBJECT(arg0))->LayoutUpdated += ((EventHandler^)TO_OBJECT(arg1));
+	OS_NATIVE_EXIT(env, that, UIElement_1LayoutUpdated_FUNC);
 }
 #endif
 

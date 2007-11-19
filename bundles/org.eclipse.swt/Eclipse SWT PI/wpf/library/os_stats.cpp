@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1385;
-int OS_nativeFunctionCallCount[1385];
+int OS_nativeFunctionCount = 1390;
+int OS_nativeFunctionCallCount[1390];
 char * OS_nativeFunctionNames[] = {
 	"AccessText_1AccessKey",
 	"AccessText_1Text",
@@ -36,6 +36,7 @@ char * OS_nativeFunctionNames[] = {
 	"ArrayList_1Count",
 	"ArrayList_1Insert",
 	"ArrayList_1RemoveAt",
+	"ArrayList_1ToArray",
 	"ArrayList_1default__II",
 	"ArrayList_1default__III",
 	"Array_1CreateInstance",
@@ -91,6 +92,7 @@ char * OS_nativeFunctionNames[] = {
 	"Canvas_1SetLeft",
 	"Canvas_1SetTop",
 	"Canvas_1TopProperty",
+	"Canvas_1typeid",
 	"CharacterHit_1FirstCharacterIndex",
 	"CharacterHit_1TrailingLength",
 	"CheckBox_1typeid",
@@ -623,6 +625,7 @@ char * OS_nativeFunctionNames[] = {
 	"MenuItem_1SubmenuOpened",
 	"Menu_1IsMainMenu",
 	"MessageBox_1Show",
+	"MethodInfo_1Invoke",
 	"MouseButtonEventArgs_1ButtonState",
 	"MouseButtonEventArgs_1ChangedButton",
 	"MouseButtonEventArgs_1ClickCount",
@@ -1043,6 +1046,7 @@ char * OS_nativeFunctionNames[] = {
 	"TypeDescriptor_1GetConverter",
 	"TypeDescriptor_1GetProperties",
 	"Type_1FullName",
+	"Type_1GetMethod",
 	"Type_1GetProperty",
 	"Type_1GetType",
 	"Type_1IsInstanceOfType",
@@ -1098,6 +1102,7 @@ char * OS_nativeFunctionNames[] = {
 	"UIElement_1IsVisible",
 	"UIElement_1KeyDown",
 	"UIElement_1KeyUp",
+	"UIElement_1LayoutUpdated",
 	"UIElement_1LostKeyboardFocus",
 	"UIElement_1Measure",
 	"UIElement_1MouseDown",
