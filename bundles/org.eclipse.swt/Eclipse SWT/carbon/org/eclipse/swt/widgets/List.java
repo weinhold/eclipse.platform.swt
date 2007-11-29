@@ -939,7 +939,9 @@ public void remove (int start, int end) {
 		error (SWT.ERROR_INVALID_RANGE);
 	}
 	int length = end - start + 1;
-	for (int i=0; i<length; i++) remove (start);
+	int [] indices = new int [length];
+	for (int i=0; i<length; i++) indices [i] = i + start;
+	remove(indices);
 }
 
 /**
@@ -993,14 +995,29 @@ public void remove (int [] indices) {
 	if (!(0 <= start && start <= end && end < count)) {
 		error (SWT.ERROR_INVALID_RANGE);
 	}
+	int duplicates = 0;
 	int last = -1;
-	for (int i=0; i<newIndices.length; i++) {
+	for (int i = 0; i < newIndices.length; i++) {
+		if (newIndices [i] == last) duplicates++;
+		last = newIndices [i];
+	}
+	int [] id = new int [newIndices.length - duplicates];
+	int idIndex = id.length - 1;
+	last = -1;
+	for (int i = 0; i < newIndices.length; i++) {
 		int index = newIndices [i];
 		if (index != last) {
-			remove (index);
+			if (index != itemCount - 1) fixSelection (index, false);
+			id [idIndex--] = itemCount;
+			System.arraycopy (items, index + 1, items, index, --itemCount - index);
+			items [itemCount] = null;
 			last = index;
-		}
+		} 
 	}
+	if (OS.RemoveDataBrowserItems (handle, OS.kDataBrowserNoItem, id.length, id, 0) != OS.noErr) {
+		error (SWT.ERROR_ITEM_NOT_REMOVED);
+	}
+	OS.UpdateDataBrowserItems (handle, 0, 0, null, OS.kDataBrowserItemNoProperty, OS.kDataBrowserNoItem);
 }
 
 /**

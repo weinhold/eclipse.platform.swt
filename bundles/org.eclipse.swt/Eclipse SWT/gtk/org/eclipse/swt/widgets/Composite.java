@@ -89,7 +89,12 @@ Composite () {
  * @see Widget#getStyle
  */
 public Composite (Composite parent, int style) {
-	super (parent, style);
+	super (parent, checkStyle (style));
+}
+
+static int checkStyle (int style) {
+	style &= ~SWT.TRANSPARENT;
+	return style;
 }
 
 Control [] _getChildren () {
@@ -414,6 +419,13 @@ void fixChildren (Shell newShell, Shell oldShell, Decorations newDecorations, De
 	Control [] children = _getChildren ();
 	for (int i=0; i<children.length; i++) {
 		children [i].fixChildren (newShell, oldShell, newDecorations, oldDecorations, menus);
+	}
+}
+
+void fixModal(int /*long*/ group, int /*long*/ modalGroup)  {
+	Control[] controls = _getChildren ();
+	for (int i = 0; i < controls.length; i++) {
+		controls[i].fixModal (group, modalGroup);
 	}
 }
 
@@ -1117,16 +1129,32 @@ int /*long*/ parentingHandle () {
 	return fixedHandle != 0 ? fixedHandle : handle;
 }
 
-void printWidget (int gc, int drawable, int depth, int x, int y) {
+void printWidget (GC gc, int /*long*/ drawable, int depth, int x, int y) {
+	Region oldClip = new Region (gc.getDevice ());
+	Region newClip = new Region (gc.getDevice ());
+	gc.getClipping (oldClip);
+	Rectangle rect = getBounds ();
+	newClip.add (oldClip);
+	newClip.intersect (x, y, rect.width, rect.height);
+	gc.setClipping (newClip);
 	super.printWidget (gc, drawable, depth, x, y);
+	Rectangle clientRect = getClientArea ();
+	Point pt = display.map (this, parent, clientRect.x, clientRect.y);
+	clientRect.x = x + pt.x - rect.x;
+	clientRect.y = y + pt.y - rect.y;
+	newClip.intersect (clientRect);
+	gc.setClipping (newClip);
 	Control [] children = _getChildren ();
-	for (int i=children.length-1; i>= 0; --i) {
+	for (int i=children.length-1; i>=0; --i) {
 		Control child = children [i];
 		if (child.getVisible ()) {
 			Point location = child.getLocation ();
 			child.printWidget (gc, drawable, depth, x + location.x, y + location.y);
 		}
 	}
+	gc.setClipping (oldClip);
+	oldClip.dispose ();
+	newClip.dispose ();
 }
 
 void redrawChildren () {

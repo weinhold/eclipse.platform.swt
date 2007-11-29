@@ -419,6 +419,13 @@ public int getMonth () {
 	}
 }
 
+String getNameText() {
+	Calendar cal = Calendar.getInstance();
+	cal.set(getYear(), getMonth(), getDay(), 
+			getHours(), getMinutes(), getSeconds());
+	return cal.getTime().toString();
+}
+
 /**
  * Returns the receiver's seconds.
  * <p>

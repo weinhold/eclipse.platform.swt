@@ -366,11 +366,13 @@ void createHandle () {
 	OS.CreateUserPaneControl (window, null, features, outControl);
 	if (outControl [0] == 0) error (SWT.ERROR_NO_HANDLES);
 	handle = outControl [0];
+	OS.HIObjectSetAccessibilityIgnored (handle, true);
 	if ((style & SWT.SEPARATOR) == 0) {
 		ControlButtonContentInfo inContent = new ControlButtonContentInfo ();
 		OS.CreateIconControl(window, null, inContent, false, outControl);
 		if (outControl [0] == 0) error (SWT.ERROR_NO_HANDLES);
 		iconHandle = outControl [0];
+		OS.HIObjectSetAccessibilityIgnored (iconHandle, true);
 		ControlFontStyleRec fontStyle = new ControlFontStyleRec ();
 		Font font = parent.font;
 		if (font != null) {
@@ -387,6 +389,7 @@ void createHandle () {
 		OS.CreateStaticTextControl (window, null, 0, fontStyle, outControl);
 		if (outControl [0] == 0) error (SWT.ERROR_NO_HANDLES);
 		labelHandle = outControl [0];
+		OS.HIObjectSetAccessibilityIgnored (labelHandle, true);
 	}
 }
 
@@ -691,14 +694,15 @@ void hookEvents () {
 	};
 	int accessibilityProc = display.accessibilityProc;
 	int [] mask3 = new int [] {
+		OS.kEventClassAccessibility, OS.kEventAccessibleGetAllAttributeNames,
 		OS.kEventClassAccessibility, OS.kEventAccessibleGetNamedAttribute,
 	};
-	OS.InstallEventHandler (controlTarget, accessibilityProc, mask3.length / 2, mask3, handle, null);
 	if (iconHandle != 0) {
 		controlTarget = OS.GetControlEventTarget (iconHandle);
 		OS.InstallEventHandler (controlTarget, controlProc, mask2.length / 2, mask2, iconHandle, null);
 		OS.SetControlColorProc (iconHandle, colorProc);
 		OS.SetControlAction (iconHandle, display.actionProc);
+		OS.InstallEventHandler (controlTarget, accessibilityProc, mask3.length / 2, mask3, iconHandle, null);
 	}
 	if (labelHandle != 0) {
 		controlTarget = OS.GetControlEventTarget (labelHandle);
@@ -743,6 +747,26 @@ public boolean isEnabled () {
 	return getEnabled () && parent.isEnabled ();
 }
 
+int kEventAccessibleGetAllAttributeNames (int nextHandler, int theEvent, int userData) {
+	int code = OS.CallNextEventHandler (nextHandler, theEvent);
+	int stringArrayRef = 0;
+	if (code != OS.noErr) {
+		int [] arrayRef = new int[1];
+		OS.GetEventParameter (theEvent, OS.kEventParamAccessibleAttributeNames, OS.typeCFMutableArrayRef, null, 4, null, arrayRef);
+		stringArrayRef = arrayRef[0];
+	}
+	if (stringArrayRef == 0) {
+		stringArrayRef = OS.CFArrayCreateMutable (OS.kCFAllocatorDefault, 0, 0);
+	}
+	String string = OS.kAXValueAttribute;
+	char [] buffer = new char [string.length ()];
+	string.getChars (0, buffer.length, buffer, 0);
+	int stringRef = OS.CFStringCreateWithCharacters (OS.kCFAllocatorDefault, buffer, buffer.length);
+	OS.CFArrayAppendValue(stringArrayRef, stringRef);
+	OS.CFRelease(stringRef);
+	return OS.noErr;
+}
+
 int kEventAccessibleGetNamedAttribute (int nextHandler, int theEvent, int userData) {
 	int code = OS.CallNextEventHandler (nextHandler, theEvent);
 	int [] stringRef = new int [1];
@@ -755,26 +779,50 @@ int kEventAccessibleGetNamedAttribute (int nextHandler, int theEvent, int userDa
 	OS.CFStringGetCharacters (stringRef [0], range, buffer);
 	String attributeName = new String(buffer);
 	if (attributeName.equals (OS.kAXRoleAttribute) || attributeName.equals (OS.kAXRoleDescriptionAttribute)) {
-		String roleText = OS.kAXGroupRole;
-		buffer = new char [roleText.length ()];
-		roleText.getChars (0, buffer.length, buffer, 0);
-		stringRef [0] = OS.CFStringCreateWithCharacters (OS.kCFAllocatorDefault, buffer, buffer.length);
-		if (attributeName.equals (OS.kAXRoleAttribute)) {
-			if (stringRef [0] != 0) {
-				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, stringRef);
-				OS.CFRelease(stringRef [0]);
-				return OS.noErr;
+		String roleText = ((style & SWT.PUSH) != 0) ? OS.kAXButtonRole
+				: ((style & SWT.RADIO) != 0) ? OS.kAXRadioButtonRole
+				: ((style & SWT.CHECK) != 0) ? OS.kAXCheckBoxRole
+				: ((style & SWT.DROP_DOWN) != 0) ? OS.kAXMenuButtonRole
+				: null; // SEPARATOR
+		if (roleText != null) {
+			buffer = new char [roleText.length ()];
+			roleText.getChars (0, buffer.length, buffer, 0);
+			stringRef [0] = OS.CFStringCreateWithCharacters (OS.kCFAllocatorDefault, buffer, buffer.length);
+			if (attributeName.equals (OS.kAXRoleAttribute)) {
+				if (stringRef [0] != 0) {
+					OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, stringRef);
+					OS.CFRelease(stringRef [0]);
+					return OS.noErr;
+				}
+			}
+			if (attributeName.equals (OS.kAXRoleDescriptionAttribute)) {
+				if (stringRef [0] != 0) {
+					int stringRef2 = OS.HICopyAccessibilityRoleDescription (stringRef [0], 0);
+					OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, new int [] {stringRef2});
+					OS.CFRelease(stringRef [0]);
+					OS.CFRelease(stringRef2);
+					return OS.noErr;
+				}
 			}
 		}
-		if (attributeName.equals (OS.kAXRoleDescriptionAttribute)) {
-			if (stringRef [0] != 0) {
-				int stringRef2 = OS.HICopyAccessibilityRoleDescription (stringRef [0], 0);
-				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, new int [] {stringRef2});
-				OS.CFRelease(stringRef [0]);
-				OS.CFRelease(stringRef2);
-				return OS.noErr;
-			}
+	}
+	if (attributeName.equals (OS.kAXTitleAttribute) || attributeName.equals (OS.kAXDescriptionAttribute)) {
+		//TODO: TEMPORARY CODE: return the tooltip/text (should send getName to the app's accessible instead)
+		String accessibleText = toolTipText;
+		if (accessibleText == null || accessibleText.equals("")) accessibleText = text;
+		if (!(accessibleText == null || accessibleText.equals(""))) {
+			buffer = new char [accessibleText.length ()];
+			accessibleText.getChars (0, buffer.length, buffer, 0);
+			int ref = OS.CFStringCreateWithCharacters (OS.kCFAllocatorDefault, buffer, buffer.length);
+			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, new int [] {ref});
+			OS.CFRelease(ref);
+			return OS.noErr;
 		}
+		// END TEMPORARY CODE
+	}
+	if (attributeName.equals (OS.kAXValueAttribute) && (style & (SWT.CHECK | SWT.RADIO)) != 0) {
+		OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeSInt32, 4, new int [] {selection ? 1 : 0});
+		return OS.noErr;
 	}
 	return code;
 }
@@ -1113,6 +1161,7 @@ public void setImage (Image image) {
 	if ((style & SWT.SEPARATOR) != 0) return;
 	super.setImage (image);
 	updateImage (true);
+	OS.HIObjectSetAccessibilityIgnored (iconHandle, image == null);
 }
 
 boolean setRadioSelection (boolean value) {
@@ -1185,6 +1234,7 @@ public void setText (String string) {
 	OS.CFRelease (ptr);
 	redrawWidget (labelHandle, false);
 	parent.relayout ();
+	OS.HIObjectSetAccessibilityIgnored (labelHandle, string.equals(""));
 }
 
 /**

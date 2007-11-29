@@ -55,6 +55,8 @@ public abstract class Control extends Widget implements Drawable {
 	Object layoutData;
 	Accessible accessible;
 	Image backgroundImage;
+	Region region;
+	Font font;
 	int drawCount, foreground, background;
 
 /**
@@ -470,6 +472,10 @@ void checkBuffered () {
 	style &= ~SWT.DOUBLE_BUFFERED;
 }
 
+void checkComposited () {
+	/* Do nothing */
+}
+
 boolean checkHandle (int /*long*/ hwnd) {
 	return hwnd == handle;
 }
@@ -618,6 +624,7 @@ void createWidget () {
 	createHandle ();
 	checkBackground ();
 	checkBuffered ();
+	checkComposited ();
 	register ();
 	subclass ();
 	setDefaultFont ();
@@ -1201,7 +1208,8 @@ public boolean getEnabled () {
  * </ul>
  */
 public Font getFont () {
-	checkWidget ();	
+	checkWidget ();
+	if (font != null) return font;
 	int /*long*/ hFont = OS.SendMessage (handle, OS.WM_GETFONT, 0, 0);
 	if (hFont == 0) hFont = defaultFont ();
 	return Font.win32_new (display, hFont);
@@ -1345,6 +1353,25 @@ Control [] getPath () {
 		control = control.parent;
 	}
 	return result;
+}
+
+/** 
+ * Returns the region that defines the shape of the control,
+ * or null if the control has the default shape.
+ *
+ * @return the region that defines the shape of the shell (or null)
+ *	
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ *
+ * @since 3.4
+ *
+ */
+public Region getRegion () {
+	checkWidget ();
+	return region;
 }
 
 /**
@@ -1892,6 +1919,40 @@ public void pack (boolean changed) {
 }
 
 /**
+ * Prints the receiver and all children.
+ * 
+ * @param gc the gc where the drawing occurs
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_NULL_ARGUMENT - if the gc is null</li>
+ *    <li>ERROR_INVALID_ARGUMENT - if the gc has been disposed</li>
+ * </ul>
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ * 
+ * @since 3.4
+ */
+public boolean print (GC gc) {
+	checkWidget ();
+	if (gc == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (gc.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+	if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (5, 1)) {
+		int bits = OS.GetWindowLong (handle, OS.GWL_STYLE);
+		if ((bits & OS.WS_VISIBLE) == 0) {
+			OS.DefWindowProc (handle, OS.WM_SETREDRAW, 1, 0);
+		}
+		OS.PrintWindow (handle, gc.handle, 0);
+		if ((bits & OS.WS_VISIBLE) == 0) {
+			OS.DefWindowProc (handle, OS.WM_SETREDRAW, 0, 0);
+		}
+		return true;
+	}
+	return false;
+}
+
+/**
  * Causes the entire bounds of the receiver to be marked
  * as needing to be redrawn. The next time a paint request
  * is processed, the control will be completely painted,
@@ -2026,6 +2087,8 @@ void releaseWidget () {
 		accessible.internal_dispose_Accessible ();
 	}
 	accessible = null;
+	region = null;
+	font = null;
 }
 
 /**
@@ -2758,6 +2821,7 @@ public void setFont (Font font) {
 		if (font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 		hFont = font.handle;
 	}
+	this.font = font;
 	if (hFont == 0) hFont = defaultFont ();
 	OS.SendMessage (handle, OS.WM_SETFONT, hFont, 1);
 }
@@ -2969,6 +3033,36 @@ public void setRedraw (boolean redraw) {
 			if (handle != topHandle) OS.SendMessage (handle, OS.WM_SETREDRAW, 0, 0);
 		}
 	}
+}
+
+/**
+ * Sets the shape of the control to the region specified
+ * by the argument.  When the argument is null, the
+ * default shape of the control is restored.
+ *
+ * @param region the region that defines the shape of the control (or null)
+ *
+ * @exception IllegalArgumentException <ul>
+ *    <li>ERROR_INVALID_ARGUMENT - if the region has been disposed</li>
+ * </ul>  
+ * @exception SWTException <ul>
+ *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+ *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+ * </ul>
+ *
+ * @since 3.4
+ *
+ */
+public void setRegion (Region region) {
+	checkWidget ();
+	if (region != null && region.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
+	int /*long*/ hRegion = 0;
+	if (region != null) {
+		hRegion = OS.CreateRectRgn (0, 0, 0, 0);
+		OS.CombineRgn (hRegion, region.handle, hRegion, OS.RGN_OR);
+	}
+	OS.SetWindowRgn (handle, hRegion, true);
+	this.region = region;
 }
 
 boolean setSavedFocus () {

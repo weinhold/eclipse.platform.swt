@@ -1457,6 +1457,8 @@ public class SWT {
 	 * </ul></p>
 	 *
 	 * @since 3.4
+	 * 
+	 * WARNING: THIS API IS UNDER CONSTRUCTION AND SHOULD NOT BE USED
 	 */
 	public static final int TRANSPARENT = 1 << 30;
 	
@@ -1499,6 +1501,16 @@ public class SWT {
 	 * @since 3.4
 	 */
 	public static final int UNDERLINE_ERROR = 2;
+	
+	/**
+	 * Style constant to indicate squiggle underline (value is 3).
+	 * <p><b>Used By:</b><ul>
+	 * <li><code>TextStyle</code></li>
+	 * </ul></p>
+	 * 
+	 * @since 3.4
+	 */
+	public static final int UNDERLINE_SQUIGGLE = 3;
 	
 	/**
 	 * Style constant to indicate solid border (value is 1).

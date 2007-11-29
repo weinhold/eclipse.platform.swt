@@ -52,6 +52,7 @@ public class OS extends C {
 	public static final int inZoomOut = 8;
 	public static final int inToolbarButton = 13;	
 	public static final int italic = 2;
+	public static final int k24RGBPixelFormat = 0x00000018;
 	public static final int k32ARGBPixelFormat = 0x00000020;
 	public static final int kActivateAndHandleClick = 3;
 	public static final int kAppearanceEventClass = ('a'<<24) + ('p'<<16) + ('p'<<8) + 'r';
@@ -133,6 +134,7 @@ public class OS extends C {
 	public static final int kCFRunLoopRunTimedOut = 3;
 	public static final int kCFRunLoopRunHandledSource = 4;
 	public static final int kAvailBoundsChangedForDock = 1 << 0;
+	public static final int kCGBlendModeNormal = 0;
 	public static final int kCGBlendModeDifference = 10;
 	public static final int kCGBitmapByteOrderDefault = 0 << 12;
 	public static final int kCGBitmapByteOrder16Little = 1 << 12;
@@ -1217,6 +1219,7 @@ public static final native int CGImageGetAlphaInfo (int image);
 public static final native int CGImageGetBitsPerComponent (int image);
 public static final native int CGImageGetBitsPerPixel (int image);
 public static final native int CGImageGetBytesPerRow (int image);
+public static final native int CGImageGetDataProvider (int image);
 public static final native int CGImageGetColorSpace (int image);
 public static final native int CGImageGetHeight (int image);
 public static final native int CGImageGetWidth (int image);
@@ -1259,6 +1262,7 @@ public static final native int ClearKeyboardFocus(int inWindow);
 public static final native void ClearMenuBar();
 public static final native int ClipCGContextToRegion(int inContext, Rect portRect, int rgnHandle);
 public static final native int CloseDataBrowserContainer(int cHandle, int container);
+public static final native void ClosePicture();
 public static final native void CloseRgn(int dstRgn);
 public static final native int CollapseWindow(int wHandle, boolean collapse);
 public static final native int ContextualMenuSelect (int inMenu, Point inGlobalLocation, boolean inReserved, int  inHelpType, byte[] inHelpItemString, AEDesc inSelection, int[] outUserSelectionType, short[] outMenuID, short[] outMenuItem);
@@ -1327,6 +1331,7 @@ public static final native int DisposeUnicodeToTextInfo(int[] ioUnicodeToTextInf
 public static final native void DisposeWindow(int wHandle);
 public static final native void DrawControlInCurrentPort(int inControl);
 public static final native void DrawMenuBar();
+public static final native void DrawPicture(int picHandle, Rect rect);
 public static final native int DrawThemeButton(Rect inBounds, short inKind, ThemeButtonDrawInfo inNewInfo, ThemeButtonDrawInfo inPrevInfo, int inEraseProc, int inLabelProc, int inUserData);
 public static final native int DrawThemeEditTextFrame(Rect bounds, int state);
 public static final native int DrawThemeFocusRect(Rect bounds, boolean hasFocus);
@@ -1633,6 +1638,7 @@ public static final native boolean IsWindowActive(int window);
 public static final native boolean IsWindowCollapsed(int window);
 public static final native boolean IsWindowVisible(int window);
 public static final native int KeyTranslate(int transData, short keycode, int[] state);
+public static final native void KillPicture(int pictHandle);
 public static final native void LineTo(short h, short v);
 public static final native int Long2Fix(int x);
 public static final native short LoWord(int doubleWord);
@@ -1671,6 +1677,7 @@ public static final native void OffsetRect(Rect rect, short dh, short dv);
 public static final native void OffsetRgn(int rgnHandle, short dh, short dv);
 public static final native int OpenDataBrowserContainer(int cHandle, int container);
 public static final native void OpenRgn();
+public static final native int OpenPicture(Rect rect);
 public static final native int PickColor(ColorPickerInfo theColorInfo);
 public static final native int PopUpMenuSelect(int mHandle, short top, short left, short popUpItem);
 public static final native int PostEvent(short eventNum, int eventMsg);
@@ -1724,6 +1731,10 @@ public static final native int PutScrapFlavor(int scrap, int flavorType, int fla
 public static final native int QDBeginCGContext(int inPort, int[] outContext);
 public static final native int QDEndCGContext(int inPort, int[] inoutContext);
 public static final native void QDFlushPortBuffer(int port, int rgnHandle);
+public static final native int QDPictCreateWithProvider(int provider);
+public static final native int QDPictDrawToCGContext(int ctx, CGRect rect, int picRef);
+public static final native void QDPictRelease(int pictRef);
+public static final native void QDPictGetBounds(int picture, CGRect rect);
 public static final native int QDRegionToRects(int rgn, int dir, int proc, int userData);
 public static final native void RGBBackColor(RGBColor color);
 public static final native void RGBForeColor(RGBColor color);
@@ -1937,6 +1948,7 @@ public static final native void AXUIElementGetIdentifier(int inUIElement, long[]
 public static final native int AXUIElementGetHIObject(int inUIElement);
 public static final native int AXUIElementGetDataBrowserItemInfo(int inElement, int inDataBrowser, int inDesiredInfoVersion, DataBrowserAccessibilityItemInfo outInfo);
 public static final native int AXValueCreate (int theType, CFRange range);
+public static final native boolean AXValueGetValue (int value, int theType, CFRange range);
 public static final native int HIObjectSetAccessibilityIgnored(int inObject, boolean inIgnored);
 public static final native int AXUIElementCopyAttributeValue (int element, int attribute, int [] value);
 
@@ -2229,6 +2241,14 @@ public static final String kAXCreatedNotification          = "AXCreated";
 
 // AXValue types
 public static final int kAXValueCFRangeType = 4;
+
+// AXValue Constants
+public static final String kAXAscendingSortDirectionValue  = "AXAscendingSortDirection";
+public static final String kAXDescendingSortDirectionValue = "AXDescendingSortDirection";
+public static final String kAXHorizontalOrientationValue   = "AXHorizontalOrientation";
+public static final String kAXUnknownOrientationValue      = "AXUnknownOrientation";
+public static final String kAXUnknownSortDirectionValue    = "AXUnknownSortDirection";
+public static final String kAXVerticalOrientationValue     = "AXVerticalOrientation";
 
 // Error codes
 public static final int kAXErrorIllegalArgument = -25201;

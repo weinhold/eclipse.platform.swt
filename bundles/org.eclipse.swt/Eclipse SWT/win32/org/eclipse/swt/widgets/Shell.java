@@ -387,6 +387,7 @@ public static Shell internal_new (Display display, int /*long*/ handle) {
 
 static int checkStyle (int style) {
 	style = Decorations.checkStyle (style);
+	style &=~SWT.TRANSPARENT;
 	int mask = SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL | SWT.PRIMARY_MODAL;
 	int bits = style & ~mask;
 	if ((style & SWT.SYSTEM_MODAL) != 0) return bits | SWT.SYSTEM_MODAL;
@@ -481,7 +482,7 @@ void createBalloonTipHandle () {
 		0,
 		new TCHAR (0, OS.TOOLTIPS_CLASS, true),
 		null,
-		OS.TTS_ALWAYSTIP | OS.TTS_BALLOON,
+		OS.TTS_ALWAYSTIP | OS.TTS_NOPREFIX | OS.TTS_BALLOON,
 		OS.CW_USEDEFAULT, 0, OS.CW_USEDEFAULT, 0,
 		handle,
 		0,
@@ -589,7 +590,7 @@ void createToolTipHandle () {
 		0,
 		new TCHAR (0, OS.TOOLTIPS_CLASS, true),
 		null,
-		OS.TTS_ALWAYSTIP,
+		OS.TTS_ALWAYSTIP | OS.TTS_NOPREFIX,
 		OS.CW_USEDEFAULT, 0, OS.CW_USEDEFAULT, 0,
 		handle,
 		0,
@@ -824,12 +825,12 @@ void forceResize () {
  * 
  * @since 3.4
  */
-/*public*/ int getAlpha () {
+public int getAlpha () {
 	checkWidget ();
 	if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (5, 1)) {
 		byte [] pbAlpha = new byte [1];
 		if (OS.GetLayeredWindowAttributes (handle, null, pbAlpha, null)) {
-			return pbAlpha [0];
+			return pbAlpha [0] & 0xFF;
 		}
 	}
 	return 0xFF;
@@ -998,6 +999,7 @@ public Point getMinimumSize () {
  *
  */
 public Region getRegion () {
+	/* This method is needed for the @since 3.0 Javadoc */
 	checkWidget ();
 	return region;
 }
@@ -1205,7 +1207,6 @@ void releaseWidget () {
 		if (hIMC != 0) OS.ImmDestroyContext (hIMC);
 	}
 	lastActive = null;
-	region = null;
 	toolTitle = balloonTitle = null;
 	lockToolTipControl = null;
 }
@@ -1343,7 +1344,7 @@ void setActiveControl (Control control) {
  * 
  * @since 3.4
  */
-/*public*/ void setAlpha (int alpha) {
+public void setAlpha (int alpha) {
 	checkWidget ();
 	if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (5, 1)) {
 		alpha &= 0xFF;
@@ -1361,6 +1362,18 @@ void setActiveControl (Control control) {
 
 void setBounds (int x, int y, int width, int height, int flags, boolean defer) {
 	if (fullScreen) setFullScreen (false);
+	/*
+	* Bug in Windows.  When a window has alpha and
+	* SetWindowPos() is called with SWP_DRAWFRAME,
+	* the contents of the window are copied rather
+	* than allowing the windows underneath to draw.
+	* This causes pixel corruption.  The fix is to
+	* clear the SWP_DRAWFRAME bits.
+	*/
+	int bits = OS.GetWindowLong (handle, OS.GWL_EXSTYLE); 
+	if ((bits & OS.WS_EX_LAYERED) != 0) {
+		flags &= ~OS.SWP_DRAWFRAME;
+	}
 	super.setBounds (x, y, width, height, flags, false);
 }
 
@@ -1410,12 +1423,13 @@ public void setFullScreen (boolean fullScreen) {
 		}
 	}
 	if (fullScreen) wasMaximized = getMaximized ();
+	boolean visible = isVisible ();
 	OS.SetWindowLong (handle, OS.GWL_STYLE, styleFlags);
 	if (wasMaximized) {
 		OS.ShowWindow (handle, OS.SW_HIDE);
 		stateFlags = OS.SW_SHOWMAXIMIZED;
 	}
-	if (isVisible ()) OS.ShowWindow (handle, stateFlags);
+	if (visible) OS.ShowWindow (handle, stateFlags);
 	OS.UpdateWindow (handle);
 	this.fullScreen = fullScreen;
 }
@@ -1573,14 +1587,7 @@ void setParent () {
 public void setRegion (Region region) {
 	checkWidget ();
 	if ((style & SWT.NO_TRIM) == 0) return;
-	if (region != null && region.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
-	int /*long*/ hRegion = 0;
-	if (region != null) {
-		hRegion = OS.CreateRectRgn (0, 0, 0, 0);
-		OS.CombineRgn (hRegion, region.handle, hRegion, OS.RGN_OR);
-	}
-	OS.SetWindowRgn (handle, hRegion, true);
-	this.region = region;
+	super.setRegion (region);
 }
 
 void setToolTipText (int /*long*/ hwnd, String text) {
@@ -2140,8 +2147,9 @@ LRESULT WM_MOUSEACTIVATE (int /*long*/ wParam, int /*long*/ lParam) {
 		}
 	}
 	
+	int /*long*/ code = callWindowProc (handle, OS.WM_MOUSEACTIVATE, wParam, lParam);
 	setActiveControl (control);
-	return null;
+	return new LRESULT (code);
 }
 
 LRESULT WM_MOVE (int /*long*/ wParam, int /*long*/ lParam) {

@@ -119,7 +119,6 @@ public class Shell extends Decorations {
 	int oldX, oldY, oldWidth, oldHeight;
 	int minWidth, minHeight;
 	Control lastActive;
-	Region region;
 
 	static final int MAXIMUM_TRIM = 128;
 
@@ -355,6 +354,7 @@ public static Shell internal_new (Display display, int /*long*/ handle) {
 
 static int checkStyle (int style) {
 	style = Decorations.checkStyle (style);
+	style &= ~SWT.TRANSPARENT;
 	if ((style & SWT.ON_TOP) != 0) style &= ~SWT.SHELL_TRIM;
 	int mask = SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL | SWT.PRIMARY_MODAL;
 	int bits = style & ~mask;
@@ -785,7 +785,7 @@ void forceResize (int width, int height) {
 	OS.gtk_widget_size_allocate (vboxHandle, allocation);
 }
 
-/*public*/ int getAlpha () {
+public int getAlpha () {
 	checkWidget ();
 	if (OS.GTK_VERSION >= OS.VERSION (2, 12, 0)) {
 		if (OS.gtk_widget_is_composited (shellHandle)) {
@@ -894,6 +894,7 @@ public boolean getVisible () {
  */
 public Region getRegion () {
 	checkWidget ();
+	/* This method is needed for @since 3.0 Javadoc */
 	return region;
 }
 
@@ -1198,7 +1199,7 @@ void setActiveControl (Control control) {
 	}
 }
 
-/*public*/ void setAlpha (int alpha) {
+public void setAlpha (int alpha) {
 	checkWidget ();
 	if (OS.GTK_VERSION >= OS.VERSION (2, 12, 0)) {
 		if (OS.gtk_widget_is_composited (shellHandle)) {
@@ -1507,11 +1508,7 @@ public void setMinimumSize (Point size) {
 public void setRegion (Region region) {
 	checkWidget ();
 	if ((style & SWT.NO_TRIM) == 0) return;
-	if (region != null && region.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
-	int /*long*/ window = OS.GTK_WIDGET_WINDOW (shellHandle);
-	int /*long*/ shape_region = (region == null) ? 0 : region.handle;
-	OS.gdk_window_shape_combine_region (window, shape_region, 0, 0);
-	this.region = region;
+	super.setRegion (region);
 }
 
 /*
@@ -1751,6 +1748,9 @@ void updateModal () {
 			OS.gtk_window_group_remove_window (modalGroup, shellHandle);
 		}
 	}
+	if (OS.GTK_VERSION < OS.VERSION (2, 4, 0)) {
+		fixModal (group, modalGroup);
+	}
 	modalGroup = group;
 }
 
@@ -1836,14 +1836,14 @@ void releaseWidget () {
 	group = modalGroup = 0;
 	int /*long*/ window = OS.GTK_WIDGET_WINDOW (shellHandle);
 	OS.gdk_window_remove_filter(window, display.filterProc, shellHandle);
-	region = null;
 	lastActive = null;
 }
 
 void setToolTipText (int /*long*/ widget, String string) {
 	byte [] buffer = null;
 	if (string != null && string.length () > 0) {
-		buffer = Converter.wcsToMbcs (null, string, true);
+		char [] chars = fixMnemonic (string, false);
+		buffer = Converter.wcsToMbcs (null, chars, true);
 	}
 	if (tooltipsHandle == 0) {
 		tooltipsHandle = OS.gtk_tooltips_new ();

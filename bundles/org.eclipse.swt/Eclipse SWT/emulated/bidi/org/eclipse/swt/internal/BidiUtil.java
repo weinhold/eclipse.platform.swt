@@ -11,6 +11,7 @@
 package org.eclipse.swt.internal;
 
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Control;
 
 /*
  * This class is supplied so that the StyledText code that supports bidi text (supported
@@ -42,6 +43,8 @@ public class BidiUtil {
  * Not implemented.
  */
 public static void addLanguageListener(int /*long*/ hwnd, Runnable runnable) {
+}
+public static void addLanguageListener (Control control, Runnable runnable) {
 }
 /*
  * Not implemented.
@@ -91,6 +94,8 @@ public static int getKeyboardLanguage() {
  * Not implemented.
  */
 public static void removeLanguageListener(int /*long*/ hwnd) {
+}	
+public static void removeLanguageListener (Control control) {
 }
 /*
  * Not implemented.
@@ -101,6 +106,9 @@ public static void setKeyboardLanguage(int language) {
  * Not implemented.
  */
 public static boolean setOrientation(int /*long*/ hwnd, int orientation) {
+	return false;
+}
+public static boolean setOrientation (Control control, int orientation) {
 	return false;
 }
 }

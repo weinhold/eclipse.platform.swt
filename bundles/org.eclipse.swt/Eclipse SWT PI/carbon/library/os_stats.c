@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 933;
-int OS_nativeFunctionCallCount[933];
+int OS_nativeFunctionCount = 943;
+int OS_nativeFunctionCallCount[943];
 char * OS_nativeFunctionNames[] = {
 	"AECountItems",
 	"AEGetNthPtr",
@@ -76,6 +76,7 @@ char * OS_nativeFunctionNames[] = {
 	"AXUIElementGetHIObject",
 	"AXUIElementGetIdentifier",
 	"AXValueCreate",
+	"AXValueGetValue",
 	"AcquireFirstMatchingEventInQueue",
 	"ActivateTSMDocument",
 	"ActiveNonFloatingWindow",
@@ -223,6 +224,7 @@ char * OS_nativeFunctionNames[] = {
 	"CGImageGetBitsPerPixel",
 	"CGImageGetBytesPerRow",
 	"CGImageGetColorSpace",
+	"CGImageGetDataProvider",
 	"CGImageGetHeight",
 	"CGImageGetWidth",
 	"CGImageRelease",
@@ -264,6 +266,7 @@ char * OS_nativeFunctionNames[] = {
 	"ClearMenuBar",
 	"ClipCGContextToRegion",
 	"CloseDataBrowserContainer",
+	"ClosePicture",
 	"CloseRgn",
 	"CollapseWindow",
 	"ContextualMenuSelect",
@@ -333,6 +336,7 @@ char * OS_nativeFunctionNames[] = {
 	"DisposeWindow",
 	"DrawControlInCurrentPort",
 	"DrawMenuBar",
+	"DrawPicture",
 	"DrawThemeButton",
 	"DrawThemeEditTextFrame",
 	"DrawThemeFocusRect",
@@ -642,6 +646,7 @@ char * OS_nativeFunctionNames[] = {
 	"IsWindowVisible",
 	"JNIGetObject",
 	"KeyTranslate",
+	"KillPicture",
 	"LSCopyAllRoleHandlersForContentType",
 	"LSCopyDisplayNameForRef",
 	"LSFindApplicationForInfo",
@@ -680,6 +685,7 @@ char * OS_nativeFunctionNames[] = {
 	"OffsetRect",
 	"OffsetRgn",
 	"OpenDataBrowserContainer",
+	"OpenPicture",
 	"OpenRgn",
 	"PMCreatePageFormat",
 	"PMCreatePrintSettings",
@@ -734,6 +740,10 @@ char * OS_nativeFunctionNames[] = {
 	"QDBeginCGContext",
 	"QDEndCGContext",
 	"QDFlushPortBuffer",
+	"QDPictCreateWithProvider",
+	"QDPictDrawToCGContext",
+	"QDPictGetBounds",
+	"QDPictRelease",
 	"QDRegionToRects",
 	"RGBBackColor",
 	"RGBForeColor",

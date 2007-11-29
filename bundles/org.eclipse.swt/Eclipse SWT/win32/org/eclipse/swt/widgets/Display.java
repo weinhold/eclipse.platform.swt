@@ -213,6 +213,7 @@ public class Display extends Device {
 	RECT clickRect;
 	int clickCount, lastTime, lastButton;
 	int /*long*/ lastClickHwnd;
+	int scrollRemainder;
 	int lastKey, lastAscii, lastMouse;
 	boolean lastVirtual, lastNull, lastDead;
 	byte [] keyboard = new byte [256];
@@ -250,10 +251,15 @@ public class Display extends Device {
 	
 	/* Table */
 	char [] tableBuffer;
+	NMHDR hdr = new NMHDR ();
+	NMLVDISPINFO plvfi = new NMLVDISPINFO ();
+	int /*long*/ hwndParent;
+	int columnCount;
+	boolean [] columnVisible;
 	
 	/* Resize and move recursion */
 	int resizeCount;
-	static final int RESIZE_LIMIT = 6;
+	static final int RESIZE_LIMIT = 4;
 	
 	/* Display Data */
 	Object data;
@@ -4399,6 +4405,27 @@ static int wcsToMbcs (char ch) {
 }
 
 int /*long*/ windowProc (int /*long*/ hwnd, int /*long*/ msg, int /*long*/ wParam, int /*long*/ lParam) {
+	/*
+	* Feature in Windows.  On Vista only, it is faster to
+	* compute and answer the data for the visible columns
+	* of a table when scrolling, rather than just return
+	* the data for each column when asked.
+	*/
+	if (columnVisible != null) {
+		if (msg == OS.WM_NOTIFY && hwndParent == hwnd) {
+			OS.MoveMemory (hdr, lParam, NMHDR.sizeof);
+			switch (hdr.code) {
+				case OS.LVN_GETDISPINFOA:
+				case OS.LVN_GETDISPINFOW: {
+					OS.MoveMemory (plvfi, lParam, NMLVDISPINFO.sizeof);
+					if (0 <= plvfi.iSubItem && plvfi.iSubItem < columnCount) {
+						if (!columnVisible [plvfi.iSubItem]) return 0;
+					}
+					break;
+				}
+			}
+		}
+	}
 	/*
 	* Bug in Adobe Reader 7.0.  For some reason, when Adobe
 	* Reader 7.0 is deactivated from within Internet Explorer,

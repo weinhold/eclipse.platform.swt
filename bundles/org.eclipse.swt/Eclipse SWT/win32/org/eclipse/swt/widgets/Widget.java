@@ -450,13 +450,18 @@ Widget findItem (int /*long*/ id) {
 }
 
 char [] fixMnemonic (String string) {
-	char [] buffer = new char [string.length ()];
+	return fixMnemonic (string, false);
+}
+
+char [] fixMnemonic (String string, boolean spaces) {
+	char [] buffer = new char [string.length () + 1];
 	string.getChars (0, string.length (), buffer, 0);
 	int i = 0, j = 0;
 	while (i < buffer.length) {
 		if (buffer [i] == '&') {
 			if (i + 1 < buffer.length && buffer [i + 1] == '&') {
-				buffer [j++] = ' ';
+				if (spaces) buffer [j] = ' ';
+				j++;
 				i++;
 			}
 			i++;
@@ -1687,6 +1692,7 @@ LRESULT wmKeyUp (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) {
 }
 
 LRESULT wmKillFocus (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) {
+	display.scrollRemainder = 0;
 	int /*long*/ code = callWindowProc (hwnd, OS.WM_KILLFOCUS, wParam, lParam);
 	sendFocusEvent (SWT.FocusOut);
 	// widget could be disposed at this point
@@ -1981,18 +1987,22 @@ LRESULT wmMouseMove (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam
 }
 
 LRESULT wmMouseWheel (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) {
-	if (!hooks (SWT.MouseWheel) && !filters (SWT.MouseWheel)) return null;
 	int delta = OS.GET_WHEEL_DELTA_WPARAM (wParam);
-	int [] value = new int [1];
-	int count, detail;
-	OS.SystemParametersInfo (OS.SPI_GETWHEELSCROLLLINES, 0, value, 0);
-	if (value [0] == OS.WHEEL_PAGESCROLL) {
+	int [] linesToScroll = new int [1];
+	int detail;
+	OS.SystemParametersInfo (OS.SPI_GETWHEELSCROLLLINES, 0, linesToScroll, 0);
+	if (linesToScroll [0] == OS.WHEEL_PAGESCROLL) {
 		detail = SWT.SCROLL_PAGE;
-		count = delta / OS.WHEEL_DELTA;
 	} else {
 		detail = SWT.SCROLL_LINE;
-		count = value [0] * delta / OS.WHEEL_DELTA;
+		delta *= linesToScroll [0];
 	}
+	/* Check if the delta and the remainder have the same direction (sign) */
+	if ((delta ^ display.scrollRemainder) >= 0) delta += display.scrollRemainder;
+	display.scrollRemainder = delta % OS.WHEEL_DELTA; 
+
+	if (!hooks (SWT.MouseWheel) && !filters (SWT.MouseWheel)) return null;
+	int count = delta / OS.WHEEL_DELTA;
 	POINT pt = new POINT ();
 	OS.POINTSTOPOINT (pt, lParam);
 	OS.ScreenToClient (hwnd, pt);

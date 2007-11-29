@@ -54,8 +54,9 @@ import org.eclipse.swt.events.*;
  * </pre></code>
  * </p><p>
  * Note that although this class is a subclass of <code>Composite</code>,
- * it does not make sense to add <code>Control</code> children to it,
- * or set a layout on it.
+ * it does not normally make sense to add <code>Control</code> children to
+ * it, or set a layout on it, unless implementing something like a cell
+ * editor.
  * </p><p>
  * <dl>
  * <dt><b>Styles:</b></dt>
@@ -748,17 +749,16 @@ LRESULT CDDS_ITEMPOSTPAINT (NMTVCUSTOMDRAW nmcd, int /*long*/ wParam, int /*long
 					if (image != null) {
 						Rectangle bounds = image.getBounds ();
 						if (size == null) size = getImageSize ();
-						//int y = rect.top + (index == 0 ? (getItemHeight () - size.y) / 2 : 0);
-						int y = rect.top;
 						if (!ignoreDrawForeground) {
-							//TODO - share GC, clip the drawing for index == 0
+							//int y1 = rect.top + (index == 0 ? (getItemHeight () - size.y) / 2 : 0);
+							int y1 = rect.top;
+							int x1 = Math.max (rect.left, rect.left - inset + 1);
 							GCData data = new GCData();
 							data.device = display;
 							GC gc = GC.win32_new (hDC, data);
-							//if (index == 0) { //must clear
-								//gc.setClipping (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
-							//}
-							gc.drawImage (image, 0, 0, bounds.width, bounds.height, rect.left - inset + 1, y, size.x, size.y);
+							gc.setClipping (x1, rect.top, rect.right - x1, rect.bottom - rect.top);
+							gc.drawImage (image, 0, 0, bounds.width, bounds.height, x1, y1, size.x, size.y);
+							OS.SelectClipRgn (hDC, 0);
 							gc.dispose ();
 						}
 						OS.SetRect (rect, rect.left + size.x + offset, rect.top, rect.right - inset, rect.bottom);
@@ -4039,7 +4039,7 @@ public void setLinesVisible (boolean show) {
 int /*long*/ scrolledHandle () {
 	if (hwndHeader == 0) return handle;
 	int count = (int)/*64*/OS.SendMessage (hwndHeader, OS.HDM_GETITEMCOUNT, 0, 0);
-	return count == 0 ? handle : hwndParent;
+	return count == 0 && scrollWidth == 0 ? handle : hwndParent;
 }
 
 void select (int /*long*/ hItem, TVITEM tvItem) {
@@ -5648,7 +5648,10 @@ LRESULT WM_KEYDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 					tvItem.stateMask = OS.TVIS_SELECTED;
 					int /*long*/ hDeselectItem = hItem;					
 					RECT rect1 = new RECT ();
-					OS.TreeView_GetItemRect (handle, hAnchor, rect1, false);
+					if (!OS.TreeView_GetItemRect (handle, hAnchor, rect1, false)) {
+						hAnchor = hItem;
+						OS.TreeView_GetItemRect (handle, hAnchor, rect1, false);
+					}
 					RECT rect2 = new RECT ();
 					OS.TreeView_GetItemRect (handle, hDeselectItem, rect2, false);
 					int flags = rect1.top < rect2.top ? OS.TVGN_PREVIOUSVISIBLE : OS.TVGN_NEXTVISIBLE;
@@ -5885,9 +5888,9 @@ LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 			return LRESULT.ZERO;
 		}
 		boolean fixSelection = false, deselected = false;
+		int /*long*/ hOldSelection = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
 		if (lpht.hItem != 0 && (style & SWT.MULTI) != 0) {
-			int /*long*/ hSelection = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
-			if (hSelection != 0) {
+			if (hOldSelection != 0) {
 				TVITEM tvItem = new TVITEM ();
 				tvItem.mask = OS.TVIF_HANDLE | OS.TVIF_STATE;
 				tvItem.hItem = lpht.hItem;
@@ -5897,6 +5900,7 @@ LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 					tvItem.stateMask = OS.TVIS_SELECTED;
 					int /*long*/ hNext = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_NEXTVISIBLE, lpht.hItem);
 					while (hNext != 0) {
+						if (hNext == hAnchor) hAnchor = 0;
 						tvItem.hItem = hNext;
 						OS.SendMessage (handle, OS.TVM_GETITEM, 0, tvItem);
 						if ((tvItem.state & OS.TVIS_SELECTED) != 0) deselected = true;
@@ -5915,6 +5919,8 @@ LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 		if (fixSelection) ignoreDeselect = ignoreSelect = lockSelection = true;
 		int /*long*/ code = callWindowProc (handle, OS.WM_LBUTTONDOWN, wParam, lParam);
 		if (fixSelection) ignoreDeselect = ignoreSelect = lockSelection = false;
+		int /*long*/ hNewSelection = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
+		if (hOldSelection != hNewSelection) hAnchor = hNewSelection;
 		if (dragStarted) {
 			if (!display.captureChanged && !isDisposed ()) {
 				if (OS.GetCapture () != handle) OS.SetCapture (handle);
@@ -6071,12 +6077,14 @@ LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 	if ((style & SWT.FULL_SELECTION) != 0) {
 		int bits = OS.GetWindowLong (handle, OS.GWL_STYLE);
 		if ((bits & OS.TVS_FULLROWSELECT) == 0) {
-			if (hNewItem == hOldItem && lpht.hItem != hOldItem) {
-				OS.SendMessage (handle, OS.TVM_SELECTITEM, OS.TVGN_CARET, lpht.hItem);
-				hNewItem = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
-			}
-			if (!dragStarted && lpht.hItem != 0 && (state & DRAG_DETECT) != 0 && hooks (SWT.DragDetect)) {
-				dragStarted = dragDetect (handle, lpht.x, lpht.y, false, null, null);
+			if (lpht.hItem != 0) {
+				if (hOldItem == 0 || (hNewItem == hOldItem && lpht.hItem != hOldItem)) {
+					OS.SendMessage (handle, OS.TVM_SELECTITEM, OS.TVGN_CARET, lpht.hItem);
+					hNewItem = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
+				}
+				if (!dragStarted && (state & DRAG_DETECT) != 0 && hooks (SWT.DragDetect)) {
+					dragStarted = dragDetect (handle, lpht.x, lpht.y, false, null, null);
+				}
 			}
 		}
 	}

@@ -216,6 +216,12 @@ LRESULT WM_IME_COMPOSITION (int /*long*/ wParam, int /*long*/ lParam) {
 			if (length > 0) {
 				buffer = new TCHAR (codePage, length / TCHAR.sizeof);
 				OS.ImmGetCompositionString (hIMC, OS.GCS_RESULTSTR, buffer, length);
+				if (startOffset == -1) {
+					Event event = new Event ();
+					event.detail = SWT.COMPOSITION_SELECTION;
+					sendEvent (SWT.ImeComposition, event);
+					startOffset = event.start;
+				}
 				Event event = new Event ();
 				event.detail = SWT.COMPOSITION_CHANGED;
 				event.start = startOffset;
@@ -308,7 +314,7 @@ LRESULT WM_IME_COMPOSITION (int /*long*/ wParam, int /*long*/ lParam) {
 								style.underline = attr.lsStyle != OS.TF_LS_NONE;
 								switch (attr.lsStyle) {
 									case OS.TF_LS_SQUIGGLE:
-										style.underlineStyle = SWT.UNDERLINE_ERROR;
+										style.underlineStyle = SWT.UNDERLINE_SQUIGGLE;
 										break;
 									case OS.TF_LS_DASH:
 										style.underlineStyle = UNDERLINE_IME_DASH; 

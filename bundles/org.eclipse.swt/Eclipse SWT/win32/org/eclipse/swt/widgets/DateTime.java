@@ -11,6 +11,8 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.*;
+
 import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
@@ -328,6 +330,12 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 void createHandle () {
 	super.createHandle ();
 	state &= ~(CANVAS | THEME_BACKGROUND);
+	
+	if ((style & SWT.BORDER) == 0) {
+		int bits = OS.GetWindowLong (handle, OS.GWL_EXSTYLE);
+		bits &= ~(OS.WS_EX_CLIENTEDGE | OS.WS_EX_STATICEDGE);
+		OS.SetWindowLong (handle, OS.GWL_EXSTYLE, bits);
+	}
 }
 
 int defaultBackground () {
@@ -537,8 +545,11 @@ public int getMonth () {
 	return systime.wMonth - 1;
 }
 
-String getNameText () {
-	return "DateTime";
+String getNameText() {
+	Calendar cal = Calendar.getInstance();
+	cal.set(getYear(), getMonth(), getDay(), 
+			getHours(), getMinutes(), getSeconds());
+	return cal.getTime().toString();
 }
 
 /**

@@ -48,8 +48,9 @@ import org.eclipse.swt.events.*;
  * </pre></code>
  * </p><p>
  * Note that although this class is a subclass of <code>Composite</code>,
- * it does not make sense to add <code>Control</code> children to it,
- * or set a layout on it.
+ * it does not normally make sense to add <code>Control</code> children to
+ * it, or set a layout on it, unless implementing something like a cell
+ * editor.
  * </p><p>
  * <dl>
  * <dt><b>Styles:</b></dt>
@@ -84,6 +85,8 @@ public class Table extends Composite {
 	static final int HEADER_EXTRA = 3;
 	static final int VISTA_EXTRA = 2;
 	static final int EXPLORER_EXTRA = 2;
+	static final int H_SCROLL_LIMIT = 32;
+	static final int V_SCROLL_LIMIT = 16;
 	static final boolean EXPLORER_THEME = true;
 	static final int /*long*/ TableProc;
 	static final TCHAR TableClass = new TCHAR (0, OS.WC_LISTVIEW, true);
@@ -2229,7 +2232,7 @@ public int getItemCount () {
 
 /**
  * Returns the height of the area which would be used to
- * display <em>one</em> of the items in the receiver's.
+ * display <em>one</em> of the items in the receiver.
  *
  * @return the height of one item
  *
@@ -5546,12 +5549,12 @@ LRESULT WM_HSCROLL (int /*long*/ wParam, int /*long*/ lParam) {
 	}
 	
 	/*
-	* When there are many columns in a table, scrolling performance
-	* can be improved by temporarily unsubclassing the window proc
-	* so that internal messages are dispatched directly to the table.
-	* If the application expects to see a paint event or has a child
-	* whose font, foreground or background color might be needed,
-	* the window proc cannot be unsubclassed
+	* Feature in Windows.  When there are many columns in a table,
+	* scrolling performance can be improved by unsubclassing the
+	* window proc so that internal messages are dispatched directly
+	* to the table.  If the application expects to see a paint event
+	* or has a child whose font, foreground or background color might
+	* be needed, the window proc cannot be unsubclassed
 	* 
 	* NOTE: The header tooltip can subclass the header proc so the
 	* current proc must be restored or header tooltips stop working.
@@ -5563,7 +5566,58 @@ LRESULT WM_HSCROLL (int /*long*/ wParam, int /*long*/ lParam) {
 		oldTableProc = OS.SetWindowLongPtr (handle, OS.GWLP_WNDPROC, TableProc);
 		oldHeaderProc = OS.SetWindowLongPtr (hwndHeader, OS.GWLP_WNDPROC, HeaderProc);
 	}
+	
+	/*
+	* Feature in Windows.  For some reason, when the table window
+	* proc processes WM_HSCROLL or WM_VSCROLL when there are many
+	* columns in the table, scrolling is slow and the table does
+	* not keep up with the position of the scroll bar.  The fix
+	* is to turn off redraw, scroll, turn redraw back on and redraw
+	* the entire table.  Strangly, redrawing the entire table is
+	* faster.
+	*/
+	boolean fixScroll = false;
+	if (OS.LOWORD (wParam) != OS.SB_ENDSCROLL) {
+		if (OS.COMCTL32_MAJOR >= 6) {
+			if (columnCount > H_SCROLL_LIMIT) {
+				int rowCount = (int)/*64*/OS.SendMessage (handle, OS.LVM_GETCOUNTPERPAGE, 0, 0);
+				if (rowCount > V_SCROLL_LIMIT) fixScroll = drawCount == 0 && OS.IsWindowVisible (handle);
+			}
+		}
+	}
+	if (fixScroll) OS.DefWindowProc (handle, OS.WM_SETREDRAW, 0, 0);
 	LRESULT result = super.WM_HSCROLL (wParam, lParam);
+	if (fixScroll) {
+		OS.DefWindowProc (handle, OS.WM_SETREDRAW, 1, 0);
+		int flags = OS.RDW_ERASE | OS.RDW_FRAME | OS.RDW_INVALIDATE | OS.RDW_ALLCHILDREN;
+		OS.RedrawWindow (handle, null, 0, flags);
+		/*
+		* Feature in Windows.  On Vista only, it is faster to
+		* compute and answer the data for the visible columns
+		* of a table when scrolling, rather than just return
+		* the data for each column when asked.
+		*/
+		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
+			RECT headerRect = new RECT (), rect = new RECT ();
+			OS.GetClientRect (handle, rect);
+			boolean [] visible = new boolean [columnCount];
+			for (int i=0; i<columnCount; i++) {
+				visible [i] = true;
+				if (OS.SendMessage (hwndHeader, OS.HDM_GETITEMRECT, i, headerRect) != 0) {
+					OS.MapWindowPoints (hwndHeader, handle, headerRect, 2);
+					visible [i] = OS.IntersectRect(headerRect, rect, headerRect);
+				}
+			}
+			try {
+				display.hwndParent = OS.GetParent (handle);
+				display.columnVisible = visible;
+				OS.UpdateWindow (handle);
+			} finally {
+				display.columnVisible = null;
+			}
+		}
+	}
+
 	if (fixSubclass) {
 		OS.SetWindowLongPtr (handle, OS.GWLP_WNDPROC, oldTableProc);
 		OS.SetWindowLongPtr (hwndHeader, OS.GWLP_WNDPROC, oldHeaderProc);
@@ -5611,7 +5665,58 @@ LRESULT WM_VSCROLL (int /*long*/ wParam, int /*long*/ lParam) {
 		oldTableProc = OS.SetWindowLongPtr (handle, OS.GWLP_WNDPROC, TableProc);
 		oldHeaderProc = OS.SetWindowLongPtr (hwndHeader, OS.GWLP_WNDPROC, HeaderProc);
 	}
+
+	/*
+	* Feature in Windows.  For some reason, when the table window
+	* proc processes WM_HSCROLL or WM_VSCROLL when there are many
+	* columns in the table, scrolling is slow and the table does
+	* not keep up with the position of the scroll bar.  The fix
+	* is to turn off redraw, scroll, turn redraw back on and redraw
+	* the entire table.  Strangly, redrawing the entire table is
+	* faster.
+	*/
+	boolean fixScroll = false;
+	if (OS.LOWORD (wParam) != OS.SB_ENDSCROLL) {
+		if (OS.COMCTL32_MAJOR >= 6) {
+			if (columnCount > H_SCROLL_LIMIT) {
+				int rowCount = (int)/*64*/OS.SendMessage (handle, OS.LVM_GETCOUNTPERPAGE, 0, 0);
+				if (rowCount > V_SCROLL_LIMIT) fixScroll = drawCount == 0 && OS.IsWindowVisible (handle);
+			}
+		}
+	}
+	if (fixScroll) OS.DefWindowProc (handle, OS.WM_SETREDRAW, 0, 0);
 	LRESULT result = super.WM_VSCROLL (wParam, lParam);
+	if (fixScroll) {
+		OS.DefWindowProc (handle, OS.WM_SETREDRAW, 1, 0);
+		int flags = OS.RDW_ERASE | OS.RDW_FRAME | OS.RDW_INVALIDATE | OS.RDW_ALLCHILDREN;
+		OS.RedrawWindow (handle, null, 0, flags);
+		/*
+		* Feature in Windows.  On Vista only, it is faster to
+		* compute and answer the data for the visible columns
+		* of a table when scrolling, rather than just return
+		* the data for each column when asked.
+		*/
+		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
+			RECT headerRect = new RECT (), rect = new RECT ();
+			OS.GetClientRect (handle, rect);
+			boolean [] visible = new boolean [columnCount];
+			for (int i=0; i<columnCount; i++) {
+				visible [i] = true;
+				if (OS.SendMessage (hwndHeader, OS.HDM_GETITEMRECT, i, headerRect) != 0) {
+					OS.MapWindowPoints (hwndHeader, handle, headerRect, 2);
+					visible [i] = OS.IntersectRect(headerRect, rect, headerRect);
+				}
+			}
+			try {
+				display.hwndParent = OS.GetParent (handle);
+				display.columnVisible = visible;
+				OS.UpdateWindow (handle);
+			} finally {
+				display.columnVisible = null;
+			}
+		}
+	}
+	
 	if (fixSubclass) {
 		OS.SetWindowLongPtr (handle, OS.GWLP_WNDPROC, oldTableProc);
 		OS.SetWindowLongPtr (hwndHeader, OS.GWLP_WNDPROC, oldHeaderProc);
@@ -5888,6 +5993,12 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 //			if (drawCount != 0 || !OS.IsWindowVisible (handle)) break;
 			NMLVDISPINFO plvfi = new NMLVDISPINFO ();
 			OS.MoveMemory (plvfi, lParam, NMLVDISPINFO.sizeof);
+			
+			boolean [] visible = display.columnVisible;
+			if (visible != null && !visible [plvfi.iSubItem]) {
+				//System.out.println("skip: " + plvfi.iSubItem);
+				break;
+			}
 			
 			/*
 			* When an item is being deleted from a virtual table, do not

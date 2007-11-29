@@ -33,6 +33,10 @@ class PromptDialog extends Dialog {
 		Label label = new Label(shell, SWT.WRAP);
 		label.setText(text);
 		GridData data = new GridData();
+		Monitor monitor = parent.getMonitor();
+		int maxWidth = monitor.getBounds().width * 2 / 3;
+		int width = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		data.widthHint = Math.min(width, maxWidth);
 		data.horizontalAlignment = GridData.FILL;
 		data.grabExcessHorizontalSpace = true;
 		label.setLayoutData (data);
@@ -74,10 +78,14 @@ class PromptDialog extends Dialog {
 		Label label = new Label(shell, SWT.WRAP);
 		label.setText(text);
 		GridData data = new GridData();
+		Monitor monitor = parent.getMonitor();
+		int maxWidth = monitor.getBounds().width * 2 / 3;
+		int width = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		data.widthHint = Math.min(width, maxWidth);
 		data.horizontalAlignment = GridData.FILL;
 		data.grabExcessHorizontalSpace = true;
 		label.setLayoutData (data);
-		
+
 		final Button[] buttons = new Button[4];
 		Listener listener = new Listener() {
 			public void handleEvent(Event event) {
@@ -102,24 +110,34 @@ class PromptDialog extends Dialog {
 		}
 		Composite composite = new Composite(shell, SWT.NONE);
 		data = new GridData();
-		data.horizontalAlignment = GridData.END;
+		data.horizontalAlignment = GridData.CENTER;
 		composite.setLayoutData (data);
-		composite.setLayout(new RowLayout());
+		GridLayout layout = new GridLayout();
+		layout.makeColumnsEqualWidth = true;
+		composite.setLayout(layout);
+		int buttonCount = 0;
 		if (button0 != null) {
 			buttons[1] = new Button(composite, SWT.PUSH);
 			buttons[1].setText(button0);
 			buttons[1].addListener(SWT.Selection, listener);
+			buttons[1].setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			buttonCount++;
 		}
 		if (button1 != null) {
 			buttons[2] = new Button(composite, SWT.PUSH);
 			buttons[2].setText(button1);
 			buttons[2].addListener(SWT.Selection, listener);
+			buttons[2].setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			buttonCount++;
 		}
 		if (button2 != null) {
 			buttons[3] = new Button(composite, SWT.PUSH);
 			buttons[3].setText(button2);
 			buttons[3].addListener(SWT.Selection, listener);
+			buttons[3].setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			buttonCount++;
 		}
+		layout.numColumns = buttonCount;
 		Button defaultButton = buttons [defaultIndex + 1];
 		if (defaultButton != null) shell.setDefaultButton (defaultButton);
 
@@ -140,6 +158,10 @@ class PromptDialog extends Dialog {
 		Label label = new Label(shell, SWT.WRAP);
 		label.setText(text);
 		GridData data = new GridData();
+		Monitor monitor = parent.getMonitor();
+		int maxWidth = monitor.getBounds().width * 2 / 3;
+		int width = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		data.widthHint = Math.min(width, maxWidth);
 		data.horizontalAlignment = GridData.FILL;
 		data.grabExcessHorizontalSpace = true;
 		label.setLayoutData (data);
@@ -147,10 +169,12 @@ class PromptDialog extends Dialog {
 		final Text valueText = new Text(shell, SWT.BORDER);
 		if (value[0] != null) valueText.setText(value[0]);
 		data = new GridData();
+		width = valueText.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+		if (width > maxWidth) data.widthHint = maxWidth;
 		data.horizontalAlignment = GridData.FILL;
 		data.grabExcessHorizontalSpace = true;
 		valueText.setLayoutData(data);
-				
+
 		final Button[] buttons = new Button[3];
 		Listener listener = new Listener() {
 			public void handleEvent(Event event) {
@@ -170,7 +194,7 @@ class PromptDialog extends Dialog {
 		}
 		Composite composite = new Composite(shell, SWT.NONE);
 		data = new GridData();
-		data.horizontalAlignment = GridData.END;
+		data.horizontalAlignment = GridData.CENTER;
 		composite.setLayoutData (data);
 		composite.setLayout(new GridLayout(2, true));
 		buttons[1] = new Button(composite, SWT.PUSH);
@@ -243,7 +267,7 @@ class PromptDialog extends Dialog {
 		}
 		Composite composite = new Composite(shell, SWT.NONE);
 		data = new GridData();
-		data.horizontalAlignment = GridData.END;
+		data.horizontalAlignment = GridData.CENTER;
 		composite.setLayoutData (data);
 		composite.setLayout(new GridLayout(2, true));
 		buttons[1] = new Button(composite, SWT.PUSH);

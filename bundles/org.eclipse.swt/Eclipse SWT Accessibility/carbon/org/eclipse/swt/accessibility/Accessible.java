@@ -220,6 +220,8 @@ public class Accessible {
 	 */
 	public int internal_kEventAccessibleGetChildAtPoint (int nextHandler, int theEvent, int userData) {
 		if (axuielementref != 0) {
+			int code = OS.CallNextEventHandler (nextHandler, theEvent);
+			//TODO: check error?
 			int childID = getChildIDFromEvent(theEvent);
 			CGPoint pt = new CGPoint ();
 			OS.GetEventParameter (theEvent, OS.kEventParamMouseLocation, OS.typeHIPoint, null, CGPoint.sizeof, null, pt);
@@ -260,12 +262,14 @@ public class Accessible {
 	 */
 	public int internal_kEventAccessibleGetFocusedChild (int nextHandler, int theEvent, int userData) {
 		if (axuielementref != 0) {
+			int code = OS.CallNextEventHandler (nextHandler, theEvent);
+			//TODO: check error?
 			int childID = getChildIDFromEvent(theEvent);
 			if (childID != ACC.CHILDID_SELF) {
-				/* From the Carbon doc for kEventAccessibleGetFocusedChild: "Only return immediate children;
-				 * do not return grandchildren of yourself."
+				/* From the Carbon doc for kEventAccessibleGetFocusedChild:
+				 * "Only return immediate children; do not return grandchildren of yourself."
 				 */
-				return OS.noErr;
+				return OS.noErr; //TODO: should this return eventNotHandledErr?
 			}
 			AccessibleControlEvent event = new AccessibleControlEvent(this);
 			event.childID = ACC.CHILDID_MULTIPLE; // set to invalid value, to test if the application sets it in getFocus()
@@ -283,7 +287,7 @@ public class Accessible {
 			
 			/* Or the application can answer a valid child ID, including CHILDID_SELF and CHILDID_NONE. */
 			if (event.childID == ACC.CHILDID_SELF) {
-				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleChild, OS.typeCFTypeRef, 4, new int[] {axuielementref});
+				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleChild, OS.typeCFTypeRef, 4, new int[] {0});
 				return OS.noErr;
 			}
 			if (event.childID == ACC.CHILDID_NONE) {
@@ -300,13 +304,70 @@ public class Accessible {
 				return OS.noErr;
 			}
 			
-			/* Invalid childID means the application did not implement getFocus, so return the native focus. */
-			if (control.isFocusControl()) {
-				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleChild, OS.typeCFTypeRef, 4, new int[] {axuielementref});
-				return OS.noErr;
+			/* Invalid childID means the application did not implement getFocus, so just go with the default handler. */
+		}
+		return OS.eventNotHandledErr;
+	}
+	
+	/**
+	 * Invokes platform specific functionality to handle a window message.
+	 * <p>
+	 * <b>IMPORTANT:</b> This method is <em>not</em> part of the public
+	 * API for <code>Accessible</code>. It is marked public only so that it
+	 * can be shared within the packages provided by SWT. It is not
+	 * available on all platforms, and should never be called from
+	 * application code.
+	 * </p>
+	 */
+	public int internal_kEventAccessibleGetAllAttributeNames (int nextHandler, int theEvent, int userData) {
+		if (axuielementref != 0) {
+			int code = OS.CallNextEventHandler (nextHandler, theEvent);
+			int stringArrayRef = 0;
+			if (code != OS.noErr) {
+				int [] arrayRef = new int[1];
+				OS.GetEventParameter (theEvent, OS.kEventParamAccessibleAttributeNames, OS.typeCFMutableArrayRef, null, 4, null, arrayRef);
+				stringArrayRef = arrayRef[0];
+			}
+			if (stringArrayRef == 0) {
+				stringArrayRef = OS.CFArrayCreateMutable (OS.kCFAllocatorDefault, 0, 0);
+			}
+			int length = OS.CFArrayGetCount(stringArrayRef);
+			String [] osAllAttributes = new String [length];
+			for (int i = 0; i < length; i++) {
+				int stringRef = OS.CFArrayGetValueAtIndex(stringArrayRef, i);
+				osAllAttributes[i] = stringRefToString (stringRef);
+			}
+			/* Add our list of supported attributes to the array.
+			 * Make sure each attribute name is not already in the array before appending.
+			 */
+			for (int i = 0; i < requiredAttributes.length; i++) {
+				if (!contains(osAllAttributes, requiredAttributes[i])) {
+					int stringRef = stringToStringRef(requiredAttributes[i]);
+					OS.CFArrayAppendValue(stringArrayRef, stringRef);
+					OS.CFRelease(stringRef);
+				}
+			}
+			if (accessibleTextListeners.size() > 0) {
+				for (int i = 0; i < textAttributes.length; i++) {
+					if (!contains(osAllAttributes, textAttributes[i])) {
+						int stringRef = stringToStringRef(textAttributes[i]);
+						OS.CFArrayAppendValue(stringArrayRef, stringRef);
+						OS.CFRelease(stringRef);
+					}
+				}
+			}
+			return OS.noErr;
+		}
+		return OS.eventNotHandledErr;
+	}
+	
+	boolean contains (String [] array, String element) {
+		for (int i = 0; i < array.length; i++) {
+			if (array[i].equals(element)) {
+				return true;
 			}
 		}
-		return OS.noErr;
+		return false;
 	}
 	
 	/**
@@ -338,52 +399,18 @@ public class Accessible {
 			if (attributeName.equals(OS.kAXValueAttribute)) return getValueAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXEnabledAttribute)) return getEnabledAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXFocusedAttribute)) return getFocusedAttribute(nextHandler, theEvent, userData);
-			//if (attributeName.equals(OS.kAXFocusedUIElementAttribute)) return getFocusedAttribute(nextHandler, theEvent, userData);
-			//if (attributeName.equals(OS.kAXFocusedWindowAttribute)) return getFocusedAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXParentAttribute)) return getParentAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXChildrenAttribute)) return getChildrenAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXSelectedChildrenAttribute)) return getSelectedChildrenAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXVisibleChildrenAttribute)) return getVisibleChildrenAttribute(nextHandler, theEvent, userData);
-			if (attributeName.equals(OS.kAXWindowAttribute)) return getWindowAttribute(nextHandler, theEvent, userData);
-			if (attributeName.equals(OS.kAXTopLevelUIElementAttribute)) return getTopLevelUIElementAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXPositionAttribute)) return getPositionAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXSizeAttribute)) return getSizeAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXDescriptionAttribute)) return getDescriptionAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXNumberOfCharactersAttribute)) return getNumberOfCharactersAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXSelectedTextAttribute)) return getSelectedTextAttribute(nextHandler, theEvent, userData);
 			if (attributeName.equals(OS.kAXSelectedTextRangeAttribute)) return getSelectedTextRangeAttribute(nextHandler, theEvent, userData);
-			if (attributeName.equals(OS.kAXInsertionPointLineNumberAttribute)) return getInsertionPointLineNumberAttribute(nextHandler, theEvent, userData);
+			if (attributeName.equals(OS.kAXStringForRangeParameterizedAttribute)) return getStringForRangeAttribute(nextHandler, theEvent, userData);
 			return getAttribute(nextHandler, theEvent, userData);
-		}
-		return OS.eventNotHandledErr;
-	}
-	
-	public int internal_kEventAccessibleGetAllAttributeNames (int nextHandler, int theEvent, int userData) {
-		if (axuielementref != 0) {
-			int [] arrayRef = new int[1];
-			OS.GetEventParameter (theEvent, OS.kEventParamAccessibleAttributeNames, OS.typeCFMutableArrayRef, null, 4, null, arrayRef);
-			int stringArrayRef = arrayRef[0];
-			// TODO make sure each attribute name is not a dup before appending?
-//			int length = OS.CFArrayGetCount(stringArrayRef);
-//			String [] osAllAttributes = new String [length];
-//			for (int i = 0; i < length; i++) {
-//				int stringRef = OS.CFArrayGetValueAtIndex(stringArrayRef, i);
-//				osAllAttributes[i] = stringRefToString (stringRef);
-//			}
-			/* Add our list of supported attributes to the array. */
-			for (int i = 0; i < requiredAttributes.length; i++) {
-				int stringRef = stringToStringRef(requiredAttributes[i]);
-				OS.CFArrayAppendValue(stringArrayRef, stringRef);
-				OS.CFRelease(stringRef);
-			}
-			if (accessibleTextListeners.size() > 0) {
-				for (int i = 0; i < textAttributes.length; i++) {
-					int stringRef = stringToStringRef(textAttributes[i]);
-					OS.CFArrayAppendValue(stringArrayRef, stringRef);
-					OS.CFRelease(stringRef);
-				}
-			}
-			return OS.noErr;
 		}
 		return OS.eventNotHandledErr;
 	}
@@ -391,9 +418,12 @@ public class Accessible {
 	int getAttribute (int nextHandler, int theEvent, int userData) {
 		int code = OS.CallNextEventHandler (nextHandler, theEvent);
 		if (code == OS.eventNotHandledErr) {
-			/* If the childID was created by the application, delegate to the accessible for the control. */
-			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleObject, OS.typeCFTypeRef, 4, new int [] {axuielementref});
-			code = OS.CallNextEventHandler (nextHandler, theEvent);
+			int childID = getChildIDFromEvent(theEvent);
+			if (childID != ACC.CHILDID_SELF) {
+				/* If the childID was created by the application, delegate to the accessible for the control. */
+				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleObject, OS.typeCFTypeRef, 4, new int [] {axuielementref});
+				code = OS.CallNextEventHandler (nextHandler, theEvent);
+			}
 		}
 		return code;
 	}
@@ -443,7 +473,7 @@ public class Accessible {
 				return OS.noErr;
 			}
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getSubroleAttribute (int nextHandler, int theEvent, int userData) {
@@ -467,7 +497,7 @@ public class Accessible {
 			}
 			return OS.noErr;
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getRoleDescriptionAttribute (int nextHandler, int theEvent, int userData) {
@@ -500,7 +530,7 @@ public class Accessible {
 				}
 			}
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getTitleAttribute (int nextHandler, int theEvent, int userData) {
@@ -528,7 +558,6 @@ public class Accessible {
 				return OS.noErr;
 			}
 		}
-		//return OS.CallNextEventHandler (nextHandler, theEvent);
 		return code;
 	}
 	
@@ -538,7 +567,7 @@ public class Accessible {
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		event.childID = childID;
 		event.detail = -1;
-		event.result = null;
+		event.result = null; //TODO: could pass the OS value to the app
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
 			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
 			listener.getRole(event);
@@ -602,8 +631,12 @@ public class Accessible {
 	}
 	
 	int getEnabledAttribute (int nextHandler, int theEvent, int userData) {
-		OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeBoolean, 4, new boolean [] {control.isEnabled()});
-		return OS.noErr;
+		int code = OS.CallNextEventHandler (nextHandler, theEvent);
+		if (code == OS.eventNotHandledErr) {
+			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeBoolean, 4, new boolean [] {control.isEnabled()});
+			return OS.noErr;
+		}
+		return code;
 	}
 	
 	int getFocusedAttribute (int nextHandler, int theEvent, int userData) {
@@ -641,20 +674,22 @@ public class Accessible {
 			return OS.noErr;
 		}
 
-		/* Invalid childID means the application did not implement getFocus, so return the native focus. */
-		if (OS.CFEqual(axuielementref, osChildID[0])) {
-			boolean hasFocus =  control.isFocusControl();
-			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeBoolean, 4, new boolean [] {hasFocus});
-			return OS.noErr;
+		/* Invalid childID at this point means the application did not implement getFocus, so return the native focus. */
+		boolean hasFocus = false;
+		int focusWindow = OS.GetUserFocusWindow ();
+		if (focusWindow != 0) {
+			int [] focusControl = new int [1];
+			OS.GetKeyboardFocus (focusWindow, focusControl);
+			if (focusControl [0] == control.handle) hasFocus = true;
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeBoolean, 4, new boolean [] {hasFocus});
+		return OS.noErr;
 	}
 	
 	int getParentAttribute (int nextHandler, int theEvent, int userData) {
 		int code = OS.CallNextEventHandler (nextHandler, theEvent);
 		if (code == OS.eventNotHandledErr) {
 			/* If the childID was created by the application, the parent is the accessible for the control. */
-			// TODO: typeCFTypeRef?... should be AXUIElementRef
 			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFTypeRef, 4, new int [] {axuielementref});
 			return OS.noErr;
 		}
@@ -697,22 +732,16 @@ public class Accessible {
 				}
 			}
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getSelectedChildrenAttribute (int nextHandler, int theEvent, int userData) {
+		//TODO
 		return getAttribute (nextHandler, theEvent, userData);
 	}
 	
 	int getVisibleChildrenAttribute (int nextHandler, int theEvent, int userData) {
-		return getAttribute (nextHandler, theEvent, userData);
-	}
-	
-	int getWindowAttribute (int nextHandler, int theEvent, int userData) {
-		return getAttribute (nextHandler, theEvent, userData);
-	}
-	
-	int getTopLevelUIElementAttribute (int nextHandler, int theEvent, int userData) {
+		//TODO
 		return getAttribute (nextHandler, theEvent, userData);
 	}
 	
@@ -757,7 +786,31 @@ public class Accessible {
 		}
 	
 	int getDescriptionAttribute (int nextHandler, int theEvent, int userData) {
-		return getAttribute (nextHandler, theEvent, userData);
+		int code = OS.CallNextEventHandler (nextHandler, theEvent);
+		String osDescriptionAttribute = null;
+		int [] stringRef = new int [1];
+		if (code == OS.noErr) {
+			int status = OS.GetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, null, 4, null, stringRef);
+			if (status == OS.noErr) {
+				osDescriptionAttribute = stringRefToString (stringRef [0]);
+			}
+		}
+		AccessibleEvent event = new AccessibleEvent(this);
+		event.childID = getChildIDFromEvent(theEvent);
+		event.result = osDescriptionAttribute;
+		for (int i = 0; i < accessibleListeners.size(); i++) {
+			AccessibleListener listener = (AccessibleListener) accessibleListeners.elementAt(i);
+			listener.getName(event);
+		}
+		if (event.result != null) {
+			stringRef [0] = stringToStringRef (event.result);
+			if (stringRef [0] != 0) {
+				OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, stringRef);
+				OS.CFRelease(stringRef [0]);
+				return OS.noErr;
+			}
+		}
+		return code;
 	}
 	
 	int getNumberOfCharactersAttribute (int nextHandler, int theEvent, int userData) {
@@ -773,7 +826,7 @@ public class Accessible {
 			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeSInt32, 4, new int [] {appValue.length()});
 			return OS.noErr;
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getSelectedTextAttribute (int nextHandler, int theEvent, int userData) {
@@ -805,7 +858,7 @@ public class Accessible {
 				}
 			}
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	int getSelectedTextRangeAttribute (int nextHandler, int theEvent, int userData) {
@@ -826,22 +879,35 @@ public class Accessible {
 			OS.CFRelease(valueRef);
 			return OS.noErr;
 		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
-	int getInsertionPointLineNumberAttribute (int nextHandler, int theEvent, int userData) {
-		AccessibleTextEvent event = new AccessibleTextEvent(this);
-		event.childID = getChildIDFromEvent(theEvent);
-		event.offset = -1;
-		for (int i = 0; i < accessibleTextListeners.size(); i++) {
-			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
-			listener.getCaretOffset(event);
+	int getStringForRangeAttribute (int nextHandler, int theEvent, int userData) {
+		int valueRef [] = new int [1];
+		int status = OS.GetEventParameter (theEvent, OS.kEventParamAccessibleAttributeParameter, OS.typeCFTypeRef, null, 4, null, valueRef);
+		if (status == OS.noErr) {
+			CFRange range = new CFRange();
+			boolean ok = OS.AXValueGetValue(valueRef[0], OS.kAXValueCFRangeType, range);
+			if (ok) {
+				AccessibleControlEvent event = new AccessibleControlEvent(this);
+				event.childID = getChildIDFromEvent(theEvent);
+				event.result = null;
+				for (int i = 0; i < accessibleControlListeners.size(); i++) {
+					AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+					listener.getValue(event);
+				}
+				String appValue = event.result;
+				if (appValue != null) {
+					int stringRef = stringToStringRef (appValue.substring(range.location, range.location + range.length));
+					if (stringRef != 0) {
+						OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeCFStringRef, 4, new int [] {stringRef});
+						OS.CFRelease(stringRef);
+						return OS.noErr;
+					}
+				}
+			}
 		}
-		if (event.offset != -1) {
-			OS.SetEventParameter (theEvent, OS.kEventParamAccessibleAttributeValue, OS.typeSInt32, 4, new int [] {event.offset});
-			return OS.noErr;
-		}
-		return OS.CallNextEventHandler (nextHandler, theEvent);
+		return OS.eventNotHandledErr;
 	}
 	
 	/**
@@ -973,8 +1039,7 @@ public class Accessible {
 	 */
 	public void textCaretMoved (int index) {
 		checkWidget();
-		// TODO: Look at this in more depth
-		int stringRef = stringToStringRef(OS.kAXValueChangedNotification);
+		int stringRef = stringToStringRef(OS.kAXSelectedTextChangedNotification);
 		OS.AXNotificationHIObjectNotify(stringRef, control.handle, 0);
 		OS.CFRelease(stringRef);
 	}
@@ -1000,7 +1065,6 @@ public class Accessible {
 	 */
 	public void textChanged (int type, int startIndex, int length) {
 		checkWidget();
-		// TODO: Look at this in more depth
 		int stringRef = stringToStringRef(OS.kAXValueChangedNotification);
 		OS.AXNotificationHIObjectNotify(stringRef, control.handle, 0);
 		OS.CFRelease(stringRef);
@@ -1019,7 +1083,7 @@ public class Accessible {
 	 */
 	public void textSelectionChanged () {
 		checkWidget();
-		int stringRef = stringToStringRef(OS.kAXSelectedChildrenChangedNotification);
+		int stringRef = stringToStringRef(OS.kAXSelectedTextChangedNotification);
 		OS.AXNotificationHIObjectNotify(stringRef, control.handle, 0);
 		OS.CFRelease(stringRef);
 	}
@@ -1082,7 +1146,7 @@ public class Accessible {
 
 	String roleToOs(int role) {
 		switch (role) {
-			case ACC.ROLE_CLIENT_AREA: return OS.kAXWindowRole;
+			case ACC.ROLE_CLIENT_AREA: return OS.kAXGroupRole;
 			case ACC.ROLE_WINDOW: return OS.kAXWindowRole;
 			case ACC.ROLE_MENUBAR: return OS.kAXMenuBarRole;
 			case ACC.ROLE_MENU: return OS.kAXMenuRole;

@@ -503,8 +503,9 @@ public class StyledText extends Canvas {
 				} else {
 					//draw paragraph top in the current page and paragraph bottom in the next
 					int height = paragraphBottom - paintY;
-					gc.setClipping(paintX, paintY, width, height);
+					gc.setClipping(clientArea.x, paintY, clientArea.width, height);
 					printLine(paintX, paintY, gc, foreground, lineBackground, layout, printLayout, i);
+					gc.setClipping((Rectangle)null);
 					printDecoration(page, false, printLayout);
 					printer.endPage();					
 					page++;
@@ -513,16 +514,16 @@ public class StyledText extends Canvas {
 						printDecoration(page, true, printLayout);
 						paintY = clientArea.y - height;
 						int layoutHeight = layout.getBounds().height;
-						gc.setClipping(paintX, clientArea.y, width, layoutHeight - height);
+						gc.setClipping(clientArea.x, clientArea.y, clientArea.width, layoutHeight - height);
 						printLine(paintX, paintY, gc, foreground, lineBackground, layout, printLayout, i);
+						gc.setClipping((Rectangle)null);
 						paintY += layoutHeight;
 					}
-					gc.setClipping((Rectangle)null);
 				}
 			}
 			printerRenderer.disposeTextLayout(layout);
 		}
-		if (paintY > clientArea.y) {
+		if (page <= endPage && paintY > clientArea.y) {
 			// close partial page
 			printDecoration(page, false, printLayout);
 			printer.endPage();
@@ -609,7 +610,7 @@ public class StyledText extends Canvas {
 		}
 		if (printOptions.printLineNumbers) {
 			FontMetrics metrics = layout.getLineMetrics(0);
-			printLayout.setAscent(metrics.getAscent() + metrics.getDescent());
+			printLayout.setAscent(metrics.getAscent() + metrics.getLeading());
 			printLayout.setDescent(metrics.getDescent());
 			String[] lineLabels = printOptions.lineLabels;
 			if (lineLabels != null) {
@@ -1248,7 +1249,7 @@ public StyledText(Composite parent, int style) {
 				setCaretLocation(newCaretPos, direction);
 			}
 		};
-		BidiUtil.addLanguageListener(handle, runnable);
+		BidiUtil.addLanguageListener(this, runnable);
 	}
 	setCaret(defaultCaret);	
 	calculateScrollBars();
@@ -5026,7 +5027,7 @@ void handleDispose(Event event) {
 		rightCaretBitmap = null;
 	}
 	if (isBidiCaret()) {
-		BidiUtil.removeLanguageListener(handle);
+		BidiUtil.removeLanguageListener(this);
 	}
 	selectionBackground = null;
 	selectionForeground = null;
@@ -6806,6 +6807,7 @@ public void setCaretOffset(int offset) {
 			}
 			caretOffset = offset;
 		}
+		caretAlignment = PREVIOUS_OFFSET_TRAILING;
 		// clear the selection if the caret is moved.
 		// don't notify listeners about the selection change.
 		clearSelection(false);
@@ -7441,7 +7443,7 @@ public void setOrientation(int orientation) {
 	if ((orientation & SWT.LEFT_TO_RIGHT) != 0 && !isMirrored()) {
 		return;
 	}
-	if (!BidiUtil.setOrientation(handle, orientation)) {
+	if (!BidiUtil.setOrientation(this, orientation)) {
 		return;
 	}
 	isMirrored = (orientation & SWT.RIGHT_TO_LEFT) != 0;
@@ -7657,6 +7659,7 @@ void setSelection(int start, int length, boolean sendEvent) {
 			selectionAnchor = selection.x = start;
 			caretOffset = selection.y = end;
 		}
+		caretAlignment = PREVIOUS_OFFSET_TRAILING;
 		internalRedrawRange(selection.x, selection.y - selection.x);
 	}
 }
