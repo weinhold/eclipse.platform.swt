@@ -9,23 +9,24 @@ import org.eclipse.swt.widgets.*;
 
 public class PropertyAnimation extends Animation {
 	Object from, to;
-	String name, property;
+	String property;
 	Object target;
 	Method method;
-	Class paramType;
 	int animatorHandle, customAnimation;
-	Object nextValue;
+
+	//FIXME??? don't know how to do custom interpolation 
+	// with Cocoa
 	IInterpolator interpolator;
-	
+ 
+	//FIXME??? use key frames to do begin time???	
 	CABasicAnimation[] animations;
 		
 	void create() {
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		
 		if (animations == null) {		
 			createAnimations();
-			setTimingFunction();
 		}
+		setTimingFunction();
 		updateFromToValues();
 	}
 
@@ -101,30 +102,6 @@ public class PropertyAnimation extends Animation {
 		this.interpolator = interpolator;
 	}
 	
-	void setParamType() {
-//		if (interpolator == null) {
-//			// if using custom interpolation we cannot use OS to set property.
-//			paramType = Properties.getParamType(property);
-//		}
-//		if (paramType != null) return;
-//		String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
-//		Class clazz = target.getClass();
-//		Method[] methods = clazz.getMethods();
-//		for (int i = 0; i < methods.length; i++) {
-//			Method m = methods[i];
-//			if (m.getName().equals(mName)) {
-//				Class[] parameterTypes = m.getParameterTypes();
-//				if (parameterTypes.length == 1) {
-//					method = m;
-//					break;
-//				}
-//			}
-//		}
-////		if (method == null) error?
-//		paramType = method.getParameterTypes()[0];
-//		animatorHandle = OS.gcnew_SWTAnimator(jniRef);
-	}
-	
 	public void setProperty(String property) {
 		checkAnimation();
 		this.property = property;
@@ -142,11 +119,7 @@ public class PropertyAnimation extends Animation {
 		return keyPath;
 	}
 
-	private void setTimingFunction() {
-		int func = OS.objc_msgSend(OS.class_CAMediaTimingFunction, OS.sel_functionWithControlPoints_1_1_1_1, 0, 0, 1, 1);
-		for (int i = 0; i < animations.length; i++) {
-			OS.object_setInstanceVariable(animations[i].id, "timingFunction", func);
-		}
+	void setTimingFunction() {
 	}
 	
 	public void setTo(Object to) {

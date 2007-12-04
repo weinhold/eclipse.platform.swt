@@ -6,9 +6,6 @@ import org.eclipse.swt.widgets.*;
 public class Animation {
 	public static final int FOREVER = -1;
 	
-	static int count = 0;
-	
-	int handle, jniRef;
 	long beginTime, duration;
 	boolean disposed;
 	Widget widget;
@@ -19,20 +16,6 @@ public class Animation {
 	}
 	
 	void create () {
-//		handle = OS.gcnew_Storyboard();
-//		if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
-//		jniRef = OS.NewGlobalRef(this);
-//		if (jniRef == 0) SWT.error(SWT.ERROR_NO_HANDLES);
-//		OS.Timeline_AutoReverse(handle, autoReverse);
-//		int repeatBehavior;
-//		if (repeatCount == Animation.FOREVER) {
-//			repeatBehavior = OS.RepeatBehavior_Forever();
-//		} else {
-//			repeatBehavior = OS.gcnew_RepeatBehavior(repeatCount);
-//		}
-//		if (repeatBehavior == 0) SWT.error(SWT.ERROR_NO_HANDLES);
-//		OS.Timeline_RepeatBehavior(handle, repeatBehavior);
-//		OS.GCHandle_Free(repeatBehavior);
 	}
 	
 	void checkAnimation() {
@@ -55,19 +38,21 @@ public class Animation {
 		return duration;
 	}
 	
+	void release() {
+	}
+
+	//FIXME: don't know how to do this
+	public void resume() {
+		checkAnimation();
+	}
+	
 	public void setDuration(long duration) {
 		checkAnimation();
 		this.duration = duration;
 	}
 	
-	public void start(Widget widget) {
-		checkAnimation();
-		setWidget(widget);
-		create();
-//		addChildren();
-		updateDuration(0);
-	}
-	
+	//FIXME: Implementing this on Cocoa might
+	// be difficult. Might be better to remove.
 	public void setAutoReverse(boolean autoReverse) {
 		checkAnimation();
 		this.autoReverse = autoReverse;
@@ -84,33 +69,28 @@ public class Animation {
 		this.repeatCount = repeatCount;
 	}
 	
-	long updateDuration(long delay) {
-		return delay+beginTime+duration;
-	}
-	
 	void setWidget(Widget widget) {
 		this.widget = widget;
 	}
 	
+	public void start(Widget widget) {
+		checkAnimation();
+		setWidget(widget);
+		create();
+//		addChildren();
+		updateDuration(0);
+	}
+	
+	//FIXME: don't know how to do this
 	public void stop() {
 		checkAnimation();
-//		if (widget != null) OS.Storyboard_Stop(handle, widget.handle);
 	}
-	
+	//FIXME: don't know how to do this	
 	public void pause() {
 		checkAnimation();
-//		if (widget != null) OS.Storyboard_Pause(handle, widget.handle);
 	}
 	
-	void release() {
-//		if (handle != 0) OS.GCHandle_Free(handle);
-//		handle = 0;
-//		if (jniRef != 0) OS.DeleteGlobalRef(jniRef);
-//		jniRef = 0;
-	}
-
-	public void resume() {
-		checkAnimation();
-//		if (widget != null) OS.Storyboard_Resume(handle, widget.handle);
+	long updateDuration(long delay) {
+		return delay+beginTime+duration;
 	}
 }
