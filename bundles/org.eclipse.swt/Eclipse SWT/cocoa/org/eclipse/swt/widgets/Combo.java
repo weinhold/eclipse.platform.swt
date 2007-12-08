@@ -574,6 +574,15 @@ public String [] getItems () {
 	return result;
 }
 
+public boolean getListVisible () {
+	checkWidget ();
+	if ((style & SWT.READ_ONLY) != 0) {
+		return ((NSPopUpButton)view).pullsDown();
+	} else {
+		return false;
+	}
+}
+
 int getMininumHeight () {
 	return getTextHeight ();
 }
@@ -1166,7 +1175,7 @@ public void setItems (String [] items) {
 	}
 }
 
-/*public*/ void setListVisible (boolean visible) {
+public void setListVisible (boolean visible) {
 	checkWidget ();
 	if ((style & SWT.READ_ONLY) != 0) {
 		((NSPopUpButton)view).setPullsDown(visible);
