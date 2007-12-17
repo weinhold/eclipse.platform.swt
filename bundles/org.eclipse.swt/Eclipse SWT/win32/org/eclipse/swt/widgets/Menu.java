@@ -565,12 +565,17 @@ void destroyItem (MenuItem item) {
 }
 
 void destroyWidget () {
+	MenuItem cascade = this.cascade;
 	int hMenu = handle, hCB = hwndCB;
 	releaseHandle ();
 	if (OS.IsWinCE && hCB != 0) {
 		OS.CommandBar_Destroy (hCB);
 	} else {
-		if (hMenu != 0) OS.DestroyMenu (hMenu);
+		if (cascade != null) {
+			if (!OS.IsSP) cascade.setMenu (null, true);
+		} else {
+			if (hMenu != 0) OS.DestroyMenu (hMenu);
+		}
 	}
 }
 
@@ -1095,6 +1100,7 @@ void redraw () {
 void releaseHandle () {
 	super.releaseHandle ();
 	handle = hwndCB = 0;
+	cascade = null;
 }
 
 void releaseChildren (boolean destroy) {
@@ -1114,7 +1120,6 @@ void releaseChildren (boolean destroy) {
 
 void releaseParent () {
 	super.releaseParent ();
-	if (cascade != null) cascade.releaseMenu ();
 	if ((style & SWT.BAR) != 0) {
 		display.removeBar (this);
 		if (this == parent.menuBar) {
@@ -1141,7 +1146,6 @@ void releaseWidget () {
 	}
 	if (parent != null) parent.removeMenu (this);
 	parent = null;
-	cascade = null;
 }
 
 /**

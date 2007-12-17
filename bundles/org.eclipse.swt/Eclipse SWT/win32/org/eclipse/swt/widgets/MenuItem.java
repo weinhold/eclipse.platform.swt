@@ -498,11 +498,6 @@ void releaseHandle () {
 	id = -1;
 }
 
-void releaseMenu () {
-	if (!OS.IsSP) setMenu (null);
-	menu = null;
-}
-
 void releaseParent () {
 	super.releaseParent ();
 	if (menu != null) menu.dispose ();
@@ -780,6 +775,10 @@ public void setMenu (Menu menu) {
 			error (SWT.ERROR_INVALID_PARENT);
 		}
 	}
+	setMenu (menu, false);
+}
+
+void setMenu (Menu menu, boolean dispose) {
 
 	/* Assign the new menu */
 	Menu oldMenu = this.menu;
@@ -796,14 +795,6 @@ public void setMenu (Menu menu) {
 		}
 		if (OS.IsSP) error (SWT.ERROR_CANNOT_SET_MENU);
 	} else {
-		/*
-		* Feature in Windows.  When SetMenuItemInfo () is used to
-		* set a submenu and the menu item already has a submenu,
-		* Windows destroys the previous menu.  This is undocumented
-		* and unexpected but not necessarily wrong.  The fix is to
-		* remove the item with RemoveMenu () which does not destroy
-		* the submenu and then insert the item with InsertMenuItem ().
-		*/
 		int hMenu = parent.handle;
 		MENUITEMINFO info = new MENUITEMINFO ();
 		info.cbSize = MENUITEMINFO.sizeof;
@@ -814,41 +805,33 @@ public void setMenu (Menu menu) {
 			index++;
 		}
 		if (info.dwItemData != id) return;
-		boolean restoreBitmap = false, success = false;
-		
+		int cch = 128;
+		int hHeap = OS.GetProcessHeap ();
+		int byteCount = cch * TCHAR.sizeof;
+		int pszText = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
+		info.fMask = OS.MIIM_STATE | OS.MIIM_ID | OS.MIIM_DATA;
 		/*
 		* Bug in Windows.  When GetMenuItemInfo() is used to get the text,
 		* for an item that has a bitmap set using MIIM_BITMAP, the text is
 		* not returned.  This means that when SetMenuItemInfo() is used to
 		* set the submenu and the current menu state, the text is lost.
-		* The fix is to temporarily remove the bitmap and restore it after
-		* the text and submenu have been set.
+		* The fix is use MIIM_BITMAP and MIIM_STRING.
 		*/
 		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (4, 10)) {
-			info.fMask = OS.MIIM_BITMAP;
-			OS.GetMenuItemInfo (hMenu, index, true, info);
-			restoreBitmap = info.hbmpItem != 0 || parent.foreground != -1;
-			if (restoreBitmap) {
-				info.hbmpItem = 0;
-				success = OS.SetMenuItemInfo (hMenu, id, false, info);
-			}
+			info.fMask |= OS.MIIM_BITMAP | OS.MIIM_STRING;
+		} else {
+			info.fMask |= OS.MIIM_TYPE;
 		}
-		
-		int cch = 128;
-		int hHeap = OS.GetProcessHeap ();
-		int byteCount = cch * TCHAR.sizeof;
-		int pszText = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
-		info.fMask = OS.MIIM_STATE | OS.MIIM_ID | OS.MIIM_TYPE | OS.MIIM_DATA;
 		info.dwTypeData = pszText;
 		info.cch = cch;
-		success = OS.GetMenuItemInfo (hMenu, index, true, info);
+		boolean success = OS.GetMenuItemInfo (hMenu, index, true, info);
 		if (menu != null) {
 			menu.cascade = this; 
 			info.fMask |= OS.MIIM_SUBMENU;
 			info.hSubMenu = menu.handle;
 		}
-		OS.RemoveMenu (hMenu, index, OS.MF_BYPOSITION);
 		if (OS.IsWinCE) {
+			OS.RemoveMenu (hMenu, index, OS.MF_BYPOSITION);
 			/*
 			* On WinCE, InsertMenuItem() is not available.  The fix is to
 			* use SetMenuItemInfo() but this call does not set the menu item
@@ -875,26 +858,19 @@ public void setMenu (Menu menu) {
 				}
 			}
 		} else {
-			success = OS.InsertMenuItem (hMenu, index, true, info);
-			/*
-			* Restore the bitmap that was removed to work around a problem
-			* in GetMenuItemInfo() and menu items that have bitmaps set with
-			* MIIM_BITMAP.
-			*/
-			if (OS.WIN32_VERSION >= OS.VERSION (4, 10)) {
-				if (restoreBitmap) {
-					info.fMask = OS.MIIM_BITMAP;
-					if (parent.foreground != -1) {
-						info.hbmpItem = OS.HBMMENU_CALLBACK;
-					} else {
-						if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
-							info.hbmpItem = hBitmap;
-						} else {
-							info.hbmpItem = OS.HBMMENU_CALLBACK;
-						}
-					}
-					success = OS.SetMenuItemInfo (hMenu, id, false, info);
-				}
+			if (dispose || oldMenu == null) {
+				success = OS.SetMenuItemInfo (hMenu, index, true, info);
+			} else {
+				/*
+				* Feature in Windows.  When SetMenuItemInfo () is used to
+				* set a submenu and the menu item already has a submenu,
+				* Windows destroys the previous menu.  This is undocumented
+				* and unexpected but not necessarily wrong.  The fix is to
+				* remove the item with RemoveMenu () which does not destroy
+				* the submenu and then insert the item with InsertMenuItem ().
+				*/
+				OS.RemoveMenu (hMenu, index, OS.MF_BYPOSITION);
+				success = OS.InsertMenuItem (hMenu, index, true, info);
 			}
 		}
 		if (pszText != 0) OS.HeapFree (hHeap, 0, pszText);
@@ -1040,49 +1016,24 @@ public void setText (String string) {
 		info.cbSize = MENUITEMINFO.sizeof;
 		int hMenu = parent.handle;
 		
-		/*
-		* Bug in Windows 2000.  For some reason, when MIIM_TYPE is set
-		* on a menu item that also has MIIM_BITMAP, the MIIM_TYPE clears
-		* the MIIM_BITMAP style.  The fix is to reset both MIIM_BITMAP.
-		* Note, this does not happen on Windows 98.
-		*/
-		boolean restoreBitmap = false;
-		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (4, 10)) {
-			info.fMask = OS.MIIM_BITMAP;
-			OS.GetMenuItemInfo (hMenu, id, false, info);
-			restoreBitmap = info.hbmpItem != 0 || parent.foreground != -1;
-		}
-		
 		/* Use the character encoding for the default locale */
 		TCHAR buffer = new TCHAR (0, string, true);
 		int byteCount = buffer.length () * TCHAR.sizeof;
 		pszText = OS.HeapAlloc (hHeap, OS.HEAP_ZERO_MEMORY, byteCount);
 		OS.MoveMemory (pszText, buffer, byteCount);	
-		info.fMask = OS.MIIM_TYPE;
-		info.fType = widgetStyle ();
-		info.dwTypeData = pszText;
-		success = OS.SetMenuItemInfo (hMenu, id, false, info);
-
 		/*
-		* Restore the bitmap that was removed to work around a problem
-		* in GetMenuItemInfo() and menu items that have bitmaps set with
-		* MIIM_BITMAP.
+		* Bug in Windows 2000.  For some reason, when MIIM_TYPE is set
+		* on a menu item that also has MIIM_BITMAP, the MIIM_TYPE clears
+		* the MIIM_BITMAP style.  The fix is to use MIIM_STRING.
 		*/
 		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (4, 10)) {
-			if (restoreBitmap) {
-				info.fMask = OS.MIIM_BITMAP;
-				if (parent.foreground != -1) {
-					info.hbmpItem = OS.HBMMENU_CALLBACK;
-				} else {
-					if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
-						info.hbmpItem = hBitmap;
-					} else {
-						info.hbmpItem = OS.HBMMENU_CALLBACK;
-					}
-				}
-				success = OS.SetMenuItemInfo (hMenu, id, false, info);
-			}
+			info.fMask = OS.MIIM_STRING;
+		} else {
+			info.fMask = OS.MIIM_TYPE;
+			info.fType = widgetStyle ();
 		}
+		info.dwTypeData = pszText;
+		success = OS.SetMenuItemInfo (hMenu, id, false, info);
 	}
 	if (pszText != 0) OS.HeapFree (hHeap, 0, pszText);
 	if (!success) error (SWT.ERROR_CANNOT_SET_TEXT);
