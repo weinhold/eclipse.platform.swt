@@ -1,6 +1,7 @@
 package org.eclipse.swt.animation;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.internal.cocoa.*;
 import org.eclipse.swt.widgets.*;
 
 public class Animation {
@@ -34,29 +35,23 @@ public class Animation {
 		return autoReverse;
 	}
 	
-	public long getDuration() {
-		return duration;
-	}
 	
 	void release() {
 	}
 
 	//FIXME: don't know how to do this
-	public void resume() {
-		checkAnimation();
-	}
-	
-	public void setDuration(long duration) {
-		checkAnimation();
-		this.duration = duration;
-	}
+	// remove API.
+//	public void resume() {
+//		checkAnimation();
+//	}
 	
 	//FIXME: Implementing this on Cocoa might
-	// be difficult. Might be better to remove.
-	public void setAutoReverse(boolean autoReverse) {
-		checkAnimation();
-		this.autoReverse = autoReverse;
-	}
+	// be difficult. 
+	// remove API.
+//	public void setAutoReverse(boolean autoReverse) {
+//		checkAnimation();
+//		this.autoReverse = autoReverse;
+//	}
 	
 	public void setBeginTime(long beginTime) {
 		checkAnimation();
@@ -77,20 +72,19 @@ public class Animation {
 		checkAnimation();
 		setWidget(widget);
 		create();
-//		addChildren();
-		updateDuration(0);
 	}
 	
-	//FIXME: don't know how to do this
+	//FIXME:  
+	//set NSAnimationContext.duration to 0.0001,
+	//animate to current value.
 	public void stop() {
 		checkAnimation();
 	}
-	//FIXME: don't know how to do this	
-	public void pause() {
-		checkAnimation();
-	}
 	
-	long updateDuration(long delay) {
-		return delay+beginTime+duration;
-	}
+	//FIXME: don't know how to do this
+	//remove API.
+//	public void pause() {
+//		checkAnimation();
+//	}
+	
 }

@@ -892,6 +892,11 @@ public Accessible getAccessible () {
 	if (accessible == null) accessible = new_Accessible (this);
 	return accessible;
 }
+
+public int getAlpha () {
+	checkWidget ();
+	return (int) (0XFF * view.alphaValue ());
+}
 	
 /**
  * Returns the receiver's background color.
@@ -2247,6 +2252,14 @@ boolean sendMouseEvent (int type, short button, int count, int detail, boolean s
 
 boolean sendMouseWheel (short wheelAxis, int wheelDelta) {
 	return false;
+}
+
+public void setAlpha(int alpha) {
+	checkWidget ();
+	int layerId = OS.objc_msgSend (view.id, OS.sel_layer);
+	if (layerId ==0) view.setWantsLayer (true);
+	float viewAlpha = (alpha & 0xFF) / (float) 0xFF;
+	view.setAlphaValue(viewAlpha);
 }
 
 void setBackground () {

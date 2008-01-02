@@ -18,37 +18,10 @@ public class CompositeAnimation extends Animation {
 		childCount++;
 	}
 
-	void addChildren() {
-//		int children = OS.TimelineGroup_Children(handle);
-//		OS.IList_Clear(children);
-//		for (int i = 0; i < childCount; i++) {
-//			Animation animation = animations[i];
-//			OS.IList_Add(children, animation.handle);
-//			animation.addChildren();
-//		}
-//		OS.GCHandle_Free(children);
-	}
-	
-	void create () {
-		if (handle == 0) super.create();
-		for (int i = 0; i < childCount; i++) {
-			animations[i].create();
-		}
-	}
-		
 	public Animation getAnimation(int i) {
 		checkAnimation();
 		if (0>i || i>=childCount) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 		return animations[i];
-	}
-	
-	public long getDuration() {
-		long duration = 0;
-		for (int i = 0; i < childCount; i++) {
-			Animation a = animations[i];
-			duration += a.getDuration();
-		}
-		return duration;
 	}
 		
 	void release() {
@@ -64,6 +37,14 @@ public class CompositeAnimation extends Animation {
 		for (int i = 0; i < childCount; i++) {
 			Animation a = animations[i];
 			a.setWidget(widget);
+		}
+	}
+
+	public void start(Widget widget) {
+		this.widget = widget;
+		for (int i = 0; i < childCount; i++) {
+			Animation a = animations[i];
+			a.start(widget);
 		}
 	}
 }

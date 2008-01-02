@@ -6831,6 +6831,8 @@ public static final int sel_toValue = sel_registerName("toValue");
 public static final int sel_setToValue_1 = sel_registerName("setToValue:");
 public static final int sel_byValue = sel_registerName("byValue");
 public static final int sel_setByValue_1 = sel_registerName("setByValue:");
+public static final int sel_timingFunction = sel_registerName("timingFunction");
+public static final int sel_setTimingFunction_1 = sel_registerName("setTimingFunction:");
 
 /** Constants */
 public static final int NSAWTEventType = 16;

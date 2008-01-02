@@ -21,7 +21,7 @@ public class SplinePropertyAnimation extends PropertyAnimation {
 	void setTimingFunction() {
 		int func = OS.objc_msgSend(OS.class_CAMediaTimingFunction, OS.sel_functionWithControlPoints_1_1_1_1, (float)x1, (float)y1, (float)x2, (float)y2);
 		for (int i = 0; i < animations.length; i++) {
-			OS.object_setInstanceVariable(animations[i].id, "timingFunction", func);
+			OS.objc_msgSend(animations[i].id, OS.sel_setTimingFunction_1, func);
 		}
 	}
 }

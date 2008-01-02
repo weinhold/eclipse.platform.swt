@@ -18,7 +18,6 @@ public class PropertyAnimation extends Animation {
 	// with Cocoa
 	IInterpolator interpolator;
  
-	//FIXME??? use key frames to do begin time???	
 	CABasicAnimation[] animations;
 		
 	void create() {
@@ -43,6 +42,13 @@ public class PropertyAnimation extends Animation {
 			animations[1].retain();
 			dict.setValue(animations[1], keyPath);
 		}
+		if ("alpha".equalsIgnoreCase(property)) {
+			animations = new CABasicAnimation[1];
+			NSString keyPath = createNSString("alphaValue");
+			animations[0] = new CABasicAnimation(CABasicAnimation.animationWithKeyPath(keyPath).id);
+			animations[0].retain();
+			dict.setValue(animations[0], keyPath);
+		}
 		int id = targetHandle();
 		if (id != 0) OS.objc_msgSend(id, OS.sel_setAnimations_1, dict.id);
 	}
@@ -65,6 +71,10 @@ public class PropertyAnimation extends Animation {
 		int blue = (int) (((end.blue-start.blue)*newValue) + start.blue);
 		RGB current = new RGB(red, green, blue);
 		return new Color(colorFrom.getDevice(), current);
+	}
+	
+	public long getDuration() {
+		return duration;
 	}
 	
 	//TODO Control #getTransform, #setTransform()
@@ -91,7 +101,12 @@ public class PropertyAnimation extends Animation {
 		}
 		animations = null;
 	}
-
+	
+	public void setDuration(long duration) {
+		checkAnimation();
+		this.duration = duration;
+	}
+	
 	public void setFrom(Object from) {
 		checkAnimation();
 		this.from = from;
@@ -130,15 +145,26 @@ public class PropertyAnimation extends Animation {
 	public void start(Widget widget) {
 		super.start(widget);
 		int id = targetHandle();
+		NSAnimationContext.beginGrouping();
+		NSAnimationContext context = NSAnimationContext.currentContext();
+		context.setDuration(duration/1000f);
 		int animator = OS.objc_msgSend(id, OS.sel_animator);
-		//FIXME
-		Rectangle pt = (Rectangle) to;
-		NSRect rect = new NSRect();
-		rect.height = pt.height;
-		rect.width = pt.width;
-		rect.x = pt.x;
-		rect.y = pt.y;
-		OS.objc_msgSend(animator, OS.sel_setFrame_1, rect);
+		if ("bounds".equalsIgnoreCase(property)) {
+			Rectangle rect = (Rectangle) to;
+			NSRect nsRect = new NSRect();
+			nsRect.height = rect.height;
+			nsRect.width = rect.width;
+			nsRect.x = rect.x;
+			nsRect.y = rect.y;
+			OS.objc_msgSend(animator, OS.sel_setFrame_1, nsRect);
+		} 
+		if ("alpha".equalsIgnoreCase(property)) {
+			int alpha = ((Integer)to).intValue();
+			float viewAlpha = (alpha & 0xFF) / (float) 0xFF;
+//			NSValue val = NSNumber.numberWithFloat(viewAlpha);
+			OS.objc_msgSend(animator, OS.sel_setAlphaValue_1, viewAlpha);
+		}
+		NSAnimationContext.endGrouping();
 	}
 	
 	int targetHandle() {
@@ -146,17 +172,14 @@ public class PropertyAnimation extends Animation {
 		 * probably need some framework here to get us the right handle...
 		 * int Widget.animationHandle() ???? 
 		 */
-		if (target instanceof Control) return ((Control) target).view.id;
+		int result = 0;
+		if (target instanceof Control) result = ((Control) target).view.id;
 		//return fake view???
-		return 0;
-	}
-	
-	long updateDuration(long delay) {
-		double sec = duration/1000d;
-		for (int i = 0; i < animations.length; i++) {
-			animations[i].setDuration(sec);
-		}
-		return delay+beginTime+duration;
+
+		int layerId = OS.objc_msgSend (result, OS.sel_layer);
+//		if (layerId ==0) OS.objc_msgSend (result, OS.sel_setWantsLayer_1, true);
+		
+		return result;
 	}
 	
 	void updateFromToValues() {
@@ -173,18 +196,13 @@ public class PropertyAnimation extends Animation {
 			size.width = rect.width;
 			val = NSValue.valueWithSize(size);
 			animations[1].setFromValue(val);
-			
-			rect = (Rectangle) to;
-			pt = new NSPoint();
-			pt.x = rect.x;
-			pt.y = rect.y;
-			val = NSValue.valueWithPoint(pt);
-			animations[0].setToValue(val);
-			size = new NSSize();
-			size.height = rect.height;
-			size.width = rect.width;
-			val = NSValue.valueWithSize(size);
-			animations[1].setToValue(val);
+		}
+		if (property.equalsIgnoreCase("alpha")) {
+			if (!(from instanceof Integer && to instanceof Integer)) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+			int alpha = ((Integer)from).intValue();
+			float viewAlpha = (alpha & 0xFF) / (float) 0xFF;
+			NSValue val = NSNumber.numberWithFloat(viewAlpha);
+			animations[0].setFromValue(val);
 		}
 	}
 }
