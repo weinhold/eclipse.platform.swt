@@ -5,8 +5,7 @@ import org.eclipse.swt.widgets.*;
 
 public class CompositeAnimation extends Animation {
 	int childCount = 0;
-	Animation[] animations = new Animation[4];
-	
+	Animation[] animations = new Animation[4];	
 
 	public void addAnimation(Animation animation) {
 		if (animations.length == childCount) {
@@ -18,10 +17,29 @@ public class CompositeAnimation extends Animation {
 		childCount++;
 	}
 
+	public void childFinished(Animation child) {
+	}
+	
 	public Animation getAnimation(int i) {
 		checkAnimation();
 		if (0>i || i>=childCount) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 		return animations[i];
+	}
+	
+	boolean isFinished() {
+		for (int i = 0; i < childCount; i++) {
+			Animation a = animations[i];
+			if (!a.isFinished()) return false;
+		}
+		return true;
+	}
+	
+	boolean isRunning() {
+		for (int i = 0; i < childCount; i++) {
+			Animation a = animations[i];
+			if (a.isRunning()) return true;
+		}
+		return false;
 	}
 		
 	void release() {
@@ -47,4 +65,5 @@ public class CompositeAnimation extends Animation {
 			a.start(widget);
 		}
 	}
+
 }

@@ -12,18 +12,34 @@ public class PropertyAnimation extends Animation {
 	String property;
 	Object target;
 	Method method;
-	int animatorHandle, customAnimation;
+//	int animatorHandle, customAnimation;
 
-	//FIXME??? don't know how to do custom interpolation 
-	// with Cocoa
+	//FIXME??? don't know how to do custom interpolation with Cocoa
 	IInterpolator interpolator;
  
 	CABasicAnimation[] animations;
-		
+	boolean started;
+	int completed;
+	
+	void animationDidStart(int id) {
+		System.out.println("did start");
+		started = true;
+	}
+	
+	void animationDidStop(int id, int finished) {
+		System.out.println("stopped");
+		if (finished > 0) completed++;
+		if (parent != null && isFinished()) parent.childFinished(this); 
+	}
+	
 	void create() {
+		super.create();
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		if (animations == null) {		
+		if (animations == null) {
 			createAnimations();
+			for (int i = 0; i < animations.length; i++) {
+				animations[i].setDelegate(delegate);
+			}
 		}
 		setTimingFunction();
 		updateFromToValues();
@@ -92,6 +108,14 @@ public class PropertyAnimation extends Animation {
 		return null;
 	}
 	
+	boolean isFinished() {
+		return completed == animations.length;
+	}
+	
+	boolean isRunning() {
+		return started && !isFinished();
+	}
+	
 	void release() {
 		super.release();
 		if (animations != null) {
@@ -100,6 +124,13 @@ public class PropertyAnimation extends Animation {
 			}
 		}
 		animations = null;
+	}
+	
+	public void setDelegate(SWTCAAnimationDelegate delegate) {
+		for (int i = 0; i < animations.length; i++) {
+			CAAnimation animation = animations[i];
+			animation.setDelegate(delegate);
+		}
 	}
 	
 	public void setDuration(long duration) {
@@ -144,6 +175,7 @@ public class PropertyAnimation extends Animation {
 
 	public void start(Widget widget) {
 		super.start(widget);
+		completed = 0;
 		int id = targetHandle();
 		NSAnimationContext.beginGrouping();
 		NSAnimationContext context = NSAnimationContext.currentContext();
@@ -173,12 +205,29 @@ public class PropertyAnimation extends Animation {
 		 * int Widget.animationHandle() ???? 
 		 */
 		int result = 0;
-		if (target instanceof Control) result = ((Control) target).view.id;
-		//return fake view???
+		if (target instanceof Control) {
+			Control control = (Control) target;
+			result = control.view.id;
+		}
+		//TODO
+		//return fake view??
 
-		int layerId = OS.objc_msgSend (result, OS.sel_layer);
-//		if (layerId ==0) OS.objc_msgSend (result, OS.sel_setWantsLayer_1, true);
-		
+		/*
+		 * FIXME
+		 * if only the button has a layer, the button gets stretched
+		 * when it is resized. This happens in simple cocoa app too.
+		 * 
+		 * if I set the layer on the superview, everything goes away
+		 * in my java app (ie no controls visible), but this pattern 
+		 * works well in my simple cocoa application.
+		 * 
+		 * if no control has a layer, we can't change the controls
+		 * alpha value, and we don't get some of the performance
+		 * benefits of CAAnimation.
+		 */
+//		((Control) target).view.setWantsLayer(true);
+//		((Control) target).view.superview().setWantsLayer(true);
+
 		return result;
 	}
 	
