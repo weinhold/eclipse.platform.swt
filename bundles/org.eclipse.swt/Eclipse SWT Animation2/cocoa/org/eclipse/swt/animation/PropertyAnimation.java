@@ -12,7 +12,7 @@ public class PropertyAnimation extends Animation {
 	String property;
 	Object target;
 	Method method;
-//	int animatorHandle, customAnimation;
+	SWTAnimationViewBase animationView;
 
 	//FIXME??? don't know how to do custom interpolation with Cocoa
 	IInterpolator interpolator;
@@ -21,28 +21,36 @@ public class PropertyAnimation extends Animation {
 	boolean started;
 	int completed;
 	
+	Class paramType;
+	
 	void animationDidStart(int id) {
-		System.out.println("did start");
 		started = true;
 	}
 	
 	void animationDidStop(int id, int finished) {
-		System.out.println("stopped");
 		if (finished > 0) completed++;
 		if (parent != null && isFinished()) parent.childFinished(this); 
+	}
+	
+	void animationUpdated(float progress) {
+		System.out.println("val = " + progress);
 	}
 	
 	void create() {
 		super.create();
 		if (target == null || property == null) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-		if (animations == null) {
-			createAnimations();
+		if (animations != null) {
 			for (int i = 0; i < animations.length; i++) {
-				animations[i].setDelegate(delegate);
+				if (animations[i] != null) animations[i].release();
 			}
+			animations = null;
+		}
+		createAnimations();
+		for (int i = 0; i < animations.length; i++) {
+			animations[i].setDelegate(delegate);
 		}
 		setTimingFunction();
-		updateFromToValues();
+		updateFromValue();
 	}
 
 	void createAnimations() {
@@ -64,6 +72,34 @@ public class PropertyAnimation extends Animation {
 			animations[0] = new CABasicAnimation(CABasicAnimation.animationWithKeyPath(keyPath).id);
 			animations[0].retain();
 			dict.setValue(animations[0], keyPath);
+		}
+		if (animations == null) {
+			animations = new CABasicAnimation[1];
+			NSString keyPath = createNSString("animationValue");
+			animations[0] = new CABasicAnimation(CABasicAnimation.animationWithKeyPath(keyPath).id);
+			animations[0].retain();
+			dict.setValue(animations[0], keyPath);
+			
+			animationView = (SWTAnimationView) new SWTAnimationView().alloc().init();
+			animationView.setTag(jniRef);
+			animationView.setAnimationValue(0.0f);
+			((Control)target).view.addSubview_(animationView);
+			
+			//use reflection
+			String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
+			Class clazz = target.getClass();
+			Method[] methods = clazz.getMethods();
+			for (int i = 0; i < methods.length; i++) {
+				Method m = methods[i];
+				if (m.getName().equals(mName)) {
+					Class[] parameterTypes = m.getParameterTypes();
+					if (parameterTypes.length == 1) {
+						method = m;
+						break;
+					}
+				}
+			}
+			paramType = method.getParameterTypes()[0];
 		}
 		int id = targetHandle();
 		if (id != 0) OS.objc_msgSend(id, OS.sel_setAnimations_1, dict.id);
@@ -125,14 +161,7 @@ public class PropertyAnimation extends Animation {
 		}
 		animations = null;
 	}
-	
-	public void setDelegate(SWTCAAnimationDelegate delegate) {
-		for (int i = 0; i < animations.length; i++) {
-			CAAnimation animation = animations[i];
-			animation.setDelegate(delegate);
-		}
-	}
-	
+		
 	public void setDuration(long duration) {
 		checkAnimation();
 		this.duration = duration;
@@ -176,8 +205,9 @@ public class PropertyAnimation extends Animation {
 	public void start(Widget widget) {
 		super.start(widget);
 		completed = 0;
+		started = false;
 		int id = targetHandle();
-		NSAnimationContext.beginGrouping();
+//		NSAnimationContext.beginGrouping();
 		NSAnimationContext context = NSAnimationContext.currentContext();
 		context.setDuration(duration/1000f);
 		int animator = OS.objc_msgSend(id, OS.sel_animator);
@@ -193,10 +223,28 @@ public class PropertyAnimation extends Animation {
 		if ("alpha".equalsIgnoreCase(property)) {
 			int alpha = ((Integer)to).intValue();
 			float viewAlpha = (alpha & 0xFF) / (float) 0xFF;
-//			NSValue val = NSNumber.numberWithFloat(viewAlpha);
 			OS.objc_msgSend(animator, OS.sel_setAlphaValue_1, viewAlpha);
 		}
-		NSAnimationContext.endGrouping();
+		if (animationView != null) {
+			OS.objc_msgSend(animator, OS.sel_setAnimationValue_1, 1.0f);
+		}
+//		NSAnimationContext.endGrouping();
+	}
+	
+	public void stop() {
+		int id = targetHandle();
+		NSAnimationContext context = NSAnimationContext.currentContext();
+		context.setDuration(0.0001f);
+		int animator = OS.objc_msgSend(id, OS.sel_animator);
+		if ("bounds".equalsIgnoreCase(property)) {
+			NSRect nsRect = new NSRect();
+			OS.objc_msgSend_stret(nsRect, id, OS.sel_frame);
+			OS.objc_msgSend(animator, OS.sel_setFrame_1, nsRect);
+		} 
+		if ("alpha".equalsIgnoreCase(property)) {
+			int viewAlpha = OS.objc_msgSend(id, OS.sel_alphaValue);
+			OS.objc_msgSend(animator, OS.sel_setAlphaValue_1, viewAlpha);
+		}
 	}
 	
 	int targetHandle() {
@@ -208,9 +256,10 @@ public class PropertyAnimation extends Animation {
 		if (target instanceof Control) {
 			Control control = (Control) target;
 			result = control.view.id;
+		} 
+		if (animationView != null) {
+			result = animationView.id;
 		}
-		//TODO
-		//return fake view??
 
 		/*
 		 * FIXME
@@ -225,13 +274,13 @@ public class PropertyAnimation extends Animation {
 		 * alpha value, and we don't get some of the performance
 		 * benefits of CAAnimation.
 		 */
-//		((Control) target).view.setWantsLayer(true);
+		((Control) target).view.setWantsLayer(true);
 //		((Control) target).view.superview().setWantsLayer(true);
 
 		return result;
 	}
 	
-	void updateFromToValues() {
+	void updateFromValue() {
 		if (property.equalsIgnoreCase("bounds")) {
 			if (!(from instanceof Rectangle && to instanceof Rectangle)) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 			Rectangle rect = (Rectangle) from;
@@ -251,6 +300,10 @@ public class PropertyAnimation extends Animation {
 			int alpha = ((Integer)from).intValue();
 			float viewAlpha = (alpha & 0xFF) / (float) 0xFF;
 			NSValue val = NSNumber.numberWithFloat(viewAlpha);
+			animations[0].setFromValue(val);
+		}
+		if (animationView != null) {
+			NSValue val = NSNumber.numberWithInt(0);
 			animations[0].setFromValue(val);
 		}
 	}

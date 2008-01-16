@@ -37,36 +37,54 @@ public class Animation {
 		OS.class_addMethod(cls, OS.sel_tag, proc2, "@:");
 		OS.class_addMethod(cls, OS.sel_setTag_1, proc3, "@:i");
 		OS.objc_registerClassPair(cls);
+		
+		className = "SWTAnimationView";
+		cls = OS.objc_allocateClassPair(OS.class_SWTAnimationViewBase, className, 0);
+		OS.class_addMethod(cls, OS.sel_animationUpdated_1, proc3, "@:^NSNumber");
+		
+		OS.objc_registerClassPair(cls);		
 	}
 	
-	static int animationDelegateProc(int delegate, int sel) {
+	static int animationDelegateProc(int id, int sel) {
 		if (sel == OS.sel_tag) {
 			int[] tag = new int[1];
-			OS.object_getInstanceVariable(delegate, "tag", tag);	
+			OS.object_getInstanceVariable(id, "tag", tag);	
 			return tag[0];
 		}
 		return 0;
 	}
 	
-	static int animationDelegateProc(int delegate, int sel, int arg0) {
+	static int animationDelegateProc(int id, int sel, int arg0) {
 		if (sel == OS.sel_setTag_1) {
-			OS.object_setInstanceVariable(delegate, "tag", arg0);
+			OS.object_setInstanceVariable(id, "tag", arg0);
 			return 0;
 		}
-		int jniRef = OS.objc_msgSend(delegate, OS.sel_tag);
+		int jniRef = OS.objc_msgSend(id, OS.sel_tag);
 		if (jniRef == 0 || jniRef == -1) return 0;
-		Animation animation = (Animation)OS.JNIGetObject(jniRef);
+		Object object = OS.JNIGetObject(jniRef);
+		if (!(object instanceof Animation)) return 0;
+		Animation animation = (Animation) object;
 		if (animation == null) return 0;
-		if (sel == OS.sel_animationDidStart_1) animation.animationDidStart(arg0);
+		if (sel == OS.sel_animationUpdated_1) {
+			NSNumber number = new NSNumber(arg0);
+			animation.animationUpdated(number.floatValue());
+		}
+		if (sel == OS.sel_animationDidStart_1) {
+			animation.animationDidStart(arg0);
+		}
 		return 0;
 	}
 
-	static int animationDelegateProc(int delegate, int sel, int arg0, int arg1) {
-		int jniRef = OS.objc_msgSend(delegate, OS.sel_tag);
+	static int animationDelegateProc(int id, int sel, int arg0, int arg1) {
+		int jniRef = OS.objc_msgSend(id, OS.sel_tag);
 		if (jniRef == 0 || jniRef == -1) return 0;
-		Animation animation = (Animation)OS.JNIGetObject(jniRef);
+		Object object = OS.JNIGetObject(jniRef);
+		if (!(object instanceof Animation)) return 0;
+		Animation animation = (Animation) object;
 		if (animation == null) return 0;
-		if (sel == OS.sel_animationDidStop_1finished_1) animation.animationDidStop(arg0, arg1);
+		if (sel == OS.sel_animationDidStop_1finished_1) {
+			animation.animationDidStop(arg0, arg1);
+		}
 		return 0;
 	}
 
@@ -74,6 +92,9 @@ public class Animation {
 	}
 	
 	void animationDidStop(int animation, int finished) {
+	}
+	
+	void animationUpdated(float progress) {
 	}
 	
 	void create () {
@@ -162,9 +183,6 @@ public class Animation {
 	//animate to current value.
 	public void stop() {
 		checkAnimation();
-	}
-
-	public void setDelegate(SWTCAAnimationDelegate delegate) {
 	}
 	
 	//FIXME: don't know how to do this

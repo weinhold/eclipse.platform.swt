@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.swt.internal.cocoa;
 
-public class SWTCAAnimationDelegate extends NSObject {
+public class SWTAnimationViewBase extends NSView {
 	
-	public SWTCAAnimationDelegate() {
+	public SWTAnimationViewBase() {
 		super(0);
 	}
 		
-	public SWTCAAnimationDelegate(int id) {
+	public SWTAnimationViewBase(int id) {
 		super(id);
 	}
 
@@ -27,5 +27,15 @@ public class SWTCAAnimationDelegate extends NSObject {
 	public void setTag(int tag) {
 		OS.objc_msgSend(id, OS.sel_setTag_1, tag);
 	}
-
+	
+	public float animationValue() {
+		return OS.objc_msgSend(id, OS.sel_animationValue);
+	}
+	
+	public void setAnimationValue(float val) {
+		OS.objc_msgSend(id, OS.sel_setAnimationValue_1, val);
+	}
+	
+	void animationUpdated(NSNumber val) {
+	}
 }

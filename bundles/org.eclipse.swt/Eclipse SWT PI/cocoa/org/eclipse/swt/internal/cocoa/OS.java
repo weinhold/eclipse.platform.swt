@@ -443,6 +443,7 @@ public static final int class_NSCalendar = objc_getClass("NSCalendar");
 public static final int class_NSTokenField = objc_getClass("NSTokenField");
 public static final int class_NSCollectionView = objc_getClass("NSCollectionView");
 public static final int class_NSColorList = objc_getClass("NSColorList");
+public static final int class_SWTAnimationViewBase = objc_getClass("SWTAnimationViewBase");
 
 /** Selectors */
 public static final int sel_inputClientEnabled_1 = sel_registerName("inputClientEnabled:");
@@ -6833,6 +6834,9 @@ public static final int sel_byValue = sel_registerName("byValue");
 public static final int sel_setByValue_1 = sel_registerName("setByValue:");
 public static final int sel_timingFunction = sel_registerName("timingFunction");
 public static final int sel_setTimingFunction_1 = sel_registerName("setTimingFunction:");
+public static final int sel_animationValue = sel_registerName("animationValue");
+public static final int sel_setAnimationValue_1 = sel_registerName("setAnimationValue:");
+public static final int sel_animationUpdated_1 = sel_registerName("animationUpdated:");
 
 /** Constants */
 public static final int NSAWTEventType = 16;

@@ -5,9 +5,12 @@ import org.eclipse.swt.widgets.*;
 
 public class SequenceAnimation extends CompositeAnimation {
 	
-	int current = 0;
+	int current;
+	boolean stopped;
 	
 	public void start(Widget widget) {
+		current = 0;
+		stopped = false;
 		this.widget = widget;
 		for (int i = 0; i < childCount; i++) {
 			Animation a = animations[i];
@@ -17,7 +20,13 @@ public class SequenceAnimation extends CompositeAnimation {
 	}
 	
 	public void childFinished(Animation child) {
+		if (stopped) return;
 		current++;
 		if (current < childCount) animations[current].start(widget);
+	}
+	
+	public void stop() {
+		stopped = true;
+		if (current < childCount) animations[current].stop();
 	}
 }

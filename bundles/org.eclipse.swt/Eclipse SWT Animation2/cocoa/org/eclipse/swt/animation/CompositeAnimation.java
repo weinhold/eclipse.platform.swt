@@ -65,5 +65,12 @@ public class CompositeAnimation extends Animation {
 			a.start(widget);
 		}
 	}
+	
+	public void stop() {
+		for (int i = 0; i < childCount; i++) {
+			Animation a = animations[i];
+			a.stop();
+		}
+	}
 
 }

@@ -365,3 +365,40 @@ JNIEXPORT SWT_PTR JNICALL OS_NATIVE(drawRect_1CALLBACK)
 	return (SWT_PTR)drawRect;
 }
 #endif
+
+
+@interface SWTAnimationViewBase : NSView {
+}
+jint jniRef;
+float animationValue;
+-(void)setTag:(jint)tag;
+-(jint)tag;
+-(void)setAnimationValue:(float)val;
+-(float)animationValue;
+-(void)animationUpdated:(NSNumber*)num;
+@end
+
+@implementation SWTAnimationViewBase
+-(id)initWithFrame:(NSRect)frame {
+    return [super initWithFrame:frame];
+}
+-(void)drawRect:(NSRect)rect {
+	[super drawRect:rect];
+}
+-(void)setTag:(jint)tag {
+	jniRef = tag;
+}
+-(jint)tag {
+	return jniRef;
+}
+-(void)setAnimationValue:(float)val {
+	animationValue = val;
+	[self animationUpdated:[NSNumber numberWithFloat:val]];
+}
+-(float)animationValue {
+	return animationValue;
+}
+-(void)animationUpdated:(NSNumber*)num {
+	printf ("new val = %f\n", [num floatValue]);
+}
+@end
