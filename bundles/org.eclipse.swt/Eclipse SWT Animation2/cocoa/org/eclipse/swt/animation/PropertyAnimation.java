@@ -34,6 +34,36 @@ public class PropertyAnimation extends Animation {
 	
 	void animationUpdated(float progress) {
 		System.out.println("val = " + progress);
+		try {
+			Object methodArg = null;
+			if (paramType == Color.class) {
+				Color color = getColor(progress);
+				methodArg = color;
+			}
+			if (paramType == Double.class) {		
+				double f = ((Double) from).doubleValue();
+				double t = ((Double) to).doubleValue();
+				double newValue = f + ((t - f) * progress);
+				methodArg = new Double(newValue);
+			}
+			if (paramType == Integer.TYPE) {
+				int f = ((Integer) from).intValue();
+				int t = ((Integer) to).intValue();
+				int newValue = (int) (f + ((t - f) * progress));
+				methodArg = new Integer(newValue);
+			}
+			if (methodArg != null) {
+				method.invoke(target, new Object[] {methodArg});
+			} else {
+				throw new RuntimeException(paramType + " not supported yet");
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	void create() {
@@ -82,7 +112,6 @@ public class PropertyAnimation extends Animation {
 			
 			animationView = (SWTAnimationView) new SWTAnimationView().alloc().init();
 			animationView.setTag(jniRef);
-			animationView.setAnimationValue(0.0f);
 			((Control)target).view.addSubview_(animationView);
 			
 			//use reflection
