@@ -10,7 +10,7 @@ public class Animation {
 	static int count = 0;
 	
 	int handle, jniRef;
-	long beginTime, duration;
+	long beginTime;
 	boolean disposed;
 	Widget widget;
 	boolean autoReverse;
@@ -57,18 +57,16 @@ public class Animation {
 		release();
 	}
 	
-	public boolean getAutoReverse() {
-		checkAnimation();
-		return autoReverse;
-	}
+//	public boolean getAutoReverse() {
+//		checkAnimation();
+//		return autoReverse;
+//	}
 	
-	public long getDuration() {
-		return duration;
-	}
-	
-	public void setDuration(long duration) {
-		checkAnimation();
-		this.duration = duration;
+	void release() {
+		if (handle != 0) OS.GCHandle_Free(handle);
+		handle = 0;
+		if (jniRef != 0) OS.DeleteGlobalRef(jniRef);
+		jniRef = 0;
 	}
 	
 	public void start(Widget widget) {
@@ -80,10 +78,10 @@ public class Animation {
 		OS.Storyboard_Begin(handle, widget.handle, true);
 	}
 	
-	public void setAutoReverse(boolean autoReverse) {
-		checkAnimation();
-		this.autoReverse = autoReverse;
-	}
+//	public void setAutoReverse(boolean autoReverse) {
+//		checkAnimation();
+//		this.autoReverse = autoReverse;
+//	}
 	
 	public void setBeginTime(long beginTime) {
 		checkAnimation();
@@ -96,10 +94,6 @@ public class Animation {
 		this.repeatCount = repeatCount;
 	}
 	
-	long updateDuration(long delay) {
-		return delay+beginTime+duration;
-	}
-	
 	void setWidget(Widget widget) {
 		this.widget = widget;
 	}
@@ -109,20 +103,18 @@ public class Animation {
 		if (widget != null) OS.Storyboard_Stop(handle, widget.handle);
 	}
 	
-	public void pause() {
-		checkAnimation();
-		if (widget != null) OS.Storyboard_Pause(handle, widget.handle);
+	long updateDuration(long delay) {
+		return delay+beginTime;
 	}
 	
-	void release() {
-		if (handle != 0) OS.GCHandle_Free(handle);
-		handle = 0;
-		if (jniRef != 0) OS.DeleteGlobalRef(jniRef);
-		jniRef = 0;
-	}
+//	public void pause() {
+//		checkAnimation();
+//		if (widget != null) OS.Storyboard_Pause(handle, widget.handle);
+//	}
+	
 
-	public void resume() {
-		checkAnimation();
-		if (widget != null) OS.Storyboard_Resume(handle, widget.handle);
-	}
+//	public void resume() {
+//		checkAnimation();
+//		if (widget != null) OS.Storyboard_Resume(handle, widget.handle);
+//	}
 }

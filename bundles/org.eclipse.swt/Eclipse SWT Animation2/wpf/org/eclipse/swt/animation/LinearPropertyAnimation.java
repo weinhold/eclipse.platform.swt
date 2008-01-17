@@ -5,7 +5,12 @@ import org.eclipse.swt.internal.wpf.*;
 
 public class LinearPropertyAnimation extends PropertyAnimation {
 	int animation;
+	double accelerationRatio, decelerationRatio;
 	
+	void create() {
+		super.create();
+		updateAccelRatios();
+	}
 	void createDoubleAnimation() {
 		animation = OS.gcnew_DoubleAnimation();
 		int children = OS.TimelineGroup_Children(handle);
@@ -20,12 +25,37 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		OS.GCHandle_Free(children);
 	}
 	
+	public double getAccelerationRatio() {
+		checkAnimation();
+		return accelerationRatio;
+	}
+	
+	public double getDecelerationRatio() {
+		checkAnimation();
+		return decelerationRatio;
+	}
+	
 	void release() {
 		super.release();
 		if (animation != 0) OS.GCHandle_Free(animation);
 		animation = 0;
 	}
+
+	public void setAccelerationRatio(double ratio) {
+		checkAnimation();
+		accelerationRatio = ratio;
+	}
+
+	public void setDecelerationRatio(double ratio) {
+		checkAnimation();
+		decelerationRatio = ratio;
+	}
 		
+	void updateAccelRatios() {
+		OS.Timeline_AccelerationRatio(handle, accelerationRatio);
+		OS.Timeline_DecelerationRatio(handle, decelerationRatio);
+	}
+	
 	long updateDuration(long delay) {
 		//set duration
 		int timeSpan = OS.TimeSpan_FromMilliseconds(duration);

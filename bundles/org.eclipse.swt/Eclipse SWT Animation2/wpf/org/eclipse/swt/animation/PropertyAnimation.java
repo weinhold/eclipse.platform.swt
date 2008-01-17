@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.*;
 
 public class PropertyAnimation extends Animation {
 	double from, to;
+	long duration;
 	float[] transformTo, transformFrom;
 	Color colorTo, colorFrom;
 	String name, property;
@@ -17,8 +18,7 @@ public class PropertyAnimation extends Animation {
 	Method method;
 	Class paramType;
 	int animatorHandle, customAnimation;
-	double decelerationRatio;
-	double accelerationRatio;
+
 	Object nextValue;
 	IInterpolator interpolator;
 		
@@ -32,7 +32,6 @@ public class PropertyAnimation extends Animation {
 			register(widget);
 		}
 		updateFromToValues();
-		updateAccelRatios();
 	}
 
 	void createCustomAnimation() {
@@ -88,11 +87,6 @@ public class PropertyAnimation extends Animation {
 			throw new RuntimeException(e);
 		}
 	}
-
-	public double getAccelerationRatio() {
-		checkAnimation();
-		return accelerationRatio;
-	}
 	
 	Color getColor(double newValue) {
 		RGB start = colorFrom.getRGB();
@@ -114,6 +108,10 @@ public class PropertyAnimation extends Animation {
 			}
 		}
 		nextValue = null;
+	}
+	
+	public long getDuration() {
+		return duration;
 	}
 	
 	Transform getTransform(double newValue) {
@@ -149,15 +147,10 @@ public class PropertyAnimation extends Animation {
 		if (animatorHandle != 0) OS.GCHandle_Free(animatorHandle);
 		animatorHandle = 0;
 	}
-
-	public void setAccelerationRatio(double ratio) {
+	
+	public void setDuration(long duration) {
 		checkAnimation();
-		accelerationRatio = ratio;
-	}
-
-	public void setDecelerationRatio(double ratio) {
-		checkAnimation();
-		decelerationRatio = ratio;
+		this.duration = duration;
 	}
 
 	public void setFrom(Color from) {
@@ -180,10 +173,10 @@ public class PropertyAnimation extends Animation {
 		this.from = 0;
 	}
 
-	public void setInterpolator(IInterpolator interpolator) {
-		checkAnimation();
-		this.interpolator = interpolator;
-	}
+//	public void setInterpolator(IInterpolator interpolator) {
+//		checkAnimation();
+//		this.interpolator = interpolator;
+//	}
 	
 	void setParamType() {
 		if (interpolator == null) {
@@ -227,10 +220,7 @@ public class PropertyAnimation extends Animation {
 		OS.GCHandle_Free(dp);		
 	}
 
-	public double getDecelerationRatio() {
-		checkAnimation();
-		return decelerationRatio;
-	}
+
 
 	int getDependencyProperty() {
 		if (interpolator != null) {
@@ -299,11 +289,6 @@ public class PropertyAnimation extends Animation {
 			return ((Effect)target).handle;
 		}
 		return 0;
-	}
-
-	private void updateAccelRatios() {
-		OS.Timeline_AccelerationRatio(handle, accelerationRatio);
-		OS.Timeline_DecelerationRatio(handle, decelerationRatio);
 	}
 	
 	long updateDuration(long delay) {

@@ -43,14 +43,14 @@ public class CompositeAnimation extends Animation {
 		return animations[i];
 	}
 	
-	public long getDuration() {
-		long duration = 0;
-		for (int i = 0; i < childCount; i++) {
-			Animation a = animations[i];
-			duration += a.getDuration();
-		}
-		return duration;
-	}
+//	public long getDuration() {
+//		long duration = 0;
+//		for (int i = 0; i < childCount; i++) {
+//			Animation a = animations[i];
+//			duration += a.getDuration();
+//		}
+//		return duration;
+//	}
 		
 	void release() {
 		super.release();
