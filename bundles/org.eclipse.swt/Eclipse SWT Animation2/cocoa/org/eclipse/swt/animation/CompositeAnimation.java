@@ -17,7 +17,7 @@ public class CompositeAnimation extends Animation {
 		childCount++;
 	}
 
-	public void childFinished(Animation child) {
+	void childFinished(Animation child) {
 	}
 	
 	public Animation getAnimation(int i) {

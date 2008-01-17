@@ -201,10 +201,10 @@ public class PropertyAnimation extends Animation {
 		this.from = from;
 	}
 	
-	public void setInterpolator(IInterpolator interpolator) {
-		checkAnimation();
-		this.interpolator = interpolator;
-	}
+//	public void setInterpolator(IInterpolator interpolator) {
+//		checkAnimation();
+//		this.interpolator = interpolator;
+//	}
 	
 	public void setProperty(String property) {
 		checkAnimation();

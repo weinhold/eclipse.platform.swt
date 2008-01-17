@@ -19,7 +19,7 @@ public class SequenceAnimation extends CompositeAnimation {
 		if (animations != null && childCount > 0) animations[0].start(widget);
 	}
 	
-	public void childFinished(Animation child) {
+	void childFinished(Animation child) {
 		if (stopped) return;
 		current++;
 		if (current < childCount) animations[current].start(widget);
