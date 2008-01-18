@@ -9,10 +9,8 @@ import org.eclipse.swt.internal.wpf.*;
 import org.eclipse.swt.widgets.*;
 
 public class PropertyAnimation extends Animation {
-	double from, to;
+	Object from, to;
 	long duration;
-	float[] transformTo, transformFrom;
-	Color colorTo, colorFrom;
 	String name, property;
 	Object target;
 	Method method;
@@ -28,7 +26,6 @@ public class PropertyAnimation extends Animation {
 			super.create();
 			setParamType();
 			createAnimation();
-			setTargetProperty();
 			register(widget);
 		}
 		updateFromToValues();
@@ -39,12 +36,16 @@ public class PropertyAnimation extends Animation {
 		int children = OS.TimelineGroup_Children(handle);
 		OS.IList_Add(children, customAnimation);
 		OS.GCHandle_Free(children);
+		setTargetProperty (customAnimation, property);
 	}
 	
 	void createDoubleAnimation() {
 	}
 
 	void createIntegerAnimation() {
+	}
+	
+	void createRectangleAnimation() {
 	}
 	
 	void OnPropertyChanged(int object, int args) {
@@ -89,6 +90,9 @@ public class PropertyAnimation extends Animation {
 	}
 	
 	Color getColor(double newValue) {
+		if (!(from instanceof Color && to instanceof Color)) return null;
+		Color colorFrom = (Color)from;
+		Color colorTo = (Color)to;
 		RGB start = colorFrom.getRGB();
 		RGB end = colorTo.getRGB();
 		int red = (int) (((end.red-start.red)*newValue) + start.red);
@@ -101,7 +105,7 @@ public class PropertyAnimation extends Animation {
 	void GetCurrentValueCore(double currentTime) {
 		if (interpolator != null) {
 			try {
-				nextValue = interpolator.getCurrentValue(new Double(from), new Double(to), (long)currentTime, duration);
+				nextValue = interpolator.getCurrentValue(from, to, (long)currentTime, duration);
 				return;
 			} catch (RuntimeException e) {
 				e.printStackTrace();
@@ -115,6 +119,11 @@ public class PropertyAnimation extends Animation {
 	}
 	
 	Transform getTransform(double newValue) {
+		if (!(from instanceof Transform && to instanceof Transform)) return null;
+		float[] transformFrom = new float[6];
+		float[] transformTo = new float[6];
+		((Transform)from).getElements(transformFrom);
+		((Transform)to).getElements(transformTo);
 		Control control = (Control)target;
 		Transform transform = control.getTransform();
 		float[] f = new float[6];
@@ -153,37 +162,17 @@ public class PropertyAnimation extends Animation {
 		this.duration = duration;
 	}
 
-	public void setFrom(Color from) {
-		checkAnimation();
-		colorFrom = from;
-		this.to = 1;
-		this.from = 0;
-	}
-	
-	public void setFrom(double from) {
+	public void setFrom(Object from) {
 		checkAnimation();
 		this.from = from;
 	}
 	
-	public void setFrom(Transform from) {
-		checkAnimation();
-		transformFrom = new float[6];
-		from.getElements(transformFrom);
-		this.to = 1;
-		this.from = 0;
-	}
-
 //	public void setInterpolator(IInterpolator interpolator) {
 //		checkAnimation();
 //		this.interpolator = interpolator;
 //	}
 	
 	void setParamType() {
-		if (interpolator == null) {
-			// if using custom interpolation we cannot use OS to set property.
-			paramType = Properties.getParamType(property);
-		}
-		if (paramType != null) return;
 		String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
 		Class clazz = target.getClass();
 		Method[] methods = clazz.getMethods();
@@ -199,7 +188,6 @@ public class PropertyAnimation extends Animation {
 		}
 //		if (method == null) error?
 		paramType = method.getParameterTypes()[0];
-		animatorHandle = OS.gcnew_SWTAnimator(jniRef);
 	}
 	
 	public void setProperty(String property) {
@@ -212,22 +200,15 @@ public class PropertyAnimation extends Animation {
 		this.target = target;
 	}
 
-	void setTargetProperty() {
-		int dp = getDependencyProperty();
-		int propertyPath = OS.gcnew_PropertyPath(dp);
-		OS.Storyboard_SetTargetProperty(handle, propertyPath);
-		OS.GCHandle_Free(propertyPath);
-		OS.GCHandle_Free(dp);		
-	}
-
-
-
-	int getDependencyProperty() {
+	void setTargetProperty(int dependencyObject, String prop) {
+		int dp;
 		if (interpolator != null) {
-			return OS.SWTAnimator_DoubleValueProperty();
+			dp = OS.SWTAnimator_DoubleValueProperty();
+		} else {
+			dp = Properties.getDependencyProperty(target, prop);
 		}
-		int dp = Properties.getDependencyProperty(target, property);
 		if (dp == 0) {
+			animatorHandle = OS.gcnew_SWTAnimator(jniRef);
 			if (paramType == null
 					|| paramType == Double.TYPE
 					|| paramType == Color.class
@@ -239,7 +220,10 @@ public class PropertyAnimation extends Animation {
 				throw new RuntimeException(paramType + " is not supported yet.");
 			}
 		}
-		return dp;
+		int propertyPath = OS.gcnew_PropertyPath(dp);
+		OS.Storyboard_SetTargetProperty(dependencyObject, propertyPath);
+		OS.GCHandle_Free(propertyPath);
+		OS.GCHandle_Free(dp);	
 	}
 
 	void createAnimation() {
@@ -256,30 +240,19 @@ public class PropertyAnimation extends Animation {
 		if (paramType == Integer.TYPE) {
 			createIntegerAnimation();
 			return;
-		} 
+		}
+		if (paramType == Rectangle.class) {
+			createRectangleAnimation();
+			return;
+		}
 		throw new RuntimeException(paramType + " is not supported yet.");
 	}
 
-	public void setTo(Color to) {
-		checkAnimation();
-		colorTo = to;
-		this.to = 1;
-		this.from = 0;
-	}
-	
-	public void setTo(double to) {
+	public void setTo(Object to) {
 		checkAnimation();
 		this.to = to;
 	}
-
-	public void setTo(Transform to) {
-		checkAnimation();
-		transformTo = new float[6];
-		to.getElements(transformTo);
-		this.to = 1;
-		this.from = 0;
-	}
-	
+		
 	int targetHandle() {
 		if (animatorHandle != 0) return animatorHandle;
 		if (target instanceof Widget) {

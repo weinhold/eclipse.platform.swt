@@ -5,6 +5,7 @@ import org.eclipse.swt.internal.wpf.*;
 
 public class LinearPropertyAnimation extends PropertyAnimation {
 	int animation;
+	int xAnim, yAnim, wAnim, hAnim;
 	double accelerationRatio, decelerationRatio;
 	
 	void create() {
@@ -16,12 +17,31 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		int children = OS.TimelineGroup_Children(handle);
 		OS.IList_Add(children, animation);
 		OS.GCHandle_Free(children);
+		setTargetProperty(animation, property);
 	}
 
 	void createIntegerAnimation() {
 		animation = OS.gcnew_Int32Animation();
 		int children = OS.TimelineGroup_Children(handle);
 		OS.IList_Add(children, animation);
+		OS.GCHandle_Free(children);
+		setTargetProperty(animation, property);
+	}
+	
+	void createRectangleAnimation() {
+		int children = OS.TimelineGroup_Children(handle);
+		xAnim = OS.gcnew_DoubleAnimation();
+		OS.IList_Add(children, xAnim);
+		setTargetProperty(xAnim, "x");
+		yAnim = OS.gcnew_DoubleAnimation();
+		OS.IList_Add(children, yAnim);
+		setTargetProperty(yAnim, "y");
+		wAnim = OS.gcnew_DoubleAnimation();
+		OS.IList_Add(children, wAnim);
+		setTargetProperty(wAnim, "Width");
+		hAnim = OS.gcnew_DoubleAnimation();
+		OS.IList_Add(children, hAnim);
+		setTargetProperty(hAnim, "Height");
 		OS.GCHandle_Free(children);
 	}
 	
@@ -39,6 +59,14 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		super.release();
 		if (animation != 0) OS.GCHandle_Free(animation);
 		animation = 0;
+		if (xAnim != 0) OS.GCHandle_Free(xAnim);
+		xAnim = 0;
+		if (yAnim != 0) OS.GCHandle_Free(yAnim);
+		yAnim = 0;
+		if (wAnim != 0) OS.GCHandle_Free(wAnim);
+		wAnim = 0;
+		if (hAnim != 0) OS.GCHandle_Free(hAnim);
+		hAnim = 0;
 	}
 
 	public void setAccelerationRatio(double ratio) {
@@ -60,28 +88,42 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		//set duration
 		int timeSpan = OS.TimeSpan_FromMilliseconds(duration);
 		int dur = OS.gcnew_Duration(timeSpan);
-		OS.Timeline_Duration(animation, dur);
+		OS.Timeline_Duration(handle, dur);
 		OS.GCHandle_Free(dur);
 		OS.GCHandle_Free(timeSpan);
 		//set begin time
 		timeSpan = OS.TimeSpan_FromMilliseconds(delay + beginTime);
-		OS.Timeline_BeginTime(animation, timeSpan);
+		OS.Timeline_BeginTime(handle, timeSpan);
 		OS.GCHandle_Free(timeSpan);		
 		return delay+beginTime+duration;
 	}
 
 	void updateFromToValues() {
-		if (paramType == Double.TYPE
-				|| paramType == Color.class
-				|| paramType == Transform.class) {
-			OS.DoubleAnimation_From(animation, from);
-			OS.DoubleAnimation_To(animation, to);
-		} else if (paramType == Integer.TYPE) {
-			OS.Int32Animation_From(animation, (int)from);
-			OS.Int32Animation_To(animation, (int)to);
-		} else {
-			throw new RuntimeException(paramType.getName() + " is not supported yet.");
+		if (paramType == Double.TYPE) {
+				OS.DoubleAnimation_From(animation, ((Double)from).doubleValue());
+				OS.DoubleAnimation_To(animation, ((Double)to).doubleValue());
 		}
+		if (paramType == Color.class || paramType == Transform.class) {
+			OS.DoubleAnimation_From(animation, 0);
+			OS.DoubleAnimation_To(animation, 1);
+		} 
+		if (paramType == Integer.TYPE) {
+			OS.Int32Animation_From(animation, ((Integer)from).intValue());
+			OS.Int32Animation_To(animation, ((Integer)to).intValue());
+		} 
+		if (paramType == Rectangle.class) {
+			OS.DoubleAnimation_From(xAnim, ((Rectangle)from).x);
+			OS.DoubleAnimation_To(xAnim, ((Rectangle)to).x);			
+			OS.DoubleAnimation_From(yAnim, ((Rectangle)from).y);
+			OS.DoubleAnimation_To(yAnim, ((Rectangle)to).y);			
+			OS.DoubleAnimation_From(wAnim, ((Rectangle)from).width);
+			OS.DoubleAnimation_To(wAnim, ((Rectangle)to).width);			
+			OS.DoubleAnimation_From(hAnim, ((Rectangle)from).height);
+			OS.DoubleAnimation_To(hAnim, ((Rectangle)to).height);			
+		}
+//		else {
+//			throw new RuntimeException(paramType.getName() + " is not supported yet.");
+//		}
 	}
 }
 
