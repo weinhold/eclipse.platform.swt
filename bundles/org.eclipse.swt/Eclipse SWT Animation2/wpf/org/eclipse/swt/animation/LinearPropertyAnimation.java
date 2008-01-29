@@ -88,7 +88,11 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		//set duration
 		int timeSpan = OS.TimeSpan_FromMilliseconds(duration);
 		int dur = OS.gcnew_Duration(timeSpan);
-		OS.Timeline_Duration(handle, dur);
+		if (animation != 0) OS.Timeline_Duration(animation, dur);
+		if (xAnim != 0) OS.Timeline_Duration(xAnim, dur);
+		if (yAnim != 0) OS.Timeline_Duration(yAnim, dur);
+		if (wAnim != 0) OS.Timeline_Duration(wAnim, dur);
+		if (hAnim != 0) OS.Timeline_Duration(hAnim, dur);
 		OS.GCHandle_Free(dur);
 		OS.GCHandle_Free(timeSpan);
 		//set begin time

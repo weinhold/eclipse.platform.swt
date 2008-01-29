@@ -176,10 +176,10 @@ public class SplinePropertyAnimation extends PropertyAnimation {
 			OS.DoubleKeyFrame_Value(eY, toRect.y);
 			OS.DoubleKeyFrame_Value(eW, toRect.width);
 			OS.DoubleKeyFrame_Value(eH, toRect.height);
-			OS.SplineInt32KeyFrame_KeySpline(eX, keySpline);
-			OS.SplineInt32KeyFrame_KeySpline(eY, keySpline);
-			OS.SplineInt32KeyFrame_KeySpline(eW, keySpline);
-			OS.SplineInt32KeyFrame_KeySpline(eH, keySpline);
+			OS.SplineDoubleKeyFrame_KeySpline(eX, keySpline);
+			OS.SplineDoubleKeyFrame_KeySpline(eY, keySpline);
+			OS.SplineDoubleKeyFrame_KeySpline(eW, keySpline);
+			OS.SplineDoubleKeyFrame_KeySpline(eH, keySpline);
 		} 
 		OS.GCHandle_Free(keySpline);
 	}
