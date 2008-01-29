@@ -153,9 +153,7 @@ public class SplinePropertyAnimation extends PropertyAnimation {
 	
 	void updateFromToValues() {
 		int keySpline = OS.gcnew_KeySpline(x1, y1, x2, y2);
-		if (paramType == Double.TYPE
-				|| paramType == Color.class
-				|| paramType == Transform.class) {
+		if (paramType == Double.TYPE) {
 			OS.DoubleKeyFrame_Value(beginFrame, ((Double)from).doubleValue());
 			OS.DoubleKeyFrame_Value(endFrame, ((Double)to).doubleValue());
 			OS.SplineDoubleKeyFrame_KeySpline(endFrame, keySpline);
@@ -165,6 +163,11 @@ public class SplinePropertyAnimation extends PropertyAnimation {
 			OS.Int32KeyFrame_Value(endFrame, ((Integer)to).intValue());
 			OS.SplineInt32KeyFrame_KeySpline(endFrame, keySpline);
 		}		
+		if (paramType == Color.class || paramType == Transform.class) {
+			OS.DoubleKeyFrame_Value(beginFrame, 0.0);
+			OS.DoubleKeyFrame_Value(endFrame, 1.0);
+			OS.SplineDoubleKeyFrame_KeySpline(endFrame, keySpline);
+		}
 		if (paramType == Rectangle.class) {
 			Rectangle fromRect = (Rectangle) from;
 			Rectangle toRect = (Rectangle) to;

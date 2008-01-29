@@ -200,7 +200,7 @@ public class PropertyAnimation extends Animation {
 		this.target = target;
 	}
 
-	void setTargetProperty(int dependencyObject, String prop) {
+	void setTargetProperty(int animation, String prop) {
 		int dp;
 		if (interpolator != null) {
 			dp = OS.SWTAnimator_DoubleValueProperty();
@@ -221,7 +221,7 @@ public class PropertyAnimation extends Animation {
 			}
 		}
 		int propertyPath = OS.gcnew_PropertyPath(dp);
-		OS.Storyboard_SetTargetProperty(dependencyObject, propertyPath);
+		OS.Storyboard_SetTargetProperty(animation, propertyPath);
 		OS.GCHandle_Free(propertyPath);
 		OS.GCHandle_Free(dp);	
 	}

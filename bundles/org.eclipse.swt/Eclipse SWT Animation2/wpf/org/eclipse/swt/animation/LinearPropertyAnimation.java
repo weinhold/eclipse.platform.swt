@@ -104,8 +104,8 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 
 	void updateFromToValues() {
 		if (paramType == Double.TYPE) {
-				OS.DoubleAnimation_From(animation, ((Double)from).doubleValue());
-				OS.DoubleAnimation_To(animation, ((Double)to).doubleValue());
+			OS.DoubleAnimation_From(animation, ((Double)from).doubleValue());
+			OS.DoubleAnimation_To(animation, ((Double)to).doubleValue());
 		}
 		if (paramType == Color.class || paramType == Transform.class) {
 			OS.DoubleAnimation_From(animation, 0);

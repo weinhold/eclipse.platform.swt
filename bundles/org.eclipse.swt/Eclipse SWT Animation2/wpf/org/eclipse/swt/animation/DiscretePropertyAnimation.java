@@ -17,9 +17,9 @@ public class DiscretePropertyAnimation extends PropertyAnimation {
 		OS.GCHandle_Free(frames);
 		int children = OS.TimelineGroup_Children(handle);
 		OS.IList_Add(children, animation);
+		setTargetProperty(animation, property);
 		OS.GCHandle_Free(children);
 		OS.GCHandle_Free(animation);
-		setTargetProperty(animation, property);
 	}
 
 	void createIntegerAnimation() {
@@ -32,9 +32,9 @@ public class DiscretePropertyAnimation extends PropertyAnimation {
 		OS.GCHandle_Free(frames);
 		int children = OS.TimelineGroup_Children(handle);
 		OS.IList_Add(children, animation);
+		setTargetProperty(animation, property);
 		OS.GCHandle_Free(children);
 		OS.GCHandle_Free(animation);
-		setTargetProperty(animation, property);
 	}
 	
 	void createRectangleAnimation() {
@@ -46,8 +46,8 @@ public class DiscretePropertyAnimation extends PropertyAnimation {
 		OS.IList_Add(frames, bX);
 		OS.IList_Add(frames, eX);
 		OS.GCHandle_Free(frames);
-		OS.IList_Add(children, animation);
 		setTargetProperty(animation, "x");
+		OS.IList_Add(children, animation);
 		OS.GCHandle_Free(animation);
 		
 		animation = OS.gcnew_DoubleAnimationUsingKeyFrames();
@@ -143,12 +143,14 @@ public class DiscretePropertyAnimation extends PropertyAnimation {
 	}
 	
 	void updateFromToValues() {
-		if (paramType == Double.TYPE
-				|| paramType == Color.class
-				|| paramType == Transform.class) {
+		if (paramType == Double.TYPE) {
 			OS.DoubleKeyFrame_Value(beginFrame, ((Double)from).doubleValue());
 			OS.DoubleKeyFrame_Value(endFrame, ((Double)to).doubleValue());
 		} 
+		if (paramType == Color.class || paramType == Transform.class) {
+			OS.DoubleKeyFrame_Value(beginFrame, 0.0);
+			OS.DoubleKeyFrame_Value(endFrame, 1.0);
+		}
 		if (paramType == Integer.TYPE) {
 			OS.Int32KeyFrame_Value(beginFrame, ((Integer)from).intValue());
 			OS.Int32KeyFrame_Value(endFrame, ((Integer)to).intValue());
