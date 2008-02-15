@@ -115,6 +115,9 @@ void createHandle () {
 	} else {
 		handle = OS.gcnew_Label ();
 		if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+		int thickness = OS.gcnew_Thickness(0, 0, 0, 0);
+		OS.Control_Padding(handle, thickness);
+		OS.GCHandle_Free(thickness);
 		int value = OS.HorizontalAlignment_Left;
 		if ((style & SWT.CENTER) != 0) value = OS.HorizontalAlignment_Center;
 		if ((style & SWT.RIGHT) != 0) value = OS.HorizontalAlignment_Right;
