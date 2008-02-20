@@ -814,7 +814,6 @@ void setSelection (int value, boolean setPos, boolean setText, boolean notify) {
 	if (notify) postEvent (SWT.Selection);
 }
 
-
 /**
  * Sets the receiver's selection, minimum value, maximum
  * value, digits, increment and page increment all at once.
