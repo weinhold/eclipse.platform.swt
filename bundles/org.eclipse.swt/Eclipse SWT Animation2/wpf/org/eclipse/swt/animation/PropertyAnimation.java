@@ -48,6 +48,9 @@ public class PropertyAnimation extends Animation {
 	void createRectangleAnimation() {
 	}
 	
+	void createPointAnimation() {
+	}
+	
 	void OnPropertyChanged(int object, int args) {
 		try {
 			if (nextValue != null) {
@@ -173,6 +176,10 @@ public class PropertyAnimation extends Animation {
 //	}
 	
 	void setParamType() {
+		if ("alpha".equals(property) || "x".equals(property) || "y".equals(property) || "width".equals(property) || "height".equals(property)) {
+			paramType = Double.TYPE;
+			return;
+		}
 		String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
 		Class clazz = target.getClass();
 		Method[] methods = clazz.getMethods();
@@ -243,6 +250,10 @@ public class PropertyAnimation extends Animation {
 		}
 		if (paramType == Rectangle.class) {
 			createRectangleAnimation();
+			return;
+		}
+		if (paramType == Point.class) {
+			createPointAnimation();
 			return;
 		}
 		throw new RuntimeException(paramType + " is not supported yet.");

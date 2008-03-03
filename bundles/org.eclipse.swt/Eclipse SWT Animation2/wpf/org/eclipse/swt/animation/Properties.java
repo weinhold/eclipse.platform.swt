@@ -18,6 +18,7 @@ class Properties {
 	}
 	
 	static int getDependencyProperty(Object target, String property) {
+		if (property.equalsIgnoreCase("alpha")) return OS.UIElement_OpacityProperty();
 		if (property.equalsIgnoreCase("x")) return OS.Canvas_LeftProperty();
 		if (property.equalsIgnoreCase("y")) return OS.Canvas_TopProperty();
 		if (property.equalsIgnoreCase("Width")) {

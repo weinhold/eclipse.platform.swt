@@ -126,7 +126,7 @@ void createHandle () {
 }
 
 int defaultBackground () {
-	return OS.SystemColors_ControlColor;
+	return 0;
 }
 
 /**

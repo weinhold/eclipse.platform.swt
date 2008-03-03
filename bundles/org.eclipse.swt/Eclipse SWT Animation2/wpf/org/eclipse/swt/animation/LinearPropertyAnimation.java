@@ -28,6 +28,27 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 		setTargetProperty(animation, property);
 	}
 	
+	void createPointAnimation() {
+		int children = OS.TimelineGroup_Children(handle);
+		if ("location".equals(property)) {
+			xAnim = OS.gcnew_DoubleAnimation();
+			OS.IList_Add(children, xAnim);
+			setTargetProperty(xAnim, "x");
+			yAnim = OS.gcnew_DoubleAnimation();
+			OS.IList_Add(children, yAnim);
+			setTargetProperty(yAnim, "y");
+		}
+		if ("size".equals(property)) {
+			wAnim = OS.gcnew_DoubleAnimation();
+			OS.IList_Add(children, wAnim);
+			setTargetProperty(wAnim, "Width");
+			hAnim = OS.gcnew_DoubleAnimation();
+			OS.IList_Add(children, hAnim);
+			setTargetProperty(hAnim, "Height");
+		}
+		OS.GCHandle_Free(children);
+	}
+	
 	void createRectangleAnimation() {
 		int children = OS.TimelineGroup_Children(handle);
 		xAnim = OS.gcnew_DoubleAnimation();
@@ -104,26 +125,54 @@ public class LinearPropertyAnimation extends PropertyAnimation {
 
 	void updateFromToValues() {
 		if (paramType == Double.TYPE) {
-			OS.DoubleAnimation_From(animation, ((Double)from).doubleValue());
-			OS.DoubleAnimation_To(animation, ((Double)to).doubleValue());
+			double fromValue = 0, toValue;
+			if ("alpha".equals(property)) {
+				if (from != null) fromValue = ((Number)from).doubleValue() / 255;
+				toValue = ((Number)to).doubleValue() / 255;
+			} else {
+				if (from != null) fromValue = ((Number)from).doubleValue();
+				toValue = ((Number)to).doubleValue();
+			}
+			if (from != null) OS.DoubleAnimation_From(animation, fromValue);
+			OS.DoubleAnimation_To(animation, toValue);
 		}
 		if (paramType == Color.class || paramType == Transform.class) {
 			OS.DoubleAnimation_From(animation, 0);
 			OS.DoubleAnimation_To(animation, 1);
 		} 
 		if (paramType == Integer.TYPE) {
-			OS.Int32Animation_From(animation, ((Integer)from).intValue());
+			if (from != null) OS.Int32Animation_From(animation, ((Integer)from).intValue());
 			OS.Int32Animation_To(animation, ((Integer)to).intValue());
 		} 
 		if (paramType == Rectangle.class) {
-			OS.DoubleAnimation_From(xAnim, ((Rectangle)from).x);
+			if (from != null) {
+				OS.DoubleAnimation_From(xAnim, ((Rectangle)from).x);
+				OS.DoubleAnimation_From(yAnim, ((Rectangle)from).y);
+				OS.DoubleAnimation_From(wAnim, ((Rectangle)from).width);
+				OS.DoubleAnimation_From(hAnim, ((Rectangle)from).height);
+			}
 			OS.DoubleAnimation_To(xAnim, ((Rectangle)to).x);			
-			OS.DoubleAnimation_From(yAnim, ((Rectangle)from).y);
 			OS.DoubleAnimation_To(yAnim, ((Rectangle)to).y);			
-			OS.DoubleAnimation_From(wAnim, ((Rectangle)from).width);
 			OS.DoubleAnimation_To(wAnim, ((Rectangle)to).width);			
-			OS.DoubleAnimation_From(hAnim, ((Rectangle)from).height);
 			OS.DoubleAnimation_To(hAnim, ((Rectangle)to).height);			
+		}
+		if (paramType == Point.class) {
+			if ("location".equals(property)) {
+				if (from != null) {
+					OS.DoubleAnimation_From(xAnim, ((Point)from).x);
+					OS.DoubleAnimation_From(yAnim, ((Point)from).y);
+				}
+				OS.DoubleAnimation_To(xAnim, ((Point)to).x);			
+				OS.DoubleAnimation_To(yAnim, ((Point)to).y);
+			}
+			if ("size".equals(property)) {
+				if (from != null) {
+					OS.DoubleAnimation_From(wAnim, ((Point)from).x);
+					OS.DoubleAnimation_From(hAnim, ((Point)from).y);
+				}
+				OS.DoubleAnimation_To(wAnim, ((Point)to).x);			
+				OS.DoubleAnimation_To(hAnim, ((Point)to).y);
+			}
 		}
 //		else {
 //			throw new RuntimeException(paramType.getName() + " is not supported yet.");
