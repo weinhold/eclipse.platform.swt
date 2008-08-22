@@ -78,24 +78,6 @@ void loadFiles () {
 	}
 }
 
-String loadFile (File file) {
-	try {
-		FileReader fr = new FileReader(file);
-		BufferedReader br = new BufferedReader(fr);
-		StringBuffer str = new StringBuffer();
-		char[] buffer = new char[1024];
-		int read;
-		while ((read = br.read(buffer)) != -1) {
-			str.append(buffer, 0, read);
-		}
-		fr.close();
-		return str.toString();
-	} catch (IOException e) {
-		e.printStackTrace(System.out);
-	}
-	return "";
-}
-
 void loadDirectory(File file) {
 	String[] entries = file.list();
 	for (int i = 0; i < entries.length; i++) {

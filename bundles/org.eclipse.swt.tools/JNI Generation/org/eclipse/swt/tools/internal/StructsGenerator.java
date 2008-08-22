@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StructsGenerator extends JNIGenerator {
 
 boolean header;
+String currentSource;
 
 static final boolean GLOBAL_REF = false;
 
@@ -109,6 +114,7 @@ void generateHeaderFile(Class clazz) {
 }
 
 void generateSourceFile(Class clazz) {
+	currentSource = loadSource(clazz);
 	generateSourceStart(clazz);
 	generateFIDsStructure(clazz);
 	outputln();
@@ -261,14 +267,56 @@ void generateCacheFunction(Class clazz) {
 		output(clazzName);
 		output("Fc.clazz, \"");
 		output(field.getName());
-		output("\", \"");
-		output(getTypeSignature(field.getType()));
-		outputln("\");");
+		output("\", ");
+		boolean is64 = is64(field);
+		if (!is64) output("\"");
+		output(getTypeSignature(field.getType(), is64));
+		if (!is64) output("\"");
+		outputln(");");
 	}
 	output("\t");
 	output(clazzName);
 	outputln("Fc.cached = 1;");
 	outputln("}");
+}
+
+boolean is64(Field field) {
+	String[] types = null;
+	Class clazz = field.getType();
+	if (clazz.equals(int.class)) {
+		types = new String[]{"int \\/\\*long\\*\\/"};
+	} else if (clazz.equals(float.class)) {
+		types = new String[]{"float \\/\\*double\\*\\/"};
+	} else if (clazz.equals(int[].class)) {
+		types = new String[]{"int \\/\\*long\\*\\/\\s*\\[\\s*\\]", "int\\[\\] \\/\\*long\\[\\]\\*\\/"};
+	} else if (clazz.equals(float[].class)) {
+		types = new String[]{"float \\/\\*double\\*\\/\\s*\\[\\s*\\]", "float\\[\\] \\/\\*double\\[\\]\\*\\/"};
+	} else {
+		return false;
+	}
+	String name = field.getName();
+	for (int t = 0; t < types.length; t++) {
+		String type = types[t];
+		Matcher matcher = Pattern.compile(type).matcher(currentSource);
+		int start = 0;
+		while (matcher.find(start)) {
+			int semicolon = currentSource.indexOf(';', matcher.end());
+			String[] fields = currentSource.substring(matcher.end(), semicolon).split(",");
+			for (int i = 0; i < fields.length; i++) {
+				if (fields[i].indexOf('=') != -1) {
+					if (fields[i].split("=")[0].trim().equals(name)) {
+						return true;
+					}
+				} else {
+					if (fields[i].trim().equals(name)) {
+						return true;
+					}
+				}
+			}
+			start = matcher.end();
+		}		
+	}
+	return false;
 }
 
 void generateGetFields(Class clazz) {
@@ -291,6 +339,7 @@ void generateGetFields(Class clazz) {
 	for (int i = 0; i < fields.length; i++) {
 		Field field = fields[i];
 		if (ignoreField(field)) continue;
+		boolean is64 = is64(field);
 		FieldData fieldData = getMetaData().getMetaData(field);
 		String exclude = fieldData.getExclude();
 		if (exclude.length() != 0) {
@@ -314,7 +363,7 @@ void generateGetFields(Class clazz) {
 			} else {
 				output("(*env)->Get");
 			}
-			output(getTypeSignature1(field.getType()));
+			output(getTypeSignature1(field.getType(), is64));
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
@@ -329,9 +378,9 @@ void generateGetFields(Class clazz) {
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(getTypeSignature2(field.getType()));
+				output(getTypeSignature2(field.getType(), is64));
 				output(" lpObject1 = (");
-				output(getTypeSignature2(field.getType()));
+				output(getTypeSignature2(field.getType(), is64));
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
@@ -346,7 +395,7 @@ void generateGetFields(Class clazz) {
 				} else {
 					output("\t(*env)->Get");
 				}
-				output(getTypeSignature1(componentType));
+				output(getTypeSignature1(componentType, is64));
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -360,7 +409,7 @@ void generateGetFields(Class clazz) {
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(getTypeSignature4(type));				
+				output(getTypeSignature4(type, false, is64));				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");
@@ -442,6 +491,7 @@ void generateSetFields(Class clazz) {
 	for (int i = 0; i < fields.length; i++) {
 		Field field = fields[i];
 		if (ignoreField(field)) continue;
+		boolean is64 = is64(field);
 		FieldData fieldData = getMetaData().getMetaData(field);
 		String exclude = fieldData.getExclude();
 		if (exclude.length() != 0) {
@@ -461,7 +511,7 @@ void generateSetFields(Class clazz) {
 			} else {
 				output("\t(*env)->Set");
 			}
-			output(getTypeSignature1(field.getType()));
+			output(getTypeSignature1(field.getType(), is64));
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
@@ -471,7 +521,7 @@ void generateSetFields(Class clazz) {
 			output("Fc.");
 			output(field.getName());
 			output(", (");
-			output(getTypeSignature2(field.getType()));
+			output(getTypeSignature2(field.getType(), is64));
 			output(")lpStruct->");
 			output(accessor);
 			output(");");
@@ -480,9 +530,9 @@ void generateSetFields(Class clazz) {
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(getTypeSignature2(field.getType()));
+				output(getTypeSignature2(field.getType(), is64));
 				output(" lpObject1 = (");
-				output(getTypeSignature2(field.getType()));
+				output(getTypeSignature2(field.getType(), is64));
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
@@ -497,7 +547,7 @@ void generateSetFields(Class clazz) {
 				} else {
 					output("\t(*env)->Set");
 				}
-				output(getTypeSignature1(componentType));
+				output(getTypeSignature1(componentType, is64));
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -511,7 +561,7 @@ void generateSetFields(Class clazz) {
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(getTypeSignature4(type));				
+				output(getTypeSignature4(type, false, is64));				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");

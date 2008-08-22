@@ -25,6 +25,7 @@ public abstract class JNIGenerator implements Flags {
 	String delimiter;
 	PrintStream output;
 	ProgressMonitor progress;
+	String sourceDir;
 
 public JNIGenerator() {
 	delimiter = System.getProperty("line.separator");
@@ -91,52 +92,65 @@ static int getByteCount(Class clazz) {
 }
 
 static String getTypeSignature(Class clazz) {
+	return getTypeSignature(clazz, false);
+}
+
+static String getTypeSignature(Class clazz, boolean is64) {
 	if (clazz == Void.TYPE) return "V";
-	if (clazz == Integer.TYPE) return "I";
+	if (clazz == Integer.TYPE) return is64 ? "SWT_Int_SIGNATURE" : "I";
 	if (clazz == Boolean.TYPE) return "Z";
 	if (clazz == Long.TYPE) return "J";
 	if (clazz == Short.TYPE) return "S";
 	if (clazz == Character.TYPE) return "C";
 	if (clazz == Byte.TYPE) return "B";
-	if (clazz == Float.TYPE) return "F";
+	if (clazz == Float.TYPE) return  is64 ? "SWT_Float_SIGNATURE" : "F";
 	if (clazz == Double.TYPE) return "D";
 	if (clazz == String.class) return "Ljava/lang/String;";
 	if (clazz.isArray()) {
 		Class componentType = clazz.getComponentType();
-		return "[" + getTypeSignature(componentType);
+		if (is64) return getTypeSignature(componentType, is64) + "Array";
+		return "[" + getTypeSignature(componentType, is64);
 	}
 	return "L" + clazz.getName().replace('.', '/') + ";";
 }
 
 static String getTypeSignature1(Class clazz) {
+	return getTypeSignature1(clazz, false);
+}
+
+static String getTypeSignature1(Class clazz, boolean is64) {
 	if (clazz == Void.TYPE) return "Void";
-	if (clazz == Integer.TYPE) return "Int";
+	if (clazz == Integer.TYPE) return is64 ? "SWT_Int" : "Int";
 	if (clazz == Boolean.TYPE) return "Boolean";
 	if (clazz == Long.TYPE) return "Long";
 	if (clazz == Short.TYPE) return "Short";
 	if (clazz == Character.TYPE) return "Char";
 	if (clazz == Byte.TYPE) return "Byte";
-	if (clazz == Float.TYPE) return "Float";
+	if (clazz == Float.TYPE) return is64 ? "SWT_Float" : "Float";
 	if (clazz == Double.TYPE) return "Double";
 	if (clazz == String.class) return "String";
 	return "Object";
 }
 
 static String getTypeSignature2(Class clazz) {
+	return getTypeSignature2(clazz, false);
+}
+
+static String getTypeSignature2(Class clazz, boolean is64) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return "jint";
+	if (clazz == Integer.TYPE) return is64 ? "SWT_Int" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
 	if (clazz == Long.TYPE) return "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";
-	if (clazz == Float.TYPE) return "jfloat";
+	if (clazz == Float.TYPE) return is64 ? "SWT_Float" : "jfloat";
 	if (clazz == Double.TYPE) return "jdouble";
 	if (clazz == String.class) return "jstring";
 	if (clazz == Class.class) return "jclass";
 	if (clazz.isArray()) {
 		Class componentType = clazz.getComponentType();
-		return getTypeSignature2(componentType) + "Array";
+		return getTypeSignature2(componentType, is64) + "Array";
 	}
 	return "jobject";
 }
@@ -163,20 +177,25 @@ static String getTypeSignature4(Class clazz) {
 	return getTypeSignature4(clazz, false);
 }
 
+
 static String getTypeSignature4(Class clazz, boolean struct) {
+	return getTypeSignature4(clazz, false, false);
+}
+
+static String getTypeSignature4(Class clazz, boolean struct, boolean is64) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return "jint";
+	if (clazz == Integer.TYPE) return is64 ? "SWT_Int" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
 	if (clazz == Long.TYPE) return "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";
-	if (clazz == Float.TYPE) return "jfloat";
+	if (clazz == Float.TYPE) return is64 ? "SWT_Float" : "jfloat";
 	if (clazz == Double.TYPE) return "jdouble";
 	if (clazz == String.class) return "jstring";
 	if (clazz.isArray()) {
 		Class componentType = clazz.getComponentType();
-		String sig = getTypeSignature4(componentType);
+		String sig = getTypeSignature4(componentType, false, is64);
 		return struct ? sig : sig + " *";
 	}
 	String sig = getClassName(clazz); 
@@ -345,7 +364,34 @@ public ProgressMonitor getProgressMonitor() {
 	return progress;
 }
 
+public String getSourceDir () {
+	return sourceDir;
+}
+
 public String getSuffix() {
+	return "";
+}
+
+String loadSource (Class clazz) {
+	String file = sourceDir + "/" + clazz.getName().replace('.', '/') + ".java";
+	return loadFile(new File(file));
+}
+
+String loadFile (File file) {
+	try {
+		FileReader fr = new FileReader(file);
+		BufferedReader br = new BufferedReader(fr);
+		StringBuffer str = new StringBuffer();
+		char[] buffer = new char[1024];
+		int read;
+		while ((read = br.read(buffer)) != -1) {
+			str.append(buffer, 0, read);
+		}
+		fr.close();
+		return str.toString();
+	} catch (IOException e) {
+		e.printStackTrace(System.out);
+	}
 	return "";
 }
 
@@ -384,6 +430,10 @@ public void setOutput(PrintStream output) {
 
 public void setProgressMonitor(ProgressMonitor progress) {
 	this.progress = progress;
+}
+
+public void setSourceDir(String sourceDir) {
+	this.sourceDir = sourceDir;
 }
 
 }

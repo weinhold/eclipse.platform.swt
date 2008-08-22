@@ -77,6 +77,7 @@ void generateSTATS_C(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
@@ -94,6 +95,7 @@ void generateSTATS_H(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
@@ -111,6 +113,7 @@ void generateSTRUCTS_H(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
@@ -129,6 +132,7 @@ void generateSTRUCTS_C(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
@@ -147,6 +151,7 @@ void generateSWT_C(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
@@ -165,6 +170,7 @@ void generateMetaData(Class[] classes) {
 		gen.setMainClass(mainClass);
 		gen.setClasses(classes);
 		gen.setMetaData(metaData);
+		gen.setSourceDir(new File(outputDir).getParent());
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
