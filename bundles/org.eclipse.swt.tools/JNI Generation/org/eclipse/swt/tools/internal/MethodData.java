@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.Method;
-
 public class MethodData extends ItemData {
 	
-	Method method;
+	JNIMethod method;
 
-public MethodData(Method method, String str) {
+public MethodData(JNIMethod method, String str) {
 	super(str);
 	this.method = method;
 }
@@ -25,7 +23,7 @@ public static String[] getAllFlags() {
 	return new String[]{FLAG_NO_GEN, FLAG_ADDRESS, FLAG_CONST, FLAG_DYNAMIC, FLAG_JNI, FLAG_CAST, FLAG_CPP, FLAG_NEW, FLAG_DELETE, FLAG_GCNEW, FLAG_GCOBJECT, FLAG_SETTER, FLAG_GETTER, FLAG_ADDER};
 }
 
-public Method getMethod() {
+public JNIMethod getMethod() {
 	return method;
 }
 

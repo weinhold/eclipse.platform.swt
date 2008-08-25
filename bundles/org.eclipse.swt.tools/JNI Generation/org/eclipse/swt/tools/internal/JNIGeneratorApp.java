@@ -21,7 +21,7 @@ import org.eclipse.swt.SWT;
 
 public class JNIGeneratorApp {
 
-	Class mainClass;
+	JNIClass mainClass;
 	ProgressMonitor progress;
 	String mainClassName, outputDir, classpath;
 	MetaData metaData;
@@ -33,7 +33,7 @@ public String getClasspath() {
 	return classpath;
 }
 
-public Class getMainClass() {
+public JNIClass getMainClass() {
 	return mainClass;
 }
 
@@ -71,7 +71,7 @@ public void generateAll() {
 	}
 }
 
-void generateSTATS_C(Class[] classes) {
+void generateSTATS_C(JNIClass[] classes) {
 	try {
 		StatsGenerator gen = new StatsGenerator(false);
 		gen.setMainClass(mainClass);
@@ -88,7 +88,7 @@ void generateSTATS_C(Class[] classes) {
 	}
 }
 
-void generateSTATS_H(Class[] classes) {
+void generateSTATS_H(JNIClass[] classes) {
 	try {
 		StatsGenerator gen = new StatsGenerator(true);
 		gen.setMainClass(mainClass);
@@ -105,7 +105,7 @@ void generateSTATS_H(Class[] classes) {
 	}
 }
 
-void generateSTRUCTS_H(Class[] classes) {
+void generateSTRUCTS_H(JNIClass[] classes) {
 	try {
 		StructsGenerator gen = new StructsGenerator(true);
 		gen.setMainClass(mainClass);
@@ -123,7 +123,7 @@ void generateSTRUCTS_H(Class[] classes) {
 
 }
 
-void generateSTRUCTS_C(Class[] classes) {
+void generateSTRUCTS_C(JNIClass[] classes) {
 	try {
 		StructsGenerator gen = new StructsGenerator(false);
 		gen.setMainClass(mainClass);
@@ -141,7 +141,7 @@ void generateSTRUCTS_C(Class[] classes) {
 
 }
 
-void generateSWT_C(Class[] classes) {
+void generateSWT_C(JNIClass[] classes) {
 	try {
 		NativesGenerator gen = new NativesGenerator();
 		gen.setMainClass(mainClass);
@@ -159,7 +159,7 @@ void generateSWT_C(Class[] classes) {
 }
 
 
-void generateMetaData(Class[] classes) {
+void generateMetaData(JNIClass[] classes) {
 	try {
 		MetaDataGenerator gen = new MetaDataGenerator();
 		gen.setMainClass(mainClass);
@@ -187,17 +187,17 @@ public void generate() {
 public void generate(ProgressMonitor progress) {
 	if (mainClassName == null) return;
 	if (progress != null) progress.setMessage("Initializing...");
-	Class[] classes = getClasses();
-	Class[] natives = getNativesClasses();
-	Class[] structs = getStructureClasses();
+	JNIClass[] classes = getClasses();
+	JNIClass[] natives = getNativesClasses();
+	JNIClass[] structs = getStructureClasses();
 	this.progress = progress;
 	if (progress != null) {
 		int nativeCount = 0;
 		for (int i = 0; i < natives.length; i++) {
-			Class clazz = natives[i];
-			Method[] methods = clazz.getDeclaredMethods();
+			JNIClass clazz = natives[i];
+			JNIMethod[] methods = clazz.getDeclaredMethods();
 			for (int j = 0; j < methods.length; j++) {
-				Method method = methods[j];
+				JNIMethod method = methods[j];
 				if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 				nativeCount++;
 			}
@@ -310,16 +310,16 @@ String[] getClassNames(String mainClassName) {
 	return (String[])classes.toArray(new String[classes.size()]);
 }
 
-public Class[] getClasses() {
-	if (mainClassName == null) return new Class[0];
+public JNIClass[] getClasses() {
+	if (mainClassName == null) return new JNIClass[0];
 	String[] classNames = getClassNames(mainClassName);
 	Arrays.sort(classNames);
 	String packageName = getPackageName(mainClassName);
-	Class[] classes = new Class[classNames.length];
+	JNIClass[] classes = new JNIClass[classNames.length];
 	for (int i = 0; i < classNames.length; i++) {
 		String className = classNames[i];
 		try {
-			classes[i] = Class.forName(packageName + "." + className, false, getClass().getClassLoader());
+			classes[i] = new ReflectClass(Class.forName(packageName + "." + className, false, getClass().getClassLoader()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -327,15 +327,15 @@ public Class[] getClasses() {
 	return classes;
 }
 
-public Class[] getNativesClasses() {
-	if (mainClassName == null) return new Class[0];
+public JNIClass[] getNativesClasses() {
+	if (mainClassName == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
-	Class[] classes = getClasses();
+	JNIClass[] classes = getClasses();
 	for (int i = 0; i < classes.length; i++) {
-		Class clazz = classes[i];
-		Method[] methods = clazz.getDeclaredMethods();
+		JNIClass clazz = classes[i];
+		JNIMethod[] methods = clazz.getDeclaredMethods();
 		for (int j = 0; j < methods.length; j++) {
-			Method method = methods[j];
+			JNIMethod method = methods[j];
 			int mods = method.getModifiers();
 			if ((mods & Modifier.NATIVE) != 0) {
 				result.add(clazz);
@@ -343,26 +343,26 @@ public Class[] getNativesClasses() {
 			}
 		}
 	}
-	return (Class[])result.toArray(new Class[result.size()]);
+	return (JNIClass[])result.toArray(new JNIClass[result.size()]);
 }
 
-public Class[] getStructureClasses() {
-	if (mainClassName == null) return new Class[0];
+public JNIClass[] getStructureClasses() {
+	if (mainClassName == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
-	Class[] classes = getClasses();
+	JNIClass[] classes = getClasses();
 	outer:
 	for (int i = 0; i < classes.length; i++) {
-		Class clazz = classes[i];
-		Method[] methods = clazz.getDeclaredMethods();
+		JNIClass clazz = classes[i];
+		JNIMethod[] methods = clazz.getDeclaredMethods();
 		for (int j = 0; j < methods.length; j++) {
-			Method method = methods[j];
+			JNIMethod method = methods[j];
 			int mods = method.getModifiers();
 			if ((mods & Modifier.NATIVE) != 0) continue outer;
 		}
-		Field[] fields = clazz.getFields();
+		JNIField[] fields = clazz.getDeclaredFields();
 		boolean hasPublicFields = false;
 		for (int j = 0; j < fields.length; j++) {
-			Field field = fields[j];
+			JNIField field = fields[j];
 			int mods = field.getModifiers();
 			if ((mods & Modifier.PUBLIC) != 0 && (mods & Modifier.STATIC) == 0) {
 				hasPublicFields = true;
@@ -372,7 +372,7 @@ public Class[] getStructureClasses() {
 		if (!hasPublicFields) continue;
 		result.add(clazz);
 	}
-	return (Class[])result.toArray(new Class[result.size()]);
+	return (JNIClass[])result.toArray(new JNIClass[result.size()]);
 }
 
 public void setClasspath(String classpath) {
@@ -393,7 +393,7 @@ public void setMainClassName(String str) {
 	}
 	if (mainClassName != null) {
 		try {
-			mainClass = Class.forName(mainClassName, false, getClass().getClassLoader());
+			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

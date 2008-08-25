@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
 
 public class StatsGenerator extends JNIGenerator {
 
@@ -34,7 +34,7 @@ public void generateIncludes() {
 	}
 }
 
-public void generate(Class clazz) {
+public void generate(JNIClass clazz) {
 	if (header) {
 		generateHeaderFile(clazz);
 	} else {
@@ -50,15 +50,15 @@ public String getSuffix() {
 	return "_stats";
 }
 
-void generateHeaderFile(Class clazz){
+void generateHeaderFile(JNIClass clazz){
 	generateNATIVEMacros(clazz);
-	Method[] methods = clazz.getDeclaredMethods();
+	JNIMethod[] methods = clazz.getDeclaredMethods();
 	sort(methods);
 	generateFunctionEnum(methods);	
 }
 
-void generateNATIVEMacros(Class clazz) {
-	String className = getClassName(clazz);
+void generateNATIVEMacros(JNIClass clazz) {
+	String className = clazz.getSimpleName();
 	outputln("#ifdef NATIVE_STATS");
 	output("extern int ");
 	output(className);
@@ -96,17 +96,17 @@ void generateNATIVEMacros(Class clazz) {
 	outputln();	
 }
 
-void generateSourceFile(Class clazz) {
+void generateSourceFile(JNIClass clazz) {
 	outputln("#ifdef NATIVE_STATS");
 	outputln();
-	Method[] methods = clazz.getDeclaredMethods();
+	JNIMethod[] methods = clazz.getDeclaredMethods();
 	int methodCount = 0;
 	for (int i = 0; i < methods.length; i++) {
-		Method method = methods[i];
+		JNIMethod method = methods[i];
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 		methodCount++;
 	}
-	String className = getClassName(clazz);
+	String className = clazz.getSimpleName();
 	output("int ");
 	output(className);
 	output("_nativeFunctionCount = ");
@@ -122,7 +122,7 @@ void generateSourceFile(Class clazz) {
 	outputln("_nativeFunctionNames[] = {");
 	sort(methods);
 	for (int i = 0; i < methods.length; i++) {
-		Method method = methods[i];
+		JNIMethod method = methods[i];
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 		output("\t\"");
 		output(getFunctionName(method));
@@ -178,20 +178,20 @@ void generateStatsNatives(String className) {
 	outputln("}");
 }
 
-void generateFunctionEnum(Method[] methods) {
+void generateFunctionEnum(JNIMethod[] methods) {
 	if (methods.length == 0) return;
 	outputln("typedef enum {");
 	for (int i = 0; i < methods.length; i++) {
-		Method method = methods[i];
+		JNIMethod method = methods[i];
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 		output("\t");
 		output(getFunctionName(method));
 		outputln("_FUNC,");
 		if (progress != null) progress.step();
 	}
-	Class clazz = methods[0].getDeclaringClass();
+	JNIClass clazz = methods[0].getDeclaringClass();
 	output("} ");
-	output(getClassName(clazz));
+	output(clazz.getSimpleName());
 	outputln("_FUNCS;");
 }
 

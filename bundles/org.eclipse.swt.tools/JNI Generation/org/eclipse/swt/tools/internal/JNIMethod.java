@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,29 +10,16 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-public class ClassData extends ItemData {
+public interface JNIMethod extends JNIItem {
+
+public String getName();
 	
-	Class clazz;
+public int getModifiers();
 
-public ClassData(Class clazz, String str) {
-	super(str);
-	this.clazz = clazz;
-}
-	
-public static String[] getAllFlags() {
-	return new String[]{FLAG_NO_GEN, FLAG_CPP};
-}
+public JNIClass[] getParameterTypes();
 
-public Class getClazz() {
-	return clazz;
-}
+public JNIClass getReturnType();
 
-public String getExclude() {
-	return (String)getParam("exclude");
-}
-
-public void setExclude(String str) { 
-	setParam("exclude", str);
-}
+public JNIClass getDeclaringClass();
 
 }

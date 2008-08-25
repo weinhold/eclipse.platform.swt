@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.Field;
-
 public class FieldData extends ItemData {
 	
-	Field field;
+	JNIField field;
 	
-public FieldData(Field field, String str) {
+public FieldData(JNIField field, String str) {
 	super(str);
 	this.field = field;
 }
@@ -42,7 +40,7 @@ public String getExclude() {
 	return (String)getParam("exclude");
 }
 
-public Field getField() {
+public JNIField getField() {
 	return field;
 }
 

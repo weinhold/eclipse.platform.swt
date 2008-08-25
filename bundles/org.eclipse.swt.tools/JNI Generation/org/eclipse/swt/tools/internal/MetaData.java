@@ -12,8 +12,6 @@ package org.eclipse.swt.tools.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Properties;
 
 public class MetaData {
@@ -48,38 +46,32 @@ public MetaData(Properties data) {
 	this.data = data;
 }
 
-public ClassData getMetaData(Class clazz) {
-	String key = JNIGenerator.toC(clazz.getName());
-	String value = getMetaData(key, "");
-	return new ClassData(clazz, value);
-}
-
-public FieldData getMetaData(Field field) {
-	String className = JNIGenerator.getClassName(field.getDeclaringClass());
+public FieldData getMetaData(JNIField field) {
+	String className = field.getDeclaringClass().getSimpleName();
 	String key = className + "_" + field.getName();
 	String value = getMetaData(key, "");
 	return new FieldData(field, value);
 }
 
-boolean convertTo32Bit(Class[] paramTypes, boolean floatingPointTypes) {
+boolean convertTo32Bit(JNIClass[] paramTypes, boolean floatingPointTypes) {
 	boolean changed = false;
 	for (int i = 0; i < paramTypes.length; i++) {
-		Class paramType = paramTypes[i];
-		if (paramType == Long.TYPE) {
-			paramTypes[i] = Integer.TYPE;
+		JNIClass paramType = paramTypes[i];
+		if (paramType.isType("long")) {
+			paramTypes[i] = new ReflectClass(Integer.TYPE);
 			changed = true;
 		}
-		if (paramType == long[].class) {
-			paramTypes[i] = int[].class;
+		if (paramType.isType("[J")) {
+			paramTypes[i] = new ReflectClass(int[].class);
 			changed = true;
 		}
 		if (floatingPointTypes) {
-			if (paramType == Double.TYPE) {
-				paramTypes[i] = Float.TYPE;
+			if (paramType.isType("double")) {
+				paramTypes[i] = new ReflectClass(Float.TYPE);
 				changed = true;
 			}
-			if (paramType == double[].class) {
-				paramTypes[i] = float[].class;
+			if (paramType.isType("[D")) {
+				paramTypes[i] = new ReflectClass(float[].class);
 				changed = true;
 			}
 		}
@@ -87,8 +79,8 @@ boolean convertTo32Bit(Class[] paramTypes, boolean floatingPointTypes) {
 	return changed;	
 }
 
-public MethodData getMetaData(Method method) {
-	String className = JNIGenerator.getClassName(method.getDeclaringClass());
+public MethodData getMetaData(JNIMethod method) {
+	String className = method.getDeclaringClass().getSimpleName();
 	String key = className + "_" + JNIGenerator.getFunctionName(method);
 	String value = getMetaData(key, null);
 	if (value == null) {
@@ -99,7 +91,7 @@ public MethodData getMetaData(Method method) {
 	* Support for 64 bit port.
 	*/
 	if (value == null) {
-		Class[] paramTypes = method.getParameterTypes();
+		JNIClass[] paramTypes = method.getParameterTypes();
 		if (convertTo32Bit(paramTypes, true)) {
 			key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes);
 			value = getMetaData(key, null);
@@ -127,8 +119,8 @@ public MethodData getMetaData(Method method) {
 	return new MethodData(method, value);
 }
 
-public ParameterData getMetaData(Method method, int parameter) {
-	String className = JNIGenerator.getClassName(method.getDeclaringClass());
+public ParameterData getMetaData(JNIMethod method, int parameter) {
+	String className = method.getDeclaringClass().getSimpleName();
 	String key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
 	String value = getMetaData(key, null);
 	if (value == null) {
@@ -139,7 +131,7 @@ public ParameterData getMetaData(Method method, int parameter) {
 	* Support for 64 bit port.
 	*/
 	if (value == null) {
-		Class[] paramTypes = method.getParameterTypes();
+		JNIClass[] paramTypes = method.getParameterTypes();
 		if (convertTo32Bit(paramTypes, true)) {
 			key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
 			value = getMetaData(key, null);
@@ -171,20 +163,15 @@ public String getMetaData(String key, String defaultValue) {
 	return data.getProperty(key, defaultValue);
 }
 
-public void setMetaData(Class clazz, ClassData value) {
-	String key = JNIGenerator.toC(clazz.getName());
-	setMetaData(key, value.toString());
-}
-
-public void setMetaData(Field field, FieldData value) {
-	String className = JNIGenerator.getClassName(field.getDeclaringClass());
+public void setMetaData(JNIField field, FieldData value) {
+	String className = field.getDeclaringClass().getSimpleName();
 	String key = className + "_" + field.getName();
 	setMetaData(key, value.toString());
 }
 
-public void setMetaData(Method method, MethodData value) {
+public void setMetaData(JNIMethod method, MethodData value) {
 	String key;
-	String className = JNIGenerator.getClassName(method.getDeclaringClass());
+	String className = method.getDeclaringClass().getSimpleName();
 	if (JNIGenerator.isNativeUnique(method)) {
 		key = className + "_" + method.getName ();
 	} else {
@@ -193,9 +180,9 @@ public void setMetaData(Method method, MethodData value) {
 	setMetaData(key, value.toString());
 }
 
-public void setMetaData(Method method, int arg, ParameterData value) {
+public void setMetaData(JNIMethod method, int arg, ParameterData value) {
 	String key;
-	String className = JNIGenerator.getClassName(method.getDeclaringClass());
+	String className = method.getDeclaringClass().getSimpleName();
 	if (JNIGenerator.isNativeUnique(method)) {
 		key = className + "_" + method.getName () + "_" + arg;
 	} else {

@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.Method;
-
 public class ParameterData extends ItemData {
 	
-	Method method;
+	JNIMethod method;
 	int parameter;
 
-public ParameterData(Method method, int parameter, String str) {
+public ParameterData(JNIMethod method, int parameter, String str) {
 	super(str);
 	this.method = method;
 	this.parameter = parameter;
@@ -36,7 +34,7 @@ public String getCast() {
 	return cast;
 }
 
-public Method getMethod() {
+public JNIMethod getMethod() {
 	return method;
 }
 

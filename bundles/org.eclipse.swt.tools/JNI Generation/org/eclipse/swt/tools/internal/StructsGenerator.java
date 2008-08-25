@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -42,11 +42,11 @@ public void generateIncludes() {
 	outputln();
 }
 
-public void generate(Class clazz) {
+public void generate(JNIClass clazz) {
 	int j = 0;
-	Field[] fields = clazz.getDeclaredFields();
+	JNIField[] fields = clazz.getDeclaredFields();
 	for (; j < fields.length; j++) {
-		Field field = fields[j];
+		JNIField field = fields[j];
 		int mods = field.getModifiers();
 		if ((mods & Modifier.PUBLIC) != 0 && (mods & Modifier.STATIC) == 0) {
 			break;
@@ -73,12 +73,11 @@ public String getSuffix() {
 	return "_structs";
 }
 
-void generateExcludes(Class[] classes) {
+void generateExcludes(JNIClass[] classes) {
 	HashSet excludes = new HashSet();
 	for (int i = 0; i < classes.length; i++) {
-		Class clazz = classes[i];
-		ClassData classData = getMetaData().getMetaData(clazz);
-		String exclude = classData.getExclude();
+		JNIClass clazz = classes[i];
+		String exclude = clazz.getExclude();
 		if (exclude.length() != 0) {
 			excludes.add(exclude);
 		}
@@ -87,12 +86,11 @@ void generateExcludes(Class[] classes) {
 		String exclude = (String)iter.next();
 		outputln(exclude);
 		for (int i = 0; i < classes.length; i++) {
-			Class clazz = classes[i];
-			ClassData classData = getMetaData().getMetaData(clazz);
-			String classExclude = classData.getExclude();
+			JNIClass clazz = classes[i];
+			String classExclude = clazz.getExclude();
 			if (exclude.equals(classExclude)) {
 				output("#define NO_");
-				outputln(getClassName(clazz));
+				outputln(clazz.getSimpleName());
 			}
 		}
 		outputln("#endif");
@@ -100,7 +98,7 @@ void generateExcludes(Class[] classes) {
 	}
 }
 
-void generateHeaderFile(Class clazz) {
+void generateHeaderFile(JNIClass clazz) {
 	generateSourceStart(clazz);
 	generatePrototypes(clazz);
 	generateBlankMacros(clazz);
@@ -108,7 +106,7 @@ void generateHeaderFile(Class clazz) {
 	outputln();
 }
 
-void generateSourceFile(Class clazz) {
+void generateSourceFile(JNIClass clazz) {
 	generateSourceStart(clazz);
 	generateFIDsStructure(clazz);
 	outputln();
@@ -119,26 +117,26 @@ void generateSourceFile(Class clazz) {
 	outputln();
 }
 
-void generateSourceStart(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateSourceStart(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output("#ifndef NO_");
 	outputln(clazzName);
 }
 
-void generateSourceEnd(Class clazz) {
+void generateSourceEnd(JNIClass clazz) {
 	outputln("#endif");
 }
 
-void generateGlobalVar(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateGlobalVar(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output(clazzName);
 	output("_FID_CACHE ");
 	output(clazzName);
 	outputln("Fc;");
 }
 
-void generateBlankMacros(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateBlankMacros(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	outputln("#else");
 	output("#define cache");
 	output(clazzName);
@@ -154,20 +152,19 @@ void generateBlankMacros(Class clazz) {
 	outputln("_sizeof() 0");
 }
 
-void generatePrototypes(Class clazz) {
-	String clazzName = getClassName(clazz);
-	ClassData classData = metaData.getMetaData(clazz);
+void generatePrototypes(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output("void cache");
 	output(clazzName);
 	outputln("Fields(JNIEnv *env, jobject lpObject);");
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
 	output(" *get");
 	output(clazzName);
 	output("Fields(JNIEnv *env, jobject lpObject, ");
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
@@ -175,7 +172,7 @@ void generatePrototypes(Class clazz) {
 	output("void set");
 	output(clazzName);
 	output("Fields(JNIEnv *env, jobject lpObject, ");
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
@@ -183,25 +180,25 @@ void generatePrototypes(Class clazz) {
 	output("#define ");
 	output(clazzName);
 	output("_sizeof() sizeof(");
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
 	outputln(")");
 }
 
-void generateFIDsStructure(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateFIDsStructure(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output("typedef struct ");
 	output(clazzName);
 	outputln("_FID_CACHE {");
 	outputln("\tint cached;");
 	outputln("\tjclass clazz;");
 	output("\tjfieldID ");
-	Field[] fields = clazz.getDeclaredFields();
+	JNIField[] fields = clazz.getDeclaredFields();
 	boolean first = true;
 	for (int i = 0; i < fields.length; i++) {
-		Field field = fields[i];
+		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
 		if (!first) output(", ");
 		output(field.getName());
@@ -213,8 +210,8 @@ void generateFIDsStructure(Class clazz) {
 	outputln("_FID_CACHE;");
 }
 
-void generateCacheFunction(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateCacheFunction(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output("void cache");
 	output(clazzName);
 	outputln("Fields(JNIEnv *env, jobject lpObject)");
@@ -222,9 +219,9 @@ void generateCacheFunction(Class clazz) {
 	output("\tif (");
 	output(clazzName);
 	outputln("Fc.cached) return;");
-	Class superclazz = clazz.getSuperclass();
-	if (superclazz != Object.class) {
-		String superName = getClassName(superclazz);
+	JNIClass superclazz = clazz.getSuperclass();
+	if (!superclazz.getName().equals("java.lang.Object")) {
+		String superName = superclazz.getSimpleName();
 		output("\tcache");
 		output(superName);
 		outputln("Fields(env, lpObject);");
@@ -245,9 +242,9 @@ void generateCacheFunction(Class clazz) {
 		}
 	}
 	outputln();
-	Field[] fields = clazz.getDeclaredFields();
+	JNIField[] fields = clazz.getDeclaredFields();
 	for (int i = 0; i < fields.length; i++) {
-		Field field = fields[i];
+		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
 		output("\t");
 		output(clazzName);
@@ -262,7 +259,7 @@ void generateCacheFunction(Class clazz) {
 		output("Fc.clazz, \"");
 		output(field.getName());
 		output("\", \"");
-		output(getTypeSignature(field.getType()));
+		output(field.getType().getTypeSignature());
 		outputln("\");");
 	}
 	output("\t");
@@ -271,11 +268,11 @@ void generateCacheFunction(Class clazz) {
 	outputln("}");
 }
 
-void generateGetFields(Class clazz) {
-	Class superclazz = clazz.getSuperclass();
-	String clazzName = getClassName(clazz);
-	String superName = getClassName(superclazz);
-	if (superclazz != Object.class) {
+void generateGetFields(JNIClass clazz) {
+	JNIClass superclazz = clazz.getSuperclass();
+	String clazzName = clazz.getSimpleName();
+	String superName = superclazz.getSimpleName();
+	if (!superclazz.getName().equals("java.lang.Object")) {
 		/* Windows exception - cannot call get/set function of super class in this case */
 		if (!(clazzName.equals(superName + "A") || clazzName.equals(superName + "W"))) {
 			output("\tget");
@@ -287,9 +284,9 @@ void generateGetFields(Class clazz) {
 			generateGetFields(superclazz);
 		}
 	}
-	Field[] fields = clazz.getDeclaredFields();
+	JNIField[] fields = clazz.getDeclaredFields();
 	for (int i = 0; i < fields.length; i++) {
-		Field field = fields[i];
+		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
 		FieldData fieldData = getMetaData().getMetaData(field);
 		String exclude = fieldData.getExclude();
@@ -300,8 +297,8 @@ void generateGetFields(Class clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		Class type = field.getType();
-		String typeName = getClassName(type);
+		JNIClass type = field.getType();
+		String typeName = type.getSimpleName();
 		String accessor = fieldData.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
 		if (type.isPrimitive()) {
@@ -314,30 +311,30 @@ void generateGetFields(Class clazz) {
 			} else {
 				output("(*env)->Get");
 			}
-			output(getTypeSignature1(field.getType()));
+			output(field.getType().getTypeSignature1());
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
 				output("Field(env, lpObject, ");
 			}
-			output(getClassName(field.getDeclaringClass()));
+			output(field.getDeclaringClass().getSimpleName());
 			output("Fc.");
 			output(field.getName());
 			output(");");
 		} else if (type.isArray()) {
-			Class componentType = type.getComponentType();
+			JNIClass componentType = type.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(getTypeSignature2(field.getType()));
+				output(field.getType().getTypeSignature2());
 				output(" lpObject1 = (");
-				output(getTypeSignature2(field.getType()));
+				output(field.getType().getTypeSignature2());
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
 					output(")(*env)->GetObjectField(env, lpObject, ");
 				}
-				output(getClassName(field.getDeclaringClass()));
+				output(field.getDeclaringClass().getSimpleName());
 				output("Fc.");
 				output(field.getName());
 				outputln(");");
@@ -346,7 +343,7 @@ void generateGetFields(Class clazz) {
 				} else {
 					output("\t(*env)->Get");
 				}
-				output(getTypeSignature1(componentType));
+				output(componentType.getTypeSignature1());
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -354,13 +351,13 @@ void generateGetFields(Class clazz) {
 				}
 				output(accessor);
 				output(")");
-				int byteCount = getByteCount(componentType);
+				int byteCount = componentType.getByteCount();
 				if (byteCount > 1) {
 					output(" / ");
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(getTypeSignature4(type));				
+				output(type.getTypeSignature4());				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");
@@ -375,7 +372,7 @@ void generateGetFields(Class clazz) {
 			} else {
 				output("\tjobject lpObject1 = (*env)->GetObjectField(env, lpObject, ");
 			}
-			output(getClassName(field.getDeclaringClass()));
+			output(field.getDeclaringClass().getSimpleName());
 			output("Fc.");
 			output(field.getName());
 			outputln(");");
@@ -396,17 +393,16 @@ void generateGetFields(Class clazz) {
 	}
 }
 
-void generateGetFunction(Class clazz) {
-	String clazzName = getClassName(clazz);
-	ClassData classData = metaData.getMetaData(clazz);
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+void generateGetFunction(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
 	output(" *get");
 	output(clazzName);
 	output("Fields(JNIEnv *env, jobject lpObject, ");
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
@@ -422,11 +418,11 @@ void generateGetFunction(Class clazz) {
 	outputln("}");
 }
 
-void generateSetFields(Class clazz) {
-	Class superclazz = clazz.getSuperclass();
-	String clazzName = getClassName(clazz);
-	String superName = getClassName(superclazz);
-	if (superclazz != Object.class) {
+void generateSetFields(JNIClass clazz) {
+	JNIClass superclazz = clazz.getSuperclass();
+	String clazzName = clazz.getSimpleName();
+	String superName = superclazz.getSimpleName();
+	if (!superclazz.getName().equals("java.lang.Object")) {
 		/* Windows exception - cannot call get/set function of super class in this case */
 		if (!(clazzName.equals(superName + "A") || clazzName.equals(superName + "W"))) {
 			output("\tset");
@@ -438,9 +434,9 @@ void generateSetFields(Class clazz) {
 			generateSetFields(superclazz);
 		}
 	}
-	Field[] fields = clazz.getDeclaredFields();
+	JNIField[] fields = clazz.getDeclaredFields();
 	for (int i = 0; i < fields.length; i++) {
-		Field field = fields[i];
+		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
 		FieldData fieldData = getMetaData().getMetaData(field);
 		String exclude = fieldData.getExclude();
@@ -451,8 +447,8 @@ void generateSetFields(Class clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		Class type = field.getType();
-		String typeName = getClassName(type);
+		JNIClass type = field.getType();
+		String typeName = type.getSimpleName();
 		String accessor = fieldData.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
 		if (type.isPrimitive()) {
@@ -461,34 +457,34 @@ void generateSetFields(Class clazz) {
 			} else {
 				output("\t(*env)->Set");
 			}
-			output(getTypeSignature1(field.getType()));
+			output(field.getType().getTypeSignature1());
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
 				output("Field(env, lpObject, ");
 			}
-			output(getClassName(field.getDeclaringClass()));
+			output(field.getDeclaringClass().getSimpleName());
 			output("Fc.");
 			output(field.getName());
 			output(", (");
-			output(getTypeSignature2(field.getType()));
+			output(field.getType().getTypeSignature2());
 			output(")lpStruct->");
 			output(accessor);
 			output(");");
 		} else if (type.isArray()) {
-			Class componentType = type.getComponentType();
+			JNIClass componentType = type.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(getTypeSignature2(field.getType()));
+				output(field.getType().getTypeSignature2());
 				output(" lpObject1 = (");
-				output(getTypeSignature2(field.getType()));
+				output(field.getType().getTypeSignature2());
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
 					output(")(*env)->GetObjectField(env, lpObject, ");
 				}
-				output(getClassName(field.getDeclaringClass()));
+				output(field.getDeclaringClass().getSimpleName());
 				output("Fc.");
 				output(field.getName());
 				outputln(");");
@@ -497,7 +493,7 @@ void generateSetFields(Class clazz) {
 				} else {
 					output("\t(*env)->Set");
 				}
-				output(getTypeSignature1(componentType));
+				output(componentType.getTypeSignature1());
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -505,13 +501,13 @@ void generateSetFields(Class clazz) {
 				}
 				output(accessor);
 				output(")");
-				int byteCount = getByteCount(componentType);
+				int byteCount = componentType.getByteCount();
 				if (byteCount > 1) {
 					output(" / ");
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(getTypeSignature4(type));				
+				output(type.getTypeSignature4());				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");
@@ -522,7 +518,7 @@ void generateSetFields(Class clazz) {
 		} else {
 			outputln("\t{");
 			output("\tjobject lpObject1 = (*env)->GetObjectField(env, lpObject, ");
-			output(getClassName(field.getDeclaringClass()));
+			output(field.getDeclaringClass().getSimpleName());
 			output("Fc.");
 			output(field.getName());
 			outputln(");");
@@ -543,13 +539,12 @@ void generateSetFields(Class clazz) {
 	}
 }
 
-void generateSetFunction(Class clazz) {
-	String clazzName = getClassName(clazz);
+void generateSetFunction(JNIClass clazz) {
+	String clazzName = clazz.getSimpleName();
 	output("void set");
 	output(clazzName);
 	output("Fields(JNIEnv *env, jobject lpObject, ");
-	ClassData classData = metaData.getMetaData(clazz);
-	if (classData.getFlag(Flags.FLAG_STRUCT)) {
+	if (clazz.getFlag(Flags.FLAG_STRUCT)) {
 		output("struct ");
 	}
 	output(clazzName);
@@ -564,7 +559,7 @@ void generateSetFunction(Class clazz) {
 	outputln("}");
 }
 
-void generateFunctions(Class clazz) {
+void generateFunctions(JNIClass clazz) {
 	generateCacheFunction(clazz);
 	outputln();
 	generateGetFunction(clazz);
@@ -572,7 +567,7 @@ void generateFunctions(Class clazz) {
 	generateSetFunction(clazz);
 }
 
-boolean ignoreField(Field field) {
+boolean ignoreField(JNIField field) {
 	int mods = field.getModifiers();
 	return
 		((mods & Modifier.PUBLIC) == 0) ||
