@@ -177,7 +177,6 @@ static String getTypeSignature4(Class clazz) {
 	return getTypeSignature4(clazz, false);
 }
 
-
 static String getTypeSignature4(Class clazz, boolean struct) {
 	return getTypeSignature4(clazz, false, false);
 }
