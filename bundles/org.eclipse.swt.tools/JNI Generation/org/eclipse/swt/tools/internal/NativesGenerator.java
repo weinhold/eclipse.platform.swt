@@ -13,10 +13,13 @@ package org.eclipse.swt.tools.internal;
 import java.lang.reflect.*;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NativesGenerator extends JNIGenerator {
 
 boolean enterExitMacro;
+String currentSource;
 
 public NativesGenerator() {
 	enterExitMacro = true;
@@ -60,6 +63,7 @@ public void generate(Class clazz) {
 		if ((method.getModifiers() & Modifier.NATIVE) != 0) break;
 	}
 	if (i == methods.length) return;
+	currentSource = loadSource(clazz);
 	sort(methods);
 	generateNativeMacro(clazz);
 	generateExcludes(methods);
@@ -76,28 +80,138 @@ public void generate(Method[] methods) {
 	}
 }
 
+boolean canChangeFor64(Class clazz) {
+	if (clazz == int.class) return true;
+	if (clazz == int[].class) return true;
+	if (clazz == float.class) return true;
+	if (clazz == float[].class) return true;
+	return false;
+}
+
+String asRegex(String str) {
+	int dot = str.lastIndexOf('.');
+	if (dot != -1) str = str.substring(dot + 1);
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0; i < str.length(); i++) {
+		char c = str.charAt(i);
+		switch (c) {
+			case '[':
+				buffer.append(".*\\[");
+				break;
+			case ']':
+				buffer.append("\\s*\\]");
+				break;
+			default: buffer.append(c);
+		}
+	}
+	return buffer.toString();
+}
+
+boolean get64MethodTypes(Method method, Class[] paramTypes64, Class[] returnType64) {
+	boolean canChange = false;
+	Class returnType = method.getReturnType();
+	if (!(canChange |= canChangeFor64(returnType))) returnType64[0] = returnType;
+	Class[] paramTypes = method.getParameterTypes();
+	for (int i = 0; i < paramTypes.length; i++) {
+		if (!(canChange |= canChangeFor64(paramTypes[i]))) paramTypes64[i] = paramTypes[i];
+	}
+	if (!canChange) return false;
+	boolean result = false;
+	Matcher matcher = Pattern.compile("public\\s*static\\s*final\\s*native\\s*").matcher(currentSource);
+	int start = 0;
+	String name = method.getName();
+	while (matcher.find(start)) {
+		start = matcher.end();
+		int semicolon = currentSource.indexOf(';', matcher.end());
+		String mthDecl = currentSource.substring(matcher.end(), semicolon);
+		int startParen = mthDecl.indexOf('(');
+		String returnAndMethod = mthDecl.substring(0, startParen);
+		if (returnAndMethod.indexOf(name) == -1) continue;
+		int endParen = mthDecl.indexOf(')', startParen + 1);
+		String params = mthDecl.substring(startParen + 1, endParen).trim();
+		String[] paramsDecl = params.length() == 0 ? new String[0] : params.split(",");
+		if (paramsDecl.length != paramTypes.length) continue;
+		boolean found = true;
+		for (int i = 0; i < paramsDecl.length; i++) {
+			String paramDecl = paramsDecl[i].trim();
+			int index = 0;
+			//TODO not working for arrays
+			while (!Character.isWhitespace(paramDecl.charAt(index))) index++;
+			String paramTypeRegex = asRegex(getTypeSignature3(paramTypes[i]));
+			if (!paramDecl.substring(0, index).matches(paramTypeRegex)) {
+				found = false;
+				break;
+			}
+		}
+		if (found) {
+			for (int i = 0; i < paramsDecl.length; i++) {
+				if (paramTypes64[i] == null) {
+					if (paramsDecl[i].indexOf("/*") != -1) {
+						if (paramTypes[i] == int.class) paramTypes64[i] = long.class;
+						else if (paramTypes[i] == int[].class) paramTypes64[i] = long[].class;
+						else if (paramTypes[i] == float.class) paramTypes64[i] = double.class;
+						else if (paramTypes[i] == float[].class) paramTypes64[i] = double[].class;
+						result = true;
+					} else {
+						paramTypes64[i] = paramTypes[i];
+					}
+				}
+			}
+			if (returnAndMethod.indexOf("/*") != -1) {
+				if (returnType == int.class) returnType64[0] = long.class;
+				else if (returnType == int[].class) returnType64[0] = long[].class;
+				else if (returnType == float.class) returnType64[0] = double.class;
+				else if (returnType == float[].class) returnType64[0] = double[].class;
+			} else {
+				returnType64[0] = returnType;
+			}
+			System.out.println(method + " " + mthDecl);
+			break;
+		}
+	}		
+	return result;
+
+}
+
 public void generate(Method method) {
 	MethodData methodData = getMetaData().getMetaData(method);
 	if (methodData.getFlag(FLAG_NO_GEN)) return;
 	Class returnType = method.getReturnType();
-	Class[] paramTypes = method.getParameterTypes();
-	String function = getFunctionName(method);
-	
 	if (!(returnType == Void.TYPE || returnType.isPrimitive() || isSystemClass(returnType) || returnType == String.class)) {
 		output("Warning: bad return type. :");
 		outputln(method.toString());
 		return;
 	}
-	
-	generateSourceStart(function);
+	Class[] paramTypes = method.getParameterTypes();
+	Class[] paramTypes64 = new Class[paramTypes.length];
+	Class[] returnType64 = new Class[1];
+	get64MethodTypes(method, paramTypes64, returnType64);
+	String function = getFunctionName(method), function64 = getFunctionName(method, paramTypes64);
+	generateSourceStart(function, function64);
+	boolean sameFunction = function.equals(function64);
+	if (!sameFunction) {
+		outputln("#ifndef SWT_PTR_SIZE_64");
+	}
 	if (isCPP) {
 		output("extern \"C\" ");
-		generateFunctionPrototype(method, function, paramTypes, returnType, true);
+		generateFunctionPrototype(method, function, paramTypes, returnType, paramTypes64, returnType64[0], true);
 		outputln(";");
 	}
-	generateFunctionPrototype(method, function, paramTypes, returnType, false);
-	generateFunctionBody(method, methodData, function, paramTypes, returnType);
-	generateSourceEnd(function);
+	generateFunctionPrototype(method, function, paramTypes, returnType, paramTypes64, returnType64[0], !sameFunction);
+	if (!function.equals(function64)) {
+		outputln();
+		outputln("#else");
+		if (isCPP) {
+			output("extern \"C\" ");
+			generateFunctionPrototype(method, function64, paramTypes, returnType, paramTypes64, returnType64[0], true);
+			outputln(";");
+		}
+		generateFunctionPrototype(method, function64, paramTypes, returnType, paramTypes64, returnType64[0], !sameFunction);
+		outputln();
+		outputln("#endif");
+	}
+	generateFunctionBody(method, methodData, function, paramTypes, returnType, function64, paramTypes64, returnType64[0]);
+	generateSourceEnd(function, function64);
 	outputln();
 }
 
@@ -143,7 +257,7 @@ void generateNativeMacro(Class clazz) {
 	outputln();
 }
 
-boolean generateGetParameter(Method method, int i, Class paramType, ParameterData paramData, boolean critical, int indent) {
+boolean generateGetParameter(Method method, int i, Class paramType, Class paramType64, ParameterData paramData, boolean critical, int indent) {
 	if (paramType.isPrimitive() || isSystemClass(paramType)) return false;
 	String iStr = String.valueOf(i);
 	for (int j = 0; j < indent; j++) output("\t");
@@ -158,7 +272,7 @@ boolean generateGetParameter(Method method, int i, Class paramType, ParameterDat
 			if (critical) {
 				if (isCPP) {
 					output("(");
-					output(getTypeSignature2(componentType));
+					output(getTypeSignature2(componentType, componentType != paramType64.getComponentType()));
 					output("*)");
 					output("env->GetPrimitiveArrayCritical(arg");
 				} else {
@@ -172,7 +286,7 @@ boolean generateGetParameter(Method method, int i, Class paramType, ParameterDat
 				} else {
 					output("(*env)->Get");
 				}
-				output(getTypeSignature1(componentType));
+				output(getTypeSignature1(componentType, componentType != paramType64.getComponentType()));
 				if (isCPP) {
 					output("ArrayElements(arg");
 				} else {
@@ -220,7 +334,7 @@ boolean generateGetParameter(Method method, int i, Class paramType, ParameterDat
 	return true;
 }
 
-void generateSetParameter(int i, Class paramType, ParameterData paramData, boolean critical) {
+void generateSetParameter(int i, Class paramType, Class paramType64, ParameterData paramData, boolean critical) {
 	if (paramType.isPrimitive() || isSystemClass(paramType)) return;
 	String iStr = String.valueOf(i);
 	if (paramType.isArray()) {
@@ -244,7 +358,7 @@ void generateSetParameter(int i, Class paramType, ParameterData paramData, boole
 				} else {
 					output("(*env)->Release");
 				}
-				output(getTypeSignature1(componentType));
+				output(getTypeSignature1(componentType, componentType != paramType64.getComponentType()));
 				if (isCPP) {
 					output("ArrayElements(arg");
 				} else {
@@ -306,25 +420,49 @@ void generateSetParameter(int i, Class paramType, ParameterData paramData, boole
 	}
 }
 
-void generateExitMacro(Method method, String function) {
+void generateExitMacro(Method method, String function, String function64) {
 	if (!enterExitMacro) return;
+	if (!function.equals(function64)) {
+		outputln("#ifndef SWT_PTR_SIZE_64");
+	}
 	output("\t");
 	output(getClassName(method.getDeclaringClass()));
 	output("_NATIVE_EXIT(env, that, ");
 	output(function);
 	outputln("_FUNC);");
+	if (!function.equals(function64)) {
+		outputln("#else");
+		output("\t");
+		output(getClassName(method.getDeclaringClass()));
+		output("_NATIVE_EXIT(env, that, ");
+		output(function64);
+		outputln("_FUNC);");
+		outputln("#endif");
+	}
 }
 
-void generateEnterMacro(Method method, String function) {
+void generateEnterMacro(Method method, String function, String function64) {
 	if (!enterExitMacro) return;
+	if (!function.equals(function64)) {
+		outputln("#ifndef SWT_PTR_SIZE_64");
+	}
 	output("\t");
 	output(getClassName(method.getDeclaringClass()));
 	output("_NATIVE_ENTER(env, that, ");
 	output(function);
 	outputln("_FUNC);");
+	if (!function.equals(function64)) {
+		outputln("#else");
+		output("\t");
+		output(getClassName(method.getDeclaringClass()));
+		output("_NATIVE_ENTER(env, that, ");
+		output(function64);
+		outputln("_FUNC);");
+		outputln("#endif");
+	}
 }
 
-boolean generateLocalVars(Method method, Class[] paramTypes, Class returnType) {
+boolean generateLocalVars(Method method, Class[] paramTypes, Class returnType, Class[] paramTypes64, Class returnType64) {
 	boolean needsReturn = enterExitMacro;
 	for (int i = 0; i < paramTypes.length; i++) {
 		Class paramType = paramTypes[i];
@@ -334,7 +472,7 @@ boolean generateLocalVars(Method method, Class[] paramTypes, Class returnType) {
 		if (paramType.isArray()) {
 			Class componentType = paramType.getComponentType();
 			if (componentType.isPrimitive()) {
-				output(getTypeSignature2(componentType));
+				output(getTypeSignature2(componentType, componentType != paramTypes64[i].getComponentType()));
 				output(" *lparg" + i);
 				output("=NULL;");
 			} else {
@@ -364,21 +502,21 @@ boolean generateLocalVars(Method method, Class[] paramTypes, Class returnType) {
 	if (needsReturn) {
 		if (returnType != Void.TYPE) {
 			output("\t");
-			output(getTypeSignature2(returnType));
+			output(getTypeSignature2(returnType, returnType != returnType64));
 			outputln(" rc = 0;");
 		}
 	}
 	return needsReturn;
 }
 
-boolean generateGetters(Method method, Class[] paramTypes) {
+boolean generateGetters(Method method, Class[] paramTypes, Class[] paramTypes64) {
 	boolean genFailTag = false;
 	int criticalCount = 0;
 	for (int i = 0; i < paramTypes.length; i++) {
 		Class paramType = paramTypes[i];
 		ParameterData paramData = getMetaData().getMetaData(method, i);
 		if (!isCritical(paramType, paramData)) {
-			genFailTag |= generateGetParameter(method, i, paramType, paramData, false, 1);
+			genFailTag |= generateGetParameter(method, i, paramType, paramTypes64[i], paramData, false, 1);
 		} else {
 			criticalCount++;
 		}
@@ -390,7 +528,7 @@ boolean generateGetters(Method method, Class[] paramTypes) {
 			Class paramType = paramTypes[i];
 			ParameterData paramData = getMetaData().getMetaData(method, i);
 			if (isCritical(paramType, paramData)) {
-				genFailTag |= generateGetParameter(method, i, paramType, paramData, true, 2);
+				genFailTag |= generateGetParameter(method, i, paramType, paramTypes64[i], paramData, true, 2);
 			}
 		}
 		outputln("\t} else");
@@ -400,7 +538,7 @@ boolean generateGetters(Method method, Class[] paramTypes) {
 			Class paramType = paramTypes[i];
 			ParameterData paramData = getMetaData().getMetaData(method, i);
 			if (isCritical(paramType, paramData)) {
-				genFailTag |= generateGetParameter(method, i, paramType, paramData, false, 2);
+				genFailTag |= generateGetParameter(method, i, paramType, paramTypes64[i], paramData, false, 2);
 			}
 		}
 		outputln("\t}");
@@ -408,7 +546,7 @@ boolean generateGetters(Method method, Class[] paramTypes) {
 	return genFailTag;
 }
 
-void generateSetters(Method method, Class[] paramTypes) {
+void generateSetters(Method method, Class[] paramTypes, Class[] paramTypes64) {
 	int criticalCount = 0;
 	for (int i = paramTypes.length - 1; i >= 0; i--) {
 		Class paramType = paramTypes[i];
@@ -425,7 +563,7 @@ void generateSetters(Method method, Class[] paramTypes) {
 			ParameterData paramData = getMetaData().getMetaData(method, i);
 			if (isCritical(paramType, paramData)) {
 				output("\t");
-				generateSetParameter(i, paramType, paramData, true);
+				generateSetParameter(i, paramType, paramTypes64[i], paramData, true);
 			}
 		}
 		outputln("\t} else");
@@ -436,7 +574,7 @@ void generateSetters(Method method, Class[] paramTypes) {
 			ParameterData paramData = getMetaData().getMetaData(method, i);
 			if (isCritical(paramType, paramData)) {
 				output("\t");
-				generateSetParameter(i, paramType, paramData, false);
+				generateSetParameter(i, paramType, paramTypes64[i], paramData, false);
 			}
 		}
 		outputln("\t}");
@@ -445,14 +583,14 @@ void generateSetters(Method method, Class[] paramTypes) {
 		Class paramType = paramTypes[i];
 		ParameterData paramData = getMetaData().getMetaData(method, i);
 		if (!isCritical(paramType, paramData)) {
-			generateSetParameter(i, paramType, paramData, false);
+			generateSetParameter(i, paramType, paramTypes64[i], paramData, false);
 		}
 	}
 }
 
-void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] paramTypes, Class returnType, boolean needsReturn) {
+void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] paramTypes, Class returnType, Class[] paramTypes64, Class returnType64, boolean needsReturn) {
 	outputln("/*");
-	generateFunctionCall(method, methodData, paramTypes, returnType, needsReturn);
+	generateFunctionCall(method, methodData, paramTypes, returnType, paramTypes64, returnType64, needsReturn);
 	outputln("*/");
 	outputln("\t{");
 
@@ -478,9 +616,9 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 		outputln("\t\t}");
 		outputln("\t\tif (fp) {");
 		output("\t\t");
-		generateFunctionCallLeftSide(method, methodData, returnType, needsReturn);
+		generateFunctionCallLeftSide(method, methodData, returnType, returnType64, needsReturn);
 		output("fp");
-		generateFunctionCallRightSide(method, methodData, paramTypes, 0);
+		generateFunctionCallRightSide(method, methodData, paramTypes, paramTypes64, 0);
 		output(";");
 		outputln();
 		outputln("\t\t}");
@@ -488,7 +626,7 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 		outputln("\t\tstatic int initialized = 0;");
 		outputln("\t\tstatic CFBundleRef bundle = NULL;");
 		output("\t\ttypedef ");
-		output(getTypeSignature2(returnType));
+		output(getTypeSignature2(returnType, returnType != returnType64));
 		output(" (*FPTR)(");
 		for (int i = 0; i < paramTypes.length; i++) {
 			if (i != 0) output(", ");
@@ -498,7 +636,7 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 			if (cast.length() > 2) {
 				output(cast.substring(1, cast.length() - 1));
 			} else {
-				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT)));
+				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT), paramType != paramTypes64[i]));
 			}
 		}
 		outputln(");");
@@ -519,9 +657,9 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 		outputln("\t\t}");
 		outputln("\t\tif (fptr) {");
 		output("\t\t");
-		generateFunctionCallLeftSide(method, methodData, returnType, needsReturn);
+		generateFunctionCallLeftSide(method, methodData, returnType, returnType64, needsReturn);
 		output("(*fptr)");
-		generateFunctionCallRightSide(method, methodData, paramTypes, 0);
+		generateFunctionCallRightSide(method, methodData, paramTypes, paramTypes64, 0);
 		output(";");
 		outputln();
 		outputln("\t\t}");
@@ -529,7 +667,7 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 		outputln("\t\tstatic int initialized = 0;");
 		outputln("\t\tstatic void *handle = NULL;");
 		output("\t\ttypedef ");
-		output(getTypeSignature2(returnType));
+		output(getTypeSignature2(returnType, returnType != returnType64));
 		output(" (*FPTR)(");
 		for (int i = 0; i < paramTypes.length; i++) {
 			if (i != 0) output(", ");
@@ -539,7 +677,7 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 			if (cast.length() > 2) {
 				output(cast.substring(1, cast.length() - 1));
 			} else {
-				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT)));
+				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT), paramType != paramTypes64[i]));
 			}
 		}
 		outputln(");");
@@ -560,9 +698,9 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 		outputln("\t\t}");
 		outputln("\t\tif (fptr) {");
 		output("\t\t");
-		generateFunctionCallLeftSide(method, methodData, returnType, needsReturn);
+		generateFunctionCallLeftSide(method, methodData, returnType, returnType64, needsReturn);
 		output("(*fptr)");
-		generateFunctionCallRightSide(method, methodData, paramTypes, 0);
+		generateFunctionCallRightSide(method, methodData, paramTypes, paramTypes64, 0);
 		output(";");
 		outputln();
 		outputln("\t\t}");
@@ -571,7 +709,7 @@ void generateDynamicFunctionCall(Method method, MethodData methodData, Class[] p
 	outputln("\t}");
 }
 
-void generateFunctionCallLeftSide(Method method, MethodData methodData, Class returnType, boolean needsReturn) {
+void generateFunctionCallLeftSide(Method method, MethodData methodData, Class returnType, Class returnType64, boolean needsReturn) {
 	output("\t");
 	if (returnType != Void.TYPE) {
 		if (needsReturn) {
@@ -580,7 +718,7 @@ void generateFunctionCallLeftSide(Method method, MethodData methodData, Class re
 			output("return ");
 		}
 		output("(");
-		output(getTypeSignature2(returnType));
+		output(getTypeSignature2(returnType, returnType != returnType64));
 		output(")");
 	}
 	if (methodData.getFlag(FLAG_ADDRESS)) {
@@ -591,7 +729,7 @@ void generateFunctionCallLeftSide(Method method, MethodData methodData, Class re
 	}
 }
 
-void generateFunctionCallRightSide(Method method, MethodData methodData, Class[] paramTypes, int paramStart) {
+void generateFunctionCallRightSide(Method method, MethodData methodData, Class[] paramTypes, Class[] paramTypes64, int paramStart) {
 	if (!methodData.getFlag(FLAG_CONST)) {
 		output("(");
 		if (methodData.getFlag(FLAG_JNI)) {
@@ -616,7 +754,7 @@ void generateFunctionCallRightSide(Method method, MethodData methodData, Class[]
 	}
 }
 
-void generateFunctionCall(Method method, MethodData methodData, Class[] paramTypes, Class returnType, boolean needsReturn) {
+void generateFunctionCall(Method method, MethodData methodData, Class[] paramTypes, Class returnType, Class[] paramTypes64, Class returnType64, boolean needsReturn) {
 	String name = method.getName();
 	boolean objc_struct = false;
 	if (name.equals("objc_msgSend_stret")) {
@@ -631,7 +769,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 		output(copy);
 		output(" temp = ");
 	} else {
-		generateFunctionCallLeftSide(method, methodData, returnType, needsReturn);
+		generateFunctionCallLeftSide(method, methodData, returnType, returnType64, needsReturn);
 	}
 	int paramStart = 0;
 	if (name.startsWith("_")) name = name.substring(1);
@@ -643,22 +781,22 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 			output(cast);
 		} else {
 			output("(");
-			output(getTypeSignature2(returnType));
+			output(getTypeSignature2(returnType, returnType != returnType64));
 			output(" (*)())");
 		}
 		output("arg0)");
 		paramStart = 1;
 	} else if (name.startsWith("VtblCall")) {
 		output("((");
-		output(getTypeSignature2(returnType));
+		output(getTypeSignature2(returnType, returnType != returnType64));
 		output(" (STDMETHODCALLTYPE *)(");
 		for (int i = 1; i < paramTypes.length; i++) {
 			if (i != 1) output(", ");
 			Class paramType = paramTypes[i];
-			output(getTypeSignature4(paramType));
+			output(getTypeSignature4(paramType, false, paramType != paramTypes64[i]));
 		}
 		output("))(*(");
-		output(getTypeSignature4(paramTypes[1]));
+		output(getTypeSignature4(paramTypes[1], false, paramTypes[1] != paramTypes64[1]));
 		output(" **)arg1)[arg0])");
 		paramStart = 1;
 	} else if (methodData.getFlag(FLAG_CPP) || methodData.getFlag(FLAG_SETTER) || methodData.getFlag(FLAG_GETTER) || methodData.getFlag(FLAG_ADDER)) {
@@ -737,7 +875,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 		}
 		if (methodData.getFlag(Flags.FLAG_CAST)) {
 			output("((");
-			output(getTypeSignature2(returnType));
+			output(getTypeSignature2(returnType, returnType != returnType64));
 			output(" (*)(");
 			for (int i = 0; i < paramTypes.length; i++) {
 				if (i != 0) output(", ");
@@ -749,7 +887,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 					if (cast.endsWith(")")) cast = cast.substring(0, cast.length() - 1);
 					output(cast);
 				} else {
-					output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT)));
+					output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT), paramType != paramTypes64[i]));
 				}
 			}
 			output("))");
@@ -771,7 +909,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 	if (methodData.getFlag(FLAG_SETTER)) output(" = ");
 	if (methodData.getFlag(FLAG_ADDER)) output(" += ");
 	if (!methodData.getFlag(FLAG_GETTER)) {
-		generateFunctionCallRightSide(method, methodData, paramTypes, paramStart);
+		generateFunctionCallRightSide(method, methodData, paramTypes, paramTypes64, paramStart);
 	}
 	if (methodData.getFlag(FLAG_GCNEW) || methodData.getFlag(FLAG_GCOBJECT)) {
 		output(")");
@@ -788,7 +926,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 		outputln("\t\t*copy = temp;");
 		output("\t\trc = ");
 		output("(");
-		output(getTypeSignature2(returnType));
+		output(getTypeSignature2(returnType, returnType != returnType64));
 		output(")");
 		outputln("copy;");
 		outputln("\t}");
@@ -796,7 +934,7 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 	if (objc_struct) {
 		outputln("\t} else {");
 		output("\t\t*lparg0 = (*(");
-		output(getTypeSignature4(paramTypes[0], true));
+		output(getTypeSignature4(paramTypes[0], true, paramTypes[0] != paramTypes64[0]));
 		output(" (*)(");
 		for (int i = 1; i < paramTypes.length; i++) {
 			if (i != 1) output(", ");
@@ -808,24 +946,24 @@ void generateFunctionCall(Method method, MethodData methodData, Class[] paramTyp
 				if (cast.endsWith(")")) cast = cast.substring(0, cast.length() - 1);
 				output(cast);
 			} else {
-				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT)));
+				output(getTypeSignature4(paramType, paramData.getFlag(FLAG_STRUCT), paramType != paramTypes64[i]));
 			}
 		}
 		output("))objc_msgSend)");
-		generateFunctionCallRightSide(method, methodData, paramTypes, 1);
+		generateFunctionCallRightSide(method, methodData, paramTypes, paramTypes64, 1);
 		outputln(";");
 		outputln("\t}");
 	}
 }
 
-void generateReturn(Method method, Class returnType, boolean needsReturn) {
+void generateReturn(Method method, Class returnType, Class returnType64, boolean needsReturn) {
 	if (needsReturn && returnType != Void.TYPE) {
 		outputln("\treturn rc;");
 	}
 }
 
-void generateMemmove(Method method, String function, Class[] paramTypes) {
-	generateEnterMacro(method, function);
+void generateMemmove(Method method, String function, Class[] paramTypes, String function64, Class[] paramTypes64) {
+	generateEnterMacro(method, function, function64);
 	output("\t");
 	boolean get = paramTypes[0].isPrimitive();
 	String className = getClassName(paramTypes[get ? 1 : 0]);
@@ -835,10 +973,10 @@ void generateMemmove(Method method, String function, Class[] paramTypes) {
 	output(className);
 	output(get ? " *)arg0)" : " *)arg1)");
 	outputln(";");
-	generateExitMacro(method, function);	
+	generateExitMacro(method, function, function64);	
 }
 
-void generateFunctionBody(Method method, MethodData methodData, String function, Class[] paramTypes, Class returnType) {
+void generateFunctionBody(Method method, MethodData methodData, String function, Class[] paramTypes, Class returnType, String function64, Class[] paramTypes64, Class returnType64) {
 	outputln("{");
 	
 	/* Custom GTK memmoves. */
@@ -846,28 +984,28 @@ void generateFunctionBody(Method method, MethodData methodData, String function,
 	if (name.startsWith("_")) name = name.substring(1);
 	boolean isMemove = (name.equals("memmove") || name.equals("MoveMemory")) && paramTypes.length == 2 && returnType == Void.TYPE;
 	if (isMemove) {
-		generateMemmove(method, function, paramTypes);
+		generateMemmove(method, function, paramTypes, function64, paramTypes64);
 	} else {
-		boolean needsReturn = generateLocalVars(method, paramTypes, returnType);
-		generateEnterMacro(method, function);
-		boolean genFailTag = generateGetters(method, paramTypes);
+		boolean needsReturn = generateLocalVars(method, paramTypes, returnType, paramTypes64, returnType64);
+		generateEnterMacro(method, function, function64);
+		boolean genFailTag = generateGetters(method, paramTypes, paramTypes64);
 		if (methodData.getFlag(FLAG_DYNAMIC)) {
-			generateDynamicFunctionCall(method, methodData, paramTypes, returnType, needsReturn);
+			generateDynamicFunctionCall(method, methodData, paramTypes, returnType, paramTypes64, returnType64, needsReturn);
 		} else {
-			generateFunctionCall(method, methodData, paramTypes, returnType, needsReturn);
+			generateFunctionCall(method, methodData, paramTypes, returnType, paramTypes64, returnType64, needsReturn);
 		}
 		if (genFailTag) outputln("fail:");
-		generateSetters(method, paramTypes);
-		generateExitMacro(method, function);
-		generateReturn(method, returnType, needsReturn);
+		generateSetters(method, paramTypes, paramTypes64);
+		generateExitMacro(method, function, function64);
+		generateReturn(method, returnType, returnType64, needsReturn);
 	}
 	
 	outputln("}");
 }
 
-void generateFunctionPrototype(Method method, String function, Class[] paramTypes, Class returnType, boolean singleLine) {
+void generateFunctionPrototype(Method method, String function, Class[] paramTypes, Class returnType, Class[] paramTypes64, Class returnType64, boolean singleLine) {
 	output("JNIEXPORT ");
-	output(getTypeSignature2(returnType));
+	output(getTypeSignature2(returnType, returnType != returnType64));
 	output(" JNICALL ");
 	output(getClassName(method.getDeclaringClass()));
 	output("_NATIVE(");
@@ -888,19 +1026,27 @@ void generateFunctionPrototype(Method method, String function, Class[] paramType
 	for (int i = 0; i < paramTypes.length; i++) {
 		Class paramType = paramTypes[i];
 		output(", ");
-		output(getTypeSignature2(paramType));
+		output(getTypeSignature2(paramType, paramType != paramTypes64[i]));
 		output(" arg" + i);
 	}
 	output(")");
 	if (!singleLine) outputln();
 }
 
-void generateSourceStart(String function) {
-	output("#ifndef NO_");
-	outputln(function);
+void generateSourceStart(String function, String function64) {
+	if (function64 == null || function.equals(function64)) {
+		output("#ifndef NO_");
+		outputln(function);
+	} else {
+		output("#if (!defined(NO_");
+		output(function);
+		output(") && !defined(SWT_PTR_SIZE_64)) || (!defined(");
+		output(function64);
+		outputln(") && defined(SWT_PTR_SIZE_64))");
+	}
 }
 
-void generateSourceEnd(String function) {
+void generateSourceEnd(String function, String function64) {
 	outputln("#endif");
 }
 
