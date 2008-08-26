@@ -35,10 +35,6 @@ public boolean equals(Object obj) {
 	return ((ReflectClass)obj).clazz.equals(clazz);
 }
 
-public JNIClass getComponentType() {
-	return new ReflectClass(clazz.getComponentType(), metaData);
-}
-
 public JNIField[] getDeclaredFields() {
 	Field[] fields = clazz.getDeclaredFields();
 	JNIField[] result = new JNIField[fields.length];
