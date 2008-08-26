@@ -22,7 +22,7 @@ Hashtable files;
 int usedCount, unusedCount;
 
 String[] getArgNames(JNIMethod method) {
-	int n_args = method.getParameterTypes().length;
+	int n_args = method.getParameters().length;
 	if (n_args == 0) return new String[0];
 	String name = method.getName();
 	String params = "";

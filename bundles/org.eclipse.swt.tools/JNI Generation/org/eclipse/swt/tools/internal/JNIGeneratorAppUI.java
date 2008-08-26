@@ -997,11 +997,11 @@ String getMethodString(JNIMethod method) {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(method.getName());
 	buffer.append("(");
-	JNIClass[] params = method.getParameterTypes();
+	JNIParameter[] params = method.getParameters();
 	for (int i = 0; i < params.length; i++) {
-		JNIClass param = params[i];
+		JNIParameter param = params[i];
 		if (i != 0) buffer.append(",");
-		String string = param.getTypeSignature3();
+		String string = param.getType().getTypeSignature3();
 		if (string.startsWith(pkgName)) string = string.substring(pkgName.length() + 1);
 		buffer.append(string);
 	}

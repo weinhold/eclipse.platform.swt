@@ -20,7 +20,7 @@ public LockGenerator() {
 }
 
 String getParams(JNIMethod method) {
-	int n_args = method.getParameterTypes().length;
+	int n_args = method.getParameters().length;
 	if (n_args == 0) return "";
 	String name = method.getName();
 	String params = "";
