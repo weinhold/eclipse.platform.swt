@@ -63,9 +63,12 @@ void parse(String str) {
 	}
 }
 
+public abstract void setMetaData(String value);
+
 public void setParam(String key, Object value) {
 	checkParams();
 	params.put(key, value);
+	setMetaData(flatten());
 }
 
 public String flatten() {

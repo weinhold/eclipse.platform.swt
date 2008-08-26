@@ -81,6 +81,12 @@ public void setExclude(String str) {
 	setParam("exclude", str);
 }
 
+public void setMetaData(String value) {
+	String className = declaringClass.getSimpleName();
+	String key = className + "_" + field.getName();
+	declaringClass.metaData.setMetaData(key, value);
+}
+
 public String toString() {
 	return field.toString();
 }

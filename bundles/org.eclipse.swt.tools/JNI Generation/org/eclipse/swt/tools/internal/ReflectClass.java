@@ -197,6 +197,11 @@ public void setExclude(String str) {
 	setParam("exclude", str);
 }
 
+public void setMetaData(String value) {
+	String key = JNIGenerator.toC(clazz.getName());
+	metaData.setMetaData(key, value);
+}
+
 public String toString() {
 	return clazz.toString();
 }

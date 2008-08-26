@@ -74,4 +74,15 @@ public int getParameter() {
 public void setCast(String str) {
 	setParam("cast", str);
 }
+
+public void setMetaData(String value) {
+	String key;
+	String className = method.getDeclaringClass().getSimpleName();
+	if (JNIGenerator.isNativeUnique(method)) {
+		key = className + "_" + method.getName () + "_" + parameter;
+	} else {
+		key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
+	}
+	method.declaringClass.metaData.setMetaData(key, value);
+}
 }

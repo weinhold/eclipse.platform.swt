@@ -121,6 +121,17 @@ public void setExclude(String str) {
 	setParam("exclude", str);
 }
 
+public void setMetaData(String value) {
+	String key;
+	String className = declaringClass.getSimpleName();
+	if (JNIGenerator.isNativeUnique(this)) {
+		key = className + "_" + method.getName ();
+	} else {
+		key = className + "_" + JNIGenerator.getFunctionName(this);
+	}
+	declaringClass.metaData.setMetaData(key, value);
+}
+
 public String toString() {
 	return method.toString();
 }
