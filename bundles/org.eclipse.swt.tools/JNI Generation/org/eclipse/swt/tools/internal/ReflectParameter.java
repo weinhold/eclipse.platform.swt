@@ -63,7 +63,7 @@ public JNIMethod getMethod() {
 	return method;
 }
 
-public JNIClass getParameterType() {
+public JNIClass getType() {
 	return method.getParameterTypes()[parameter];
 }
 

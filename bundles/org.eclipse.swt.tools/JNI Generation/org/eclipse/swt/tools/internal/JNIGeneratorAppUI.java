@@ -1140,7 +1140,7 @@ void updateParameters() {
 		TableItem item = new TableItem(paramsLt, SWT.NONE);
 		item.setData(param);
 		item.setText(PARAM_INDEX_COLUMN, String.valueOf(i));
-		item.setText(PARAM_TYPE_COLUMN, getClassString(param.getParameterType()));
+		item.setText(PARAM_TYPE_COLUMN, getClassString(param.getType()));
 		item.setText(PARAM_CAST_COLUMN, param.getCast());
 		item.setText(PARAM_FLAGS_COLUMN, getFlagsString(param.getFlags()));
 	}
