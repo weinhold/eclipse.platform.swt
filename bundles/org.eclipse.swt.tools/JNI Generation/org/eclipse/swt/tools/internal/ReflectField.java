@@ -22,7 +22,7 @@ public ReflectField(ReflectClass declaringClass, Field field) {
 }
 
 public String getMetaData() {
-	String className = field.getDeclaringClass().getSimpleName();
+	String className = getDeclaringClass().getSimpleName();
 	String key = className + "_" + field.getName();
 	return declaringClass.metaData.getMetaData(key, "");
 }
@@ -49,7 +49,36 @@ public String getName() {
 }
 
 public JNIClass getType() {
-	return new ReflectClass(field.getType());
+	return new ReflectClass(field.getType(), declaringClass.metaData);
+}
+
+public String getAccessor() {
+	return (String)getParam("accessor");
+}
+
+public String getCast() {
+	String cast = ((String)getParam("cast")).trim();
+	if (cast.length() > 0) {
+		if (!cast.startsWith("(")) cast = "(" + cast;
+		if (!cast.endsWith(")")) cast = cast + ")";
+	}
+	return cast;
+}
+
+public String getExclude() {
+	return (String)getParam("exclude");
+}
+
+public void setAccessor(String str) { 
+	setParam("accessor", str);
+}
+
+public void setCast(String str) {
+	setParam("cast", str);
+}
+
+public void setExclude(String str) { 
+	setParam("exclude", str);
 }
 
 public String toString() {

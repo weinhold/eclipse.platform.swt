@@ -56,7 +56,7 @@ public String getOutputDir() {
 public void generateAll() {
 	String mainClasses = new MetaData(getDefaultMainClass()).getMetaData("swt_main_classes", null);
 	if (mainClasses != null) {
-		String[] list = ItemData.split(mainClasses, ",");
+		String[] list = JNIGenerator.split(mainClasses, ",");
 		for (int i = 0; i < list.length; i += 2) {
 			String className = list[i].trim();
 			try {
@@ -319,7 +319,7 @@ public JNIClass[] getClasses() {
 	for (int i = 0; i < classNames.length; i++) {
 		String className = classNames[i];
 		try {
-			classes[i] = new ReflectClass(Class.forName(packageName + "." + className, false, getClass().getClassLoader()));
+			classes[i] = new ReflectClass(Class.forName(packageName + "." + className, false, getClass().getClassLoader()), metaData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -384,7 +384,7 @@ public void setMainClassName(String str) {
 	metaData = new MetaData(mainClassName);
 	String mainClasses = getMetaData().getMetaData("swt_main_classes", null);
 	if (mainClasses != null) {
-		String[] list = ItemData.split(mainClasses, ",");
+		String[] list = JNIGenerator.split(mainClasses, ",");
 		for (int i = 0; i < list.length; i += 2) {
 			if (mainClassName.equals(list[i].trim())) {
 				setOutputDir(list[i + 1].trim());
@@ -393,7 +393,7 @@ public void setMainClassName(String str) {
 	}
 	if (mainClassName != null) {
 		try {
-			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()));
+			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()), metaData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -21,6 +21,11 @@ public ReflectClass(Class clazz) {
 	this.clazz = clazz;
 }
 
+public ReflectClass(Class clazz, MetaData data) {
+	this.clazz = clazz;
+	this.metaData = data;
+}
+
 public int hashCode() {
 	return clazz.hashCode();
 }
@@ -36,7 +41,7 @@ public String getMetaData() {
 }
 
 public JNIClass getComponentType() {
-	return new ReflectClass(clazz.getComponentType());
+	return new ReflectClass(clazz.getComponentType(), metaData);
 }
 
 public JNIField[] getDeclaredFields() {
@@ -62,7 +67,7 @@ public String getName() {
 }
 
 public JNIClass getSuperclass() {
-	return new ReflectClass(clazz.getSuperclass());
+	return new ReflectClass(clazz.getSuperclass(), metaData);
 }
 
 public boolean isArray() {

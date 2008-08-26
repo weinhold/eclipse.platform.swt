@@ -288,24 +288,23 @@ void generateGetFields(JNIClass clazz) {
 	for (int i = 0; i < fields.length; i++) {
 		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
-		FieldData fieldData = getMetaData().getMetaData(field);
-		String exclude = fieldData.getExclude();
+		String exclude = field.getExclude();
 		if (exclude.length() != 0) {
 			outputln(exclude);
 		}
-		boolean noWinCE = fieldData.getFlag(FLAG_NO_WINCE);
+		boolean noWinCE = field.getFlag(FLAG_NO_WINCE);
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
 		JNIClass type = field.getType();
 		String typeName = type.getSimpleName();
-		String accessor = fieldData.getAccessor();
+		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
 		if (type.isPrimitive()) {
 			output("\tlpStruct->");
 			output(accessor);
 			output(" = ");
-			output(fieldData.getCast());
+			output(field.getCast());
 			if (isCPP) {
 				output("env->Get");
 			} else {
@@ -438,18 +437,17 @@ void generateSetFields(JNIClass clazz) {
 	for (int i = 0; i < fields.length; i++) {
 		JNIField field = fields[i];
 		if (ignoreField(field)) continue;
-		FieldData fieldData = getMetaData().getMetaData(field);
-		String exclude = fieldData.getExclude();
+		String exclude = field.getExclude();
 		if (exclude.length() != 0) {
 			outputln(exclude);
 		}
-		boolean noWinCE = fieldData.getFlag(FLAG_NO_WINCE);
+		boolean noWinCE = field.getFlag(FLAG_NO_WINCE);
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
 		JNIClass type = field.getType();
 		String typeName = type.getSimpleName();
-		String accessor = fieldData.getAccessor();
+		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
 		if (type.isPrimitive()) {
 			if (isCPP) {

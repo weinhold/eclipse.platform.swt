@@ -22,8 +22,44 @@ public ReflectMethod(ReflectClass declaringClass, Method method) {
 }
 
 public String getMetaData() {
-	//TODO
-	return "";
+	String className = getDeclaringClass().getSimpleName();
+	String key = className + "_" + JNIGenerator.getFunctionName(this);
+	MetaData metaData = declaringClass.metaData;
+	String value = metaData.getMetaData(key, null);
+	if (value == null) {
+		key = className + "_" + method.getName();
+		value = metaData.getMetaData(key, null);
+	}
+	/*
+	* Support for 64 bit port.
+	*/
+	if (value == null) {
+		JNIClass[] paramTypes = getParameterTypes();
+		if (convertTo32Bit(paramTypes, true)) {
+			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
+			value = metaData.getMetaData(key, null);
+		}
+		if (value == null) {
+			paramTypes = getParameterTypes();
+			if (convertTo32Bit(paramTypes, false)) {
+				key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
+				value = metaData.getMetaData(key, null);
+			}
+		}
+	}
+	/*
+	* Support for lock.
+	*/
+	if (value == null && method.getName().startsWith("_")) {
+		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
+		value = metaData.getMetaData(key, null);
+		if (value == null) {
+			key = className + "_" + method.getName().substring(1);
+			value = metaData.getMetaData(key, null);
+		}
+	}
+	if (value == null) value = "";	
+	return value;
 }
 
 public int hashCode() {
@@ -51,13 +87,38 @@ public JNIClass[] getParameterTypes() {
 	Class[] paramTypes = method.getParameterTypes();
 	ReflectClass[] result = new ReflectClass[paramTypes.length];
 	for (int i = 0; i < paramTypes.length; i++) {
-		result[i] = new ReflectClass(paramTypes[i]);
+		result[i] = new ReflectClass(paramTypes[i], declaringClass.metaData);
+	}
+	return result;
+}
+
+public JNIParameter[] getParameters() {
+	Class[] paramTypes = method.getParameterTypes();
+	ReflectParameter[] result = new ReflectParameter[paramTypes.length];
+	for (int i = 0; i < paramTypes.length; i++) {
+		result[i] = new ReflectParameter(this, i);
 	}
 	return result;
 }
 
 public JNIClass getReturnType() {
-	return new ReflectClass(method.getReturnType());
+	return new ReflectClass(method.getReturnType(), declaringClass.metaData);
+}
+
+public String getAccessor() {
+	return (String)getParam("accessor");
+}
+
+public String getExclude() {
+	return (String)getParam("exclude");
+}
+
+public void setAccessor(String str) { 
+	setParam("accessor", str);
+}
+
+public void setExclude(String str) { 
+	setParam("exclude", str);
 }
 
 public String toString() {

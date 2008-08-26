@@ -21,7 +21,7 @@ public void generateCopyright() {
 public void generate(JNIClass clazz) {
 	output(toC(clazz.getName()));
 	output("=");
-	output(((ReflectClass)clazz).flatten());
+	output(((ReflectItem)clazz).flatten());
 	outputln();
 	JNIField[] fields = clazz.getDeclaredFields();
 	generate(fields);
@@ -47,8 +47,7 @@ public void generate(JNIField field) {
 	output("_");
 	output(field.getName());
 	output("=");
-	FieldData data = getMetaData().getMetaData(field);
-	if (data != null) output(data.toString());
+	output(((ReflectItem)field).flatten());
 }
 
 public void generate(JNIMethod[] methods) {
@@ -74,22 +73,24 @@ public void generate(JNIMethod method) {
 	String key = buffer.toString();
 	output(key);
 	output("=");
-	MethodData methodData = getMetaData().getMetaData(method);
-	if (methodData != null) output(methodData.toString());
+	output(((ReflectItem)method).flatten());
 	outputln();
-	int length = method.getParameterTypes().length;
-	for (int i = 0; i < length; i++) {
+	JNIParameter[] params = method.getParameters();
+	for (int i = 0; i < params.length; i++) {
 		output(key);
 		output("_");
 		output(i + "=");
-		ParameterData paramData = getMetaData().getMetaData(method, i);
-		if (paramData != null) output(paramData.toString());
+		output(((ReflectItem)params[i]).flatten());
 		outputln();		
 	}
 }
 
 public String getExtension() {
 	return ".properties";
+}
+
+protected boolean getGenerate(JNIItem item) {
+	return true;
 }
 
 public String getOutputName() {

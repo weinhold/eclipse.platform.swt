@@ -1,19 +1,12 @@
 package org.eclipse.swt.tools.internal;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.StringTokenizer;
 
 public abstract class AbstractItem implements JNIItem {
 
 static String[] split(String str, String separator) {
-	StringTokenizer tk = new StringTokenizer(str, separator);
-	ArrayList result = new ArrayList();
-	while (tk.hasMoreElements()) {
-		result.add(tk.nextElement());
-	}
-	return (String[])result.toArray(new String[result.size()]);
+	return JNIGenerator.split(str, separator);
 }
 
 public String[] getFlags() {

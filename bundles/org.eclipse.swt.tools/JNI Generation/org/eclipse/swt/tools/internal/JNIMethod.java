@@ -12,14 +12,25 @@ package org.eclipse.swt.tools.internal;
 
 public interface JNIMethod extends JNIItem {
 
+	public static final String[] FLAGS = {FLAG_NO_GEN, FLAG_ADDRESS, FLAG_CONST, FLAG_DYNAMIC, FLAG_JNI, FLAG_CAST, FLAG_CPP, FLAG_NEW, FLAG_DELETE, FLAG_GCNEW, FLAG_GCOBJECT, FLAG_SETTER, FLAG_GETTER, FLAG_ADDER};
+	
 public String getName();
 	
 public int getModifiers();
 
 public JNIClass[] getParameterTypes();
 
+public JNIParameter[] getParameters();
+
 public JNIClass getReturnType();
 
 public JNIClass getDeclaringClass();
 
+public String getAccessor();
+
+public String getExclude();
+
+public void setAccessor(String str);
+
+public void setExclude(String str);
 }

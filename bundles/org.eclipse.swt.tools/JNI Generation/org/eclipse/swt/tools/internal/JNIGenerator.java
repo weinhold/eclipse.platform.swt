@@ -131,6 +131,15 @@ static void sort(JNIClass[] classes) {
 	});	
 }
 
+static String[] split(String str, String separator) {
+	StringTokenizer tk = new StringTokenizer(str, separator);
+	ArrayList result = new ArrayList();
+	while (tk.hasMoreElements()) {
+		result.add(tk.nextElement());
+	}
+	return (String[])result.toArray(new String[result.size()]);
+}
+
 static String toC(String str) {
 	int length = str.length();
 	StringBuffer buffer = new StringBuffer(length * 2);
@@ -170,7 +179,7 @@ public void generate() {
 	}
 	for (int i = 0; i < classes.length; i++) {
 		JNIClass clazz = classes[i];
-		if (clazz.getGenerate()) generate(clazz);
+		if (getGenerate(clazz)) generate(clazz);
 		if (progress != null) progress.step();
 	}
 	output.flush();
@@ -202,6 +211,10 @@ public String getExtension() {
 
 public String getFileName() {
 	return getOutputName() + getSuffix() + getExtension();
+}
+
+protected boolean getGenerate(JNIItem item) {
+	return item.getGenerate();
 }
 
 public PrintStream getOutput() {

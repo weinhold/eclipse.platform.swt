@@ -248,9 +248,8 @@ JNIMethod[] getSelectedMethods() {
 	for (int i = 0; i < selection.length; i++) {
 		TableItem item = selection [i];
 		Object data = item.getData();
-		if (data instanceof MethodData) {
-			JNIMethod method = ((MethodData)data).getMethod();
-			methods[count++] = method;
+		if (data instanceof JNIMethod) {
+			methods[count++] = (JNIMethod)data;
 		}
 	}
 	if (count != methods.length) {
@@ -268,9 +267,8 @@ JNIField[] getSelectedFields() {
 	for (int i = 0; i < selection.length; i++) {
 		TableItem item = selection [i];
 		Object data = item.getData();
-		if (data instanceof FieldData) {
-			JNIField field = ((FieldData)data).getField();
-			fields[count++] = field;
+		if (data instanceof JNIField) {
+			fields[count++] = (JNIField)data;
 		}
 	}
 	if (count != fields.length) {
@@ -349,7 +347,7 @@ void createMainClassPanel(Composite panel, Listener updateListener) {
 
 	String mainClasses = app.getMetaData().getMetaData("swt_main_classes", null);
 	if (mainClasses != null) {
-		String[] list = ItemData.split(mainClasses, ",");
+		String[] list = JNIGenerator.split(mainClasses, ",");
 		for (int i = 0; i < list.length; i += 2) {
 			String className = list[i].trim();
 			try {
@@ -576,45 +574,42 @@ void createMembersPanel(Composite panel) {
 			TableItem item = memberTextEditor.getItem();
 			if (item == null) return;
 			int column = memberTextEditor.getColumn();
-			ItemData memberData = (ItemData)item.getData();
+			JNIItem memberData = (JNIItem)item.getData();
 			String text = memberEditorTx.getText();
-			MetaData metaData = app.getMetaData();
-			if (memberData instanceof FieldData) {
-				FieldData fieldData = (FieldData)memberData;
+			if (memberData instanceof JNIField) {
+				JNIField field = (JNIField)memberData;
 				switch (column) {
 					case FIELD_CAST_COLUMN: {
-						fieldData.setCast(text);
-						item.setText(column, fieldData.getCast());
+						field.setCast(text);
+						item.setText(column, field.getCast());
 						break;
 					}
 					case FIELD_ACCESSOR_COLUMN: {
-						fieldData.setAccessor(text.equals(fieldData.getField().getName()) ? "" : text);
-						item.setText(column, fieldData.getAccessor());
+						field.setAccessor(text.equals(field.getName()) ? "" : text);
+						item.setText(column, field.getAccessor());
 						break;
 					}
 					case FIELD_EXCLUDE_COLUMN: {
-						fieldData.setExclude(text);
-						item.setText(column, fieldData.getExclude());
+						field.setExclude(text);
+						item.setText(column, field.getExclude());
 						break;
 					}
 				}
-				metaData.setMetaData(fieldData.getField(), fieldData);
 				membersLt.getColumn(column).pack();
-			} else if (memberData instanceof MethodData) {
-				MethodData methodData = (MethodData)memberData;
+			} else if (memberData instanceof JNIMethod) {
+				JNIMethod method = (JNIMethod)memberData;
 				switch (column) {
 					case METHOD_ACCESSOR_COLUMN: {
-						methodData.setAccessor(text.equals(methodData.getMethod().getName()) ? "" : text);
-						item.setText(column, methodData.getAccessor());
+						method.setAccessor(text.equals(method.getName()) ? "" : text);
+						item.setText(column, method.getAccessor());
 						break;
 					}
 					case METHOD_EXCLUDE_COLUMN: {
-						methodData.setExclude(text);
-						item.setText(column, methodData.getExclude());
+						method.setExclude(text);
+						item.setText(column, method.getExclude());
 						break;
 					}
 				}
-				metaData.setMetaData(methodData.getMethod(), methodData);
 				membersLt.getColumn(column).pack();
 			}
 		}
@@ -648,21 +643,12 @@ void createMembersPanel(Composite panel) {
 			TableItem item = memberListEditor.getItem();
 			if (item == null) return;
 			int column = memberListEditor.getColumn();
-			ItemData data = (ItemData)item.getData();
+			JNIItem data = (JNIItem)item.getData();
 			String[] flags = memberEditorLt.getSelection();
 			data.setFlags(flags);
 			item.setText(column, getFlagsString(data.getFlags()));
 			item.setChecked(data.getGenerate());
-			MetaData metaData = app.getMetaData();
-			if (data instanceof FieldData) {
-				FieldData fieldData = (FieldData)data;
-				metaData.setMetaData(fieldData.getField(), fieldData);
-				membersLt.getColumn(column).pack();
-			} else if (data instanceof MethodData) {
-				MethodData methodData = (MethodData)data;
-				metaData.setMetaData(methodData.getMethod(), methodData);
-				membersLt.getColumn(column).pack();
-			}
+			membersLt.getColumn(column).pack();
 		}
 	};
 	memberEditorLt.addListener(SWT.DefaultSelection, memberListListener);
@@ -686,19 +672,19 @@ void createMembersPanel(Composite panel) {
 						}				
 					}
 					if (column == -1) return;
-					ItemData itemData = (ItemData)item.getData();
-					if (itemData instanceof FieldData) {
-						FieldData data = (FieldData)itemData;
+					Object itemData = item.getData();
+					if (itemData instanceof JNIField) {
+						JNIField field = (JNIField)itemData;
 						if (column == FIELD_CAST_COLUMN || column == FIELD_ACCESSOR_COLUMN || column == FIELD_EXCLUDE_COLUMN) {
 							memberTextEditor.setColumn(column);
 							memberTextEditor.setItem(item);
 							String text = "";
 							switch (column) {
-								case FIELD_CAST_COLUMN: text = data.getCast(); break;
+								case FIELD_CAST_COLUMN: text = field.getCast(); break;
 								case FIELD_ACCESSOR_COLUMN: {
-									text = data.getAccessor(); 
+									text = field.getAccessor(); 
 									if (text.length() == 0) {
-										text = data.getField().getName();
+										text = field.getName();
 										int index = text.lastIndexOf('_');
 										if (index != -1) {
 											char[] chars = text.toCharArray();
@@ -708,7 +694,7 @@ void createMembersPanel(Composite panel) {
 									}
 									break;
 								}
-								case FIELD_EXCLUDE_COLUMN: text = data.getExclude(); break;
+								case FIELD_EXCLUDE_COLUMN: text = field.getExclude(); break;
 							}
 							memberEditorTx.setText(text);
 							memberEditorTx.selectAll();
@@ -717,26 +703,26 @@ void createMembersPanel(Composite panel) {
 						} else if (column == FIELD_FLAGS_COLUMN) {
 							memberListEditor.setColumn(column);
 							memberListEditor.setItem(item);
-							memberEditorLt.setItems(FieldData.getAllFlags());
-							memberEditorLt.setSelection(data.getFlags());
+							memberEditorLt.setItems(JNIField.FLAGS);
+							memberEditorLt.setSelection(field.getFlags());
 							floater.setLocation(membersLt.toDisplay(e.x, e.y));
 							floater.pack();
 							floater.setVisible(true);
 							memberEditorLt.setFocus();
 						}
-					} else if (itemData instanceof MethodData) {
-						MethodData data = (MethodData)itemData;
+					} else if (itemData instanceof JNIMethod) {
+						JNIMethod method = (JNIMethod)itemData;
 						if (column == METHOD_EXCLUDE_COLUMN || column == METHOD_ACCESSOR_COLUMN) {
 							memberTextEditor.setColumn(column);
 							memberTextEditor.setItem(item);
 							String text = "";
 							switch (column) {
 								case METHOD_ACCESSOR_COLUMN: {
-									text = data.getAccessor();
-									if (text.length() == 0) text = data.getMethod().getName();
+									text = method.getAccessor();
+									if (text.length() == 0) text = method.getName();
 									break;
 								}
-								case METHOD_EXCLUDE_COLUMN: text = data.getExclude(); break;
+								case METHOD_EXCLUDE_COLUMN: text = method.getExclude(); break;
 							}
 							memberEditorTx.setText(text);
 							memberEditorTx.selectAll();
@@ -745,8 +731,8 @@ void createMembersPanel(Composite panel) {
 						} else if (column == METHOD_FLAGS_COLUMN) {
 							memberListEditor.setColumn(column);
 							memberListEditor.setItem(item);
-							memberEditorLt.setItems(MethodData.getAllFlags());
-							memberEditorLt.setSelection(data.getFlags());
+							memberEditorLt.setItems(JNIMethod.FLAGS);
+							memberEditorLt.setSelection(method.getFlags());
 							floater.setLocation(membersLt.toDisplay(e.x, e.y));
 							floater.pack();
 							floater.setVisible(true);
@@ -805,13 +791,11 @@ void createParametersPanel(Composite panel) {
 			TableItem item = paramTextEditor.getItem();
 			if (item == null) return;
 			int column = paramTextEditor.getColumn();
-			ParameterData paramData = (ParameterData)item.getData();
+			JNIParameter param = (JNIParameter)item.getData();
 			if (column == PARAM_CAST_COLUMN) {
 				String text = paramEditorTx.getText();
-				paramData.setCast(text);
-				item.setText(column, paramData.getCast());
-				MetaData metaData = app.getMetaData();
-				metaData.setMetaData(paramData.getMethod(), paramData.getParameter(), paramData);
+				param.setCast(text);
+				item.setText(column, param.getCast());
 				paramsLt.getColumn(column).pack();
 			}
 		}
@@ -824,7 +808,7 @@ void createParametersPanel(Composite panel) {
 	floater.setLayout(new FillLayout());
 	paramListEditor = new FlagsEditor(paramsLt);
 	paramEditorLt = new List(floater, SWT.MULTI | SWT.BORDER);
-	paramEditorLt.setItems(ParameterData.getAllFlags());
+	paramEditorLt.setItems(JNIParameter.FLAGS);
 	floater.pack();
 	floater.addListener(SWT.Close, new Listener() {
 		public void handleEvent(Event e) {
@@ -847,13 +831,11 @@ void createParametersPanel(Composite panel) {
 			TableItem item = paramListEditor.getItem();
 			if (item == null) return;
 			int column = paramListEditor.getColumn();
-			ParameterData paramData = (ParameterData)item.getData();
+			JNIParameter param = (JNIParameter)item.getData();
 			if (column == PARAM_FLAGS_COLUMN) {
 				String[] flags = paramEditorLt.getSelection();
-				paramData.setFlags(flags);
-				item.setText(column, getFlagsString(paramData.getFlags()));
-				MetaData metaData = app.getMetaData();
-				metaData.setMetaData(paramData.getMethod(), paramData.getParameter(), paramData);
+				param.setFlags(flags);
+				item.setText(column, getFlagsString(param.getFlags()));
 				paramsLt.getColumn(column).pack();
 			}
 		}
@@ -879,18 +861,18 @@ void createParametersPanel(Composite panel) {
 						}				
 					}
 					if (column == -1) return;
-					ParameterData data = (ParameterData)item.getData();
+					JNIParameter param = (JNIParameter)item.getData();
 					if (column == PARAM_CAST_COLUMN) {
 						paramTextEditor.setColumn(column);
 						paramTextEditor.setItem(item);
-						paramEditorTx.setText(data.getCast());
+						paramEditorTx.setText(param.getCast());
 						paramEditorTx.selectAll();
 						paramEditorTx.setVisible(true);
 						paramEditorTx.setFocus();
 					} else if (column == PARAM_FLAGS_COLUMN) {
 						paramListEditor.setColumn(column);
 						paramListEditor.setItem(item);
-						paramEditorLt.setSelection(data.getFlags());
+						paramEditorLt.setSelection(param.getFlags());
 						floater.setLocation(paramsLt.toDisplay(e.x, e.y));
 						floater.setVisible(true);
 						paramEditorLt.setFocus();
@@ -1054,7 +1036,6 @@ void updateClasses() {
 
 void updateMembers() {
 	membersLt.removeAll();
-	MetaData metaData = app.getMetaData();
 	membersLt.setHeaderVisible(false);
 	TableColumn[] columns = membersLt.getColumns();
 	for (int i = 0; i < columns.length; i++) {
@@ -1089,13 +1070,12 @@ void updateMembers() {
 		for (int i = 0; i < methods.length; i++) {
 			JNIMethod method = methods[i];
 			if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
-			MethodData methodData = metaData.getMetaData(method);
 			TableItem item = new TableItem(membersLt, SWT.NONE);
-			item.setData(methodData);
+			item.setData(method);
 			item.setText(METHOD_NAME_COLUMN, getMethodString(method));
-			item.setChecked(methodData.getGenerate());
-			item.setText(METHOD_FLAGS_COLUMN, getFlagsString(methodData.getFlags()));
-			item.setText(METHOD_ACCESSOR_COLUMN, methodData.getAccessor());
+			item.setChecked(method.getGenerate());
+			item.setText(METHOD_FLAGS_COLUMN, getFlagsString(method.getFlags()));
+			item.setText(METHOD_ACCESSOR_COLUMN, method.getAccessor());
 			/*
 			item.setText(METHOD_EXCLUDE_COLUMN, methodData.getExclude());
 			*/
@@ -1121,14 +1101,13 @@ void updateMembers() {
 			if (((mods & Modifier.PUBLIC) == 0) ||
 				((mods & Modifier.FINAL) != 0) ||
 				((mods & Modifier.STATIC) != 0)) continue;
-			FieldData fieldData = metaData.getMetaData(field);
 			TableItem item = new TableItem(membersLt, SWT.NONE);
-			item.setData(fieldData);
+			item.setData(field);
 			item.setText(FIELD_NAME_COLUMN, getFieldString(field));
-			item.setChecked(fieldData.getGenerate());
-			item.setText(FIELD_CAST_COLUMN, fieldData.getCast());
-			item.setText(FIELD_FLAGS_COLUMN, getFlagsString(fieldData.getFlags()));
-			item.setText(FIELD_ACCESSOR_COLUMN, fieldData.getAccessor());
+			item.setChecked(field.getGenerate());
+			item.setText(FIELD_CAST_COLUMN, field.getCast());
+			item.setText(FIELD_FLAGS_COLUMN, getFlagsString(field.getFlags()));
+			item.setText(FIELD_ACCESSOR_COLUMN, field.getAccessor());
 			/*
 			item.setText(FIELD_EXCLUDE_COLUMN, fieldData.getExclude());
 			*/
@@ -1145,7 +1124,6 @@ void updateMembers() {
 
 void updateParameters() {
 	paramsLt.removeAll();
-	MetaData metaData = app.getMetaData();
 	int[] indices = membersLt.getSelectionIndices();
 	if (indices.length != 1) {
 		paramsLt.setHeaderVisible(false);
@@ -1153,20 +1131,18 @@ void updateParameters() {
 	}
 	TableItem memberItem = membersLt.getItem(indices[0]);
 	Object data = memberItem.getData();
-	if (!(data instanceof MethodData)) return;
+	if (!(data instanceof JNIMethod)) return;
 	paramsLt.setRedraw(false);
-	MethodData methodData = (MethodData)memberItem.getData();
-	JNIMethod method = methodData.getMethod();
-	JNIClass[] params = method.getParameterTypes();
+	JNIMethod method = (JNIMethod)data;
+	JNIParameter[] params = method.getParameters();
 	for (int i = 0; i < params.length; i++) {
-		JNIClass param = params[i];
-		ParameterData paramData = metaData.getMetaData(method, i);
+		JNIParameter param = params[i];
 		TableItem item = new TableItem(paramsLt, SWT.NONE);
-		item.setData(paramData);
+		item.setData(param);
 		item.setText(PARAM_INDEX_COLUMN, String.valueOf(i));
-		item.setText(PARAM_TYPE_COLUMN, getClassString(param));
-		item.setText(PARAM_CAST_COLUMN, paramData.getCast());
-		item.setText(PARAM_FLAGS_COLUMN, getFlagsString(paramData.getFlags()));
+		item.setText(PARAM_TYPE_COLUMN, getClassString(param.getParameterType()));
+		item.setText(PARAM_CAST_COLUMN, param.getCast());
+		item.setText(PARAM_FLAGS_COLUMN, getFlagsString(param.getFlags()));
 	}
 	TableColumn[] columns = paramsLt.getColumns();
 	for (int i = 0; i < columns.length; i++) {

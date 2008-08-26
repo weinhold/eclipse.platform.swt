@@ -11,6 +11,8 @@
 package org.eclipse.swt.tools.internal;
 
 public interface JNIField extends JNIItem {
+	
+public static final String[] FLAGS = {FLAG_NO_GEN, FLAG_NO_WINCE};
 
 public String getName();
 	
@@ -19,4 +21,16 @@ public int getModifiers();
 public JNIClass getType();
 
 public JNIClass getDeclaringClass();
+
+public String getAccessor();
+
+public String getCast();
+
+public String getExclude();
+
+public void setAccessor(String str);
+
+public void setCast(String str);
+
+public void setExclude(String str);
 }
