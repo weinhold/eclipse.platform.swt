@@ -102,6 +102,24 @@ static synchronized boolean isNativeUnique(JNIMethod method) {
 	return result;
 }
 
+static String loadFile (String file) {
+	try {
+		FileReader fr = new FileReader(file);
+		BufferedReader br = new BufferedReader(fr);
+		StringBuffer str = new StringBuffer();
+		char[] buffer = new char[1024];
+		int read;
+		while ((read = br.read(buffer)) != -1) {
+			str.append(buffer, 0, read);
+		}
+		fr.close();
+		return str.toString();
+	} catch (IOException e) {
+		e.printStackTrace(System.out);
+	}
+	return "";
+}
+
 static void sort(JNIMethod[] methods) {
 	Arrays.sort(methods, new Comparator() {
 		public int compare(Object a, Object b) {

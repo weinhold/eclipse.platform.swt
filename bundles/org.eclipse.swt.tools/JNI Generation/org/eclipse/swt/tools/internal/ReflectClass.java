@@ -10,20 +10,23 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class ReflectClass extends ReflectItem implements JNIClass {
 	Class clazz;
 	MetaData metaData;
+	String sourcePath;
 
 public ReflectClass(Class clazz) {
 	this.clazz = clazz;
 }
 
-public ReflectClass(Class clazz, MetaData data) {
+public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 	this.clazz = clazz;
 	this.metaData = data;
+	this.sourcePath = sourcePath;
 }
 
 public int hashCode() {
@@ -58,7 +61,8 @@ public String getName() {
 }
 
 public JNIClass getSuperclass() {
-	return new ReflectClass(clazz.getSuperclass(), metaData);
+	String path = new File(sourcePath).getParent() + "/" + getSimpleName() + ".java";
+	return new ReflectClass(clazz.getSuperclass(), metaData, path);
 }
 
 public String getSimpleName() {

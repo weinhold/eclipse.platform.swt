@@ -319,7 +319,9 @@ public JNIClass[] getClasses() {
 	for (int i = 0; i < classNames.length; i++) {
 		String className = classNames[i];
 		try {
-			classes[i] = new ReflectClass(Class.forName(packageName + "." + className, false, getClass().getClassLoader()), metaData);
+			String qualifiedName = packageName + "." + className;
+			String sourcePath = new File(outputDir).getParent() + "/" + qualifiedName.replace('.', '/') + ".java";
+			classes[i] = new ReflectClass(Class.forName(qualifiedName, false, getClass().getClassLoader()), metaData, sourcePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -393,7 +395,8 @@ public void setMainClassName(String str) {
 	}
 	if (mainClassName != null) {
 		try {
-			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()), metaData);
+			String sourcePath = new File(outputDir).getParent() + "/" + mainClassName.replace('.', '/') + ".java";
+			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()), metaData, sourcePath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

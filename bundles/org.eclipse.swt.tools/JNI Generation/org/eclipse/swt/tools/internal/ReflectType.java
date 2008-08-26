@@ -1,10 +1,21 @@
 package org.eclipse.swt.tools.internal;
 
 public class ReflectType implements JNIType {
-	Class clazz;
+	Class clazz, alternateClazz;
 
 public ReflectType(Class clazz) {
 	this.clazz = clazz;
+}
+
+public ReflectType(Class clazz, Class alternateClass) {
+	Class temp = clazz.isArray() ? clazz.getComponentType() : clazz;
+	if (temp == double.class || temp == long.class) {
+		temp = alternateClass;
+		clazz = alternateClass;
+		alternateClass = temp;
+	}
+	this.clazz = clazz;
+	this.alternateClazz = alternateClass;
 }
 	
 public int getByteCount() {
@@ -32,13 +43,13 @@ public String getSimpleName() {
 
 public String getTypeSignature() {
 	if (clazz == Void.TYPE) return "V";
-	if (clazz == Integer.TYPE) return "I";
+	if (clazz == Integer.TYPE) return alternateClazz != null ? "SWT_I_SIGNATURE" : "I";
 	if (clazz == Boolean.TYPE) return "Z";
 	if (clazz == Long.TYPE) return "J";
 	if (clazz == Short.TYPE) return "S";
 	if (clazz == Character.TYPE) return "C";
 	if (clazz == Byte.TYPE) return "B";
-	if (clazz == Float.TYPE) return "F";
+	if (clazz == Float.TYPE) return alternateClazz != null ? "SWT_F_SIGNATURE" : "F";
 	if (clazz == Double.TYPE) return "D";
 	if (clazz == String.class) return "Ljava/lang/String;";
 	if (clazz.isArray()) {
