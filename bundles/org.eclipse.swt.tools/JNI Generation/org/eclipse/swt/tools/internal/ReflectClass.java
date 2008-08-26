@@ -65,18 +65,6 @@ public JNIClass getSuperclass() {
 	return new ReflectClass(clazz.getSuperclass(), metaData);
 }
 
-public boolean isArray() {
-	return clazz.isArray();
-}
-
-public boolean isPrimitive() {
-	return clazz.isPrimitive();
-}
-
-public boolean isType(String type) {
-	return clazz.getName().equals(type);
-}
-
 public String getSimpleName() {
 	String name = clazz.getName();
 	int index = name.lastIndexOf('.') + 1;
