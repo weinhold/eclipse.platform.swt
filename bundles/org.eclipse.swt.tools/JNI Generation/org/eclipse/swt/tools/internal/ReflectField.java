@@ -21,12 +21,6 @@ public ReflectField(ReflectClass declaringClass, Field field) {
 	this.field = field;
 }
 
-public String getMetaData() {
-	String className = getDeclaringClass().getSimpleName();
-	String key = className + "_" + field.getName();
-	return declaringClass.metaData.getMetaData(key, "");
-}
-
 public int hashCode() {
 	return field.hashCode();
 }
@@ -67,6 +61,12 @@ public String getCast() {
 
 public String getExclude() {
 	return (String)getParam("exclude");
+}
+
+public String getMetaData() {
+	String className = getDeclaringClass().getSimpleName();
+	String key = className + "_" + field.getName();
+	return declaringClass.metaData.getMetaData(key, "");
 }
 
 public void setAccessor(String str) { 

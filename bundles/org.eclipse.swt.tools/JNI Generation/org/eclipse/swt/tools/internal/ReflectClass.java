@@ -35,11 +35,6 @@ public boolean equals(Object obj) {
 	return ((ReflectClass)obj).clazz.equals(clazz);
 }
 
-public String getMetaData() {
-	String key = JNIGenerator.toC(clazz.getName());
-	return metaData.getMetaData(key, "");
-}
-
 public JNIClass getComponentType() {
 	return new ReflectClass(clazz.getComponentType(), metaData);
 }
@@ -191,6 +186,11 @@ public String getSimpleName() {
 
 public String getExclude() {
 	return (String)getParam("exclude");
+}
+
+public String getMetaData() {
+	String key = JNIGenerator.toC(clazz.getName());
+	return metaData.getMetaData(key, "");
 }
 
 public void setExclude(String str) { 

@@ -21,47 +21,6 @@ public ReflectMethod(ReflectClass declaringClass, Method method) {
 	this.declaringClass = declaringClass;
 }
 
-public String getMetaData() {
-	String className = getDeclaringClass().getSimpleName();
-	String key = className + "_" + JNIGenerator.getFunctionName(this);
-	MetaData metaData = declaringClass.metaData;
-	String value = metaData.getMetaData(key, null);
-	if (value == null) {
-		key = className + "_" + method.getName();
-		value = metaData.getMetaData(key, null);
-	}
-	/*
-	* Support for 64 bit port.
-	*/
-	if (value == null) {
-		JNIClass[] paramTypes = getParameterTypes();
-		if (convertTo32Bit(paramTypes, true)) {
-			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
-			value = metaData.getMetaData(key, null);
-		}
-		if (value == null) {
-			paramTypes = getParameterTypes();
-			if (convertTo32Bit(paramTypes, false)) {
-				key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
-				value = metaData.getMetaData(key, null);
-			}
-		}
-	}
-	/*
-	* Support for lock.
-	*/
-	if (value == null && method.getName().startsWith("_")) {
-		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
-		value = metaData.getMetaData(key, null);
-		if (value == null) {
-			key = className + "_" + method.getName().substring(1);
-			value = metaData.getMetaData(key, null);
-		}
-	}
-	if (value == null) value = "";	
-	return value;
-}
-
 public int hashCode() {
 	return method.hashCode();
 }
@@ -111,6 +70,47 @@ public String getAccessor() {
 
 public String getExclude() {
 	return (String)getParam("exclude");
+}
+
+public String getMetaData() {
+	String className = getDeclaringClass().getSimpleName();
+	String key = className + "_" + JNIGenerator.getFunctionName(this);
+	MetaData metaData = declaringClass.metaData;
+	String value = metaData.getMetaData(key, null);
+	if (value == null) {
+		key = className + "_" + method.getName();
+		value = metaData.getMetaData(key, null);
+	}
+	/*
+	* Support for 64 bit port.
+	*/
+	if (value == null) {
+		JNIClass[] paramTypes = getParameterTypes();
+		if (convertTo32Bit(paramTypes, true)) {
+			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
+			value = metaData.getMetaData(key, null);
+		}
+		if (value == null) {
+			paramTypes = getParameterTypes();
+			if (convertTo32Bit(paramTypes, false)) {
+				key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
+				value = metaData.getMetaData(key, null);
+			}
+		}
+	}
+	/*
+	* Support for lock.
+	*/
+	if (value == null && method.getName().startsWith("_")) {
+		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
+		value = metaData.getMetaData(key, null);
+		if (value == null) {
+			key = className + "_" + method.getName().substring(1);
+			value = metaData.getMetaData(key, null);
+		}
+	}
+	if (value == null) value = "";	
+	return value;
 }
 
 public void setAccessor(String str) { 

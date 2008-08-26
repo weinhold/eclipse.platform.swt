@@ -9,6 +9,15 @@ public ReflectParameter(ReflectMethod method, int parameter) {
 	this.parameter = parameter;
 }
 
+public String getCast() {
+	String cast = ((String)getParam("cast")).trim();
+	if (cast.length() > 0) {
+		if (!cast.startsWith("(")) cast = "(" + cast;
+		if (!cast.endsWith(")")) cast = cast + ")";
+	}
+	return cast;
+}
+
 public String getMetaData() {
 	String className = method.getDeclaringClass().getSimpleName();
 	String key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
@@ -48,15 +57,6 @@ public String getMetaData() {
 	}
 	if (value == null) value = "";	
 	return value;
-}
-
-public String getCast() {
-	String cast = ((String)getParam("cast")).trim();
-	if (cast.length() > 0) {
-		if (!cast.startsWith("(")) cast = "(" + cast;
-		if (!cast.endsWith(")")) cast = cast + ")";
-	}
-	return cast;
 }
 
 public JNIMethod getMethod() {
