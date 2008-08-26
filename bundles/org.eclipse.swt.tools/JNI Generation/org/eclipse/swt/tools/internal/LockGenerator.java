@@ -40,7 +40,7 @@ String getParams(JNIMethod method) {
 }
 
 String getReturn(JNIMethod method) {
-	JNIClass returnType = method.getReturnType();
+	JNIType returnType = method.getReturnType();
 	if (!returnType.isType("int")) return returnType.getTypeSignature3();
 	String modifierStr = Modifier.toString(method.getModifiers());
 	String name = method.getName();
@@ -50,10 +50,10 @@ String getReturn(JNIMethod method) {
 		String methodStr = classSource.substring(m.start(), m.end());
 		int index = methodStr.indexOf("/*long*/");
 		if (index != -1 && index < methodStr.indexOf(name)) {
-			return new ReflectClass(Integer.TYPE).getTypeSignature3() + " /*long*/";
+			return new ReflectType(Integer.TYPE).getTypeSignature3() + " /*long*/";
 		}		
 	}
-	return new ReflectClass(Integer.TYPE).getTypeSignature3();
+	return new ReflectType(Integer.TYPE).getTypeSignature3();
 }
 
 public void generate(JNIClass clazz) {

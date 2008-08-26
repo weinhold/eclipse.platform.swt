@@ -296,7 +296,7 @@ void generateGetFields(JNIClass clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		JNIClass type = field.getType();
+		JNIType type = field.getType();
 		String typeName = type.getSimpleName();
 		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
@@ -321,7 +321,7 @@ void generateGetFields(JNIClass clazz) {
 			output(field.getName());
 			output(");");
 		} else if (type.isArray()) {
-			JNIClass componentType = type.getComponentType();
+			JNIType componentType = type.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
@@ -445,7 +445,7 @@ void generateSetFields(JNIClass clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		JNIClass type = field.getType();
+		JNIType type = field.getType();
 		String typeName = type.getSimpleName();
 		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
@@ -470,7 +470,7 @@ void generateSetFields(JNIClass clazz) {
 			output(accessor);
 			output(");");
 		} else if (type.isArray()) {
-			JNIClass componentType = type.getComponentType();
+			JNIType componentType = type.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				

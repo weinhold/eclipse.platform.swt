@@ -42,8 +42,8 @@ public String getName() {
 	return field.getName();
 }
 
-public JNIClass getType() {
-	return new ReflectClass(field.getType(), declaringClass.metaData);
+public JNIType getType() {
+	return new ReflectType(field.getType());
 }
 
 public String getAccessor() {

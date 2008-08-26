@@ -31,7 +31,7 @@ public String getMetaData() {
 	* Support for 64 bit port.
 	*/
 	if (value == null) {
-		JNIClass[] paramTypes = method.getParameterTypes();
+		JNIType[] paramTypes = method.getParameterTypes();
 		if (ReflectItem.convertTo32Bit(paramTypes, true)) {
 			key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
 			value = metaData.getMetaData(key, null);
@@ -63,7 +63,7 @@ public JNIMethod getMethod() {
 	return method;
 }
 
-public JNIClass getType() {
+public JNIType getType() {
 	return method.getParameterTypes()[parameter];
 }
 

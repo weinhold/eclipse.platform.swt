@@ -10,7 +10,7 @@ public JNIMethod getMethod();
 
 public int getParameter();
 
-public JNIClass getType();
+public JNIType getType();
 
 public void setCast(String str);
 }

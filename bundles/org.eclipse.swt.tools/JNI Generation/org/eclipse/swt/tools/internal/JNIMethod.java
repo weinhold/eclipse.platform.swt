@@ -18,11 +18,11 @@ public String getName();
 	
 public int getModifiers();
 
-public JNIClass[] getParameterTypes();
-
 public JNIParameter[] getParameters();
 
-public JNIClass getReturnType();
+public JNIType getReturnType();
+
+public JNIType[] getParameterTypes();
 
 public JNIClass getDeclaringClass();
 

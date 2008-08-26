@@ -8,25 +8,25 @@ public abstract class ReflectItem extends AbstractItem {
 
 	HashMap params;
 	
-static boolean convertTo32Bit(JNIClass[] paramTypes, boolean floatingPointTypes) {
+static boolean convertTo32Bit(JNIType[] paramTypes, boolean floatingPointTypes) {
 	boolean changed = false;
 	for (int i = 0; i < paramTypes.length; i++) {
-		JNIClass paramType = paramTypes[i];
+		JNIType paramType = paramTypes[i];
 		if (paramType.isType("long")) {
-			paramTypes[i] = new ReflectClass(Integer.TYPE);
+			paramTypes[i] = new ReflectType(Integer.TYPE);
 			changed = true;
 		}
 		if (paramType.isType("[J")) {
-			paramTypes[i] = new ReflectClass(int[].class);
+			paramTypes[i] = new ReflectType(int[].class);
 			changed = true;
 		}
 		if (floatingPointTypes) {
 			if (paramType.isType("double")) {
-				paramTypes[i] = new ReflectClass(Float.TYPE);
+				paramTypes[i] = new ReflectType(Float.TYPE);
 				changed = true;
 			}
 			if (paramType.isType("[D")) {
-				paramTypes[i] = new ReflectClass(float[].class);
+				paramTypes[i] = new ReflectType(float[].class);
 				changed = true;
 			}
 		}

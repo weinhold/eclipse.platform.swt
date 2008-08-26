@@ -974,8 +974,8 @@ String getPackageString(String className) {
 	return app.getMainClassName().substring(0, dot);
 }
 
-String getClassString(JNIClass clazz) {
-	String name = clazz.getTypeSignature3();
+String getClassString(JNIType type) {
+	String name = type.getTypeSignature3();
 	int index = name.lastIndexOf('.');
 	if (index == -1) return name;
 	return name.substring(index + 1, name.length());
@@ -1022,7 +1022,7 @@ void updateClasses() {
 		if (clazz.equals(app.getMainClass())) mainIndex = i;
 		TableItem item = new TableItem(classesLt, SWT.NONE);
 		item.setData(clazz);
-		item.setText(CLASS_NAME_COLUMN, getClassString(clazz));
+		item.setText(CLASS_NAME_COLUMN, clazz.getSimpleName());
 		item.setText(CLASS_FLAGS_COLUMN, getFlagsString(clazz.getFlags()));
 		item.setChecked(clazz.getGenerate());
 	}

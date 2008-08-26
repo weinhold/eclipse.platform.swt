@@ -18,7 +18,7 @@ public String getName();
 	
 public int getModifiers();
 
-public JNIClass getType();
+public JNIType getType();
 
 public JNIClass getDeclaringClass();
 

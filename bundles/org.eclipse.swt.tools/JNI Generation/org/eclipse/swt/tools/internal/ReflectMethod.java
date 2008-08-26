@@ -42,11 +42,11 @@ public String getName() {
 	return method.getName();
 }
 
-public JNIClass[] getParameterTypes() {
+public JNIType[] getParameterTypes() {
 	Class[] paramTypes = method.getParameterTypes();
-	ReflectClass[] result = new ReflectClass[paramTypes.length];
+	ReflectType[] result = new ReflectType[paramTypes.length];
 	for (int i = 0; i < paramTypes.length; i++) {
-		result[i] = new ReflectClass(paramTypes[i], declaringClass.metaData);
+		result[i] = new ReflectType(paramTypes[i]);
 	}
 	return result;
 }
@@ -60,8 +60,8 @@ public JNIParameter[] getParameters() {
 	return result;
 }
 
-public JNIClass getReturnType() {
-	return new ReflectClass(method.getReturnType(), declaringClass.metaData);
+public JNIType getReturnType() {
+	return new ReflectType(method.getReturnType());
 }
 
 public String getAccessor() {
@@ -85,7 +85,7 @@ public String getMetaData() {
 	* Support for 64 bit port.
 	*/
 	if (value == null) {
-		JNIClass[] paramTypes = getParameterTypes();
+		JNIType[] paramTypes = getParameterTypes();
 		if (convertTo32Bit(paramTypes, true)) {
 			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
 			value = metaData.getMetaData(key, null);

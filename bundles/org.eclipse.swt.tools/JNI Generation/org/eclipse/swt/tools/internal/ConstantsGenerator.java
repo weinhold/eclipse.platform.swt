@@ -31,7 +31,7 @@ public void generate(JNIField[] fields) {
 }
 
 public void generate(JNIField field) {
-	JNIClass type = field.getType();
+	JNIType type = field.getType();
 	output("\tprintf(\"public static final ");
 	output(field.getType().getTypeSignature3());
 	output(" ");

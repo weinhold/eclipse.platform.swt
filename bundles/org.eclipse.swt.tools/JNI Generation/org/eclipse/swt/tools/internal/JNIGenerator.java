@@ -54,18 +54,16 @@ static String getFunctionName(JNIMethod method) {
 	return getFunctionName(method, method.getParameterTypes());
 }
 
-static String getFunctionName(JNIMethod method, JNIClass[] paramTypes) {
+static String getFunctionName(JNIMethod method, JNIType[] paramTypes) {
 	if ((method.getModifiers() & Modifier.NATIVE) == 0) return method.getName();
 	String function = toC(method.getName());
 	if (!isNativeUnique(method)) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(function);
 		buffer.append("__");
-		if (paramTypes.length > 0) {
-			for (int i = 0; i < paramTypes.length; i++) {
-				JNIClass paramType = paramTypes[i];
-				buffer.append(toC(paramType.getTypeSignature()));
-			}
+		for (int i = 0; i < paramTypes.length; i++) {
+			JNIType paramType = paramTypes[i];
+			buffer.append(toC(paramType.getTypeSignature()));
 		}
 		return buffer.toString();
 	}
