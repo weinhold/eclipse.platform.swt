@@ -1,23 +1,18 @@
 package org.eclipse.swt.tools.internal;
 
 public class ReflectType implements JNIType {
-	Class clazz, alternateClazz;
+	Class clazz;
 
 public ReflectType(Class clazz) {
 	this.clazz = clazz;
 }
 
-public ReflectType(Class clazz, Class alternateClass) {
-	Class temp = clazz.isArray() ? clazz.getComponentType() : clazz;
-	if (temp == double.class || temp == long.class) {
-		temp = alternateClass;
-		clazz = alternateClass;
-		alternateClass = temp;
-	}
-	this.clazz = clazz;
-	this.alternateClazz = alternateClass;
+public boolean equals(Object obj) {
+	if (obj == this) return true;
+	if (!(obj instanceof ReflectType)) return false;
+	return ((ReflectType)obj).clazz == clazz;
 }
-	
+
 public int getByteCount() {
 	if (clazz == Integer.TYPE) return 4;
 	if (clazz == Boolean.TYPE) return 4;
@@ -41,56 +36,57 @@ public String getSimpleName() {
 	return name.substring(index, name.length());
 }
 
-public String getTypeSignature() {
+public String getTypeSignature(boolean define) {
 	if (clazz == Void.TYPE) return "V";
-	if (clazz == Integer.TYPE) return alternateClazz != null ? "SWT_I_SIGNATURE" : "I";
+	if (clazz == Integer.TYPE) return define ? "SWT_I_SIGNATURE" : "I";
 	if (clazz == Boolean.TYPE) return "Z";
-	if (clazz == Long.TYPE) return "J";
+	if (clazz == Long.TYPE) return define ? "SWT_I_SIGNATURE" : "J";
 	if (clazz == Short.TYPE) return "S";
 	if (clazz == Character.TYPE) return "C";
 	if (clazz == Byte.TYPE) return "B";
-	if (clazz == Float.TYPE) return alternateClazz != null ? "SWT_F_SIGNATURE" : "F";
-	if (clazz == Double.TYPE) return "D";
+	if (clazz == Float.TYPE) return define ? "SWT_F_SIGNATURE" : "F";
+	if (clazz == Double.TYPE) return define ? "SWT_F_SIGNATURE" : "D";
 	if (clazz == String.class) return "Ljava/lang/String;";
 	if (clazz.isArray()) {
-		return "[" + getComponentType().getTypeSignature();
+		if (define) return getComponentType().getTypeSignature(define) + "Array";
+		return "[" + getComponentType().getTypeSignature(define);
 	}
 	return "L" + clazz.getName().replace('.', '/') + ";";
 }
 
-public String getTypeSignature1() {
+public String getTypeSignature1(boolean define) {
 	if (clazz == Void.TYPE) return "Void";
-	if (clazz == Integer.TYPE) return "Int";
+	if (clazz == Integer.TYPE) return define ? "SWT_Int" : "Int";
 	if (clazz == Boolean.TYPE) return "Boolean";
-	if (clazz == Long.TYPE) return "Long";
+	if (clazz == Long.TYPE) return define ? "SWT_Int" : "Long";
 	if (clazz == Short.TYPE) return "Short";
 	if (clazz == Character.TYPE) return "Char";
 	if (clazz == Byte.TYPE) return "Byte";
-	if (clazz == Float.TYPE) return "Float";
-	if (clazz == Double.TYPE) return "Double";
+	if (clazz == Float.TYPE) return define ? "SWT_Float" : "Float";
+	if (clazz == Double.TYPE) return define ? "SWT_Float" : "Double";
 	if (clazz == String.class) return "String";
 	return "Object";
 }
 
-public String getTypeSignature2() {
+public String getTypeSignature2(boolean define) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return "jint";
+	if (clazz == Integer.TYPE) return define ? "SWT_jnit" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
-	if (clazz == Long.TYPE) return "jlong";
+	if (clazz == Long.TYPE) return define ? "SWT_jnit" : "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";
-	if (clazz == Float.TYPE) return "jfloat";
-	if (clazz == Double.TYPE) return "jdouble";
+	if (clazz == Float.TYPE) return define ? "SWT_jfloat" : "jfloat";
+	if (clazz == Double.TYPE) return define ? "SWT_jfloat" : "jdouble";
 	if (clazz == String.class) return "jstring";
 	if (clazz == Class.class) return "jclass";
 	if (clazz.isArray()) {
-		return getComponentType().getTypeSignature2() + "Array";
+		return getComponentType().getTypeSignature2(define) + "Array";
 	}
 	return "jobject";
 }
 
-public String getTypeSignature3() {
+public String getTypeSignature3(boolean define) {
 	if (clazz == Void.TYPE) return "void";
 	if (clazz == Integer.TYPE) return "int";
 	if (clazz == Boolean.TYPE) return "boolean";
@@ -102,32 +98,32 @@ public String getTypeSignature3() {
 	if (clazz == Double.TYPE) return "double";
 	if (clazz == String.class) return "String";
 	if (clazz.isArray()) {
-		return getComponentType().getTypeSignature3() + "[]";
+		return getComponentType().getTypeSignature3(define) + "[]";
 	}
 	return clazz.getName();
 }
 
-public String getTypeSignature4() {
-	return getTypeSignature4(false);
-}
-
-public String getTypeSignature4(boolean struct) {
+public String getTypeSignature4(boolean define, boolean struct) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return "jint";
+	if (clazz == Integer.TYPE) return define ? "SWT_jnit" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
-	if (clazz == Long.TYPE) return "jlong";
+	if (clazz == Long.TYPE) return define ? "SWT_jnit" : "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";
-	if (clazz == Float.TYPE) return "jfloat";
-	if (clazz == Double.TYPE) return "jdouble";
+	if (clazz == Float.TYPE) return define ? "SWT_jfloat" : "jfloat";
+	if (clazz == Double.TYPE) return define ? "SWT_jfloat" : "jdouble";
 	if (clazz == String.class) return "jstring";
 	if (clazz.isArray()) {
-		String sig = getComponentType().getTypeSignature4();
+		String sig = getComponentType().getTypeSignature4(define, struct);
 		return struct ? sig : sig + " *";
 	}
 	String sig = getSimpleName(); 
 	return struct ? sig : sig + " *";
+}
+
+public int hashCode() {
+	return clazz.hashCode();
 }
 
 public boolean isArray() {

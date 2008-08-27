@@ -14,10 +14,15 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+
 public class ReflectClass extends ReflectItem implements JNIClass {
 	Class clazz;
 	MetaData metaData;
-	String sourcePath;
+	String sourcePath, source;
+	ASTNode ast;
 
 public ReflectClass(Class clazz) {
 	this.clazz = clazz;
@@ -27,6 +32,14 @@ public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 	this.clazz = clazz;
 	this.metaData = data;
 	this.sourcePath = sourcePath;
+}
+
+ASTNode getDOM() {
+	if (ast != null) return ast;
+	source = JNIGenerator.loadFile(sourcePath);
+	ASTParser parser = ASTParser.newParser(AST.JLS3);
+	parser.setSource(source.toCharArray());
+	return ast = parser.createAST(null);
 }
 
 public int hashCode() {

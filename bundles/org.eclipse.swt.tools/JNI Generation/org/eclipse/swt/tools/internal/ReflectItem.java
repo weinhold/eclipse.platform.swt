@@ -34,6 +34,17 @@ static boolean convertTo32Bit(JNIType[] paramTypes, boolean floatingPointTypes) 
 	return changed;	
 }
 
+boolean canChange64(Class clazz) {
+	return clazz == Integer.TYPE ||
+		clazz == Long.TYPE ||
+		clazz == Float.TYPE ||
+		clazz == Double.TYPE ||
+		clazz == int[].class ||
+		clazz == long[].class ||
+		clazz == float[].class ||
+		clazz == double[].class;
+}
+
 void checkParams() {
 	if (params != null) return;
 	parse(getMetaData());

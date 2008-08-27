@@ -1,5 +1,7 @@
 package org.eclipse.swt.tools.internal;
 
+import java.io.File;
+
 public class ReflectParameter extends ReflectItem implements JNIParameter {
 	ReflectMethod method;
 	int parameter;
@@ -63,8 +65,20 @@ public JNIMethod getMethod() {
 	return method;
 }
 
+public JNIClass getTypeClass() {
+	ReflectType type = (ReflectType)getType();
+	ReflectClass declaringClass = method.declaringClass;
+	String sourcePath  = declaringClass.sourcePath;
+	sourcePath = new File(sourcePath).getParent() + "/" + type.getSimpleName() + ".java";
+	return new ReflectClass(type.clazz, declaringClass.metaData, sourcePath);
+}
+
 public JNIType getType() {
 	return method.getParameterTypes()[parameter];
+}
+
+public JNIType getType64() {
+	return method.getParameterTypes64()[parameter];
 }
 
 public int getParameter() {

@@ -258,9 +258,12 @@ void generateCacheFunction(JNIClass clazz) {
 		output(clazzName);
 		output("Fc.clazz, \"");
 		output(field.getName());
-		output("\", \"");
-		output(field.getType().getTypeSignature());
-		outputln("\");");
+		JNIType type = field.getType(), type64 = field.getType64();
+		output("\", ");
+		if (type.equals(type64)) output("\"");
+		output(type.getTypeSignature(!type.equals(type64)));
+		if (type.equals(type64)) output("\"");
+		outputln(");");
 	}
 	output("\t");
 	output(clazzName);
@@ -296,7 +299,7 @@ void generateGetFields(JNIClass clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		JNIType type = field.getType();
+		JNIType type = field.getType(), type64 = field.getType64();
 		String typeName = type.getSimpleName();
 		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
@@ -310,7 +313,7 @@ void generateGetFields(JNIClass clazz) {
 			} else {
 				output("(*env)->Get");
 			}
-			output(field.getType().getTypeSignature1());
+			output(type.getTypeSignature1(!type.equals(type64)));
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
@@ -321,13 +324,13 @@ void generateGetFields(JNIClass clazz) {
 			output(field.getName());
 			output(");");
 		} else if (type.isArray()) {
-			JNIType componentType = type.getComponentType();
+			JNIType componentType = type.getComponentType(), componentType64 = type64.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(field.getType().getTypeSignature2());
+				output(type.getTypeSignature2(!type.equals(type64)));
 				output(" lpObject1 = (");
-				output(field.getType().getTypeSignature2());
+				output(type.getTypeSignature2(!type.equals(type64)));
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
@@ -342,7 +345,7 @@ void generateGetFields(JNIClass clazz) {
 				} else {
 					output("\t(*env)->Get");
 				}
-				output(componentType.getTypeSignature1());
+				output(componentType.getTypeSignature1(!componentType.equals(componentType64)));
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -356,7 +359,7 @@ void generateGetFields(JNIClass clazz) {
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(type.getTypeSignature4());				
+				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");
@@ -445,7 +448,7 @@ void generateSetFields(JNIClass clazz) {
 		if (noWinCE) {
 			outputln("#ifndef _WIN32_WCE");
 		}
-		JNIType type = field.getType();
+		JNIType type = field.getType(), type64 = field.getType64();
 		String typeName = type.getSimpleName();
 		String accessor = field.getAccessor();
 		if (accessor == null || accessor.length() == 0) accessor = field.getName();
@@ -455,7 +458,7 @@ void generateSetFields(JNIClass clazz) {
 			} else {
 				output("\t(*env)->Set");
 			}
-			output(field.getType().getTypeSignature1());
+			output(type.getTypeSignature1(!type.equals(type64)));
 			if (isCPP) {
 				output("Field(lpObject, ");
 			} else {
@@ -465,18 +468,18 @@ void generateSetFields(JNIClass clazz) {
 			output("Fc.");
 			output(field.getName());
 			output(", (");
-			output(field.getType().getTypeSignature2());
+			output(type.getTypeSignature2(!type.equals(type64)));
 			output(")lpStruct->");
 			output(accessor);
 			output(");");
 		} else if (type.isArray()) {
-			JNIType componentType = type.getComponentType();
+			JNIType componentType = type.getComponentType(), componentType64 = type64.getComponentType();
 			if (componentType.isPrimitive()) {
 				outputln("\t{");
 				output("\t");				
-				output(field.getType().getTypeSignature2());
+				output(type.getTypeSignature2(!type.equals(type64)));
 				output(" lpObject1 = (");
-				output(field.getType().getTypeSignature2());
+				output(type.getTypeSignature2(!type.equals(type64)));
 				if (isCPP) {
 					output(")env->GetObjectField(lpObject, ");
 				} else {
@@ -491,7 +494,7 @@ void generateSetFields(JNIClass clazz) {
 				} else {
 					output("\t(*env)->Set");
 				}
-				output(componentType.getTypeSignature1());
+				output(componentType.getTypeSignature1(!componentType.equals(componentType64)));
 				if (isCPP) {
 					output("ArrayRegion(lpObject1, 0, sizeof(lpStruct->");
 				} else {
@@ -499,13 +502,14 @@ void generateSetFields(JNIClass clazz) {
 				}
 				output(accessor);
 				output(")");
+				//TODO
 				int byteCount = componentType.getByteCount();
 				if (byteCount > 1) {
 					output(" / ");
 					output(String.valueOf(byteCount));
 				}
 				output(", (");
-				output(type.getTypeSignature4());				
+				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);
 				outputln(");");

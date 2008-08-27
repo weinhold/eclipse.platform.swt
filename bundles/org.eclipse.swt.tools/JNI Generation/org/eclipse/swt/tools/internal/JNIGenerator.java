@@ -63,7 +63,7 @@ static String getFunctionName(JNIMethod method, JNIType[] paramTypes) {
 		buffer.append("__");
 		for (int i = 0; i < paramTypes.length; i++) {
 			JNIType paramType = paramTypes[i];
-			buffer.append(toC(paramType.getTypeSignature()));
+			buffer.append(toC(paramType.getTypeSignature(false)));
 		}
 		return buffer.toString();
 	}

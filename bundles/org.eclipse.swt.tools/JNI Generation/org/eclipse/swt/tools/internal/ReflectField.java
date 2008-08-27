@@ -13,21 +13,56 @@ package org.eclipse.swt.tools.internal;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ReflectField extends ReflectItem implements JNIField {
 	Field field;
-	ReflectType type;
+	ReflectType type, type64;
 	ReflectClass declaringClass;
 	
-public ReflectField(ReflectClass declaringClass, Field field) {
+public ReflectField(final ReflectClass declaringClass, final Field field) {
 	this.declaringClass = declaringClass;
 	this.field = field;
+	final Class clazz = field.getType();
+	if (false && canChange64(clazz)) {
+		ASTNode ast = declaringClass.getDOM();
+		final Class[] result = new Class[1];
+		ast.accept(new ASTVisitor() {
+			public boolean visit(FieldDeclaration node) {
+				for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
+					VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
+					if (decl.getName().getIdentifier().equals(field.getName())) {
+						String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
+						if (clazz == int.class && s.indexOf("int /*long*/") != -1) result[0] = long.class;
+						else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result[0] = int.class;
+						else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result[0] = double.class;
+						else if (clazz == double.class && s.indexOf("double /*float*/") != -1) result[0] = float.class;
+						else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) result[0] = long[].class;
+						else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result[0] = int[].class;
+						else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result[0] = double[].class;
+						else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result[0] = float[].class;
+						return false;
+					}
+				}
+				return super.visit(node);
+			}
+		});
+		Class temp = clazz;
+		if (temp.isArray()) temp = temp.getComponentType();
+		if (temp == long.class || temp == double.class) {
+			type = new ReflectType(result[0]);
+			type64 = new ReflectType(clazz);
+		} else {
+			type = new ReflectType(clazz);
+			type64 = new ReflectType(result[0]);			
+		}
+	} else {
+		type = type64 = new ReflectType(clazz);
+	}
+	
 }
 
 public int hashCode() {
@@ -51,50 +86,12 @@ public String getName() {
 	return field.getName();
 }
 
-boolean canChange(Class clazz) {
-	return clazz == Integer.TYPE ||
-		clazz == Long.TYPE ||
-		clazz == Float.TYPE ||
-		clazz == Double.TYPE ||
-		clazz == int[].class ||
-		clazz == long[].class ||
-		clazz == float[].class ||
-		clazz == double[].class;
+public JNIType getType() {
+	return type;
 }
 
-public JNIType getType() {
-	if (type != null) return type;
-	final Class clazz = field.getType();
-	if (canChange(clazz)) {
-		String originalSource = JNIGenerator.loadFile(declaringClass.sourcePath);
-		final String source = originalSource;
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setSource(source.toCharArray());
-		ASTNode ast = parser.createAST(null);
-		final Class[] result = new Class[1];
-		ast.accept(new ASTVisitor() {
-			public boolean visit(FieldDeclaration node) {
-				for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
-					VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
-					if (decl.getName().getIdentifier().equals(field.getName())) {
-						String s = source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
-						if (clazz == int.class && s.indexOf("int /*long*/") != -1) result[0] = long.class;
-						else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result[0] = int.class;
-						else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result[0] = double.class;
-						else if (clazz == double.class && s.indexOf("double /*float*/") != -1) result[0] = float.class;
-						else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) result[0] = long[].class;
-						else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result[0] = int[].class;
-						else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result[0] = double[].class;
-						else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result[0] = float[].class;
-						return false;
-					}
-				}
-				return super.visit(node);
-			}
-		});
-		if (result[0] != null) return type = new ReflectType(clazz, result[0]);
-	}
-	return type = new ReflectType(clazz);
+public JNIType getType64() {
+	return type64;
 }
 
 public String getAccessor() {

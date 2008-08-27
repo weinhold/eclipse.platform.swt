@@ -20,6 +20,8 @@ public int getModifiers();
 
 public JNIType getType();
 
+public JNIType getType64();
+
 public JNIClass getDeclaringClass();
 
 public String getAccessor();
