@@ -17,10 +17,12 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ReflectField extends ReflectItem implements JNIField {
 	Field field;
+	ReflectType type;
 	ReflectClass declaringClass;
 	
 public ReflectField(ReflectClass declaringClass, Field field) {
@@ -61,6 +63,7 @@ boolean canChange(Class clazz) {
 }
 
 public JNIType getType() {
+	if (type != null) return type;
 	final Class clazz = field.getType();
 	if (canChange(clazz)) {
 		String originalSource = JNIGenerator.loadFile(declaringClass.sourcePath);
@@ -70,7 +73,7 @@ public JNIType getType() {
 		ASTNode ast = parser.createAST(null);
 		final Class[] result = new Class[1];
 		ast.accept(new ASTVisitor() {
-			public boolean visit(org.eclipse.jdt.core.dom.FieldDeclaration node) {
+			public boolean visit(FieldDeclaration node) {
 				for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
 					VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
 					if (decl.getName().getIdentifier().equals(field.getName())) {
@@ -89,9 +92,9 @@ public JNIType getType() {
 				return super.visit(node);
 			}
 		});
-		if (result[0] != null) return new ReflectType(clazz, result[0]);
+		if (result[0] != null) return type = new ReflectType(clazz, result[0]);
 	}
-	return new ReflectType(clazz);
+	return type = new ReflectType(clazz);
 }
 
 public String getAccessor() {
