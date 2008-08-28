@@ -69,12 +69,16 @@ public boolean equals(Object obj) {
 
 public JNIField[] getDeclaredFields() {
 	checkMembers();
-	return fields;
+	JNIField[] result = new JNIField[fields.length];
+	System.arraycopy(fields, 0, result, 0, result.length);
+	return result;
 }
 
 public JNIMethod[] getDeclaredMethods() {
 	checkMembers();
-	return methods;
+	JNIMethod[] result = new JNIMethod[methods.length];
+	System.arraycopy(methods, 0, result, 0, result.length);
+	return result;
 }
 
 public String getName() {
