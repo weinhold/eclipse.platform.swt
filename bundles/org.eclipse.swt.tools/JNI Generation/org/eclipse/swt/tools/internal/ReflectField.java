@@ -24,13 +24,12 @@ public class ReflectField extends ReflectItem implements JNIField {
 	ReflectType type, type64;
 	ReflectClass declaringClass;
 	
-public ReflectField(final ReflectClass declaringClass, final Field field) {
+public ReflectField(ReflectClass declaringClass, Field field, String source, CompilationUnit unit) {
 	this.declaringClass = declaringClass;
 	this.field = field;
-	final Class clazz = field.getType();
+	Class clazz = field.getType();
 	boolean changes = canChange64(clazz);
 	if (changes && new File(declaringClass.sourcePath).exists()) {
-		CompilationUnit unit = declaringClass.getDOM();
 		TypeDeclaration type1 = (TypeDeclaration)unit.types().get(0);
 		Class result = null;
 		FieldDeclaration[] fields = type1.getFields();
@@ -39,7 +38,7 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 			for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
 				VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
 				if (decl.getName().getIdentifier().equals(field.getName())) {
-					String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
+					String s = source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
 					if (clazz == int.class && s.indexOf("int /*long*/") != -1) result = long.class;
 					else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result = int.class;
 					else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result = double.class;
@@ -64,8 +63,7 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 		}
 	} else {
 		type = type64 = new ReflectType(clazz);
-	}
-	
+	}	
 }
 
 public int hashCode() {

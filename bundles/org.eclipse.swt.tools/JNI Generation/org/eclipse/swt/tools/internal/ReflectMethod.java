@@ -27,11 +27,11 @@ public class ReflectMethod extends ReflectItem implements JNIMethod {
 	ReflectType[] paramTypes, paramTypes64;
 	ReflectClass declaringClass;
 	
-public ReflectMethod(ReflectClass declaringClass, final Method method) {
+public ReflectMethod(ReflectClass declaringClass, Method method, String source, CompilationUnit unit) {
 	this.method = method;
 	this.declaringClass = declaringClass;	
-	final Class returnType = method.getReturnType();
-	final Class[] paramTypes = method.getParameterTypes();
+	Class returnType = method.getReturnType();
+	Class[] paramTypes = method.getParameterTypes();
 	boolean changes = false;
 	if ((method.getModifiers() & Modifier.NATIVE) != 0) {
 		changes = canChange64(returnType);
@@ -43,7 +43,6 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 	}
 	if (changes && new File(declaringClass.sourcePath).exists()) {
 		final String name = method.getName();
-		CompilationUnit unit = declaringClass.getDOM();
 		TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
 		MethodDeclaration decl = null;
 		MethodDeclaration[] methods = type.getMethods();
@@ -70,7 +69,7 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 			if (canChange64(paramTypes[i])) {
 				Class clazz = paramTypes[i];
 				SingleVariableDeclaration node = (SingleVariableDeclaration)decl.parameters().get(i);
-				String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
+				String s = source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
 				if (clazz == int.class && s.indexOf("int /*long*/") != -1) params64[i] = new ReflectType(long.class);
 				else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) params64[i] = new ReflectType(long[].class);
 				else if (clazz == float.class && s.indexOf("float /*double*/") != -1) params64[i] = new ReflectType(double.class);
@@ -103,7 +102,7 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 		if (canChange64(returnType)) {
 			Class clazz = returnType;
 			ASTNode node = decl.getReturnType2();
-			String s = declaringClass.source.substring(node.getStartPosition(), decl.getName().getStartPosition());
+			String s = source.substring(node.getStartPosition(), decl.getName().getStartPosition());
 			if (clazz == int.class && s.indexOf("int /*long*/") != -1) this.returnType64 = new ReflectType(long.class);
 			else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) this.returnType64 = new ReflectType(long[].class);
 			else if (clazz == float.class && s.indexOf("float /*double*/") != -1) this.returnType64 = new ReflectType(double.class);

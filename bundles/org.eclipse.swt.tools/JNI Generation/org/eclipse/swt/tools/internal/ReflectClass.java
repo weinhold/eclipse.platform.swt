@@ -23,8 +23,7 @@ public class ReflectClass extends ReflectItem implements JNIClass {
 	ReflectField[] fields;
 	ReflectMethod[] methods;
 	MetaData metaData;
-	String sourcePath, source;
-	CompilationUnit ast;
+	String sourcePath;
 
 public ReflectClass(Class clazz) {
 	this(clazz, null, null);
@@ -39,28 +38,24 @@ public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 void checkMembers() {
 	if (fields != null) return;
 //	long time = System.currentTimeMillis();
+	String source = JNIGenerator.loadFile(sourcePath);
+	ASTParser parser = ASTParser.newParser(AST.JLS3);
+	parser.setSource(source.toCharArray());
+	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
 	Field[] fields = clazz.getDeclaredFields();
 	this.fields = new ReflectField[fields.length];
 	for (int i = 0; i < fields.length; i++) {
-		this.fields[i] = new ReflectField(this, fields[i]);
+		this.fields[i] = new ReflectField(this, fields[i], source, unit);
 	}
 	Method[] methods = clazz.getDeclaredMethods();
 	this.methods = new ReflectMethod[methods.length];
 	for (int i = 0; i < methods.length; i++) {
-		this.methods[i] = new ReflectMethod(this, methods[i]);
+		this.methods[i] = new ReflectMethod(this, methods[i], source, unit);
 	}
 //	if (System.currentTimeMillis() - time > 100) {
 //		Thread.dumpStack();
 //		System.err.println("time=" + (System.currentTimeMillis() - time) + " " +clazz.getName());
 //	}
-}
-
-CompilationUnit getDOM() {
-	if (ast != null) return ast;
-	source = JNIGenerator.loadFile(sourcePath);
-	ASTParser parser = ASTParser.newParser(AST.JLS3);
-	parser.setSource(source.toCharArray());
-	return ast = (CompilationUnit)parser.createAST(null);
 }
 
 public int hashCode() {
