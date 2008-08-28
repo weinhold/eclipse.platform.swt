@@ -353,12 +353,9 @@ void generateGetFields(JNIClass clazz) {
 				}
 				output(accessor);
 				output(")");
-				int byteCount = componentType.getByteCount();
-				if (byteCount > 1) {
-					output(" / ");
-					output(String.valueOf(byteCount));
-				}
-				output(", (");
+				output(" / sizeof(");
+				output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
+				output("), (");
 				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);
@@ -502,13 +499,9 @@ void generateSetFields(JNIClass clazz) {
 				}
 				output(accessor);
 				output(")");
-				//TODO
-				int byteCount = componentType.getByteCount();
-				if (byteCount > 1) {
-					output(" / ");
-					output(String.valueOf(byteCount));
-				}
-				output(", (");
+				output(" / sizeof(");
+				output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
+				output("), (");
 				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);

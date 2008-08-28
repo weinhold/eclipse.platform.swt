@@ -70,9 +70,9 @@ public String getTypeSignature1(boolean define) {
 
 public String getTypeSignature2(boolean define) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return define ? "SWT_jnit" : "jint";
+	if (clazz == Integer.TYPE) return define ? "SWT_jint" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
-	if (clazz == Long.TYPE) return define ? "SWT_jnit" : "jlong";
+	if (clazz == Long.TYPE) return define ? "SWT_jint" : "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";
@@ -105,9 +105,9 @@ public String getTypeSignature3(boolean define) {
 
 public String getTypeSignature4(boolean define, boolean struct) {
 	if (clazz == Void.TYPE) return "void";
-	if (clazz == Integer.TYPE) return define ? "SWT_jnit" : "jint";
+	if (clazz == Integer.TYPE) return define ? "SWT_jint" : "jint";
 	if (clazz == Boolean.TYPE) return "jboolean";
-	if (clazz == Long.TYPE) return define ? "SWT_jnit" : "jlong";
+	if (clazz == Long.TYPE) return define ? "SWT_jint" : "jlong";
 	if (clazz == Short.TYPE) return "jshort";
 	if (clazz == Character.TYPE) return "jchar";
 	if (clazz == Byte.TYPE) return "jbyte";

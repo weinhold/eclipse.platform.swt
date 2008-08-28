@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
@@ -27,7 +28,8 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 	this.declaringClass = declaringClass;
 	this.field = field;
 	final Class clazz = field.getType();
-	if (false && canChange64(clazz)) {
+	boolean changes = canChange64(clazz);
+	if (changes && new File(declaringClass.sourcePath).exists()) {
 		ASTNode ast = declaringClass.getDOM();
 		final Class[] result = new Class[1];
 		ast.accept(new ASTVisitor() {
@@ -44,6 +46,7 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 						else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result[0] = int[].class;
 						else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result[0] = double[].class;
 						else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result[0] = float[].class;
+						else result[0] = clazz;
 						return false;
 					}
 				}
