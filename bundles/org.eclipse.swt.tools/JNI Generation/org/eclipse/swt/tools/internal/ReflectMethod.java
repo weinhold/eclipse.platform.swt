@@ -15,11 +15,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ReflectMethod extends ReflectItem implements JNIMethod {
 	Method method;
@@ -43,28 +43,25 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 	}
 	if (changes && new File(declaringClass.sourcePath).exists()) {
 		final String name = method.getName();
-		ASTNode ast = declaringClass.getDOM();
-		final MethodDeclaration[] decl = new MethodDeclaration[1];
-		ast.accept(new ASTVisitor() {
-			public boolean visit(FieldDeclaration node) {
-				return false;
-			}
-			public boolean visit(MethodDeclaration node) {
-				if (node.getName().getIdentifier().equals(name)) {
-					if (decl[0] != null) return false;
-					if (!returnType.getSimpleName().equals(node.getReturnType2().toString())) return false;
-					List parameters = node.parameters();
-					if (parameters.size() != paramTypes.length) return false;
-					for (int i = 0; i < paramTypes.length; i++) {
-						if (!paramTypes[i].getSimpleName().equals(((SingleVariableDeclaration)parameters.get(i)).getType().toString())) {
-							return false;
-						}
+		CompilationUnit unit = declaringClass.getDOM();
+		TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
+		MethodDeclaration decl = null;
+		MethodDeclaration[] methods = type.getMethods();
+		for (int i = 0; i < methods.length && decl == null; i++) {
+			MethodDeclaration node = methods[i];
+			if (node.getName().getIdentifier().equals(name)) {
+				if (!returnType.getSimpleName().equals(node.getReturnType2().toString())) continue;
+				List parameters = node.parameters();
+				if (parameters.size() != paramTypes.length) continue;
+				decl = node;
+				for (int j = 0; j < paramTypes.length; j++) {
+					if (!paramTypes[j].getSimpleName().equals(((SingleVariableDeclaration)parameters.get(j)).getType().toString())) {
+						decl = null;
+						break;
 					}
-					decl[0] = node;
 				}
-				return false;
 			}
-		});
+		}
 		boolean swap = false;
 		ReflectType[] params = new ReflectType[paramTypes.length];
 		ReflectType[] params64 = new ReflectType[paramTypes.length];
@@ -72,7 +69,7 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 			params[i] = new ReflectType(paramTypes[i]);
 			if (canChange64(paramTypes[i])) {
 				Class clazz = paramTypes[i];
-				SingleVariableDeclaration node = (SingleVariableDeclaration)decl[0].parameters().get(i);
+				SingleVariableDeclaration node = (SingleVariableDeclaration)decl.parameters().get(i);
 				String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
 				if (clazz == int.class && s.indexOf("int /*long*/") != -1) params64[i] = new ReflectType(long.class);
 				else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) params64[i] = new ReflectType(long[].class);
@@ -105,8 +102,8 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 		this.returnType = new ReflectType(returnType);
 		if (canChange64(returnType)) {
 			Class clazz = returnType;
-			ASTNode node = decl[0].getReturnType2();
-			String s = declaringClass.source.substring(node.getStartPosition(), decl[0].getName().getStartPosition());
+			ASTNode node = decl.getReturnType2();
+			String s = declaringClass.source.substring(node.getStartPosition(), decl.getName().getStartPosition());
 			if (clazz == int.class && s.indexOf("int /*long*/") != -1) this.returnType64 = new ReflectType(long.class);
 			else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) this.returnType64 = new ReflectType(long[].class);
 			else if (clazz == float.class && s.indexOf("float /*double*/") != -1) this.returnType64 = new ReflectType(double.class);

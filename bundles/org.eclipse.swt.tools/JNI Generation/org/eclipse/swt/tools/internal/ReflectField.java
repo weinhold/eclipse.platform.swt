@@ -14,10 +14,9 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ReflectField extends ReflectItem implements JNIField {
@@ -31,40 +30,37 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 	final Class clazz = field.getType();
 	boolean changes = canChange64(clazz);
 	if (changes && new File(declaringClass.sourcePath).exists()) {
-		ASTNode ast = declaringClass.getDOM();
-		final Class[] result = new Class[1];
-		ast.accept(new ASTVisitor() {
-			public boolean visit(MethodDeclaration node) {
-				return false;
-			}
-			public boolean visit(FieldDeclaration node) {
-				for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
-					VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
-					if (decl.getName().getIdentifier().equals(field.getName())) {
-						String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
-						if (clazz == int.class && s.indexOf("int /*long*/") != -1) result[0] = long.class;
-						else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result[0] = int.class;
-						else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result[0] = double.class;
-						else if (clazz == double.class && s.indexOf("double /*float*/") != -1) result[0] = float.class;
-						else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) result[0] = long[].class;
-						else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result[0] = int[].class;
-						else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result[0] = double[].class;
-						else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result[0] = float[].class;
-						else result[0] = clazz;
-						return false;
-					}
+		CompilationUnit unit = declaringClass.getDOM();
+		TypeDeclaration type1 = (TypeDeclaration)unit.types().get(0);
+		Class result = null;
+		FieldDeclaration[] fields = type1.getFields();
+		for (int i = 0; i < fields.length && result == null; i++) {
+			FieldDeclaration node = fields[i];
+			for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
+				VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
+				if (decl.getName().getIdentifier().equals(field.getName())) {
+					String s = declaringClass.source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
+					if (clazz == int.class && s.indexOf("int /*long*/") != -1) result = long.class;
+					else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result = int.class;
+					else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result = double.class;
+					else if (clazz == double.class && s.indexOf("double /*float*/") != -1) result = float.class;
+					else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) result = long[].class;
+					else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result = int[].class;
+					else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result = double[].class;
+					else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result = float[].class;
+					else result = clazz;
+					break;
 				}
-				return super.visit(node);
 			}
-		});
+		}
 		Class temp = clazz;
 		if (temp.isArray()) temp = temp.getComponentType();
 		if (temp == long.class || temp == double.class) {
-			type = new ReflectType(result[0]);
+			type = new ReflectType(result);
 			type64 = new ReflectType(clazz);
 		} else {
 			type = new ReflectType(clazz);
-			type64 = new ReflectType(result[0]);			
+			type64 = new ReflectType(result);			
 		}
 	} else {
 		type = type64 = new ReflectType(clazz);

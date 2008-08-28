@@ -15,8 +15,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class ReflectClass extends ReflectItem implements JNIClass {
 	Class clazz;
@@ -24,7 +24,7 @@ public class ReflectClass extends ReflectItem implements JNIClass {
 	ReflectMethod[] methods;
 	MetaData metaData;
 	String sourcePath, source;
-	ASTNode ast;
+	CompilationUnit ast;
 
 public ReflectClass(Class clazz) {
 	this(clazz, null, null);
@@ -38,7 +38,7 @@ public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 
 void checkMembers() {
 	if (fields != null) return;
-	long time = System.currentTimeMillis();
+//	long time = System.currentTimeMillis();
 	Field[] fields = clazz.getDeclaredFields();
 	this.fields = new ReflectField[fields.length];
 	for (int i = 0; i < fields.length; i++) {
@@ -49,18 +49,18 @@ void checkMembers() {
 	for (int i = 0; i < methods.length; i++) {
 		this.methods[i] = new ReflectMethod(this, methods[i]);
 	}
-	if (System.currentTimeMillis() - time > 100) {
-	//	Thread.dumpStack();
-	//	System.err.println("time=" + (System.currentTimeMillis() - time) + " " +clazz.getName());
-	}
+//	if (System.currentTimeMillis() - time > 100) {
+//		Thread.dumpStack();
+//		System.err.println("time=" + (System.currentTimeMillis() - time) + " " +clazz.getName());
+//	}
 }
 
-ASTNode getDOM() {
+CompilationUnit getDOM() {
 	if (ast != null) return ast;
 	source = JNIGenerator.loadFile(sourcePath);
 	ASTParser parser = ASTParser.newParser(AST.JLS3);
 	parser.setSource(source.toCharArray());
-	return ast = parser.createAST(null);
+	return ast = (CompilationUnit)parser.createAST(null);
 }
 
 public int hashCode() {
