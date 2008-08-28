@@ -13,19 +13,6 @@ public boolean equals(Object obj) {
 	return ((ReflectType)obj).clazz == clazz;
 }
 
-public int getByteCount() {
-	if (clazz == Integer.TYPE) return 4;
-	if (clazz == Boolean.TYPE) return 4;
-	if (clazz == Long.TYPE) return 8;
-	if (clazz == Short.TYPE) return 2;
-	if (clazz == Character.TYPE) return 2;
-	if (clazz == Byte.TYPE) return 1;
-	if (clazz == Float.TYPE) return 4;
-	if (clazz == Double.TYPE) return 8;
-	return 4;
-}
-
-
 public JNIType getComponentType() {
 	return new ReflectType(clazz.getComponentType());
 }
