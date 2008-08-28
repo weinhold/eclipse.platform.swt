@@ -124,9 +124,21 @@ void generateSourceFile(JNIClass clazz) {
 	for (int i = 0; i < methods.length; i++) {
 		JNIMethod method = methods[i];
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
+		String function = getFunctionName(method), function64 = getFunctionName(method, method.getParameterTypes64());
+		if (!function.equals(function64)) {
+			outputln("#ifndef SWT_PTR_SIZE_64");
+		}
 		output("\t\"");
-		output(getFunctionName(method));
+		output(function);
 		outputln("\",");
+		if (!function.equals(function64)) {
+			outputln("#else");
+			output("\t\"");
+			output(function64);
+			outputln("\",");
+			outputln("_FUNC,");
+			outputln("#endif");
+		}
 		if (progress != null) progress.step();
 	}
 	outputln("};");
@@ -184,9 +196,20 @@ void generateFunctionEnum(JNIMethod[] methods) {
 	for (int i = 0; i < methods.length; i++) {
 		JNIMethod method = methods[i];
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
+		String function = getFunctionName(method), function64 = getFunctionName(method, method.getParameterTypes64());
+		if (!function.equals(function64)) {
+			outputln("#ifndef SWT_PTR_SIZE_64");
+		}
 		output("\t");
-		output(getFunctionName(method));
+		output(function);
 		outputln("_FUNC,");
+		if (!function.equals(function64)) {
+			outputln("#else");
+			output("\t");
+			output(function64);
+			outputln("_FUNC,");
+			outputln("#endif");
+		}
 		if (progress != null) progress.step();
 	}
 	JNIClass clazz = methods[0].getDeclaringClass();
