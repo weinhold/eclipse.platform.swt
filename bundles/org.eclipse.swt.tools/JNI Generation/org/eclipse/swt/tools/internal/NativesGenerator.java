@@ -109,7 +109,7 @@ public void generate(JNIMethod method) {
 		outputln();
 		outputln("#endif");
 	}
-	generateFunctionBody(method, function, params, returnType, returnType64);
+	generateFunctionBody(method, function, function64, params, returnType, returnType64);
 	generateSourceEnd(function);
 	outputln();
 }
@@ -319,22 +319,29 @@ void generateSetParameter(JNIParameter param, boolean critical) {
 	}
 }
 
-void generateExitMacro(JNIMethod method, String function) {
+void generateEnterExitMacro(JNIMethod method, String function, String function64, boolean enter) {
 	if (!enterExitMacro) return;
+	if (!function.equals(function64)) {
+		outputln("#ifndef SWT_PTR_SIZE_64");
+	}
 	output("\t");
 	output(method.getDeclaringClass().getSimpleName());
-	output("_NATIVE_EXIT(env, that, ");
+	output("_NATIVE_");
+	output(enter ? "ENTER" : "EXIT");
+	output("(env, that, ");
 	output(function);
 	outputln("_FUNC);");
-}
-
-void generateEnterMacro(JNIMethod method, String function) {
-	if (!enterExitMacro) return;
-	output("\t");
-	output(method.getDeclaringClass().getSimpleName());
-	output("_NATIVE_ENTER(env, that, ");
-	output(function);
-	outputln("_FUNC);");
+	if (!function.equals(function64)) {
+		outputln("#else");
+		output("\t");
+		output(method.getDeclaringClass().getSimpleName());
+		output("_NATIVE_");
+		output(enter ? "ENTER" : "EXIT");
+		output("(env, that, ");
+		output(function64);
+		outputln("_FUNC);");
+		outputln("#endif");
+	}
 }
 
 boolean generateLocalVars(JNIMethod method, JNIParameter[] params, JNIType returnType, JNIType returnType64) {
@@ -831,8 +838,8 @@ void generateReturn(JNIMethod method, JNIType returnType, boolean needsReturn) {
 	}
 }
 
-void generateMemmove(JNIMethod method, String function, JNIParameter[] params) {
-	generateEnterMacro(method, function);
+void generateMemmove(JNIMethod method, String function, String function64, JNIParameter[] params) {
+	generateEnterExitMacro(method, function, function64, true);
 	output("\t");
 	boolean get = params[0].getType().isPrimitive();
 	String className = params[get ? 1 : 0].getType().getSimpleName();
@@ -842,10 +849,10 @@ void generateMemmove(JNIMethod method, String function, JNIParameter[] params) {
 	output(className);
 	output(get ? " *)arg0)" : " *)arg1)");
 	outputln(";");
-	generateExitMacro(method, function);	
+	generateEnterExitMacro(method, function, function64, false);	
 }
 
-void generateFunctionBody(JNIMethod method, String function, JNIParameter[] params, JNIType returnType, JNIType returnType64) {
+void generateFunctionBody(JNIMethod method, String function, String function64, JNIParameter[] params, JNIType returnType, JNIType returnType64) {
 	outputln("{");
 	
 	/* Custom GTK memmoves. */
@@ -853,10 +860,10 @@ void generateFunctionBody(JNIMethod method, String function, JNIParameter[] para
 	if (name.startsWith("_")) name = name.substring(1);
 	boolean isMemove = (name.equals("memmove") || name.equals("MoveMemory")) && params.length == 2 && returnType.isType("void");
 	if (isMemove) {
-		generateMemmove(method, function, params);
+		generateMemmove(method, function, function64, params);
 	} else {
 		boolean needsReturn = generateLocalVars(method, params, returnType, returnType64);
-		generateEnterMacro(method, function);
+		generateEnterExitMacro(method, function, function64, true);
 		boolean genFailTag = generateGetters(method, params);
 		if (method.getFlag(FLAG_DYNAMIC)) {
 			generateDynamicFunctionCall(method, params, returnType, returnType64, needsReturn);
@@ -865,7 +872,7 @@ void generateFunctionBody(JNIMethod method, String function, JNIParameter[] para
 		}
 		if (genFailTag) outputln("fail:");
 		generateSetters(method, params);
-		generateExitMacro(method, function);
+		generateEnterExitMacro(method, function, function64, false);
 		generateReturn(method, returnType, needsReturn);
 	}
 	
