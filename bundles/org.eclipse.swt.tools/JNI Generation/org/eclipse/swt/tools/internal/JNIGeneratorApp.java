@@ -188,8 +188,8 @@ public void generate(ProgressMonitor progress) {
 	if (mainClassName == null) return;
 	if (progress != null) progress.setMessage("Initializing...");
 	JNIClass[] classes = getClasses();
-	JNIClass[] natives = getNativesClasses();
-	JNIClass[] structs = getStructureClasses();
+	JNIClass[] natives = getNativesClasses(classes);
+	JNIClass[] structs = getStructureClasses(classes);
 	this.progress = progress;
 	if (progress != null) {
 		int nativeCount = 0;
@@ -320,8 +320,12 @@ public JNIClass[] getClasses() {
 		String className = classNames[i];
 		try {
 			String qualifiedName = packageName + "." + className;
-			String sourcePath = new File(outputDir).getParent() + "/" + qualifiedName.replace('.', '/') + ".java";
-			classes[i] = new ReflectClass(Class.forName(qualifiedName, false, getClass().getClassLoader()), metaData, sourcePath);
+			if (qualifiedName.equals(mainClassName)) {
+				classes[i] = mainClass;
+			} else {
+				String sourcePath = new File(outputDir).getParent() + "/" + qualifiedName.replace('.', '/') + ".java";
+				classes[i] = new ReflectClass(Class.forName(qualifiedName, false, getClass().getClassLoader()), metaData, sourcePath);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -329,10 +333,9 @@ public JNIClass[] getClasses() {
 	return classes;
 }
 
-public JNIClass[] getNativesClasses() {
+public JNIClass[] getNativesClasses(JNIClass[] classes) {
 	if (mainClassName == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
-	JNIClass[] classes = getClasses();
 	for (int i = 0; i < classes.length; i++) {
 		JNIClass clazz = classes[i];
 		JNIMethod[] methods = clazz.getDeclaredMethods();
@@ -348,10 +351,9 @@ public JNIClass[] getNativesClasses() {
 	return (JNIClass[])result.toArray(new JNIClass[result.size()]);
 }
 
-public JNIClass[] getStructureClasses() {
+public JNIClass[] getStructureClasses(JNIClass[] classes) {
 	if (mainClassName == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
-	JNIClass[] classes = getClasses();
 	outer:
 	for (int i = 0; i < classes.length; i++) {
 		JNIClass clazz = classes[i];

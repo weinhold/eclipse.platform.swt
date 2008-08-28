@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -45,6 +46,9 @@ public ReflectMethod(ReflectClass declaringClass, final Method method) {
 		ASTNode ast = declaringClass.getDOM();
 		final MethodDeclaration[] decl = new MethodDeclaration[1];
 		ast.accept(new ASTVisitor() {
+			public boolean visit(FieldDeclaration node) {
+				return false;
+			}
 			public boolean visit(MethodDeclaration node) {
 				if (node.getName().getIdentifier().equals(name)) {
 					if (decl[0] != null) return false;

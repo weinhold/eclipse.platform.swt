@@ -17,6 +17,7 @@ import java.util.Iterator;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ReflectField extends ReflectItem implements JNIField {
@@ -33,6 +34,9 @@ public ReflectField(final ReflectClass declaringClass, final Field field) {
 		ASTNode ast = declaringClass.getDOM();
 		final Class[] result = new Class[1];
 		ast.accept(new ASTVisitor() {
+			public boolean visit(MethodDeclaration node) {
+				return false;
+			}
 			public boolean visit(FieldDeclaration node) {
 				for (Iterator iterator = node.fragments().iterator(); iterator.hasNext();) {
 					VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();

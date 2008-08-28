@@ -20,18 +20,39 @@ import org.eclipse.jdt.core.dom.ASTParser;
 
 public class ReflectClass extends ReflectItem implements JNIClass {
 	Class clazz;
+	ReflectField[] fields;
+	ReflectMethod[] methods;
 	MetaData metaData;
 	String sourcePath, source;
 	ASTNode ast;
 
 public ReflectClass(Class clazz) {
-	this.clazz = clazz;
+	this(clazz, null, null);
 }
 
 public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 	this.clazz = clazz;
 	this.metaData = data;
 	this.sourcePath = sourcePath;
+}
+
+void checkMembers() {
+	if (fields != null) return;
+	long time = System.currentTimeMillis();
+	Field[] fields = clazz.getDeclaredFields();
+	this.fields = new ReflectField[fields.length];
+	for (int i = 0; i < fields.length; i++) {
+		this.fields[i] = new ReflectField(this, fields[i]);
+	}
+	Method[] methods = clazz.getDeclaredMethods();
+	this.methods = new ReflectMethod[methods.length];
+	for (int i = 0; i < methods.length; i++) {
+		this.methods[i] = new ReflectMethod(this, methods[i]);
+	}
+	if (System.currentTimeMillis() - time > 100) {
+	//	Thread.dumpStack();
+	//	System.err.println("time=" + (System.currentTimeMillis() - time) + " " +clazz.getName());
+	}
 }
 
 ASTNode getDOM() {
@@ -52,21 +73,13 @@ public boolean equals(Object obj) {
 }
 
 public JNIField[] getDeclaredFields() {
-	Field[] fields = clazz.getDeclaredFields();
-	JNIField[] result = new JNIField[fields.length];
-	for (int i = 0; i < fields.length; i++) {
-		result[i] = new ReflectField(this, fields[i]);
-	}
-	return result;
+	checkMembers();
+	return fields;
 }
 
 public JNIMethod[] getDeclaredMethods() {
-	Method[] methods = clazz.getDeclaredMethods();
-	JNIMethod[] result = new JNIMethod[methods.length];
-	for (int i = 0; i < methods.length; i++) {
-		result[i] = new ReflectMethod(this, methods[i]);
-	}
-	return result;
+	checkMembers();
+	return methods;
 }
 
 public String getName() {
@@ -74,8 +87,9 @@ public String getName() {
 }
 
 public JNIClass getSuperclass() {
-	String path = new File(sourcePath).getParent() + "/" + getSimpleName() + ".java";
-	return new ReflectClass(clazz.getSuperclass(), metaData, path);
+	Class superclazz = clazz.getSuperclass();
+	String path = new File(sourcePath).getParent() + "/" + superclazz.getSimpleName() + ".java";
+	return new ReflectClass(superclazz, metaData, path);
 }
 
 public String getSimpleName() {
