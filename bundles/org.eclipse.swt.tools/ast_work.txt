@@ -1,0 +1,1165 @@
+### Eclipse Workspace Patch 1.0
+#P org.eclipse.swt.tools
+Index: JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java,v
+retrieving revision 1.36.14.5
+diff -u -r1.36.14.5 JNIGeneratorApp.java
+--- JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java	29 Aug 2008 03:57:20 -0000	1.36.14.5
++++ JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java	29 Aug 2008 04:05:08 -0000
+@@ -449,7 +449,9 @@
+ 	} else {
+ 		gen.setMainClassName(getDefaultMainClass());
+ 	}
++	long time = System.currentTimeMillis();
+ 	gen.generate();
++	System.out.println("time=" + (System.currentTimeMillis() - time));
+ }
+ 
+ }
+Index: JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/tools/internal/Attic/ReflectField.java,v
+retrieving revision 1.1.2.13
+diff -u -r1.1.2.13 ReflectField.java
+--- JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java	28 Aug 2008 06:31:27 -0000	1.1.2.13
++++ JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java	29 Aug 2008 04:05:08 -0000
+@@ -29,6 +29,7 @@
+ 	this.field = field;
+ 	Class clazz = field.getType();
+ 	boolean changes = canChange64(clazz);
++//	changes = false;
+ 	if (changes && new File(declaringClass.sourcePath).exists()) {
+ 		TypeDeclaration type1 = (TypeDeclaration)unit.types().get(0);
+ 		Class result = null;
+Index: JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/tools/internal/Attic/ReflectMethod.java,v
+retrieving revision 1.1.2.10
+diff -u -r1.1.2.10 ReflectMethod.java
+--- JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java	28 Aug 2008 06:31:27 -0000	1.1.2.10
++++ JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java	29 Aug 2008 04:05:08 -0000
+@@ -41,6 +41,7 @@
+ 			}
+ 		}
+ 	}
++//	changes = false;
+ 	if (changes && new File(declaringClass.sourcePath).exists()) {
+ 		final String name = method.getName();
+ 		TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
+Index: .classpath
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/.classpath,v
+retrieving revision 1.12
+diff -u -r1.12 .classpath
+--- .classpath	14 Aug 2008 20:45:06 -0000	1.12
++++ .classpath	29 Aug 2008 04:05:08 -0000
+@@ -1,12 +1,9 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <classpath>
+-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
++	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
++	<classpathentry kind="src" path="Plugin"/>
+ 	<classpathentry kind="src" path="JNI Generation"/>
+ 	<classpathentry kind="src" path="Sleak"/>
+-	<classpathentry kind="src" path="NativeStats"/>
+-	<classpathentry kind="src" path="Mozilla Generation"/>
+-	<classpathentry kind="src" path="Icon Exe"/>
+-	<classpathentry kind="src" path="Mac Generation"/>
++	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+ 	<classpathentry kind="output" path="bin"/>
+ </classpath>
+Index: .project
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/.project,v
+retrieving revision 1.3
+diff -u -r1.3 .project
+--- .project	26 Feb 2004 19:40:25 -0000	1.3
++++ .project	29 Aug 2008 04:05:08 -0000
+@@ -12,8 +12,19 @@
+ 			<arguments>
+ 			</arguments>
+ 		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.pde.ManifestBuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.pde.SchemaBuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
+ 	</buildSpec>
+ 	<natures>
++		<nature>org.eclipse.pde.PluginNature</nature>
+ 		<nature>org.eclipse.jdt.core.javanature</nature>
+ 	</natures>
+ </projectDescription>
+Index: build.properties
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/build.properties,v
+retrieving revision 1.5
+diff -u -r1.5 build.properties
+--- build.properties	9 Jun 2008 18:17:51 -0000	1.5
++++ build.properties	29 Aug 2008 04:05:08 -0000
+@@ -8,5 +8,16 @@
+ # Contributors:
+ #     IBM Corporation - initial API and implementation
+ ###############################################################################
+-source.swttools.jar=JNI Generation/
+-bin.includes=about.html
+\ No newline at end of file
++bin.includes = about.html,\
++               bin/,\
++               .,\
++               plugin.xml,\
++               META-INF/,\
++               plugin.properties,\
++               icons/
++src.includes = Sleak/,\
++               Plugin/
++jars.compile.order = .
++output.. = bin/
++source.. = Plugin/,\
++           Sleak/
+Index: META-INF/MANIFEST.MF
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/META-INF/Attic/MANIFEST.MF,v
+retrieving revision 1.1.2.2
+diff -u -r1.1.2.2 MANIFEST.MF
+--- META-INF/MANIFEST.MF	27 Aug 2008 02:22:49 -0000	1.1.2.2
++++ META-INF/MANIFEST.MF	29 Aug 2008 04:05:08 -0000
+@@ -3,14 +3,14 @@
+ Bundle-Vendor: %providerName
+ Bundle-SymbolicName: org.eclipse.swt.tools; singleton:=true
+ Bundle-Version: 3.5.0.qualifier
++Bundle-Activator: org.eclipse.swt.tools.Activator
+ Bundle-ManifestVersion: 2
+-Bundle-Localization: plugin
+-Export-Package:
++Export-Package: org.eclipse.swt.tools,
+  org.eclipse.swt.tools.internal; x-internal:=true
+-Eclipse-ExtensibleAPI: true
+-Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
+- J2SE-1.3
+-Require-Bundle: org.eclipse.swt;bundle-version="3.5.0",
++Bundle-ActivationPolicy: lazy
++Bundle-RequiredExecutionEnvironment: J2SE-1.5
++Require-Bundle: org.eclipse.swt;bundle-version="3.4.0",
+  org.eclipse.core.runtime;bundle-version="3.4.0",
+  org.eclipse.core.resources;bundle-version="3.4.0",
+- org.eclipse.jdt.core;bundle-version="3.4.0"
++ org.eclipse.jdt.core;bundle-version="3.4.0",
++ org.eclipse.ui;bundle-version="3.4.0"
+Index: Sleak/org/eclipse/swt/tools/internal/Sleak.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/Sleak/org/eclipse/swt/tools/internal/Sleak.java,v
+retrieving revision 1.7
+diff -u -r1.7 Sleak.java
+--- Sleak/org/eclipse/swt/tools/internal/Sleak.java	17 Jan 2008 22:02:12 -0000	1.7
++++ Sleak/org/eclipse/swt/tools/internal/Sleak.java	29 Aug 2008 04:05:09 -0000
+@@ -61,7 +61,7 @@
+ 	display.dispose ();
+ }
+ 
+-void open () {
++public void open () {
+ 	display = Display.getCurrent ();
+ 	shell = new Shell (display);
+ 	shell.setText ("S-Leak");
+Index: JNI Generation/org/eclipse/swt/tools/internal/ASTMethod.java
+===================================================================
+RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTMethod.java
+diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTMethod.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ASTMethod.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,158 @@
++/*******************************************************************************
++ * Copyright (c) 2004, 2008 IBM Corporation and others.
++ * All rights reserved. This program and the accompanying materials
++ * are made available under the terms of the Eclipse Public License v1.0
++ * which accompanies this distribution, and is available at
++ * http://www.eclipse.org/legal/epl-v10.html
++ *
++ * Contributors:
++ *     IBM Corporation - initial API and implementation
++ *******************************************************************************/
++package org.eclipse.swt.tools.internal;
++
++import java.util.Iterator;
++import java.util.List;
++
++import org.eclipse.jdt.core.dom.ITypeBinding;
++import org.eclipse.jdt.core.dom.MethodDeclaration;
++import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
++
++public class ASTMethod extends ReflectItem implements JNIMethod {
++	String name, qualifiedName;
++	int modifiers;
++	ASTClass declaringClass;
++	ASTType[] paramTypes, paramTypes64;
++	ASTType returnType, returnType64;
++	
++public ASTMethod(ASTClass declaringClass, MethodDeclaration method) {
++	this.declaringClass = declaringClass;
++	
++	name = method.getName().getIdentifier();
++	modifiers = method.getModifiers();
++	
++	returnType = new ASTType(method.getReturnType2().resolveBinding());
++	returnType64 = returnType;
++	
++	List parameters = method.parameters();
++	paramTypes = new ASTType[parameters.size()];
++	int i = 0;
++	for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
++		SingleVariableDeclaration param = (SingleVariableDeclaration) iterator.next();
++		
++		ITypeBinding type = param.getType().resolveBinding();
++		if (param.getExtraDimensions() > 0) type = type.createArrayType(param.getExtraDimensions());
++		paramTypes[i++] = new ASTType(type);
++	}
++	paramTypes64 = paramTypes;
++}
++
++public JNIClass getDeclaringClass() {
++	return declaringClass;
++}
++
++public int getModifiers() {
++	return modifiers;
++}
++
++public String getName() {
++	return name;
++}
++
++public JNIType[] getParameterTypes() {
++	return paramTypes;
++}
++
++public JNIType[] getParameterTypes64() {
++	return paramTypes64;
++}
++
++public JNIParameter[] getParameters() {
++	JNIType[] paramTypes = getParameterTypes();
++	ASTParameter[] result = new ASTParameter[paramTypes.length];
++	for (int i = 0; i < paramTypes.length; i++) {
++		result[i] = new ASTParameter(this, i);
++	}
++	return result;
++}
++
++public JNIType getReturnType() {
++	return returnType;
++}
++
++public JNIType getReturnType64() {
++	return returnType64;
++}
++
++public String getAccessor() {
++	return (String)getParam("accessor");
++}
++
++public String getExclude() {
++	return (String)getParam("exclude");
++}
++
++public String getMetaData() {
++	String className = getDeclaringClass().getSimpleName();
++	String key = className + "_" + JNIGenerator.getFunctionName(this);
++	MetaData metaData = declaringClass.metaData;
++	String value = metaData.getMetaData(key, null);
++	if (value == null) {
++		key = className + "_" + getName();
++		value = metaData.getMetaData(key, null);
++	}
++	/*
++	* Support for 64 bit port.
++	*/
++	if (value == null) {
++		JNIType[] paramTypes = getParameterTypes();
++		if (convertTo32Bit(paramTypes, true)) {
++			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
++			value = metaData.getMetaData(key, null);
++		}
++		if (value == null) {
++			paramTypes = getParameterTypes();
++			if (convertTo32Bit(paramTypes, false)) {
++				key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
++				value = metaData.getMetaData(key, null);
++			}
++		}
++	}
++	/*
++	* Support for lock.
++	*/
++	if (value == null && getName().startsWith("_")) {
++		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
++		value = metaData.getMetaData(key, null);
++		if (value == null) {
++			key = className + "_" + getName().substring(1);
++			value = metaData.getMetaData(key, null);
++		}
++	}
++	if (value == null) value = "";	
++	return value;
++}
++
++public void setAccessor(String str) { 
++	setParam("accessor", str);
++}
++
++public void setExclude(String str) { 
++	setParam("exclude", str);
++}
++
++public void setMetaData(String value) {
++	String key;
++	String className = declaringClass.getSimpleName();
++	if (JNIGenerator.isNativeUnique(this)) {
++		key = className + "_" + getName ();
++	} else {
++		key = className + "_" + JNIGenerator.getFunctionName(this);
++	}
++	declaringClass.metaData.setMetaData(key, value);
++}
++
++public String toString() {
++	return getName();
++}
++
++}
+Index: JNI Generation/org/eclipse/swt/tools/internal/ASTField.java
+===================================================================
+RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTField.java
+diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTField.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ASTField.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,110 @@
++/*******************************************************************************
++ * Copyright (c) 2004, 2008 IBM Corporation and others.
++ * All rights reserved. This program and the accompanying materials
++ * are made available under the terms of the Eclipse Public License v1.0
++ * which accompanies this distribution, and is available at
++ * http://www.eclipse.org/legal/epl-v10.html
++ *
++ * Contributors:
++ *     IBM Corporation - initial API and implementation
++ *******************************************************************************/
++package org.eclipse.swt.tools.internal;
++
++import org.eclipse.jdt.core.dom.FieldDeclaration;
++import org.eclipse.jdt.core.dom.ITypeBinding;
++import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
++
++public class ASTField extends ReflectItem implements JNIField {
++	ASTClass declaringClass;
++	String name;
++	int modifiers;
++	ASTType type, type64;
++	
++public ASTField(ASTClass declaringClass, VariableDeclarationFragment field, VariableDeclarationFragment field64) {
++	this.declaringClass = declaringClass;
++	
++	name = field.getName().getIdentifier();
++	FieldDeclaration decl = (FieldDeclaration)field.getParent();
++	modifiers = decl.getModifiers();
++	ITypeBinding type = decl.getType().resolveBinding();
++	if (field.getExtraDimensions() > 0) type = type.createArrayType(field.getExtraDimensions());
++	this.type = new ASTType(type);
++	type64 =  this.type;
++}
++
++public int hashCode() {
++	return getName().hashCode();
++}
++
++public boolean equals(Object obj) {
++	if (this == obj) return true;
++	if (!(obj instanceof ASTField)) return false;
++	return ((ASTField)obj).getName().equals(getName());
++}
++
++public JNIClass getDeclaringClass() {
++	return declaringClass;
++}
++
++public int getModifiers() {
++	return modifiers;
++}
++
++public String getName() {
++	return name;
++}
++
++public JNIType getType() {
++	return type;
++}
++
++public JNIType getType64() {
++	return type64;
++}
++
++public String getAccessor() {
++	return (String)getParam("accessor");
++}
++
++public String getCast() {
++	String cast = ((String)getParam("cast")).trim();
++	if (cast.length() > 0) {
++		if (!cast.startsWith("(")) cast = "(" + cast;
++		if (!cast.endsWith(")")) cast = cast + ")";
++	}
++	return cast;
++}
++
++public String getExclude() {
++	return (String)getParam("exclude");
++}
++
++public String getMetaData() {
++	String className = getDeclaringClass().getSimpleName();
++	String key = className + "_" + getName();
++	return declaringClass.metaData.getMetaData(key, "");
++}
++
++public void setAccessor(String str) { 
++	setParam("accessor", str);
++}
++
++public void setCast(String str) {
++	setParam("cast", str);
++}
++
++public void setExclude(String str) { 
++	setParam("exclude", str);
++}
++
++public void setMetaData(String value) {
++	String className = declaringClass.getSimpleName();
++	String key = className + "_" + getName();
++	declaringClass.metaData.setMetaData(key, value);
++}
++
++public String toString() {
++	return getName();
++}
++
++}
+Index: Plugin/org/eclipse/swt/tools/actions/SleakAction.java
+===================================================================
+RCS file: Plugin/org/eclipse/swt/tools/actions/SleakAction.java
+diff -N Plugin/org/eclipse/swt/tools/actions/SleakAction.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ Plugin/org/eclipse/swt/tools/actions/SleakAction.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,61 @@
++package org.eclipse.swt.tools.actions;
++
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.viewers.ISelection;
++import org.eclipse.swt.tools.internal.Sleak;
++import org.eclipse.ui.IWorkbenchWindow;
++import org.eclipse.ui.IWorkbenchWindowActionDelegate;
++
++/**
++ * Our sample action implements workbench action delegate.
++ * The action proxy will be created by the workbench and
++ * shown in the UI. When the user tries to use the action,
++ * this delegate will be created and execution will be 
++ * delegated to it.
++ * @see IWorkbenchWindowActionDelegate
++ */
++public class SleakAction implements IWorkbenchWindowActionDelegate {
++//	private IWorkbenchWindow window;
++	/**
++	 * The constructor.
++	 */
++	public SleakAction() {
++	}
++
++	/**
++	 * The action has been activated. The argument of the
++	 * method represents the 'real' action sitting
++	 * in the workbench UI.
++	 * @see IWorkbenchWindowActionDelegate#run
++	 */
++	public void run(IAction action) {
++		new Sleak().open();
++	}
++
++	/**
++	 * Selection in the workbench has been changed. We 
++	 * can change the state of the 'real' action here
++	 * if we want, but this can only happen after 
++	 * the delegate has been created.
++	 * @see IWorkbenchWindowActionDelegate#selectionChanged
++	 */
++	public void selectionChanged(IAction action, ISelection selection) {
++	}
++
++	/**
++	 * We can use this method to dispose of any system
++	 * resources we previously allocated.
++	 * @see IWorkbenchWindowActionDelegate#dispose
++	 */
++	public void dispose() {
++	}
++
++	/**
++	 * We will cache window object in order to
++	 * be able to provide parent shell for the message dialog.
++	 * @see IWorkbenchWindowActionDelegate#init
++	 */
++	public void init(IWorkbenchWindow window) {
++//		this.window = window;
++	}
++}
+Index: JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
+===================================================================
+RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
+diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,102 @@
++package org.eclipse.swt.tools.internal;
++
++import java.io.File;
++
++public class ASTParameter extends ReflectItem implements JNIParameter {
++	ASTMethod method;
++	int parameter;
++
++public ASTParameter(ASTMethod method, int parameter) {
++	this.method = method;
++	this.parameter = parameter;
++}
++
++public String getCast() {
++	String cast = ((String)getParam("cast")).trim();
++	if (cast.length() > 0) {
++		if (!cast.startsWith("(")) cast = "(" + cast;
++		if (!cast.endsWith(")")) cast = cast + ")";
++	}
++	return cast;
++}
++
++public String getMetaData() {
++	String className = method.getDeclaringClass().getSimpleName();
++	String key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
++	MetaData metaData = method.declaringClass.metaData;
++	String value = metaData.getMetaData(key, null);
++	if (value == null) {
++		key = className + "_" + method.getName() + "_" + parameter;
++		value = metaData.getMetaData(key, null);
++	}
++	/*
++	* Support for 64 bit port.
++	*/
++	if (value == null) {
++		JNIType[] paramTypes = method.getParameterTypes();
++		if (ReflectItem.convertTo32Bit(paramTypes, true)) {
++			key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
++			value = metaData.getMetaData(key, null);
++		}
++		if (value == null) {
++			paramTypes = method.getParameterTypes();
++			if (ReflectItem.convertTo32Bit(paramTypes, false)) {
++				key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
++				value = metaData.getMetaData(key, null);
++			}
++		}
++	}
++	/*
++	* Support for lock.
++	*/
++	if (value == null && method.getName().startsWith("_")) {
++		key = className + "_" + JNIGenerator.getFunctionName(method).substring(2) + "_" + parameter;
++		value = metaData.getMetaData(key, null);
++		if (value == null) {
++			key = className + "_" + method.getName().substring(1) + "_" + parameter;
++			value = metaData.getMetaData(key, null);
++		}
++	}
++	if (value == null) value = "";	
++	return value;
++}
++
++public JNIMethod getMethod() {
++	return method;
++}
++
++public JNIClass getTypeClass() {
++	ASTType type = (ASTType)getType();
++	ASTClass declaringClass = method.declaringClass;
++	String sourcePath  = declaringClass.sourcePath;
++	sourcePath = new File(sourcePath).getParent() + "/" + type.getSimpleName() + ".java";
++	return new ASTClass(sourcePath, declaringClass.metaData);
++}
++
++public JNIType getType() {
++	return method.getParameterTypes()[parameter];
++}
++
++public JNIType getType64() {
++	return method.getParameterTypes64()[parameter];
++}
++
++public int getParameter() {
++	return parameter;
++}
++
++public void setCast(String str) {
++	setParam("cast", str);
++}
++
++public void setMetaData(String value) {
++	String key;
++	String className = method.getDeclaringClass().getSimpleName();
++	if (JNIGenerator.isNativeUnique(method)) {
++		key = className + "_" + method.getName () + "_" + parameter;
++	} else {
++		key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
++	}
++	method.declaringClass.metaData.setMetaData(key, value);
++}
++}
+Index: Plugin/org/eclipse/swt/tools/actions/TestAction.java
+===================================================================
+RCS file: Plugin/org/eclipse/swt/tools/actions/TestAction.java
+diff -N Plugin/org/eclipse/swt/tools/actions/TestAction.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ Plugin/org/eclipse/swt/tools/actions/TestAction.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,120 @@
++package org.eclipse.swt.tools.actions;
++
++import java.io.BufferedInputStream;
++import java.io.FileInputStream;
++import java.util.ArrayList;
++import java.util.Properties;
++
++import org.eclipse.core.resources.IResource;
++import org.eclipse.core.resources.IResourceVisitor;
++import org.eclipse.core.resources.ResourcesPlugin;
++import org.eclipse.core.runtime.CoreException;
++import org.eclipse.core.runtime.IPath;
++import org.eclipse.core.runtime.Path;
++import org.eclipse.jface.action.IAction;
++import org.eclipse.jface.viewers.ISelection;
++import org.eclipse.swt.tools.internal.ASTClass;
++import org.eclipse.swt.tools.internal.JNIClass;
++import org.eclipse.swt.tools.internal.JNIGeneratorApp;
++import org.eclipse.swt.tools.internal.MetaData;
++import org.eclipse.ui.IWorkbenchWindow;
++import org.eclipse.ui.IWorkbenchWindowActionDelegate;
++
++/**
++ * Our sample action implements workbench action delegate.
++ * The action proxy will be created by the workbench and
++ * shown in the UI. When the user tries to use the action,
++ * this delegate will be created and execution will be 
++ * delegated to it.
++ * @see IWorkbenchWindowActionDelegate
++ */
++public class TestAction implements IWorkbenchWindowActionDelegate {
++//	private IWorkbenchWindow window;
++	/**
++	 * The constructor.
++	 */
++	public TestAction() {
++	}
++
++	/**
++	 * The action has been activated. The argument of the
++	 * method represents the 'real' action sitting
++	 * in the workbench UI.
++	 * @see IWorkbenchWindowActionDelegate#run
++	 */
++	public void run(IAction action) {
++		
++		new Thread() {
++			public void run() {
++				long time = System.currentTimeMillis();
++				String sourcePath = "org.eclipse.swt/Eclipse SWT PI/win32/org/eclipse/swt/internal/win32/";
++				IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(sourcePath));
++				Properties prop = new Properties();
++				try {
++				prop.load(new BufferedInputStream(new FileInputStream("C:\\silenio\\workspace\\org.eclipse.swt.tools\\JNI Generation\\org\\eclipse\\swt\\tools\\internal\\org.eclipse.swt.internal.win32.OS.properties")));
++				} catch (Throwable e) {
++					e.printStackTrace();
++				}
++				final String mainPath = "/org.eclipse.swt/Eclipse SWT PI/win32/org/eclipse/swt/internal/win32/OS.java";
++				final MetaData metaData = new MetaData(prop);
++				final ASTClass mainClass = new ASTClass(mainPath, metaData);
++				final ArrayList classes = new ArrayList();
++				try {
++					resource.accept(new IResourceVisitor() {
++						public boolean visit(IResource resource) throws CoreException {
++							IPath path = resource.getFullPath();
++							String ext = path.getFileExtension();
++//							System.out.println(path.toPortableString());
++							if ("java".equals(ext)) {
++								if (mainPath.equals(path.toPortableString())){
++									classes.add(mainClass);
++								} else {
++									classes.add(new ASTClass(path.toPortableString(), metaData));
++								}
++								return false;
++							}
++							return true;
++						}
++					});
++				} catch (CoreException e) {
++					e.printStackTrace();
++				}
++				System.out.println("done1=" + (System.currentTimeMillis() - time));
++				JNIGeneratorApp app = new JNIGeneratorApp();
++				app.setOutputDir("C:/silenio/runtime-New_configuration(1)/org.eclipse.swt/Eclipse SWT PI/win32/library");
++				app.setMetaData(metaData);
++				app.setMainClass(mainClass);
++				app.setClasses((JNIClass[])classes.toArray(new JNIClass[classes.size()]));
++				app.generate();
++				System.out.println("done=" + (System.currentTimeMillis() - time));
++			}
++		}.start();
++	}
++
++	/**
++	 * Selection in the workbench has been changed. We 
++	 * can change the state of the 'real' action here
++	 * if we want, but this can only happen after 
++	 * the delegate has been created.
++	 * @see IWorkbenchWindowActionDelegate#selectionChanged
++	 */
++	public void selectionChanged(IAction action, ISelection selection) {
++	}
++
++	/**
++	 * We can use this method to dispose of any system
++	 * resources we previously allocated.
++	 * @see IWorkbenchWindowActionDelegate#dispose
++	 */
++	public void dispose() {
++	}
++
++	/**
++	 * We will cache window object in order to
++	 * be able to provide parent shell for the message dialog.
++	 * @see IWorkbenchWindowActionDelegate#init
++	 */
++	public void init(IWorkbenchWindow window) {
++//		this.window = window;
++	}
++}
+Index: Plugin/org/eclipse/swt/tools/Activator.java
+===================================================================
+RCS file: Plugin/org/eclipse/swt/tools/Activator.java
+diff -N Plugin/org/eclipse/swt/tools/Activator.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ Plugin/org/eclipse/swt/tools/Activator.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,61 @@
++package org.eclipse.swt.tools;
++
++import org.eclipse.jface.resource.ImageDescriptor;
++import org.eclipse.ui.plugin.AbstractUIPlugin;
++import org.osgi.framework.BundleContext;
++
++/**
++ * The activator class controls the plug-in life cycle
++ */
++public class Activator extends AbstractUIPlugin {
++
++	// The plug-in ID
++	public static final String PLUGIN_ID = "org.eclipse.swt.tools";
++
++	// The shared instance
++	private static Activator plugin;
++	
++	/**
++	 * The constructor
++	 */
++	public Activator() {
++	}
++
++	/*
++	 * (non-Javadoc)
++	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
++	 */
++	public void start(BundleContext context) throws Exception {
++		super.start(context);
++		plugin = this;
++	}
++
++	/*
++	 * (non-Javadoc)
++	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
++	 */
++	public void stop(BundleContext context) throws Exception {
++		plugin = null;
++		super.stop(context);
++	}
++
++	/**
++	 * Returns the shared instance
++	 *
++	 * @return the shared instance
++	 */
++	public static Activator getDefault() {
++		return plugin;
++	}
++
++	/**
++	 * Returns an image descriptor for the image file at the given
++	 * plug-in relative path
++	 *
++	 * @param path the path
++	 * @return the image descriptor
++	 */
++	public static ImageDescriptor getImageDescriptor(String path) {
++		return imageDescriptorFromPlugin(PLUGIN_ID, path);
++	}
++}
+Index: JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
+===================================================================
+RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
+diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,134 @@
++/*******************************************************************************
++ * Copyright (c) 2004, 2008 IBM Corporation and others.
++ * All rights reserved. This program and the accompanying materials
++ * are made available under the terms of the Eclipse Public License v1.0
++ * which accompanies this distribution, and is available at
++ * http://www.eclipse.org/legal/epl-v10.html
++ *
++ * Contributors:
++ *     IBM Corporation - initial API and implementation
++ *******************************************************************************/
++package org.eclipse.swt.tools.internal;
++
++import java.io.File;
++import java.util.ArrayList;
++import java.util.Iterator;
++import java.util.List;
++
++import org.eclipse.core.resources.IResource;
++import org.eclipse.core.resources.ResourcesPlugin;
++import org.eclipse.core.runtime.Path;
++import org.eclipse.jdt.core.ICompilationUnit;
++import org.eclipse.jdt.core.JavaCore;
++import org.eclipse.jdt.core.dom.AST;
++import org.eclipse.jdt.core.dom.ASTParser;
++import org.eclipse.jdt.core.dom.CompilationUnit;
++import org.eclipse.jdt.core.dom.FieldDeclaration;
++import org.eclipse.jdt.core.dom.MethodDeclaration;
++import org.eclipse.jdt.core.dom.TypeDeclaration;
++import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
++
++public class ASTClass extends ReflectItem implements JNIClass {
++	String sourcePath;
++	MetaData metaData;
++
++	ASTField[] fields;
++	ASTMethod[] methods;
++	String name, simpleName, superclass;
++
++public ASTClass(String sourcePath, MetaData data) {
++	this.sourcePath = sourcePath;
++	this.metaData = data;
++	
++	IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(sourcePath));
++//	String source = getResourceContent(resource);
++	ASTParser parser = ASTParser.newParser(AST.JLS3);
++	parser.setResolveBindings(true);
++	parser.setSource((ICompilationUnit)JavaCore.create(resource));
++	long time = System.currentTimeMillis();
++	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
++	System.out.println("ast=" + (System.currentTimeMillis() - time));
++	TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
++	name = type.resolveBinding().getQualifiedName();
++	simpleName = type.getName().getIdentifier();
++	superclass = type.getSuperclassType() != null ? type.getSuperclassType().toString() : null;
++
++	FieldDeclaration[] fields = type.getFields();
++	ArrayList fid = new ArrayList();
++	for (int i = 0; i < fields.length; i++) {
++		FieldDeclaration field = fields[i];
++		List fragments = field.fragments();
++		for (Iterator iterator = fragments.iterator(); iterator.hasNext();) {
++			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iterator.next();
++			fid.add(new ASTField(this, fragment, fragment));
++		}
++	}
++	this.fields = (ASTField[])fid.toArray(new ASTField[fid.size()]);
++	MethodDeclaration[] methods = type.getMethods();
++	ArrayList mid = new ArrayList();
++	for (int i = 0; i < methods.length; i++) {
++		if (methods[i].getReturnType2() == null) continue;
++		mid.add(new ASTMethod(this, methods[i]));
++	}
++	this.methods = (ASTMethod[])mid.toArray(new ASTMethod[mid.size()]);
++}
++
++public int hashCode() {
++	return getName().hashCode();
++}
++
++public boolean equals(Object obj) {
++	if (this == obj) return true;
++	if (!(obj instanceof ASTClass)) return false;
++	return ((ASTClass)obj).getName().equals(getName());
++}
++
++public JNIField[] getDeclaredFields() {
++	JNIField[] result = new JNIField[fields.length];
++	System.arraycopy(fields, 0, result, 0, result.length);
++	return result;
++}
++
++public JNIMethod[] getDeclaredMethods() {
++	JNIMethod[] result = new JNIMethod[methods.length];
++	System.arraycopy(methods, 0, result, 0, result.length);
++	return result;
++}
++
++public String getName() {
++	return name;
++}
++
++public JNIClass getSuperclass() {
++	if (superclass == null) return new ReflectClass(Object.class);
++	String path = new File(sourcePath).getParent() + "/" + superclass + ".java";
++	return new ASTClass(path, metaData);
++}
++
++public String getSimpleName() {
++	return simpleName;
++}
++
++public String getExclude() {
++	return (String)getParam("exclude");
++}
++
++public String getMetaData() {
++	String key = JNIGenerator.toC(getName());
++	return metaData.getMetaData(key, "");
++}
++
++public void setExclude(String str) { 
++	setParam("exclude", str);
++}
++
++public void setMetaData(String value) {
++	String key = JNIGenerator.toC(getName());
++	metaData.setMetaData(key, value);
++}
++
++public String toString() {
++	return getName();
++}
++
++}
+Index: JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
+===================================================================
+RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
+diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ASTType.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,146 @@
++package org.eclipse.swt.tools.internal;
++
++import org.eclipse.jdt.core.dom.ITypeBinding;
++
++public class ASTType implements JNIType {
++	ITypeBinding type;
++
++public ASTType(ITypeBinding type) {
++	this.type = type;
++}
++
++public boolean equals(Object obj) {
++	if (obj == this) return true;
++	if (!(obj instanceof ASTType)) return false;
++	return ((ASTType)obj).type.isEqualTo(type);
++}
++
++public JNIType getComponentType() {
++	return new ASTType(type.getComponentType());
++}
++
++public String getSimpleName() {
++	return type.getName();
++}
++
++public String getTypeSignature(boolean define) {
++	String name = type.getQualifiedName();
++	if (type.isPrimitive()) {
++		if (name.equals("void")) return "V";
++		if (name.equals("int")) return define ? "SWT_I_SIGNATURE" : "I";
++		if (name.equals("boolean")) return "Z";
++		if (name.equals("long")) return define ? "SWT_I_SIGNATURE" : "J";
++		if (name.equals("short")) return "S";
++		if (name.equals("char")) return "C";
++		if (name.equals("byte")) return "B";
++		if (name.equals("float")) return define ? "SWT_F_SIGNATURE" : "F";
++		if (name.equals("double")) return define ? "SWT_F_SIGNATURE" : "D";
++	}
++	if (type.isArray()) {
++		if (define) return getComponentType().getTypeSignature(define) + "Array";
++		return "[" + getComponentType().getTypeSignature(define);
++	}
++	return "L" + name.replace('.', '/') + ";";
++}
++
++public String getTypeSignature1(boolean define) {
++	String name = type.getQualifiedName();
++	if (type.isPrimitive()) {
++		if (name.equals("void")) return "Void";
++		if (name.equals("int")) return define ? "SWT_Int" : "Int";
++		if (name.equals("boolean")) return "Boolean";
++		if (name.equals("long")) return define ? "SWT_Int" : "Long";
++		if (name.equals("short")) return "Short";
++		if (name.equals("char")) return "Char";
++		if (name.equals("byte")) return "Byte";
++		if (name.equals("float")) return define ? "SWT_Float" : "Float";
++		if (name.equals("double")) return define ? "SWT_Float" : "Double";
++	}
++	if (name.equals("java.lang.String")) return "String";
++	return "Object";
++}
++
++public String getTypeSignature2(boolean define) {
++	String name = type.getQualifiedName();
++	if (type.isPrimitive()) {
++		if (name.equals("void")) return "void";
++		if (name.equals("int")) return define ? "SWT_jint" : "jint";
++		if (name.equals("boolean")) return "jboolean";
++		if (name.equals("long")) return define ? "SWT_jint" : "jlong";
++		if (name.equals("short")) return "jshort";
++		if (name.equals("char")) return "jchar";
++		if (name.equals("byte")) return "jbyte";
++		if (name.equals("float")) return define ? "SWT_jfloat" : "jfloat";
++		if (name.equals("double")) return define ? "SWT_jfloat" : "jdouble";
++	}
++	if (name.equals("java.lang.String")) return "jstring";
++	if (name.equals("java.lang.Class")) return "jclass";
++	if (type.isArray()) {
++		return getComponentType().getTypeSignature2(define) + "Array";
++	}
++	return "jobject";
++}
++
++public String getTypeSignature3(boolean define) {
++	String name = type.getQualifiedName();
++	if (type.isPrimitive()) {
++		if (name.equals("void")) return "void";
++		if (name.equals("int")) return "int";
++		if (name.equals("boolean")) return "boolean";
++		if (name.equals("long")) return "long";
++		if (name.equals("short")) return "short";
++		if (name.equals("char")) return "char";
++		if (name.equals("byte")) return "byte";
++		if (name.equals("float")) return "float";
++		if (name.equals("double")) return "double";
++	}
++	if (name.equals("java.lang.String")) return "String";
++	if (type.isArray()) {
++		return getComponentType().getTypeSignature3(define) + "[]";
++	}
++	return type.getQualifiedName();
++}
++
++public String getTypeSignature4(boolean define, boolean struct) {
++	String name = type.getQualifiedName();
++	if (type.isPrimitive()) {
++		if (name.equals("void")) return "void";
++		if (name.equals("int")) return define ? "SWT_jint" : "jint";
++		if (name.equals("boolean")) return "jboolean";
++		if (name.equals("long")) return define ? "SWT_jint" : "jlong";
++		if (name.equals("short")) return "jshort";
++		if (name.equals("char")) return "jchar";
++		if (name.equals("byte")) return "jbyte";
++		if (name.equals("float")) return define ? "SWT_jfloat" : "jfloat";
++		if (name.equals("double")) return define ? "SWT_jfloat" : "jdouble";
++	}
++	if (name.equals("java.lang.String")) return "jstring";
++	if (type.isArray()) {
++		String sig = getComponentType().getTypeSignature4(define, struct);
++		return struct ? sig : sig + " *";
++	}
++	String sig = getSimpleName(); 
++	return struct ? sig : sig + " *";
++}
++
++public int hashCode() {
++	return type.hashCode();
++}
++
++public boolean isArray() {
++	return type.isArray();
++}
++
++public boolean isPrimitive() {
++	return type.isPrimitive();
++}
++
++public boolean isType(String type) {
++	return this.type.getQualifiedName().equals(type);
++}
++
++public String toString() {
++	return type.getQualifiedName();
++}
++
++}
+Index: plugin.xml
+===================================================================
+RCS file: plugin.xml
+diff -N plugin.xml
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ plugin.xml	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,39 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<?eclipse version="3.0"?>
++<plugin>
++   
++   <extension
++         point="org.eclipse.ui.actionSets">
++      <actionSet
++            label="SWT Action Set"
++            visible="true"
++            id="org.eclipse.swt.tools.actionSet">
++         <menu
++               label="SWT &amp;Menu"
++               id="swtMenu">
++            <separator
++                  name="swtGroup">
++            </separator>
++         </menu>
++         <action
++               label="&amp;Sleak"
++               icon="icons/sample.gif"
++               class="org.eclipse.swt.tools.actions.SleakAction"
++               tooltip="SWT Sleak"
++               menubarPath="swtMenu/swtGroup"
++               toolbarPath="swtGroup"
++               id="org.eclipse.swt.tools.actions.SleakAction">
++         </action>
++         <action
++               label="&amp;Test"
++               icon="icons/sample.gif"
++               class="org.eclipse.swt.tools.actions.TestAction"
++               tooltip="SWT Test"
++               menubarPath="swtMenu/swtGroup"
++               toolbarPath="swtGroup"
++               id="org.eclipse.swt.tools.actions.TestAction">
++         </action>
++      </actionSet>
++   </extension>
++
++</plugin>
