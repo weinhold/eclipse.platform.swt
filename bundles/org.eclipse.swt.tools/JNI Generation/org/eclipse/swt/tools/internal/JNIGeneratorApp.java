@@ -22,6 +22,7 @@ import org.eclipse.swt.SWT;
 public class JNIGeneratorApp {
 
 	JNIClass mainClass;
+	JNIClass[] classes;
 	ProgressMonitor progress;
 	String mainClassName, outputDir, classpath;
 	MetaData metaData;
@@ -185,7 +186,7 @@ public void generate() {
 }
 
 public void generate(ProgressMonitor progress) {
-	if (mainClassName == null) return;
+	if (mainClass == null) return;
 	if (progress != null) progress.setMessage("Initializing...");
 	JNIClass[] classes = getClasses();
 	JNIClass[] natives = getNativesClasses(classes);
@@ -311,6 +312,7 @@ String[] getClassNames(String mainClassName) {
 }
 
 public JNIClass[] getClasses() {
+	if (classes != null) return classes;
 	if (mainClassName == null) return new JNIClass[0];
 	String[] classNames = getClassNames(mainClassName);
 	Arrays.sort(classNames);
@@ -334,7 +336,7 @@ public JNIClass[] getClasses() {
 }
 
 public JNIClass[] getNativesClasses(JNIClass[] classes) {
-	if (mainClassName == null) return new JNIClass[0];
+	if (mainClass == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
 	for (int i = 0; i < classes.length; i++) {
 		JNIClass clazz = classes[i];
@@ -352,7 +354,7 @@ public JNIClass[] getNativesClasses(JNIClass[] classes) {
 }
 
 public JNIClass[] getStructureClasses(JNIClass[] classes) {
-	if (mainClassName == null) return new JNIClass[0];
+	if (mainClass == null) return new JNIClass[0];
 	ArrayList result = new ArrayList();
 	outer:
 	for (int i = 0; i < classes.length; i++) {
@@ -381,6 +383,18 @@ public JNIClass[] getStructureClasses(JNIClass[] classes) {
 
 public void setClasspath(String classpath) {
 	this.classpath = classpath;
+}
+
+public void setMainClass(JNIClass mainClass) {
+	this.mainClass = mainClass;
+}
+
+public void setMetaData(MetaData data) {
+	this.metaData = data;
+}
+
+public void setClasses(JNIClass[] classes) {
+	this.classes = classes;
 }
 
 public void setMainClassName(String str) {
