@@ -28,6 +28,8 @@ public ReflectField(ReflectClass declaringClass, Field field, String source, Com
 	this.declaringClass = declaringClass;
 	this.field = field;
 	Class clazz = field.getType();
+	type = new ReflectType(clazz);
+	type64 = type;
 	boolean changes = canChange64(clazz);
 	if (changes && new File(declaringClass.sourcePath).exists()) {
 		TypeDeclaration type1 = (TypeDeclaration)unit.types().get(0);
@@ -39,30 +41,18 @@ public ReflectField(ReflectClass declaringClass, Field field, String source, Com
 				VariableDeclarationFragment decl = (VariableDeclarationFragment) iterator.next();
 				if (decl.getName().getIdentifier().equals(field.getName())) {
 					String s = source.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
-					if (clazz == int.class && s.indexOf("int /*long*/") != -1) result = long.class;
-					else if (clazz == long.class && s.indexOf("long /*int*/") != -1) result = int.class;
-					else if (clazz == float.class && s.indexOf("float /*double*/") != -1) result = double.class;
-					else if (clazz == double.class && s.indexOf("double /*float*/") != -1) result = float.class;
-					else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) result = long[].class;
-					else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) result = int[].class;
-					else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) result = double[].class;
-					else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) result = float[].class;
-					else result = clazz;
+					if (clazz == int.class && s.indexOf("int /*long*/") != -1) type64 = new ReflectType(long.class);
+					else if (clazz == float.class && s.indexOf("float /*double*/") != -1) type64 = new ReflectType(double.class);
+					else if (clazz == int[].class && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) type64 = new ReflectType(long[].class);
+					else if (clazz == float[].class && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) type = new ReflectType(double[].class);
+					else if (clazz == long.class && s.indexOf("long /*int*/") != -1) type = new ReflectType(int.class);
+					else if (clazz == double.class && s.indexOf("double /*float*/") != -1) type = new ReflectType(float.class);
+					else if (clazz == long[].class && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) type = new ReflectType(int[].class);
+					else if (clazz == double[].class && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) type = new ReflectType(float[].class);
 					break;
 				}
 			}
 		}
-		Class temp = clazz;
-		if (temp.isArray()) temp = temp.getComponentType();
-		if (temp == long.class || temp == double.class) {
-			type = new ReflectType(result);
-			type64 = new ReflectType(clazz);
-		} else {
-			type = new ReflectType(clazz);
-			type64 = new ReflectType(result);			
-		}
-	} else {
-		type = type64 = new ReflectType(clazz);
 	}	
 }
 

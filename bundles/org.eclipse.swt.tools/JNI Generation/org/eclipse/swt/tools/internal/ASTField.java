@@ -25,15 +25,17 @@ public ASTField(ASTClass declaringClass, String source, String packageName, Fiel
 	modifiers = field.getModifiers();
 	type = new ASTType(packageName, field.getType(), fragment.getExtraDimensions());
 	type64 =  this.type;
-	String s = source.substring(field.getStartPosition(), field.getStartPosition() + field.getLength());
-	if (type.isType("int") && s.indexOf("int /*long*/") != -1) type64 = new ASTType("J");
-	else if (type.isType("float") && s.indexOf("float /*double*/") != -1) type64 = new ASTType("D");
-	else if (type.isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) type64 = new ASTType("[J");
-	else if (type.isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) type64 = new ASTType("[D");
-	else if (type.isType("long") && s.indexOf("long /*int*/") != -1) type = new ASTType("I");
-	else if (type.isType("double") && s.indexOf("double /*float*/") != -1) type = new ASTType("F");
-	else if (type.isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) type = new ASTType("[I");
-	else if (type.isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) type = new ASTType("[F");
+	if (GEN64) {
+		String s = source.substring(field.getStartPosition(), field.getStartPosition() + field.getLength());
+		if (type.isType("int") && s.indexOf("int /*long*/") != -1) type64 = new ASTType("J");
+		else if (type.isType("float") && s.indexOf("float /*double*/") != -1) type64 = new ASTType("D");
+		else if (type.isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) type64 = new ASTType("[J");
+		else if (type.isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) type64 = new ASTType("[D");
+		else if (type.isType("long") && s.indexOf("long /*int*/") != -1) type = new ASTType("I");
+		else if (type.isType("double") && s.indexOf("double /*float*/") != -1) type = new ASTType("F");
+		else if (type.isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) type = new ASTType("[I");
+		else if (type.isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) type = new ASTType("[F");
+	}
 }
 
 public int hashCode() {

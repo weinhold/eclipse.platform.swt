@@ -1,6 +1,8 @@
 package org.eclipse.swt.tools.internal;
 
 public interface JNIItem extends Flags {
+	
+	public static final boolean GEN64 = false;
 
 public String[] getFlags();
 

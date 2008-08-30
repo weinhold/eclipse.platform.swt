@@ -33,15 +33,17 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 	
 	returnType = new ASTType(packageName, method.getReturnType2(), method.getExtraDimensions());
 	returnType64 = returnType;
-	String s = source.substring(method.getReturnType2().getStartPosition(), method.getName().getStartPosition());
-	if (returnType.isType("int") && s.indexOf("int /*long*/") != -1) returnType64 = new ASTType("J");
-	else if (returnType.isType("float") && s.indexOf("float /*double*/") != -1) returnType64 = new ASTType("D");
-	else if (returnType.isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) returnType64 = new ASTType("[J");
-	else if (returnType.isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) returnType64 = new ASTType("[D");
-	else if (returnType.isType("long") && s.indexOf("long /*int*/") != -1) returnType = new ASTType("I");
-	else if (returnType.isType("double") && s.indexOf("double /*float*/") != -1) returnType = new ASTType("F");
-	else if (returnType.isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) returnType = new ASTType("[I");
-	else if (returnType.isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) returnType = new ASTType("[F");
+	if (GEN64) {
+		String s = source.substring(method.getReturnType2().getStartPosition(), method.getName().getStartPosition());
+		if (returnType.isType("int") && s.indexOf("int /*long*/") != -1) returnType64 = new ASTType("J");
+		else if (returnType.isType("float") && s.indexOf("float /*double*/") != -1) returnType64 = new ASTType("D");
+		else if (returnType.isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) returnType64 = new ASTType("[J");
+		else if (returnType.isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) returnType64 = new ASTType("[D");
+		else if (returnType.isType("long") && s.indexOf("long /*int*/") != -1) returnType = new ASTType("I");
+		else if (returnType.isType("double") && s.indexOf("double /*float*/") != -1) returnType = new ASTType("F");
+		else if (returnType.isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) returnType = new ASTType("[I");
+		else if (returnType.isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) returnType = new ASTType("[F");
+	}
 	
 	List parameters = method.parameters();
 	paramTypes = new ASTType[parameters.size()];
@@ -50,17 +52,18 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 	for (Iterator iterator = parameters.iterator(); iterator.hasNext(); i++) {
 		SingleVariableDeclaration param = (SingleVariableDeclaration) iterator.next();
 		paramTypes[i] = new ASTType(packageName, param.getType(), param.getExtraDimensions());
-		paramTypes64[i] = paramTypes[i]; 
-		s = source.substring(param.getStartPosition(), param.getStartPosition() + param.getLength());
-		if (paramTypes[i].isType("int") && s.indexOf("int /*long*/") != -1) paramTypes64[i] = new ASTType("J");
-		else if (paramTypes[i].isType("float") && s.indexOf("float /*double*/") != -1) paramTypes64[i] = new ASTType("D");
-		else if (paramTypes[i].isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) paramTypes64[i] = new ASTType("[J");
-		else if (paramTypes[i].isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) paramTypes64[i] = new ASTType("[D");
-		else if (paramTypes[i].isType("long") && s.indexOf("long /*int*/") != -1) paramTypes[i] = new ASTType("I");
-		else if (paramTypes[i].isType("double") && s.indexOf("double /*float*/") != -1) paramTypes[i] = new ASTType("F");
-		else if (paramTypes[i].isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) paramTypes[i] = new ASTType("[I");
-		else if (paramTypes[i].isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) paramTypes[i] = new ASTType("[F");
-
+		paramTypes64[i] = paramTypes[i];
+		if (GEN64) {
+			String s = source.substring(param.getStartPosition(), param.getStartPosition() + param.getLength());
+			if (paramTypes[i].isType("int") && s.indexOf("int /*long*/") != -1) paramTypes64[i] = new ASTType("J");
+			else if (paramTypes[i].isType("float") && s.indexOf("float /*double*/") != -1) paramTypes64[i] = new ASTType("D");
+			else if (paramTypes[i].isType("[I") && (s.indexOf("int /*long*/") != -1 || s.indexOf("int[] /*long[]*/") != -1)) paramTypes64[i] = new ASTType("[J");
+			else if (paramTypes[i].isType("[F") && (s.indexOf("float /*double*/") != -1|| s.indexOf("float[] /*double[]*/") != -1)) paramTypes64[i] = new ASTType("[D");
+			else if (paramTypes[i].isType("long") && s.indexOf("long /*int*/") != -1) paramTypes[i] = new ASTType("I");
+			else if (paramTypes[i].isType("double") && s.indexOf("double /*float*/") != -1) paramTypes[i] = new ASTType("F");
+			else if (paramTypes[i].isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) paramTypes[i] = new ASTType("[I");
+			else if (paramTypes[i].isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) paramTypes[i] = new ASTType("[F");
+		}
 	}
 }
 
