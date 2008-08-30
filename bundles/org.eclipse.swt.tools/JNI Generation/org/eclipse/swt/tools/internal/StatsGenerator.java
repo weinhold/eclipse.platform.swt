@@ -136,7 +136,6 @@ void generateSourceFile(JNIClass clazz) {
 			output("\t\"");
 			output(function64);
 			outputln("\",");
-			outputln("_FUNC,");
 			outputln("#endif");
 		}
 		if (progress != null) progress.step();
