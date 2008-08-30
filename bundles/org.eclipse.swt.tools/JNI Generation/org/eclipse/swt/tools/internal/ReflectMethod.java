@@ -50,7 +50,7 @@ public ReflectMethod(ReflectClass declaringClass, Method method, String source, 
 		}
 	}
 	if (changes && new File(declaringClass.sourcePath).exists()) {
-		final String name = method.getName();
+		String name = method.getName();
 		TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
 		MethodDeclaration decl = null;
 		MethodDeclaration[] methods = type.getMethods();
