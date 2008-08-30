@@ -6,7 +6,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/
 retrieving revision 1.36.14.5
 diff -u -r1.36.14.5 JNIGeneratorApp.java
 --- JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java	29 Aug 2008 03:57:20 -0000	1.36.14.5
-+++ JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java	29 Aug 2008 04:05:08 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/JNIGeneratorApp.java	30 Aug 2008 03:27:34 -0000
 @@ -449,7 +449,9 @@
  	} else {
  		gen.setMainClassName(getDefaultMainClass());
@@ -23,7 +23,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/
 retrieving revision 1.1.2.13
 diff -u -r1.1.2.13 ReflectField.java
 --- JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java	28 Aug 2008 06:31:27 -0000	1.1.2.13
-+++ JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java	29 Aug 2008 04:05:08 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ReflectField.java	30 Aug 2008 03:27:34 -0000
 @@ -29,6 +29,7 @@
  	this.field = field;
  	Class clazz = field.getType();
@@ -38,7 +38,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/
 retrieving revision 1.1.2.10
 diff -u -r1.1.2.10 ReflectMethod.java
 --- JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java	28 Aug 2008 06:31:27 -0000	1.1.2.10
-+++ JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java	29 Aug 2008 04:05:08 -0000
++++ JNI Generation/org/eclipse/swt/tools/internal/ReflectMethod.java	30 Aug 2008 03:27:34 -0000
 @@ -41,6 +41,7 @@
  			}
  		}
@@ -47,13 +47,47 @@ diff -u -r1.1.2.10 ReflectMethod.java
  	if (changes && new File(declaringClass.sourcePath).exists()) {
  		final String name = method.getName();
  		TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
+Index: JNI Generation/org/eclipse/swt/tools/internal/ReflectType.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/tools/internal/Attic/ReflectType.java,v
+retrieving revision 1.1.2.5
+diff -u -r1.1.2.5 ReflectType.java
+--- JNI Generation/org/eclipse/swt/tools/internal/ReflectType.java	28 Aug 2008 09:20:48 -0000	1.1.2.5
++++ JNI Generation/org/eclipse/swt/tools/internal/ReflectType.java	30 Aug 2008 03:27:34 -0000
+@@ -17,6 +17,10 @@
+ 	return new ReflectType(clazz.getComponentType());
+ }
+ 
++public String getName() {
++	return clazz.getName();
++}
++
+ public String getSimpleName() {
+ 	String name = clazz.getName();
+ 	int index = name.lastIndexOf('.') + 1;
+Index: JNI Generation/org/eclipse/swt/tools/internal/JNIType.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/JNI Generation/org/eclipse/swt/tools/internal/Attic/JNIType.java,v
+retrieving revision 1.1.2.3
+diff -u -r1.1.2.3 JNIType.java
+--- JNI Generation/org/eclipse/swt/tools/internal/JNIType.java	28 Aug 2008 09:20:48 -0000	1.1.2.3
++++ JNI Generation/org/eclipse/swt/tools/internal/JNIType.java	30 Aug 2008 03:27:34 -0000
+@@ -10,6 +10,8 @@
+ 
+ public boolean isType(String type);
+ 
++public String getName();
++
+ public String getSimpleName();
+ 
+ public String getTypeSignature(boolean define);
 Index: .classpath
 ===================================================================
 RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/.classpath,v
 retrieving revision 1.12
 diff -u -r1.12 .classpath
 --- .classpath	14 Aug 2008 20:45:06 -0000	1.12
-+++ .classpath	29 Aug 2008 04:05:08 -0000
++++ .classpath	30 Aug 2008 03:27:34 -0000
 @@ -1,12 +1,9 @@
  <?xml version="1.0" encoding="UTF-8"?>
  <classpath>
@@ -76,7 +110,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/.project,v
 retrieving revision 1.3
 diff -u -r1.3 .project
 --- .project	26 Feb 2004 19:40:25 -0000	1.3
-+++ .project	29 Aug 2008 04:05:08 -0000
++++ .project	30 Aug 2008 03:27:34 -0000
 @@ -12,8 +12,19 @@
  			<arguments>
  			</arguments>
@@ -103,7 +137,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/build.properties,v
 retrieving revision 1.5
 diff -u -r1.5 build.properties
 --- build.properties	9 Jun 2008 18:17:51 -0000	1.5
-+++ build.properties	29 Aug 2008 04:05:08 -0000
++++ build.properties	30 Aug 2008 03:27:34 -0000
 @@ -8,5 +8,16 @@
  # Contributors:
  #     IBM Corporation - initial API and implementation
@@ -130,7 +164,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/META-INF/Attic/MANIFEST.MF,v
 retrieving revision 1.1.2.2
 diff -u -r1.1.2.2 MANIFEST.MF
 --- META-INF/MANIFEST.MF	27 Aug 2008 02:22:49 -0000	1.1.2.2
-+++ META-INF/MANIFEST.MF	29 Aug 2008 04:05:08 -0000
++++ META-INF/MANIFEST.MF	30 Aug 2008 03:27:34 -0000
 @@ -3,14 +3,14 @@
  Bundle-Vendor: %providerName
  Bundle-SymbolicName: org.eclipse.swt.tools; singleton:=true
@@ -159,7 +193,7 @@ RCS file: /cvsroot/eclipse/org.eclipse.swt.tools/Sleak/org/eclipse/swt/tools/int
 retrieving revision 1.7
 diff -u -r1.7 Sleak.java
 --- Sleak/org/eclipse/swt/tools/internal/Sleak.java	17 Jan 2008 22:02:12 -0000	1.7
-+++ Sleak/org/eclipse/swt/tools/internal/Sleak.java	29 Aug 2008 04:05:09 -0000
++++ Sleak/org/eclipse/swt/tools/internal/Sleak.java	30 Aug 2008 03:27:34 -0000
 @@ -61,7 +61,7 @@
  	display.dispose ();
  }
@@ -525,7 +559,7 @@ RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
 diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
 --- /dev/null	1 Jan 1970 00:00:00 -0000
 +++ JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java	1 Jan 1970 00:00:00 -0000
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,104 @@
 +package org.eclipse.swt.tools.internal;
 +
 +import java.io.File;
@@ -595,6 +629,8 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
 +
 +public JNIClass getTypeClass() {
 +	ASTType type = (ASTType)getType();
++	ASTClass cached = (ASTClass)ASTClass.cache.get(type.getName());
++	if (cached != null) return cached;
 +	ASTClass declaringClass = method.declaringClass;
 +	String sourcePath  = declaringClass.sourcePath;
 +	sourcePath = new File(sourcePath).getParent() + "/" + type.getSimpleName() + ".java";
@@ -627,6 +663,74 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTParameter.java
 +	}
 +	method.declaringClass.metaData.setMetaData(key, value);
 +}
++}
+Index: Plugin/org/eclipse/swt/tools/Activator.java
+===================================================================
+RCS file: Plugin/org/eclipse/swt/tools/Activator.java
+diff -N Plugin/org/eclipse/swt/tools/Activator.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ Plugin/org/eclipse/swt/tools/Activator.java	1 Jan 1970 00:00:00 -0000
+@@ -0,0 +1,61 @@
++package org.eclipse.swt.tools;
++
++import org.eclipse.jface.resource.ImageDescriptor;
++import org.eclipse.ui.plugin.AbstractUIPlugin;
++import org.osgi.framework.BundleContext;
++
++/**
++ * The activator class controls the plug-in life cycle
++ */
++public class Activator extends AbstractUIPlugin {
++
++	// The plug-in ID
++	public static final String PLUGIN_ID = "org.eclipse.swt.tools";
++
++	// The shared instance
++	private static Activator plugin;
++	
++	/**
++	 * The constructor
++	 */
++	public Activator() {
++	}
++
++	/*
++	 * (non-Javadoc)
++	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
++	 */
++	public void start(BundleContext context) throws Exception {
++		super.start(context);
++		plugin = this;
++	}
++
++	/*
++	 * (non-Javadoc)
++	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
++	 */
++	public void stop(BundleContext context) throws Exception {
++		plugin = null;
++		super.stop(context);
++	}
++
++	/**
++	 * Returns the shared instance
++	 *
++	 * @return the shared instance
++	 */
++	public static Activator getDefault() {
++		return plugin;
++	}
++
++	/**
++	 * Returns an image descriptor for the image file at the given
++	 * plug-in relative path
++	 *
++	 * @param path the path
++	 * @return the image descriptor
++	 */
++	public static ImageDescriptor getImageDescriptor(String path) {
++		return imageDescriptorFromPlugin(PLUGIN_ID, path);
++	}
 +}
 Index: Plugin/org/eclipse/swt/tools/actions/TestAction.java
 ===================================================================
@@ -755,81 +859,13 @@ diff -N Plugin/org/eclipse/swt/tools/actions/TestAction.java
 +//		this.window = window;
 +	}
 +}
-Index: Plugin/org/eclipse/swt/tools/Activator.java
-===================================================================
-RCS file: Plugin/org/eclipse/swt/tools/Activator.java
-diff -N Plugin/org/eclipse/swt/tools/Activator.java
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ Plugin/org/eclipse/swt/tools/Activator.java	1 Jan 1970 00:00:00 -0000
-@@ -0,0 +1,61 @@
-+package org.eclipse.swt.tools;
-+
-+import org.eclipse.jface.resource.ImageDescriptor;
-+import org.eclipse.ui.plugin.AbstractUIPlugin;
-+import org.osgi.framework.BundleContext;
-+
-+/**
-+ * The activator class controls the plug-in life cycle
-+ */
-+public class Activator extends AbstractUIPlugin {
-+
-+	// The plug-in ID
-+	public static final String PLUGIN_ID = "org.eclipse.swt.tools";
-+
-+	// The shared instance
-+	private static Activator plugin;
-+	
-+	/**
-+	 * The constructor
-+	 */
-+	public Activator() {
-+	}
-+
-+	/*
-+	 * (non-Javadoc)
-+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-+	 */
-+	public void start(BundleContext context) throws Exception {
-+		super.start(context);
-+		plugin = this;
-+	}
-+
-+	/*
-+	 * (non-Javadoc)
-+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-+	 */
-+	public void stop(BundleContext context) throws Exception {
-+		plugin = null;
-+		super.stop(context);
-+	}
-+
-+	/**
-+	 * Returns the shared instance
-+	 *
-+	 * @return the shared instance
-+	 */
-+	public static Activator getDefault() {
-+		return plugin;
-+	}
-+
-+	/**
-+	 * Returns an image descriptor for the image file at the given
-+	 * plug-in relative path
-+	 *
-+	 * @param path the path
-+	 * @return the image descriptor
-+	 */
-+	public static ImageDescriptor getImageDescriptor(String path) {
-+		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-+	}
-+}
 Index: JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 ===================================================================
 RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 --- /dev/null	1 Jan 1970 00:00:00 -0000
 +++ JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java	1 Jan 1970 00:00:00 -0000
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,144 @@
 +/*******************************************************************************
 + * Copyright (c) 2004, 2008 IBM Corporation and others.
 + * All rights reserved. This program and the accompanying materials
@@ -844,6 +880,7 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 +
 +import java.io.File;
 +import java.util.ArrayList;
++import java.util.HashMap;
 +import java.util.Iterator;
 +import java.util.List;
 +
@@ -864,9 +901,12 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 +	String sourcePath;
 +	MetaData metaData;
 +
++	ASTClass superclass;
 +	ASTField[] fields;
 +	ASTMethod[] methods;
-+	String name, simpleName, superclass;
++	String name, simpleName, superclassName;
++	
++	static HashMap cache = new HashMap();
 +
 +public ASTClass(String sourcePath, MetaData data) {
 +	this.sourcePath = sourcePath;
@@ -879,11 +919,12 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 +	parser.setSource((ICompilationUnit)JavaCore.create(resource));
 +	long time = System.currentTimeMillis();
 +	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
-+	System.out.println("ast=" + (System.currentTimeMillis() - time));
 +	TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
++	System.out.println("ast=" + (System.currentTimeMillis() - time) +  " " + type.getName());
++//	if (true) return;
 +	name = type.resolveBinding().getQualifiedName();
 +	simpleName = type.getName().getIdentifier();
-+	superclass = type.getSuperclassType() != null ? type.getSuperclassType().toString() : null;
++	superclassName = type.getSuperclassType() != null ? type.getSuperclassType().toString() : null;
 +
 +	FieldDeclaration[] fields = type.getFields();
 +	ArrayList fid = new ArrayList();
@@ -903,6 +944,8 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 +		mid.add(new ASTMethod(this, methods[i]));
 +	}
 +	this.methods = (ASTMethod[])mid.toArray(new ASTMethod[mid.size()]);
++	
++	cache.put(name, this);
 +}
 +
 +public int hashCode() {
@@ -932,9 +975,12 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTClass.java
 +}
 +
 +public JNIClass getSuperclass() {
-+	if (superclass == null) return new ReflectClass(Object.class);
-+	String path = new File(sourcePath).getParent() + "/" + superclass + ".java";
-+	return new ASTClass(path, metaData);
++	if (superclassName == null) return new ReflectClass(Object.class);
++	if (superclass != null) return superclass;
++	ASTClass cached = (ASTClass)ASTClass.cache.get(getName());
++	if (cached != null) return cached;
++	String path = new File(sourcePath).getParent() + "/" + superclassName + ".java";
++	return superclass = new ASTClass(path, metaData);
 +}
 +
 +public String getSimpleName() {
@@ -970,7 +1016,7 @@ RCS file: JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
 diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
 --- /dev/null	1 Jan 1970 00:00:00 -0000
 +++ JNI Generation/org/eclipse/swt/tools/internal/ASTType.java	1 Jan 1970 00:00:00 -0000
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,150 @@
 +package org.eclipse.swt.tools.internal;
 +
 +import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -990,6 +1036,10 @@ diff -N JNI Generation/org/eclipse/swt/tools/internal/ASTType.java
 +
 +public JNIType getComponentType() {
 +	return new ASTType(type.getComponentType());
++}
++
++public String getName() {
++	return type.getQualifiedName();
 +}
 +
 +public String getSimpleName() {
