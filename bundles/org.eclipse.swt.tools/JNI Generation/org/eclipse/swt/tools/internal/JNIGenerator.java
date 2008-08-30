@@ -57,7 +57,7 @@ static String getFunctionName(JNIMethod method) {
 static String getFunctionName(JNIMethod method, JNIType[] paramTypes) {
 	if ((method.getModifiers() & Modifier.NATIVE) == 0) return method.getName();
 	String function = toC(method.getName());
-	if (!isNativeUnique(method)) {
+	if (!method.isNativeUnique()) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(function);
 		buffer.append("__");
@@ -68,38 +68,6 @@ static String getFunctionName(JNIMethod method, JNIType[] paramTypes) {
 		return buffer.toString();
 	}
 	return function;
-}
-
-static HashMap uniqueCache = new HashMap();
-static JNIClass uniqueClassCache;
-static JNIMethod[] uniqueMethodsCache;
-static synchronized boolean isNativeUnique(JNIMethod method) {
-	if ((method.getModifiers() & Modifier.NATIVE) == 0) return false;
-	Object unique = uniqueCache.get(method);
-	if (unique != null) return ((Boolean)unique).booleanValue();
-	boolean result = true;
-	JNIMethod[] methods;
-	String name = method.getName();
-	JNIClass clazz = method.getDeclaringClass();
-	if (clazz.equals(uniqueClassCache)) {
-		methods = uniqueMethodsCache;
-	} else {
-		methods = clazz.getDeclaredMethods();
-		uniqueClassCache = clazz;
-		uniqueMethodsCache = methods;
-	}
-	for (int i = 0; i < methods.length; i++) {
-		JNIMethod mth = methods[i];
-		if ((mth.getModifiers() & Modifier.NATIVE) != 0 &&
-			method != mth && !method.equals(mth) &&
-			name.equals(mth.getName()))
-			{
-				result = false;
-				break;
-			}
-	}
-	uniqueCache.put(method, new Boolean(result));
-	return result;
 }
 
 static String loadFile (String file) {

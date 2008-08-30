@@ -10,6 +10,8 @@ public JNIType getComponentType();
 
 public boolean isType(String type);
 
+public String getName();
+
 public String getSimpleName();
 
 public String getTypeSignature(boolean define);

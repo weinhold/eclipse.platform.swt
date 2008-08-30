@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="SWT Action Set"
+            visible="true"
+            id="org.eclipse.swt.tools.actionSet">
+         <menu
+               label="SWT &amp;Menu"
+               id="swtMenu">
+            <separator
+                  name="swtGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Sleak"
+               icon="icons/sample.gif"
+               class="org.eclipse.swt.tools.actions.SleakAction"
+               tooltip="SWT Sleak"
+               menubarPath="swtMenu/swtGroup"
+               toolbarPath="swtGroup"
+               id="org.eclipse.swt.tools.actions.SleakAction">
+         </action>
+         <action
+               label="&amp;Test"
+               icon="icons/sample.gif"
+               class="org.eclipse.swt.tools.actions.TestAction"
+               tooltip="SWT Test"
+               menubarPath="swtMenu/swtGroup"
+               toolbarPath="swtGroup"
+               id="org.eclipse.swt.tools.actions.TestAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>

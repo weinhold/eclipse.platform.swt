@@ -17,6 +17,10 @@ public JNIType getComponentType() {
 	return new ReflectType(clazz.getComponentType());
 }
 
+public String getName() {
+	return clazz.getName();
+}
+
 public String getSimpleName() {
 	String name = clazz.getName();
 	int index = name.lastIndexOf('.') + 1;

@@ -1,12 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
 import java.io.File;
 
-public class ReflectParameter extends ReflectItem implements JNIParameter {
-	ReflectMethod method;
+public class ASTParameter extends ReflectItem implements JNIParameter {
+	ASTMethod method;
 	int parameter;
 
-public ReflectParameter(ReflectMethod method, int parameter) {
+public ASTParameter(ASTMethod method, int parameter) {
 	this.method = method;
 	this.parameter = parameter;
 }
@@ -66,11 +76,12 @@ public JNIMethod getMethod() {
 }
 
 public JNIClass getTypeClass() {
-	ReflectType type = (ReflectType)getType();
-	ReflectClass declaringClass = method.declaringClass;
+	ASTType type = (ASTType)getType();
+	//TODO different package
+	ASTClass declaringClass = method.declaringClass;
 	String sourcePath  = declaringClass.sourcePath;
 	sourcePath = new File(sourcePath).getParent() + "/" + type.getSimpleName() + ".java";
-	return new ReflectClass(type.clazz, declaringClass.metaData, sourcePath);
+	return new ASTClass(sourcePath, declaringClass.metaData);
 }
 
 public JNIType getType() {

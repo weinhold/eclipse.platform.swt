@@ -26,6 +26,7 @@ public class ReflectMethod extends ReflectItem implements JNIMethod {
 	ReflectType returnType, returnType64;
 	ReflectType[] paramTypes, paramTypes64;
 	ReflectClass declaringClass;
+	Boolean unique;
 	
 public ReflectMethod(ReflectClass declaringClass, Method method, String source, CompilationUnit unit) {
 	this.method = method;
@@ -167,6 +168,25 @@ public String getName() {
 	return method.getName();
 }
 
+public boolean isNativeUnique() {
+	if (unique != null) return unique.booleanValue();
+	boolean result = true;
+	String name = getName();
+	JNIMethod[] methods = declaringClass.getDeclaredMethods();
+	for (int i = 0; i < methods.length; i++) {
+		JNIMethod mth = methods[i];
+		if ((mth.getModifiers() & Modifier.NATIVE) != 0 &&
+			this != mth && !this.equals(mth) &&
+			name.equals(mth.getName()))
+			{
+				result = false;
+				break;
+			}
+	}
+	unique = new Boolean(result);
+	return result;
+}
+
 public JNIType[] getParameterTypes() {
 	return paramTypes;
 }
@@ -252,7 +272,7 @@ public void setExclude(String str) {
 public void setMetaData(String value) {
 	String key;
 	String className = declaringClass.getSimpleName();
-	if (JNIGenerator.isNativeUnique(this)) {
+	if (isNativeUnique()) {
 		key = className + "_" + method.getName ();
 	} else {
 		key = className + "_" + JNIGenerator.getFunctionName(this);
