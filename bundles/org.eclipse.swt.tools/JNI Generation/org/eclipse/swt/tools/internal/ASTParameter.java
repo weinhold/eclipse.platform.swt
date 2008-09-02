@@ -15,6 +15,7 @@ import java.io.File;
 public class ASTParameter extends ReflectItem implements JNIParameter {
 	ASTMethod method;
 	int parameter;
+	String data;
 
 public ASTParameter(ASTMethod method, int parameter) {
 	this.method = method;
@@ -31,44 +32,8 @@ public String getCast() {
 }
 
 public String getMetaData() {
-	String className = method.getDeclaringClass().getSimpleName();
-	String key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
-	MetaData metaData = method.declaringClass.metaData;
-	String value = metaData.getMetaData(key, null);
-	if (value == null) {
-		key = className + "_" + method.getName() + "_" + parameter;
-		value = metaData.getMetaData(key, null);
-	}
-	/*
-	* Support for 64 bit port.
-	*/
-	if (value == null) {
-		JNIType[] paramTypes = method.getParameterTypes();
-		if (ReflectItem.convertTo32Bit(paramTypes, true)) {
-			key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
-			value = metaData.getMetaData(key, null);
-		}
-		if (value == null) {
-			paramTypes = method.getParameterTypes();
-			if (ReflectItem.convertTo32Bit(paramTypes, false)) {
-				key = className + "_" + JNIGenerator.getFunctionName(method, paramTypes) + "_" + parameter;
-				value = metaData.getMetaData(key, null);
-			}
-		}
-	}
-	/*
-	* Support for lock.
-	*/
-	if (value == null && method.getName().startsWith("_")) {
-		key = className + "_" + JNIGenerator.getFunctionName(method).substring(2) + "_" + parameter;
-		value = metaData.getMetaData(key, null);
-		if (value == null) {
-			key = className + "_" + method.getName().substring(1) + "_" + parameter;
-			value = metaData.getMetaData(key, null);
-		}
-	}
-	if (value == null) value = "";	
-	return value;
+	if (data != null) return data;
+	return "";
 }
 
 public JNIMethod getMethod() {
@@ -101,13 +66,6 @@ public void setCast(String str) {
 }
 
 public void setMetaData(String value) {
-	String key;
-	String className = method.getDeclaringClass().getSimpleName();
-	if (method.isNativeUnique()) {
-		key = className + "_" + method.getName () + "_" + parameter;
-	} else {
-		key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
-	}
-	method.declaringClass.metaData.setMetaData(key, value);
+	data = value;
 }
 }

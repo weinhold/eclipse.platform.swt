@@ -14,8 +14,6 @@ import java.io.*;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import org.eclipse.swt.SWT;
-
 public abstract class JNIGenerator implements Flags {
 
 	JNIClass mainClass;
@@ -83,7 +81,7 @@ static String loadFile (String file) {
 		fr.close();
 		return str.toString();
 	} catch (IOException e) {
-		e.printStackTrace(System.out);
+//		e.printStackTrace(System.out);
 	}
 	return "";
 }
@@ -215,10 +213,6 @@ public JNIClass getMainClass() {
 
 public MetaData getMetaData() {
 	return metaData;
-}
-
-public String getPlatform() {
-	return SWT.getPlatform();
 }
 
 public ProgressMonitor getProgressMonitor() {

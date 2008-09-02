@@ -14,8 +14,10 @@ import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TagElement;
 
 public class ASTMethod extends ReflectItem implements JNIMethod {
 	String name, qualifiedName;
@@ -23,7 +25,9 @@ public class ASTMethod extends ReflectItem implements JNIMethod {
 	ASTClass declaringClass;
 	ASTType[] paramTypes, paramTypes64;
 	ASTType returnType, returnType64;
+	ASTParameter[] params;
 	Boolean unique;
+	String data;
 	
 public ASTMethod(ASTClass declaringClass, String source, String packageName, MethodDeclaration method) {
 	this.declaringClass = declaringClass;
@@ -31,6 +35,19 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 	name = method.getName().getIdentifier();
 	modifiers = method.getModifiers();
 	
+	Javadoc doc = method.getJavadoc();
+	List tags = null;
+	if (doc != null) {
+		tags = doc.tags();
+		for (Iterator iterator = tags.iterator(); iterator.hasNext();) {
+			TagElement tag = (TagElement) iterator.next();
+			if ("@method".equals(tag.getTagName())) {
+				String data = tag.fragments().get(0).toString();
+				setMetaData(data);
+				break;
+			}
+		}
+	}
 	returnType = new ASTType(packageName, method.getReturnType2(), method.getExtraDimensions());
 	returnType64 = returnType;
 	if (GEN64) {
@@ -48,11 +65,13 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 	List parameters = method.parameters();
 	paramTypes = new ASTType[parameters.size()];
 	paramTypes64 = new ASTType[parameters.size()];
+	params = new ASTParameter[paramTypes.length];
 	int i = 0;
 	for (Iterator iterator = parameters.iterator(); iterator.hasNext(); i++) {
 		SingleVariableDeclaration param = (SingleVariableDeclaration) iterator.next();
 		paramTypes[i] = new ASTType(packageName, param.getType(), param.getExtraDimensions());
 		paramTypes64[i] = paramTypes[i];
+		params[i] = new ASTParameter(this, i);
 		if (GEN64) {
 			String s = source.substring(param.getStartPosition(), param.getStartPosition() + param.getLength());
 			if (paramTypes[i].isType("int") && s.indexOf("int /*long*/") != -1) paramTypes64[i] = new ASTType("J");
@@ -63,6 +82,19 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 			else if (paramTypes[i].isType("double") && s.indexOf("double /*float*/") != -1) paramTypes[i] = new ASTType("F");
 			else if (paramTypes[i].isType("[J") && (s.indexOf("long /*int*/") != -1|| s.indexOf("long[] /*int[]*/") != -1)) paramTypes[i] = new ASTType("[I");
 			else if (paramTypes[i].isType("[D") && (s.indexOf("double /*float*/") != -1|| s.indexOf("double[] /*float[]*/") != -1)) paramTypes[i] = new ASTType("[F");
+		}
+		if (tags != null) {
+			String name = param.getName().getIdentifier();
+			for (Iterator iterator1 = tags.iterator(); iterator1.hasNext();) {
+				TagElement tag = (TagElement) iterator1.next();
+				if ("@param".equals(tag.getTagName())) {
+					List fragments = tag.fragments();
+					if (name.equals(fragments.get(0).toString())) {
+						String data = fragments.get(1).toString();
+						params[i].setMetaData(data);
+					}
+				}
+			}
 		}
 	}
 }
@@ -107,12 +139,7 @@ public JNIType[] getParameterTypes64() {
 }
 
 public JNIParameter[] getParameters() {
-	JNIType[] paramTypes = getParameterTypes();
-	ASTParameter[] result = new ASTParameter[paramTypes.length];
-	for (int i = 0; i < paramTypes.length; i++) {
-		result[i] = new ASTParameter(this, i);
-	}
-	return result;
+	return params;
 }
 
 public JNIType getReturnType() {
@@ -132,44 +159,8 @@ public String getExclude() {
 }
 
 public String getMetaData() {
-	String className = getDeclaringClass().getSimpleName();
-	String key = className + "_" + JNIGenerator.getFunctionName(this);
-	MetaData metaData = declaringClass.metaData;
-	String value = metaData.getMetaData(key, null);
-	if (value == null) {
-		key = className + "_" + getName();
-		value = metaData.getMetaData(key, null);
-	}
-	/*
-	* Support for 64 bit port.
-	*/
-	if (value == null) {
-		JNIType[] paramTypes = getParameterTypes();
-		if (convertTo32Bit(paramTypes, true)) {
-			key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
-			value = metaData.getMetaData(key, null);
-		}
-		if (value == null) {
-			paramTypes = getParameterTypes();
-			if (convertTo32Bit(paramTypes, false)) {
-				key = className + "_" + JNIGenerator.getFunctionName(this, paramTypes);
-				value = metaData.getMetaData(key, null);
-			}
-		}
-	}
-	/*
-	* Support for lock.
-	*/
-	if (value == null && getName().startsWith("_")) {
-		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
-		value = metaData.getMetaData(key, null);
-		if (value == null) {
-			key = className + "_" + getName().substring(1);
-			value = metaData.getMetaData(key, null);
-		}
-	}
-	if (value == null) value = "";	
-	return value;
+	if (data != null) return data;
+	return "";
 }
 
 public void setAccessor(String str) { 
@@ -181,14 +172,7 @@ public void setExclude(String str) {
 }
 
 public void setMetaData(String value) {
-	String key;
-	String className = declaringClass.getSimpleName();
-	if (isNativeUnique()) {
-		key = className + "_" + getName ();
-	} else {
-		key = className + "_" + JNIGenerator.getFunctionName(this);
-	}
-	declaringClass.metaData.setMetaData(key, value);
+	data = value;
 }
 
 public String toString() {

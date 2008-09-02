@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ASTField extends ReflectItem implements JNIField {
@@ -18,11 +23,26 @@ public class ASTField extends ReflectItem implements JNIField {
 	String name;
 	int modifiers;
 	ASTType type, type64;
+	String data;
 	
 public ASTField(ASTClass declaringClass, String source, String packageName, FieldDeclaration field, VariableDeclarationFragment fragment) {
 	this.declaringClass = declaringClass;	
 	name = fragment.getName().getIdentifier();
 	modifiers = field.getModifiers();
+	
+	Javadoc doc = field.getJavadoc();
+	List tags = null;
+	if (doc != null) {
+		tags = doc.tags();
+		for (Iterator iterator = tags.iterator(); iterator.hasNext();) {
+			TagElement tag = (TagElement) iterator.next();
+			if ("@field".equals(tag.getTagName())) {
+				String data = tag.fragments().get(0).toString();
+				setMetaData(data);
+				break;
+			}
+		}
+	}
 	type = new ASTType(packageName, field.getType(), fragment.getExtraDimensions());
 	type64 =  this.type;
 	if (GEN64) {
@@ -86,9 +106,8 @@ public String getExclude() {
 }
 
 public String getMetaData() {
-	String className = getDeclaringClass().getSimpleName();
-	String key = className + "_" + getName();
-	return declaringClass.metaData.getMetaData(key, "");
+	if (data != null) return data;
+	return "";
 }
 
 public void setAccessor(String str) { 
@@ -104,9 +123,7 @@ public void setExclude(String str) {
 }
 
 public void setMetaData(String value) {
-	String className = declaringClass.getSimpleName();
-	String key = className + "_" + getName();
-	declaringClass.metaData.setMetaData(key, value);
+	data = value;
 }
 
 public String toString() {

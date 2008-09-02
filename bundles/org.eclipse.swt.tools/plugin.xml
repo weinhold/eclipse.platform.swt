@@ -24,16 +24,22 @@
                toolbarPath="swtGroup"
                id="org.eclipse.swt.tools.actions.SleakAction">
          </action>
-         <action
-               label="&amp;Test"
-               icon="icons/sample.gif"
-               class="org.eclipse.swt.tools.actions.TestAction"
-               tooltip="SWT Test"
-               menubarPath="swtMenu/swtGroup"
-               toolbarPath="swtGroup"
-               id="org.eclipse.swt.tools.actions.TestAction">
-         </action>
       </actionSet>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="SWT Tools"
+            id="org.eclipse.swt.swt.tools">
+      </category>
+      <view
+            name="Mac Generator View"
+            icon="icons/sample.gif"
+            category="org.eclipse.swt.swt.tools"
+            class="org.eclipse.swt.tools.views.MacGeneratorView"
+            id="org.eclipse.swt.tools.views.MacGeneratorView">
+      </view>
    </extension>
 
 </plugin>

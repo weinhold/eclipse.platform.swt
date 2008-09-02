@@ -470,116 +470,32 @@ void generateDynamicFunctionCall(JNIMethod method, JNIParameter[] params, JNITyp
 
 	String name = method.getName();
 	if (name.startsWith("_")) name = name.substring(1);
-	if (getPlatform().equals("win32")) {
-		outputln("\t\tstatic int initialized = 0;");
-		outputln("\t\tstatic HMODULE hm = NULL;");
-		outputln("\t\tstatic FARPROC fp = NULL;");
-		if (!returnType.isType("void")) {
-			if (needsReturn) {
-				outputln("\t\trc = 0;");
-			}
+	output("\t\tLOAD_FUNCTION(fp, ");
+	output(name);
+	outputln(")");
+	outputln("\t\tif (fp) {");
+	output("\t\t");
+	generateFunctionCallLeftSide(method, returnType, returnType64, needsReturn);
+	output("((");
+	output(returnType.getTypeSignature2(!returnType.equals(returnType64)));
+	output(" (*)(");
+	for (int i = 0; i < params.length; i++) {
+		if (i != 0) output(", ");
+		JNIParameter param = params[i];
+		String cast = param.getCast();
+		if (cast.length() > 2) {
+			output(cast.substring(1, cast.length() - 1));
+		} else {
+			JNIType paramType = param.getType(), paramType64 = param.getType64();
+			output(paramType.getTypeSignature4(!paramType.equals(paramType64), param.getFlag(FLAG_STRUCT)));
 		}
-		outputln("\t\tif (!initialized) {");
-		output("\t\t\tif (!hm) hm = LoadLibrary(");
-		output(name);
-		outputln("_LIB);");
-		output("\t\t\tif (hm) fp = GetProcAddress(hm, \"");
-		output(name);
-		outputln("\");");
-		outputln("\t\t\tinitialized = 1;");
-		outputln("\t\t}");
-		outputln("\t\tif (fp) {");
-		output("\t\t");
-		generateFunctionCallLeftSide(method, returnType, returnType64, needsReturn);
-		output("fp");
-		generateFunctionCallRightSide(method, params, 0);
-		output(";");
-		outputln();
-		outputln("\t\t}");
-	} else if (getPlatform().equals("carbon") || getPlatform().equals("cocoa")) {
-		outputln("\t\tstatic int initialized = 0;");
-		outputln("\t\tstatic CFBundleRef bundle = NULL;");
-		output("\t\ttypedef ");
-		output(returnType.getTypeSignature2(!returnType.equals(returnType64)));
-		output(" (*FPTR)(");
-		for (int i = 0; i < params.length; i++) {
-			if (i != 0) output(", ");
-			JNIParameter param = params[i];
-			String cast = param.getCast();
-			if (cast.length() > 2) {
-				output(cast.substring(1, cast.length() - 1));
-			} else {
-				JNIType paramType = param.getType(), paramType64 = param.getType64();
-				output(paramType.getTypeSignature4(!paramType.equals(paramType64), param.getFlag(FLAG_STRUCT)));
-			}
-		}
-		outputln(");");
-		outputln("\t\tstatic FPTR fptr;");
-		if (!returnType.isType("void")) {
-			if (needsReturn) {
-				outputln("\t\trc = 0;");
-			}
-		}
-		outputln("\t\tif (!initialized) {");
-		output("\t\t\tif (!bundle) bundle = CFBundleGetBundleWithIdentifier(CFSTR(");
-		output(name);
-		outputln("_LIB));");
-		output("\t\t\tif (bundle) fptr = (FPTR)CFBundleGetFunctionPointerForName(bundle, CFSTR(\"");
-		output(name);
-		outputln("\"));");
-		outputln("\t\t\tinitialized = 1;");
-		outputln("\t\t}");
-		outputln("\t\tif (fptr) {");
-		output("\t\t");
-		generateFunctionCallLeftSide(method, returnType, returnType64, needsReturn);
-		output("(*fptr)");
-		generateFunctionCallRightSide(method, params, 0);
-		output(";");
-		outputln();
-		outputln("\t\t}");
-	} else {
-		outputln("\t\tstatic int initialized = 0;");
-		outputln("\t\tstatic void *handle = NULL;");
-		output("\t\ttypedef ");
-		output(returnType.getTypeSignature2(!returnType.equals(returnType64)));
-		output(" (*FPTR)(");
-		for (int i = 0; i < params.length; i++) {
-			if (i != 0) output(", ");
-			JNIParameter param = params[i];
-			String cast = param.getCast();
-			if (cast.length() > 2) {
-				output(cast.substring(1, cast.length() - 1));
-			} else {
-				JNIType paramType = param.getType(), paramType64 = param.getType64();
-				output(paramType.getTypeSignature4(!paramType.equals(paramType64), param.getFlag(FLAG_STRUCT)));
-			}
-		}
-		outputln(");");
-		outputln("\t\tstatic FPTR fptr;");
-		if (!returnType.isType("void")) {
-			if (needsReturn) {
-				outputln("\t\trc = 0;");
-			}
-		}
-		outputln("\t\tif (!initialized) {");
-		output("\t\t\tif (!handle) handle = dlopen(");
-		output(name);
-		outputln("_LIB, RTLD_LAZY);");
-		output("\t\t\tif (handle) fptr = (FPTR)dlsym(handle, \"");
-		output(name);
-		outputln("\");");
-		outputln("\t\t\tinitialized = 1;");
-		outputln("\t\t}");
-		outputln("\t\tif (fptr) {");
-		output("\t\t");
-		generateFunctionCallLeftSide(method, returnType, returnType64, needsReturn);
-		output("(*fptr)");
-		generateFunctionCallRightSide(method, params, 0);
-		output(";");
-		outputln();
-		outputln("\t\t}");
 	}
-
+	output("))");
+	output("fp)");
+	generateFunctionCallRightSide(method, params, 0);
+	output(";");
+	outputln();
+	outputln("\t\t}");
 	outputln("\t}");
 }
 

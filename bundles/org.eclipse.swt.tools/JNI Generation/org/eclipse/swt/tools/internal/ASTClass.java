@@ -10,24 +10,18 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -39,13 +33,13 @@ public class ASTClass extends ReflectItem implements JNIClass {
 	ASTField[] fields;
 	ASTMethod[] methods;
 	String name, simpleName, superclassName;
+	String data;
 
-public ASTClass(String sourcePath, MetaData data) {
+public ASTClass(String sourcePath, MetaData metaData) {
 	this.sourcePath = sourcePath;
-	this.metaData = data;
+	this.metaData = metaData;
 	
-	IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(sourcePath));
-	String source = getResourceContent(resource);
+	String source = JNIGenerator.loadFile(sourcePath);
 	ASTParser parser = ASTParser.newParser(AST.JLS3);
 	parser.setSource(source.toCharArray());
 	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
@@ -54,6 +48,20 @@ public ASTClass(String sourcePath, MetaData data) {
 	String packageName = unit.getPackage().getName().getFullyQualifiedName();
 	name = packageName + "." + simpleName;
 	superclassName = type.getSuperclassType() != null ? type.getSuperclassType().toString() : null;
+	
+	Javadoc doc = type.getJavadoc();
+	List tags = null;
+	if (doc != null) {
+		tags = doc.tags();
+		for (Iterator iterator = tags.iterator(); iterator.hasNext();) {
+			TagElement tag = (TagElement) iterator.next();
+			if ("@jniclass".equals(tag.getTagName())) {
+				String data = tag.fragments().get(0).toString();
+				setMetaData(data);
+				break;
+			}
+		}
+	}
 
 	FieldDeclaration[] fields = type.getFields();
 	ArrayList fid = new ArrayList();
@@ -73,26 +81,6 @@ public ASTClass(String sourcePath, MetaData data) {
 		mid.add(new ASTMethod(this, source, packageName, methods[i]));
 	}
 	this.methods = (ASTMethod[])mid.toArray(new ASTMethod[mid.size()]);
-}
-
-
-private static String getResourceContent(IResource resource) {
-	try {
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		InputStream is = ((IFile)resource).getContents();
-		byte[] buffer = new byte[4096];
-		int read = -1;
-		while ((read = is.read(buffer)) != -1) {
-			bs.write(buffer, 0, read);
-		}
-		is.close();
-		return new String(bs.toByteArray());
-	} catch (IOException e) {
-		e.printStackTrace();
-	} catch (CoreException e) {
-		e.printStackTrace();
-	}
-	return null;
 }
 
 public int hashCode() {
@@ -138,8 +126,8 @@ public String getExclude() {
 }
 
 public String getMetaData() {
-	String key = JNIGenerator.toC(getName());
-	return metaData.getMetaData(key, "");
+	if (data != null) return data;
+	return "";
 }
 
 public void setExclude(String str) { 
@@ -147,8 +135,7 @@ public void setExclude(String str) {
 }
 
 public void setMetaData(String value) {
-	String key = JNIGenerator.toC(getName());
-	metaData.setMetaData(key, value);
+	data = value;
 }
 
 public String toString() {
