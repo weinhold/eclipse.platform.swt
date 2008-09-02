@@ -26,6 +26,7 @@ public class JNIGeneratorApp {
 	ProgressMonitor progress;
 	String mainClassName, outputDir, classpath;
 	MetaData metaData;
+	boolean generateMetaData = true;
 
 public JNIGeneratorApp() {
 }
@@ -205,7 +206,7 @@ public void generate(ProgressMonitor progress) {
 		}
 		int total = nativeCount * 4;
 		total += classes.length;
-		total += natives.length * 3;
+		total += natives.length * (generateMetaData ? 3 : 2);
 		total += structs.length * 2;
 		progress.setTotal(total);
 		progress.setMessage("Generating structs.h ...");
@@ -219,8 +220,10 @@ public void generate(ProgressMonitor progress) {
 	generateSTATS_H(natives);
 	if (progress != null) progress.setMessage("Generating stats.c ...");
 	generateSTATS_C(natives);
-	if (progress != null) progress.setMessage("Generating meta data ...");
-	generateMetaData(classes);
+	if (generateMetaData) {
+		if (progress != null) progress.setMessage("Generating meta data ...");
+		generateMetaData(classes);
+	}
 	if (progress != null) progress.setMessage("Done.");
 	this.progress = null;
 }
@@ -383,6 +386,10 @@ public JNIClass[] getStructureClasses(JNIClass[] classes) {
 
 public void setClasspath(String classpath) {
 	this.classpath = classpath;
+}
+
+public void setGenerateMetaData(boolean generateMetaData) {
+	this.generateMetaData = generateMetaData;
 }
 
 public void setMainClass(JNIClass mainClass) {
