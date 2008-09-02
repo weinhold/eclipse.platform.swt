@@ -572,7 +572,8 @@ public class MacGeneratorUI {
 		try {
 			Display display = new Display();
 			Shell shell = new Shell(display);
-			MacGenerator gen = new MacGenerator(args);
+			MacGenerator gen = new MacGenerator();
+			gen.setXmls(args);
 			gen.setOutputDir("../org.eclipse.swt/Eclipse SWT PI/cocoa/");
 			gen.setMainClass("org.eclipse.swt.internal.cocoa.OS");
 			MacGeneratorUI ui = new MacGeneratorUI(gen);

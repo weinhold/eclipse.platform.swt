@@ -66,7 +66,8 @@ public class MacGeneratorView extends ViewPart {
 			"FoundationFull.bridgesupport",
 			"WebKitFull.bridgesupport",
 		};
-		MacGenerator gen = new MacGenerator(xmls);
+		MacGenerator gen = new MacGenerator();
+		gen.setXmls(xmls);
 		gen.setOutputDir(root.getLocation().toPortableString());
 		gen.setMainClass("org.eclipse.swt.internal.cocoa.OS");
 		ui = new MacGeneratorUI(gen);

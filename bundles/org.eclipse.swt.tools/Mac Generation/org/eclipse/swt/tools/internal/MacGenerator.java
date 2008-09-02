@@ -25,25 +25,7 @@ public class MacGenerator {
 
 	PrintStream out;
 	
-public MacGenerator(String[] xmlPaths) {
-	this.xmls = xmlPaths;
-	if (xmls == null || xmls.length == 0) {
-		ArrayList array = new ArrayList();
-		list(new File("/System/Library/Frameworks"), array);
-		list(new File("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks"), array);
-		Collections.sort(array);
-		xmls = (String[])array.toArray(new String[array.size()]);
-	}
-	documents = new Document[xmls.length];
-	for (int i = 0; i < xmls.length; i++) {
-		String xmlPath = xmls[i];
-		Document document = documents[i] = getDocument(xmlPath);
-		if (document == null) continue;
-		String extrasPath = getFileName(xmlPath) + ".extras";
-		File file = new File(getExtraAttributesDir());
-		if (file.exists()) extrasPath = new File(file, extrasPath).getAbsolutePath();
-		merge(document, getDocument(extrasPath));
-	}
+public MacGenerator() {
 }
 
 static void list(File path, ArrayList list) {
@@ -491,6 +473,7 @@ void generateClasses() {
 }
 
 void generateExtraAttributes() {
+	Document[] documents = getDocuments();
 	for (int x = 0; x < xmls.length; x++) {
 		Document document = documents[x];
 		if (document == null || !getGen(document.getDocumentElement())) continue;
@@ -572,6 +555,26 @@ void generateMainClass() {
 }
 
 public Document[] getDocuments() {
+	if (documents == null) {
+		if (xmls == null || xmls.length == 0) {
+			ArrayList array = new ArrayList();
+			list(new File("/System/Library/Frameworks"), array);
+			list(new File("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks"), array);
+			Collections.sort(array);
+			xmls = (String[])array.toArray(new String[array.size()]);
+		}
+		documents = new Document[xmls.length];
+		for (int i = 0; i < xmls.length; i++) {
+			String xmlPath = xmls[i];
+			Document document = documents[i] = getDocument(xmlPath);
+			if (document == null) continue;
+			if (mainClassName != null && outputDir != null) {
+				String packageName = getPackageName(mainClassName);
+				String extrasPath = outputDir + packageName.replace('.', '/') + "/" + getFileName(xmlPath) + ".extras";
+				merge(document, getDocument(extrasPath));
+			}
+		}
+	}
 	return documents;
 }
 
@@ -581,7 +584,8 @@ public String[] getXmls() {
 
 void saveExtraAttributes(String xmlPath, Document document) {
 	try {
-		String fileName = getExtraAttributesDir() + getFileName(xmlPath) + ".extras";
+		String packageName = getPackageName(mainClassName);
+		String fileName = outputDir + packageName.replace('.', '/') + "/" + getFileName(xmlPath) + ".extras";
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		DOMWriter writer = new DOMWriter(new PrintStream(out), false);
 		String[] names = getIDAttributeNames();
@@ -605,6 +609,10 @@ public void setOutputDir(String dir) {
 		}
 	}
 	this.outputDir = dir;
+}
+
+public void setXmls(String[] xmls) {
+	this.xmls = xmls;
 }
 
 public void setMainClass(String mainClassName) {
@@ -834,10 +842,6 @@ boolean isBoolean(Node node) {
 	NamedNodeMap attributes = node.getAttributes();
 	String code = attributes.getNamedItem("type").getNodeValue();
 	return code.equals("B");
-}
-
-String getExtraAttributesDir() {
-	return "./Mac Generation/org/eclipse/swt/tools/internal/";
 }
 
 void buildLookup(Node node, HashMap table) {
@@ -1469,7 +1473,8 @@ public static void main(String[] args) {
 //		"./Mac Generation/org/eclipse/swt/tools/internal/WebKitFull.bridgesupport",
 //	};
 	try {
-		MacGenerator gen = new MacGenerator(args);
+		MacGenerator gen = new MacGenerator();
+		gen.setXmls(args);
 		gen.setOutputDir("../org.eclipse.swt/Eclipse SWT PI/cocoa/");
 		gen.setMainClass("org.eclipse.swt.internal.cocoa.OS");
 		gen.generateAll();
