@@ -37,11 +37,14 @@ public ReflectClass(Class clazz, MetaData data, String sourcePath) {
 
 void checkMembers() {
 	if (fields != null) return;
-//	long time = System.currentTimeMillis();
-	String source = JNIGenerator.loadFile(sourcePath);
-	ASTParser parser = ASTParser.newParser(AST.JLS3);
-	parser.setSource(source.toCharArray());
-	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
+	String source = null;
+	CompilationUnit unit = null;
+	if (JNIItem.GEN64) {
+		source = JNIGenerator.loadFile(sourcePath);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(source.toCharArray());
+		unit = (CompilationUnit)parser.createAST(null);
+	}
 	Field[] fields = clazz.getDeclaredFields();
 	this.fields = new ReflectField[fields.length];
 	for (int i = 0; i < fields.length; i++) {
@@ -52,10 +55,6 @@ void checkMembers() {
 	for (int i = 0; i < methods.length; i++) {
 		this.methods[i] = new ReflectMethod(this, methods[i], source, unit);
 	}
-//	if (System.currentTimeMillis() - time > 100) {
-//		Thread.dumpStack();
-//		System.err.println("time=" + (System.currentTimeMillis() - time) + " " +clazz.getName());
-//	}
 }
 
 public int hashCode() {
