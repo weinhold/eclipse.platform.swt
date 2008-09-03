@@ -1385,13 +1385,17 @@ void generateFunctions() {
 							NamedNodeMap paramAttributes = param.getAttributes();
 							out(" * @param ");
 							out(paramAttributes.getNamedItem("name").getNodeValue());
-							out(" cast=");
-							Node declaredType = paramAttributes.getNamedItem("declared_type");
-							String cast = declaredType.getNodeValue();
-							if (!cast.startsWith("(")) out("(");
-							out(cast);
-							if (!cast.endsWith(")")) out(")");
-							outln();
+							if (isStruct(param)) {
+								out(" flags=struct");
+							} else {
+								out(" cast=");
+								Node declaredType = paramAttributes.getNamedItem("declared_type");
+								String cast = declaredType.getNodeValue();
+								if (!cast.startsWith("(")) out("(");
+								out(cast);
+								if (!cast.endsWith(")")) out(")");
+								outln();
+							}
 						}
 					}
 					if (count > 0) {
