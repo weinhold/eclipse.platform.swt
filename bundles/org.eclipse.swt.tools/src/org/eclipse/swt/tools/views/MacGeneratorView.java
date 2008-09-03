@@ -61,11 +61,11 @@ public class MacGeneratorView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		String[] xmls = null;
-		xmls = new String[]{
-			"AppKitFull.bridgesupport",
-			"FoundationFull.bridgesupport",
-			"WebKitFull.bridgesupport",
-		};
+//		xmls = new String[]{
+//			"AppKitFull.bridgesupport",
+//			"FoundationFull.bridgesupport",
+//			"WebKitFull.bridgesupport",
+//		};
 		MacGenerator gen = new MacGenerator();
 		gen.setXmls(xmls);
 		gen.setOutputDir(root.getLocation().toPortableString());

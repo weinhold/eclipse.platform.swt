@@ -556,13 +556,7 @@ void generateMainClass() {
 
 public Document[] getDocuments() {
 	if (documents == null) {
-		if (xmls == null || xmls.length == 0) {
-			ArrayList array = new ArrayList();
-			list(new File("/System/Library/Frameworks"), array);
-			list(new File("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks"), array);
-			Collections.sort(array);
-			xmls = (String[])array.toArray(new String[array.size()]);
-		}
+		String[] xmls = getXmls();
 		documents = new Document[xmls.length];
 		for (int i = 0; i < xmls.length; i++) {
 			String xmlPath = xmls[i];
@@ -579,6 +573,13 @@ public Document[] getDocuments() {
 }
 
 public String[] getXmls() {
+	if (xmls == null || xmls.length == 0) {
+		ArrayList array = new ArrayList();
+		list(new File("/System/Library/Frameworks"), array);
+		list(new File("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks"), array);
+		Collections.sort(array);
+		xmls = (String[])array.toArray(new String[array.size()]);
+	}
 	return xmls;
 }
 
