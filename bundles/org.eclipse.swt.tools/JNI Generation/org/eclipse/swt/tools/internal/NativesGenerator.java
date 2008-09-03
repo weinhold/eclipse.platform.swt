@@ -478,7 +478,7 @@ void generateDynamicFunctionCall(JNIMethod method, JNIParameter[] params, JNITyp
 	generateFunctionCallLeftSide(method, returnType, returnType64, needsReturn);
 	output("((");
 	output(returnType.getTypeSignature2(!returnType.equals(returnType64)));
-	output(" (*)(");
+	output(" (CALLING_CONVENTION*)(");
 	for (int i = 0; i < params.length; i++) {
 		if (i != 0) output(", ");
 		JNIParameter param = params[i];
@@ -491,7 +491,8 @@ void generateDynamicFunctionCall(JNIMethod method, JNIParameter[] params, JNITyp
 		}
 	}
 	output("))");
-	output("fp)");
+	output("fp");
+	output(")");
 	generateFunctionCallRightSide(method, params, 0);
 	output(";");
 	outputln();
