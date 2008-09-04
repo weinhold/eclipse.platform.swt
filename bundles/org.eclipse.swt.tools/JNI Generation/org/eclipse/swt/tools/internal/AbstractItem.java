@@ -1,13 +1,23 @@
 package org.eclipse.swt.tools.internal;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public abstract class AbstractItem implements JNIItem {
 
+	HashMap params;
+
 static String[] split(String str, String separator) {
 	return JNIGenerator.split(str, separator);
 }
+
+void checkParams() {
+	if (params != null) return;
+	parse(getMetaData());
+}
+
+public abstract String flatten();
 
 public String[] getFlags() {
 	Object flags = getParam("flags");
@@ -26,7 +36,13 @@ public boolean getFlag(String flag) {
 	return false;
 }
 
-public abstract Object getParam(String key);
+public abstract String getMetaData();
+
+public Object getParam(String key) {
+	checkParams();
+	Object value = params.get(key);
+	return value == null ? "" : value;
+}
 
 public boolean getGenerate() {
 	return !getFlag(FLAG_NO_GEN);
@@ -35,6 +51,8 @@ public boolean getGenerate() {
 public void setFlags(String[] flags) { 
 	setParam("flags", flags);
 }
+
+public abstract void parse(String str);
 
 public void setFlag(String flag, boolean value) {
 	String[] flags = getFlags();
@@ -51,6 +69,12 @@ public void setGenerate(boolean value) {
 	setFlag(FLAG_NO_GEN, !value);
 }
 
-public abstract void setParam(String key, Object value);
+public abstract void setMetaData(String value);
+
+public void setParam(String key, Object value) {
+	checkParams();
+	params.put(key, value);
+	setMetaData(flatten());
+}
 	
 }

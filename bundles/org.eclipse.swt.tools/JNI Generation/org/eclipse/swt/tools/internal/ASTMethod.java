@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 
-public class ASTMethod extends ReflectItem implements JNIMethod {
+public class ASTMethod extends ASTItem implements JNIMethod {
 	String name, qualifiedName;
 	int modifiers;
 	ASTClass declaringClass;

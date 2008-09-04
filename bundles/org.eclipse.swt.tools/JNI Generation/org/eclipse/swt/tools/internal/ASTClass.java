@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class ASTClass extends ReflectItem implements JNIClass {
+public class ASTClass extends ASTItem implements JNIClass {
 	String sourcePath;
 	MetaData metaData;
 

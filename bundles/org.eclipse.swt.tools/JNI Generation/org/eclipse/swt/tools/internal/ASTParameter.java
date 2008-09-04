@@ -12,7 +12,7 @@ package org.eclipse.swt.tools.internal;
 
 import java.io.File;
 
-public class ASTParameter extends ReflectItem implements JNIParameter {
+public class ASTParameter extends ASTItem implements JNIParameter {
 	ASTMethod method;
 	int parameter;
 	String data;

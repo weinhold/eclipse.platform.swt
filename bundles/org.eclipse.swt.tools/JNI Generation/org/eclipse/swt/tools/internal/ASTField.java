@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-public class ASTField extends ReflectItem implements JNIField {
+public class ASTField extends ASTItem implements JNIField {
 	ASTClass declaringClass;
 	String name;
 	int modifiers;
