@@ -17,4 +17,10 @@
       </view>
    </extension>
 
+   <extension point="org.eclipse.ui.editors.templates">
+      <include
+            file="templates/jnitemplates.xml"
+            translations="$nl$/templates/jnitemplates.properties">
+      </include>
+   </extension>
 </plugin>
