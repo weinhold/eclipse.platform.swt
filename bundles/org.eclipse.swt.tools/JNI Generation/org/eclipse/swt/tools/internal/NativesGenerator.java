@@ -679,6 +679,11 @@ void generateFunctionCall(JNIMethod method, JNIParameter[] params, JNIType retur
 					output(cast);
 				} else {
 					JNIType paramType = param.getType(), paramType64 = param.getType64();
+					if (!(paramType.isPrimitive() || paramType.isArray())) {
+						if (param.getTypeClass().getFlag(FLAG_STRUCT)) {
+							output("struct ");
+						}
+					}
 					output(paramType.getTypeSignature4(!paramType.equals(paramType64), param.getFlag(FLAG_STRUCT)));
 				}
 			}
