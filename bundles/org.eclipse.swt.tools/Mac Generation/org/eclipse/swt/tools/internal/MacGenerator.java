@@ -963,9 +963,9 @@ void generateStructNatives() {
 		String struct = (String) iterator.next();
 		out("/**");
 		outln();
-		out(" * @param dest cast=(void *)");
+		out(" * @param dest cast=(void *),flags=no_in critical");
 		outln();
-		out(" * @param src cast=(void *)");
+		out(" * @param src cast=(void *),flags=no_out critical");
 		outln();
 		out(" */");
 		outln();
@@ -976,9 +976,9 @@ void generateStructNatives() {
 		outln();
 		out("/**");
 		outln();
-		out(" * @param dest cast=(void *)");
+		out(" * @param dest cast=(void *),flags=no_in critical");
 		outln();
-		out(" * @param src cast=(void *)");
+		out(" * @param src cast=(void *),flags=no_out critical");
 		outln();
 		out(" */");
 		outln();
