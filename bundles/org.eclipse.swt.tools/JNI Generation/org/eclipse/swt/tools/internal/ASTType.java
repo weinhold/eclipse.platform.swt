@@ -14,17 +14,23 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Type;
 
 public class ASTType implements JNIType {
+	
+	static interface TypeResolver {
+		public String findPath(String simpleName);
+		public String resolve(String simpleName);
+	}	
+	
 	String name;
 
 public ASTType(String name) {
 	this.name = name;
 }
 
-public ASTType(String packageName, Type type, int extraDimensions) {
-	name = from(packageName, type, extraDimensions);
+public ASTType(TypeResolver resolver, Type type, int extraDimensions) {
+	name = from(resolver, type, extraDimensions);
 }
 
-String from(String packageName, Type type, int extraDimensions) {
+String from(TypeResolver resolver, Type type, int extraDimensions) {
 	String name = "";
 	String str = type.toString();
 	if (type.isPrimitiveType()) {
@@ -39,7 +45,7 @@ String from(String packageName, Type type, int extraDimensions) {
 		else if (str.equals("double")) name = "D";
 	} else if (type.isArrayType()) {
 		ArrayType arrayType = (ArrayType)type;
-		name = from(packageName, arrayType.getElementType(), arrayType.getDimensions());
+		name = from(resolver, arrayType.getElementType(), arrayType.getDimensions());
 	} else if (str.indexOf('.') != -1) {
 		name = "L" + type.toString().replace('.', '/') + ";";
 	} else if (str.equals("String")){
@@ -49,10 +55,8 @@ String from(String packageName, Type type, int extraDimensions) {
 	} else if (str.equals("Object")){
 		name = "Ljava/lang/Object;";
 	} else {
-		name = "L" + packageName.replace('.', '/') + "/" + str + ";";
-	}
-	if (name.equals("L")) {
-		System.out.println("BAD");
+		String qualifiedName = resolver != null  ? resolver.resolve(str) : str;
+		name = "L" + qualifiedName.replace('.', '/') + ";";
 	}
 	for (int i = 0; i < extraDimensions; i++) {
 		name = "[" + name;

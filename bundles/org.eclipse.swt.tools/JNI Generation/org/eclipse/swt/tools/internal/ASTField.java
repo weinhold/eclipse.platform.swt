@@ -25,7 +25,7 @@ public class ASTField extends ASTItem implements JNIField {
 	ASTType type, type64;
 	String data;
 	
-public ASTField(ASTClass declaringClass, String source, String packageName, FieldDeclaration field, VariableDeclarationFragment fragment) {
+public ASTField(ASTClass declaringClass, String source, FieldDeclaration field, VariableDeclarationFragment fragment) {
 	this.declaringClass = declaringClass;	
 	name = fragment.getName().getIdentifier();
 	modifiers = field.getModifiers();
@@ -43,7 +43,7 @@ public ASTField(ASTClass declaringClass, String source, String packageName, Fiel
 			}
 		}
 	}
-	type = new ASTType(packageName, field.getType(), fragment.getExtraDimensions());
+	type = new ASTType(declaringClass.resolver, field.getType(), fragment.getExtraDimensions());
 	type64 =  this.type;
 	if (GEN64) {
 		String s = source.substring(field.getStartPosition(), field.getStartPosition() + field.getLength());

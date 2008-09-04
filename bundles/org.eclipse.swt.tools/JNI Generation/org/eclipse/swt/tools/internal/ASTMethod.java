@@ -29,7 +29,7 @@ public class ASTMethod extends ASTItem implements JNIMethod {
 	Boolean unique;
 	String data;
 	
-public ASTMethod(ASTClass declaringClass, String source, String packageName, MethodDeclaration method) {
+public ASTMethod(ASTClass declaringClass, String source, MethodDeclaration method) {
 	this.declaringClass = declaringClass;
 	
 	name = method.getName().getIdentifier();
@@ -48,7 +48,7 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 			}
 		}
 	}
-	returnType = new ASTType(packageName, method.getReturnType2(), method.getExtraDimensions());
+	returnType = new ASTType(declaringClass.resolver, method.getReturnType2(), method.getExtraDimensions());
 	returnType64 = returnType;
 	if (GEN64) {
 		String s = source.substring(method.getReturnType2().getStartPosition(), method.getName().getStartPosition());
@@ -69,7 +69,7 @@ public ASTMethod(ASTClass declaringClass, String source, String packageName, Met
 	int i = 0;
 	for (Iterator iterator = parameters.iterator(); iterator.hasNext(); i++) {
 		SingleVariableDeclaration param = (SingleVariableDeclaration) iterator.next();
-		paramTypes[i] = new ASTType(packageName, param.getType(), param.getExtraDimensions());
+		paramTypes[i] = new ASTType(declaringClass.resolver, param.getType(), param.getExtraDimensions());
 		paramTypes64[i] = paramTypes[i];
 		params[i] = new ASTParameter(this, i);
 		if (GEN64) {

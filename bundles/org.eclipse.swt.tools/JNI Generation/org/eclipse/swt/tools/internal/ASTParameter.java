@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.swt.tools.internal;
 
-import java.io.File;
-
 public class ASTParameter extends ASTItem implements JNIParameter {
 	ASTMethod method;
 	int parameter;
@@ -62,10 +60,8 @@ public JNIMethod getMethod() {
 
 public JNIClass getTypeClass() {
 	ASTType type = (ASTType)getType();
-	//TODO different package
 	ASTClass declaringClass = method.declaringClass;
-	String sourcePath  = declaringClass.sourcePath;
-	sourcePath = new File(sourcePath).getParent() + "/" + type.getSimpleName() + ".java";
+	String sourcePath = declaringClass.resolver.findPath(type.getSimpleName());
 	return new ASTClass(sourcePath, declaringClass.metaData);
 }
 

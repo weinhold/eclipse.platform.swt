@@ -353,9 +353,12 @@ void generateGetFields(JNIClass clazz) {
 				}
 				output(accessor);
 				output(")");
-				output(" / sizeof(");
-				output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
-				output("), (");
+				if (!componentType.isType("byte")) {
+					output(" / sizeof(");
+					output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
+					output(")");
+				}
+				output(", (");
 				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);
@@ -499,9 +502,12 @@ void generateSetFields(JNIClass clazz) {
 				}
 				output(accessor);
 				output(")");
-				output(" / sizeof(");
-				output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
-				output("), (");
+				if (!componentType.isType("byte")) {
+					output(" / sizeof(");
+					output(componentType.getTypeSignature2(!componentType.equals(componentType64)));
+					output(")");
+				}
+				output(", (");
 				output(type.getTypeSignature4(!type.equals(type64), false));				
 				output(")lpStruct->");
 				output(accessor);

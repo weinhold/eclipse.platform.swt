@@ -19,11 +19,13 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.swt.tools.internal.ASTType.TypeResolver;
 
 public class ASTClass extends ASTItem implements JNIClass {
 	String sourcePath;
@@ -32,8 +34,42 @@ public class ASTClass extends ASTItem implements JNIClass {
 	ASTClass superclass;
 	ASTField[] fields;
 	ASTMethod[] methods;
-	String name, simpleName, superclassName;
+	String name, simpleName, superclassName, packageName;
+	String[] imports;
 	String data;
+	
+	TypeResolver resolver = new TypeResolver() {
+		public String findPath(String simpleName) {
+			if (simpleName.equals(ASTClass.this.simpleName)) return sourcePath;
+			String basePath = sourcePath.substring(0, sourcePath.length() - name.length() - ".java".length());
+			File file = new File(basePath + packageName.replace('.', '/') + "/" + simpleName + ".java");
+			if (file.exists()) {
+				return file.getAbsolutePath();
+			}
+			for (int i = 0; i < imports.length; i++) {
+				file = new File(basePath + imports[i].replace('.', '/') + "/" + simpleName + ".java");
+				if (file.exists()) {
+					return file.getAbsolutePath();				
+				}
+			}
+			return "";
+		}
+		public String resolve(String simpleName) {
+			if (simpleName.equals(ASTClass.this.simpleName)) return packageName + "." + simpleName;
+			String basePath = sourcePath.substring(0, sourcePath.length() - name.length() - ".java".length());
+			File file = new File(basePath + packageName.replace('.', '/') + "/" + simpleName + ".java");
+			if (file.exists()) {
+				return packageName + "." + simpleName;				
+			}
+			for (int i = 0; i < imports.length; i++) {
+				file = new File(basePath + imports[i].replace('.', '/') + "/" + simpleName + ".java");
+				if (file.exists()) {
+					return imports[i] + "." + simpleName;				
+				}
+			}
+			return simpleName;
+		}
+	};
 
 public ASTClass(String sourcePath, MetaData metaData) {
 	this.sourcePath = sourcePath;
@@ -45,9 +81,16 @@ public ASTClass(String sourcePath, MetaData metaData) {
 	CompilationUnit unit = (CompilationUnit)parser.createAST(null);
 	TypeDeclaration type = (TypeDeclaration)unit.types().get(0);
 	simpleName = type.getName().getIdentifier();
-	String packageName = unit.getPackage().getName().getFullyQualifiedName();
+	packageName = unit.getPackage().getName().getFullyQualifiedName();
 	name = packageName + "." + simpleName;
 	superclassName = type.getSuperclassType() != null ? type.getSuperclassType().toString() : null;
+	List imports = unit.imports();
+	this.imports = new String[imports.size()];
+	int count = 0;
+	for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
+		ImportDeclaration imp = (ImportDeclaration) iterator.next();
+		this.imports[count++] = imp.getName().getFullyQualifiedName();
+	}
 	
 	Javadoc doc = type.getJavadoc();
 	List tags = null;
@@ -70,7 +113,7 @@ public ASTClass(String sourcePath, MetaData metaData) {
 		List fragments = field.fragments();
 		for (Iterator iterator = fragments.iterator(); iterator.hasNext();) {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iterator.next();
-			fid.add(new ASTField(this, source, packageName, field, fragment));
+			fid.add(new ASTField(this, source, field, fragment));
 		}
 	}
 	this.fields = (ASTField[])fid.toArray(new ASTField[fid.size()]);
@@ -78,7 +121,7 @@ public ASTClass(String sourcePath, MetaData metaData) {
 	ArrayList mid = new ArrayList();
 	for (int i = 0; i < methods.length; i++) {
 		if (methods[i].getReturnType2() == null) continue;
-		mid.add(new ASTMethod(this, source, packageName, methods[i]));
+		mid.add(new ASTMethod(this, source, methods[i]));
 	}
 	this.methods = (ASTMethod[])mid.toArray(new ASTMethod[mid.size()]);
 }
@@ -112,9 +155,8 @@ public String getName() {
 public JNIClass getSuperclass() {
 	if (superclassName == null) return new ReflectClass(Object.class);
 	if (superclass != null) return superclass;
-	//TODO different package
-	String path = new File(sourcePath).getParent() + "/" + superclassName + ".java";
-	return superclass = new ASTClass(path, metaData);
+	String sourcePath = resolver.findPath(superclassName);
+	return superclass = new ASTClass(sourcePath, metaData);
 }
 
 public String getSimpleName() {
