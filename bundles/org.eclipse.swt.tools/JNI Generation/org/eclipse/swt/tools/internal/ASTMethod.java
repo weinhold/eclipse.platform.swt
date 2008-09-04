@@ -160,7 +160,27 @@ public String getExclude() {
 
 public String getMetaData() {
 	if (data != null) return data;
-	return "";
+	String className = getDeclaringClass().getSimpleName();
+	String key = className + "_" + JNIGenerator.getFunctionName(this);
+	MetaData metaData = declaringClass.metaData;
+	String value = metaData.getMetaData(key, null);
+	if (value == null) {
+		key = className + "_" + getName();
+		value = metaData.getMetaData(key, null);
+	}
+	/*
+	* Support for lock.
+	*/
+	if (value == null && getName().startsWith("_")) {
+		key = className + "_" + JNIGenerator.getFunctionName(this).substring(2);
+		value = metaData.getMetaData(key, null);
+		if (value == null) {
+			key = className + "_" + getName().substring(1);
+			value = metaData.getMetaData(key, null);
+		}
+	}
+	if (value == null) value = "";	
+	return value;
 }
 
 public void setAccessor(String str) { 

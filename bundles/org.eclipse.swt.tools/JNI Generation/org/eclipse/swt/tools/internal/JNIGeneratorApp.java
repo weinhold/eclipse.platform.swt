@@ -26,7 +26,9 @@ public class JNIGeneratorApp {
 	ProgressMonitor progress;
 	String mainClassName, outputDir, classpath;
 	MetaData metaData;
-	boolean generateMetaData = true;
+	boolean generateMetaData = USE_AST ? false : true;
+	
+	static final boolean USE_AST = false;
 
 public JNIGeneratorApp() {
 }
@@ -61,10 +63,12 @@ public void generateAll() {
 		String[] list = JNIGenerator.split(mainClasses, ",");
 		for (int i = 0; i < list.length; i += 2) {
 			String className = list[i].trim();
-			try {
-				Class.forName(className, false, getClass().getClassLoader());
-			} catch (Throwable e) {
-				continue;
+			if (!USE_AST) {
+				try {
+					Class.forName(className, false, getClass().getClassLoader());
+				} catch (Throwable e) {
+					continue;
+				}
 			}
 			System.out.println("Generating \"" + className + "\"");
 			setMainClassName(className);
@@ -317,6 +321,7 @@ String[] getClassNames(String mainClassName) {
 public JNIClass[] getClasses() {
 	if (classes != null) return classes;
 	if (mainClassName == null) return new JNIClass[0];
+	if (USE_AST) return getASTClasses();
 	String[] classNames = getClassNames(mainClassName);
 	Arrays.sort(classNames);
 	String packageName = getPackageName(mainClassName);
@@ -336,6 +341,32 @@ public JNIClass[] getClasses() {
 		}
 	}
 	return classes;
+}
+
+public JNIClass[] getASTClasses() {
+	if (classes != null) return classes;
+	if (mainClassName == null) return new JNIClass[0];
+	String mainPath = new File(outputDir).getParent() + "/" + mainClassName.replace('.', '/') + ".java";
+	final ArrayList classes = new ArrayList();
+	String packageName = getPackageName(mainClassName);
+	File dir = new File(new File(outputDir).getParent() + "/" + packageName.replace('.', '/'));
+	File[] files = dir.listFiles();
+	for (int i = 0; i < files.length; i++) {
+		File file = files[i];
+		try {
+			String path = file.getAbsolutePath().replace('\\', '/');
+			if (path.endsWith(".java")) {
+				if (mainPath.equals(path)){
+					classes.add(mainClass);
+				} else {
+					classes.add(new ASTClass(path, metaData));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	return (JNIClass[])classes.toArray(new JNIClass[classes.size()]);
 }
 
 public JNIClass[] getNativesClasses(JNIClass[] classes) {
@@ -419,7 +450,11 @@ public void setMainClassName(String str) {
 	if (mainClassName != null) {
 		try {
 			String sourcePath = new File(outputDir).getParent() + "/" + mainClassName.replace('.', '/') + ".java";
-			mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()), metaData, sourcePath);
+			if (USE_AST) {
+				mainClass = new ASTClass(sourcePath, metaData);
+			} else {
+				mainClass = new ReflectClass(Class.forName(mainClassName, false, getClass().getClassLoader()), metaData, sourcePath);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

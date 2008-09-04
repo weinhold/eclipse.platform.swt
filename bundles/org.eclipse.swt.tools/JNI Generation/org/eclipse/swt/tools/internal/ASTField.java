@@ -107,7 +107,9 @@ public String getExclude() {
 
 public String getMetaData() {
 	if (data != null) return data;
-	return "";
+	String className = getDeclaringClass().getSimpleName();
+	String key = className + "_" + getName();
+	return declaringClass.metaData.getMetaData(key, "");
 }
 
 public void setAccessor(String str) { 

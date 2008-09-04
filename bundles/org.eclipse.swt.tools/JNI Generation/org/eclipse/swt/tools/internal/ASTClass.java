@@ -127,7 +127,8 @@ public String getExclude() {
 
 public String getMetaData() {
 	if (data != null) return data;
-	return "";
+	String key = JNIGenerator.toC(getName());
+	return metaData.getMetaData(key, "");
 }
 
 public void setExclude(String str) { 

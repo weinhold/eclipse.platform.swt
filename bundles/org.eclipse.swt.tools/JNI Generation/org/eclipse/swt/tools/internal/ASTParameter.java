@@ -33,7 +33,27 @@ public String getCast() {
 
 public String getMetaData() {
 	if (data != null) return data;
-	return "";
+	String className = method.getDeclaringClass().getSimpleName();
+	String key = className + "_" + JNIGenerator.getFunctionName(method) + "_" + parameter;
+	MetaData metaData = method.declaringClass.metaData;
+	String value = metaData.getMetaData(key, null);
+	if (value == null) {
+		key = className + "_" + method.getName() + "_" + parameter;
+		value = metaData.getMetaData(key, null);
+	}
+	/*
+	* Support for lock.
+	*/
+	if (value == null && method.getName().startsWith("_")) {
+		key = className + "_" + JNIGenerator.getFunctionName(method).substring(2) + "_" + parameter;
+		value = metaData.getMetaData(key, null);
+		if (value == null) {
+			key = className + "_" + method.getName().substring(1) + "_" + parameter;
+			value = metaData.getMetaData(key, null);
+		}
+	}
+	if (value == null) value = "";	
+	return value;
 }
 
 public JNIMethod getMethod() {
