@@ -29,7 +29,9 @@ public MacGenerator() {
 }
 
 static void list(File path, ArrayList list) {
+	if (path == null) return;
 	File[] frameworks = path.listFiles();
+	if (frameworks == null) return;
 	for (int i = 0; i < frameworks.length; i++) {
 		File file = frameworks[i];
 		String name = file.getName();
