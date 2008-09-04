@@ -89,7 +89,9 @@ public void generate(JNIMethod method) {
 	generateSourceStart(function, function64);
 	boolean sameFunction = function.equals(function64);
 	if (!sameFunction) {
-		outputln("#ifndef SWT_PTR_SIZE_64");
+		output("#ifndef ");
+		output(JNI64);
+		outputln();
 	}
 	if (isCPP) {
 		output("extern \"C\" ");
@@ -322,7 +324,9 @@ void generateSetParameter(JNIParameter param, boolean critical) {
 void generateEnterExitMacro(JNIMethod method, String function, String function64, boolean enter) {
 	if (!enterExitMacro) return;
 	if (!function.equals(function64)) {
-		outputln("#ifndef SWT_PTR_SIZE_64");
+		output("#ifndef ");
+		output(JNI64);
+		outputln();
 	}
 	output("\t");
 	output(method.getDeclaringClass().getSimpleName());
@@ -838,9 +842,13 @@ void generateSourceStart(String function, String function64) {
 	} else {
 		output("#if (!defined(NO_");
 		output(function);
-		output(") && !defined(SWT_PTR_SIZE_64)) || (!defined(");
+		output(") && !defined(");
+		output(JNI64);
+		output(")) || (!defined(");
 		output(function64);
-		outputln(") && defined(SWT_PTR_SIZE_64))");
+		output(") && defined(");
+		output(JNI64);
+		outputln("))");
 	}
 }
 

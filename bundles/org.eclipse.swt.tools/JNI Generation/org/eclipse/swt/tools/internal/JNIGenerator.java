@@ -23,6 +23,8 @@ public abstract class JNIGenerator implements Flags {
 	String delimiter;
 	PrintStream output;
 	ProgressMonitor progress;
+	
+	static final String JNI64 = "JNI64";
 
 public JNIGenerator() {
 	delimiter = System.getProperty("line.separator");

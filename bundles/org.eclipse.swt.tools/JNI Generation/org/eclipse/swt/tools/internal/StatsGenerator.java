@@ -126,7 +126,9 @@ void generateSourceFile(JNIClass clazz) {
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 		String function = getFunctionName(method), function64 = getFunctionName(method, method.getParameterTypes64());
 		if (!function.equals(function64)) {
-			outputln("#ifndef SWT_PTR_SIZE_64");
+			output("#ifndef ");
+			output(JNI64);
+			outputln();
 		}
 		output("\t\"");
 		output(function);
@@ -197,7 +199,9 @@ void generateFunctionEnum(JNIMethod[] methods) {
 		if ((method.getModifiers() & Modifier.NATIVE) == 0) continue;
 		String function = getFunctionName(method), function64 = getFunctionName(method, method.getParameterTypes64());
 		if (!function.equals(function64)) {
-			outputln("#ifndef SWT_PTR_SIZE_64");
+			output("#ifndef ");
+			output(JNI64);
+			outputln();
 		}
 		output("\t");
 		output(function);

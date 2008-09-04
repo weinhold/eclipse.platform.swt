@@ -28,7 +28,7 @@ public class JNIGeneratorApp {
 	MetaData metaData;
 	boolean generateMetaData = USE_AST ? false : true;
 	
-	static final boolean USE_AST = false;
+	static final boolean USE_AST = true;
 
 public JNIGeneratorApp() {
 }

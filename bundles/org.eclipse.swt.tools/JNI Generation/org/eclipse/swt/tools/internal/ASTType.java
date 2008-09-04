@@ -101,10 +101,10 @@ public String getSimpleName() {
 public String getTypeSignature(boolean define) {
 	if (isPrimitive()) {
 		if (define) {
-			if (name.equals("I")) return "SWT_I_SIGNATURE";
-			if (name.equals("J")) return "SWT_I_SIGNATURE";
-			if (name.equals("F")) return "SWT_F_SIGNATURE";
-			if (name.equals("D")) return "SWT_F_SIGNATURE";
+			if (name.equals("I")) return "I_J";
+			if (name.equals("J")) return "I_J";
+			if (name.equals("F")) return "F_D";
+			if (name.equals("D")) return "F_D";
 		}
 		return name;
 	}
@@ -118,14 +118,14 @@ public String getTypeSignature(boolean define) {
 public String getTypeSignature1(boolean define) {
 	if (isPrimitive()) {
 		if (name.equals("V")) return "Void";
-		if (name.equals("I")) return define ? "SWT_Int" : "Int";
+		if (name.equals("I")) return define ? "IntLong" : "Int";
 		if (name.equals("Z")) return "Boolean";
-		if (name.equals("J")) return define ? "SWT_Int" : "Long";
+		if (name.equals("J")) return define ? "IntLong" : "Long";
 		if (name.equals("S")) return "Short";
 		if (name.equals("C")) return "Char";
 		if (name.equals("B")) return "Byte";
-		if (name.equals("F")) return define ? "SWT_Float" : "Float";
-		if (name.equals("D")) return define ? "SWT_Float" : "Double";
+		if (name.equals("F")) return define ? "FloatDouble" : "Float";
+		if (name.equals("D")) return define ? "FloatDouble" : "Double";
 	}
 	if (name.equals("Ljava/lang/String;")) return "String";
 	return "Object";
@@ -134,14 +134,14 @@ public String getTypeSignature1(boolean define) {
 public String getTypeSignature2(boolean define) {
 	if (isPrimitive()) {
 		if (name.equals("V")) return "void";
-		if (name.equals("I")) return define ? "SWT_jint" : "jint";
+		if (name.equals("I")) return define ? "jintLong" : "jint";
 		if (name.equals("Z")) return "jboolean";
-		if (name.equals("J")) return define ? "SWT_jint" : "jlong";
+		if (name.equals("J")) return define ? "jintLong" : "jlong";
 		if (name.equals("S")) return "jshort";
 		if (name.equals("C")) return "jchar";
 		if (name.equals("B")) return "jbyte";
-		if (name.equals("F")) return define ? "SWT_jfloat" : "jfloat";
-		if (name.equals("D")) return define ? "SWT_jfloat" : "jdouble";
+		if (name.equals("F")) return define ? "jfloatDouble" : "jfloat";
+		if (name.equals("D")) return define ? "jfloatDouble" : "jdouble";
 	}
 	if (name.equals("Ljava/lang/String;")) return "jstring";
 	if (name.equals("Ljava/lang/Class;")) return "jclass";
@@ -173,14 +173,14 @@ public String getTypeSignature3(boolean define) {
 public String getTypeSignature4(boolean define, boolean struct) {
 	if (isPrimitive()) {
 		if (name.equals("V")) return "void";
-		if (name.equals("I")) return define ? "SWT_jint" : "jint";
+		if (name.equals("I")) return define ? "jintLong" : "jint";
 		if (name.equals("Z")) return "jboolean";
-		if (name.equals("J")) return define ? "SWT_jint" : "jlong";
+		if (name.equals("J")) return define ? "jintLong" : "jlong";
 		if (name.equals("S")) return "jshort";
 		if (name.equals("C")) return "jchar";
 		if (name.equals("B")) return "jbyte";
-		if (name.equals("F")) return define ? "SWT_jfloat" : "jfloat";
-		if (name.equals("D")) return define ? "SWT_jfloat" : "jdouble";
+		if (name.equals("F")) return define ? "jfloatDouble" : "jfloat";
+		if (name.equals("D")) return define ? "jfloatDouble" : "jdouble";
 	}
 	if (name.equals("Ljava/lang/String;")) return "jstring";
 	if (isArray()) {
