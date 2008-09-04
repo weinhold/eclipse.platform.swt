@@ -26,7 +26,6 @@ public class JNIGeneratorApp {
 	ProgressMonitor progress;
 	String mainClassName, outputDir, classpath;
 	MetaData metaData;
-	boolean generateMetaData = USE_AST ? false : true;
 	
 	static final boolean USE_AST = true;
 
@@ -174,12 +173,14 @@ void generateMetaData(JNIClass[] classes) {
 		gen.setProgressMonitor(progress);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		gen.setOutput(new PrintStream(out));
-		gen.generate();
-		if (!new File(getMetaDataDir()).exists()) {
-			System.out.println("Warning: Meta data output dir does not exist");
-			return;
+		if (new File(getMetaDataDir() + gen.getFileName()).exists()) {
+			gen.generate();
+			if (!new File(getMetaDataDir()).exists()) {
+				System.out.println("Warning: Meta data output dir does not exist");
+				return;
+			}
+			if (out.size() > 0) output(out.toByteArray(), getMetaDataDir() + gen.getFileName());
 		}
-		if (out.size() > 0) output(out.toByteArray(), getMetaDataDir() + gen.getFileName());
 	} catch (Exception e) {
 		System.out.println("Problem");
 		e.printStackTrace(System.out);
@@ -210,7 +211,7 @@ public void generate(ProgressMonitor progress) {
 		}
 		int total = nativeCount * 4;
 		total += classes.length;
-		total += natives.length * (generateMetaData ? 3 : 2);
+		total += natives.length * (3);
 		total += structs.length * 2;
 		progress.setTotal(total);
 		progress.setMessage("Generating structs.h ...");
@@ -224,10 +225,8 @@ public void generate(ProgressMonitor progress) {
 	generateSTATS_H(natives);
 	if (progress != null) progress.setMessage("Generating stats.c ...");
 	generateSTATS_C(natives);
-	if (generateMetaData) {
-		if (progress != null) progress.setMessage("Generating meta data ...");
-		generateMetaData(classes);
-	}
+	if (progress != null) progress.setMessage("Generating meta data ...");
+	generateMetaData(classes);
 	if (progress != null) progress.setMessage("Done.");
 	this.progress = null;
 }
@@ -417,10 +416,6 @@ public JNIClass[] getStructureClasses(JNIClass[] classes) {
 
 public void setClasspath(String classpath) {
 	this.classpath = classpath;
-}
-
-public void setGenerateMetaData(boolean generateMetaData) {
-	this.generateMetaData = generateMetaData;
 }
 
 public void setMainClass(JNIClass mainClass) {

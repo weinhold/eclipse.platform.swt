@@ -130,7 +130,6 @@ public class MacGeneratorView extends ViewPart {
 		app.setOutputDir(root.getLocation().toPortableString() + "/library");
 		app.setMetaData(metaData);
 		app.setMainClass(mainClass);
-		app.setGenerateMetaData(false);
 		app.setClasses((JNIClass[])classes.toArray(new JNIClass[classes.size()]));
 		app.generate();
 		refresh();

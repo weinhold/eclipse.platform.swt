@@ -844,7 +844,7 @@ void generateSourceStart(String function, String function64) {
 		output(function);
 		output(") && !defined(");
 		output(JNI64);
-		output(")) || (!defined(");
+		output(")) || (!defined(NO_");
 		output(function64);
 		output(") && defined(");
 		output(JNI64);
