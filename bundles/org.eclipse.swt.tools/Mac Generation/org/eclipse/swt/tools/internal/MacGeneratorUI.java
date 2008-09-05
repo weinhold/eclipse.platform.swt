@@ -86,6 +86,7 @@ public class MacGeneratorUI {
 	    }
 	    item.setChecked(checked);
 	    item.setGrayed(grayed);
+	    updateGenAttribute(item);
 	    checkPath(item.getParentItem(), checked, grayed);
 	}
 	
@@ -139,6 +140,7 @@ public class MacGeneratorUI {
 	void checkItems(TreeItem item, boolean checked) {
 	    item.setGrayed(false);
 	    item.setChecked(checked);
+	    updateGenAttribute(item);
 	    /*
 	     * Note that this creates the whole tree underneath item
 	     * so that the checked/grayed state can be kept in the
@@ -319,10 +321,6 @@ public class MacGeneratorUI {
 	}
 	
 	public void generate() {
-		TreeItem[] items = nodesTree.getItems();
-		for (int i = 0; i < items.length; i++) {
-			updateGenAttribute(items[i]);
-		}
 		gen.generateAll();
 	}
 	
@@ -524,10 +522,6 @@ public class MacGeneratorUI {
 			} else {
 				node.removeAttribute("swt_gen");
 			}
-		}
-		TreeItem[] items = item.getItems();
-		for (int i = 0; i < items.length; i++) {
-			updateGenAttribute(items[i]);
 		}
 	}
 	
