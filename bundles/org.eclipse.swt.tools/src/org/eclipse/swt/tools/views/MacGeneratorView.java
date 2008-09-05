@@ -1,18 +1,11 @@
 package org.eclipse.swt.tools.views;
 
-
-import java.util.ArrayList;
-
-import org.eclipse.swt.tools.internal.ASTClass;
-import org.eclipse.swt.tools.internal.JNIClass;
 import org.eclipse.swt.tools.internal.JNIGeneratorApp;
 import org.eclipse.swt.tools.internal.MacGenerator;
 import org.eclipse.swt.tools.internal.MacGeneratorUI;
-import org.eclipse.swt.tools.internal.MetaData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -44,6 +37,7 @@ public class MacGeneratorView extends ViewPart {
 	MacGeneratorUI ui;
 
 	IResource plugin, root, pi;
+	String mainClassName = "org.eclipse.swt.internal.cocoa.OS";	
 	
 	/**
 	 * The constructor.
@@ -69,7 +63,7 @@ public class MacGeneratorView extends ViewPart {
 		MacGenerator gen = new MacGenerator();
 		gen.setXmls(xmls);
 		gen.setOutputDir(root.getLocation().toPortableString());
-		gen.setMainClass("org.eclipse.swt.internal.cocoa.OS");
+		gen.setMainClass(mainClassName);
 		ui = new MacGeneratorUI(gen);
 		ui.setActionsVisible(false);
 		ui.open(parent);
@@ -102,35 +96,8 @@ public class MacGeneratorView extends ViewPart {
 	
 	void generate() {
 		ui.generate();
-		refresh();
-		final String mainClassName = "org.eclipse.swt.internal.cocoa.OS";
-		final String mainPath = root.getLocation() + "/" + mainClassName.replace('.', '/') + ".java";
-		final MetaData metaData = new MetaData(mainClassName);
-		final ASTClass mainClass = new ASTClass(mainPath, metaData);
-		final ArrayList classes = new ArrayList();
-		try {
-			pi.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					String path = resource.getLocation().toPortableString();
-					if ("java".equals(resource.getFileExtension())) {
-						if (mainPath.equals(path)){
-							classes.add(mainClass);
-						} else {
-							classes.add(new ASTClass(path, metaData));
-						}
-						return false;
-					}
-					return true;
-				}
-			});
-		} catch (CoreException e) {
-//			e.printStackTrace();
-		}		
 		JNIGeneratorApp app = new JNIGeneratorApp();
-		app.setOutputDir(root.getLocation().toPortableString() + "/library");
-		app.setMetaData(metaData);
-		app.setMainClass(mainClass);
-		app.setClasses((JNIClass[])classes.toArray(new JNIClass[classes.size()]));
+		app.setMainClassName(mainClassName, root.getLocation().toPortableString() + "/library");
 		app.generate();
 		refresh();
 	}

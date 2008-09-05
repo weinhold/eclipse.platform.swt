@@ -83,9 +83,8 @@ static String loadFile (String file) {
 		fr.close();
 		return str.toString();
 	} catch (IOException e) {
-//		e.printStackTrace(System.out);
+		throw new RuntimeException("File not found:" + file, e);
 	}
-	return "";
 }
 
 static void sort(JNIMethod[] methods) {
