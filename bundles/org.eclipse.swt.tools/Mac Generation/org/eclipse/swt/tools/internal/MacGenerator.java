@@ -974,7 +974,8 @@ void generateStructNatives() {
 		outln();
 		out(" * @param dest cast=(void *),flags=no_in critical");
 		outln();
-		out(" * @param src cast=(void *),flags=no_out critical");
+		out(" * @param src cast=(void *),flags=critical");
+//		out(" * @param src cast=(void *),flags=no_out critical");
 		outln();
 		out(" */");
 		outln();
@@ -987,7 +988,8 @@ void generateStructNatives() {
 		outln();
 		out(" * @param dest cast=(void *),flags=no_in critical");
 		outln();
-		out(" * @param src cast=(void *),flags=no_out critical");
+		out(" * @param src cast=(void *),flags=critical");
+//		out(" * @param src cast=(void *),flags=no_out critical");
 		outln();
 		out(" */");
 		outln();
