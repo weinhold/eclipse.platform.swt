@@ -8,7 +8,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 
@@ -33,19 +37,29 @@ import org.eclipse.ui.*;
 
 public class MacGeneratorView extends ViewPart {
 	private Action generateAction;
-	MacGeneratorUI ui;
-
-	IResource plugin, root, pi;
-	String mainClassName = "org.eclipse.swt.internal.cocoa.OS";	
+	private MacGeneratorUI ui;
+	private IResource root;
+	private Job job;
+	private String mainClassName = "org.eclipse.swt.internal.cocoa.OS";
+	
+	class GenJob extends Job {
+		public GenJob() {
+			super("Mac Genarator");
+		}
+		protected IStatus run(IProgressMonitor monitor) {
+			ui.generate();
+			refresh();
+			MacGeneratorView.this.job = null;
+			return Status.OK_STATUS;
+		}
+	}
 	
 	/**
 	 * The constructor.
 	 */
 	public MacGeneratorView() {
 		IWorkspaceRoot workspace = ResourcesPlugin.getWorkspace().getRoot();
-		plugin = workspace.findMember(new Path("org.eclipse.swt"));
 		root = workspace.findMember(new Path("org.eclipse.swt/Eclipse SWT PI/cocoa"));
-		pi = workspace.findMember(new Path("org.eclipse.swt/Eclipse SWT PI/cocoa/org/eclipse/swt/internal/cocoa"));
 	}
 
 	/**
@@ -94,8 +108,8 @@ public class MacGeneratorView extends ViewPart {
 	}
 	
 	void generate() {
-		ui.generate();
-		refresh();
+		job = new GenJob();
+		job.schedule();
 	}
 
 	private void makeActions() {
