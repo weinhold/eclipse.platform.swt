@@ -47,7 +47,7 @@ public void generate(JNIField field) {
 	output("_");
 	output(field.getName());
 	output("=");
-	output(((ReflectItem)field).flatten());
+	output(((AbstractItem)field).flatten());
 }
 
 public void generate(JNIMethod[] methods) {
@@ -73,7 +73,7 @@ public void generate(JNIMethod method) {
 	String key = buffer.toString();
 	output(key);
 	output("=");
-	output(((ReflectItem)method).flatten());
+	output(((AbstractItem)method).flatten());
 	outputln();
 	JNIParameter[] params = method.getParameters();
 	for (int i = 0; i < params.length; i++) {
