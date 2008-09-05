@@ -21,7 +21,7 @@ public void generateCopyright() {
 public void generate(JNIClass clazz) {
 	output(toC(clazz.getName()));
 	output("=");
-	output(((ReflectItem)clazz).flatten());
+	output(((AbstractItem)clazz).flatten());
 	outputln();
 	JNIField[] fields = clazz.getDeclaredFields();
 	generate(fields);
@@ -80,7 +80,7 @@ public void generate(JNIMethod method) {
 		output(key);
 		output("_");
 		output(i + "=");
-		output(((ReflectItem)params[i]).flatten());
+		output(((AbstractItem)params[i]).flatten());
 		outputln();		
 	}
 }
