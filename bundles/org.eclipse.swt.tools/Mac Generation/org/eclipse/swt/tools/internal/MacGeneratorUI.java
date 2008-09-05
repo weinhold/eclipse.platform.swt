@@ -137,21 +137,38 @@ public class MacGeneratorUI {
 			}
 		}
 	}
+	
 	void checkItems(TreeItem item, boolean checked) {
 	    item.setGrayed(false);
 	    item.setChecked(checked);
 	    updateGenAttribute(item);
-	    /*
-	     * Note that this creates the whole tree underneath item
-	     * so that the checked/grayed state can be kept in the
-	     * UI only and updated when generate is called. This can
-	     * be very expensive.
-	     */
-	    checkChildren(item);
 	    TreeItem[] items = item.getItems();
-	    for (int i = 0; i < items.length; i++) {
-	        checkItems(items[i], checked);
+	    if (items.length == 1 && items[0].getData() == null) {
+	    	/* Update model only if view is not created */
+			Node node = (Node)item.getData();
+			NodeList childNodes = node.getChildNodes();
+			for (int i = 0, length = childNodes.getLength(); i < length; i++) {
+				checkNodes(childNodes.item(i), checked);
+			}
+	    } else {
+		    for (int i = 0; i < items.length; i++) {
+		        checkItems(items[i], checked);
+		    }
 	    }
+	}
+	
+	void checkNodes(Node node, boolean checked) {
+		if (node instanceof Element) {
+			if (checked) {
+				((Element)node).setAttribute("swt_gen", "true");
+			} else {
+				((Element)node).removeAttribute("swt_gen");
+			}
+		}
+		NodeList childNodes = node.getChildNodes();
+		for (int i = 0, length = childNodes.getLength(); i < length; i++) {
+			checkNodes(childNodes.item(i), checked);
+		}
 	}
 	
 	void cleanup() {
