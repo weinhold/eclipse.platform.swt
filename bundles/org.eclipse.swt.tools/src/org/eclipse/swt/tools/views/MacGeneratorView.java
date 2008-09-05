@@ -1,6 +1,5 @@
 package org.eclipse.swt.tools.views;
 
-import org.eclipse.swt.tools.internal.JNIGeneratorApp;
 import org.eclipse.swt.tools.internal.MacGenerator;
 import org.eclipse.swt.tools.internal.MacGeneratorUI;
 import org.eclipse.swt.widgets.Composite;
@@ -96,9 +95,6 @@ public class MacGeneratorView extends ViewPart {
 	
 	void generate() {
 		ui.generate();
-		JNIGeneratorApp app = new JNIGeneratorApp();
-		app.setMainClassName(mainClassName, root.getLocation().toPortableString() + "/library");
-		app.generate();
 		refresh();
 	}
 

@@ -104,6 +104,13 @@ public void generateAll() {
 	generateExtraAttributes();
 	generateMainClass();
 	generateClasses();
+	generateCSource();
+}
+
+void generateCSource() {
+	JNIGeneratorApp app = new JNIGeneratorApp();
+	app.setMainClassName(mainClassName, outputDir + "/library");
+	app.generate();
 }
 
 String fixDelimiter(String str) {
