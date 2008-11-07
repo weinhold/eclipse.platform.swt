@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,10 @@ import org.eclipse.swt.internal.win32.*;
 
 public class COM extends OS {
 	/** GUID Constants */
+	public static final GUID CLSID_DragDropHelper = COM.IIDFromString("{4657278A-411B-11d2-839A-00C04FD918D0}"); //$NON-NLS-1$
+	public static final GUID IID_IDropTargetHelper = COM.IIDFromString("{4657278B-411B-11d2-839A-00C04FD918D0}"); //$NON-NLS-1$
+	public static final GUID IID_IDragSourceHelper = COM.IIDFromString("{DE5BF786-477A-11d2-839D-00C04FD918D0}"); //$NON-NLS-1$
+	public static final GUID IID_IDragSourceHelper2 = COM.IIDFromString("{83E07D0D-0C5F-4163-BF1A-60B274051E40}"); //$NON-NLS-1$
 	public static final GUID IIDJavaBeansBridge = COM.IIDFromString("{8AD9C840-044E-11D1-B3E9-00805F499D93}"); //$NON-NLS-1$
 	public static final GUID IIDShockwaveActiveXControl = COM.IIDFromString("{166B1BCA-3F9C-11CF-8075-444553540000}"); //$NON-NLS-1$
 	public static final GUID IIDIEditorSiteTime = IIDFromString("{6BD2AEFE-7876-45e6-A6E7-3BFCDF6540AA}"); //$NON-NLS-1$
@@ -28,7 +32,7 @@ public class COM extends OS {
 	public static final GUID IIDIAdviseSink = IIDFromString("{0000010F-0000-0000-C000-000000000046}"); //$NON-NLS-1$
 	//public static final GUID IIDIAdviseSink2 = IIDFromString("{00000125-0000-0000-C000-000000000046}"); //$NON-NLS-1$
 	//public static final GUID IIDIBindCtx = IIDFromString("{0000000E-0000-0000-C000-000000000046}"); //$NON-NLS-1$
-	//public static final GUID IIDIClassFactory = IIDFromString("{00000001-0000-0000-C000-000000000046}"); //$NON-NLS-1$
+	public static final GUID IIDIClassFactory = IIDFromString("{00000001-0000-0000-C000-000000000046}"); //$NON-NLS-1$
 	public static final GUID IIDIClassFactory2 = IIDFromString("{B196B28F-BAB4-101A-B69C-00AA00341D07}"); //$NON-NLS-1$
 	public static final GUID IIDIConnectionPoint = IIDFromString("{B196B286-BAB4-101A-B69C-00AA00341D07}"); //$NON-NLS-1$
 	public static final GUID IIDIConnectionPointContainer = IIDFromString("{B196B284-BAB4-101A-B69C-00AA00341D07}"); //$NON-NLS-1$
@@ -202,13 +206,17 @@ public class COM extends OS {
 	public static final int DISPID_FONT_WEIGHT = 7;
 	public static final int DISPID_FORECOLOR = -513;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONDBLCLICK = 0xFFFFFDA7;
+	public static final int DISPID_HTMLDOCUMENTEVENTS_ONDRAGEND = 0x80010015;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONDRAGSTART = 0x8001000B;
+	public static final int DISPID_HTMLDOCUMENTEVENTS_ONKEYDOWN = 0xFFFFFDA6;
+	public static final int DISPID_HTMLDOCUMENTEVENTS_ONKEYPRESS = 0xFFFFFDA5;
+	public static final int DISPID_HTMLDOCUMENTEVENTS_ONKEYUP = 0xFFFFFDA4;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEOUT = 0x80010009;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEOVER = 0x80010008;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEMOVE = 0xFFFFFDA2;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEDOWN = 0xFFFFFDA3;
 	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEUP = 0xFFFFFDA1;
-	public static final int DISPID_HTMLDOCUMENTEVENTS_ONSTOP = 0x00000402;
+	public static final int DISPID_HTMLDOCUMENTEVENTS_ONMOUSEWHEEL = 0x00000402;
 
 	//public static final int DISPID_READYSTATE = -525;
 	//public static final int DISPID_READYSTATECHANGE = -609;
@@ -220,6 +228,7 @@ public class COM extends OS {
 	public static final int DROPEFFECT_MOVE = 2; 
 	public static final int DROPEFFECT_LINK = 4; 
 	public static final int DROPEFFECT_SCROLL = 0x80000000; 
+	public static final int DSH_ALLOWDROPDESCRIPTIONTEXT = 0x1;
 	public static final int DV_E_FORMATETC = -2147221404;
 	public static final int DV_E_STGMEDIUM = -2147221402;
 	public static final int DV_E_TYMED = -2147221399;
@@ -610,7 +619,7 @@ public static final int STATE_SYSTEM_SELECTED = 0x2;
 public static final int STATE_SYSTEM_FOCUSED = 0x4;
 public static final int STATE_SYSTEM_PRESSED = 0x8;
 public static final int STATE_SYSTEM_CHECKED = 0x10;
-//public static final int STATE_SYSTEM_MIXED = 0x20;
+public static final int STATE_SYSTEM_MIXED = 0x20;
 //public static final int STATE_SYSTEM_INDETERMINATE = STATE_SYSTEM_MIXED;
 public static final int STATE_SYSTEM_READONLY = 0x40;
 public static final int STATE_SYSTEM_HOTTRACKED = 0x80;
