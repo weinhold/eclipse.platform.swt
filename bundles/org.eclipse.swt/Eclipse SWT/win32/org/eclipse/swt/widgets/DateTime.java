@@ -15,9 +15,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
 
-//TODO - features not yet implemented: read-only, drop-down calendar for date
-//TODO - font, colors, background image not yet implemented (works on some platforms)
-
 /**
  * Instances of this class are selectable user interface
  * objects that allow the user to enter and modify date
@@ -28,13 +25,14 @@ import org.eclipse.swt.graphics.*;
  * </p>
  * <dl>
  * <dt><b>Styles:</b></dt>
- * <dd>DATE, TIME, CALENDAR, SHORT, MEDIUM, LONG</dd>
+ * <dd>DATE, TIME, CALENDAR, SHORT, MEDIUM, LONG, DROP_DOWN</dd>
  * <dt><b>Events:</b></dt>
- * <dd>Selection</dd>
+ * <dd>DefaultSelection, Selection</dd>
  * </dl>
  * <p>
  * Note: Only one of the styles DATE, TIME, or CALENDAR may be specified,
  * and only one of the styles SHORT, MEDIUM, or LONG may be specified.
+ * The DROP_DOWN style is only valid with the DATE style.
  * </p><p>
  * IMPORTANT: This class is <em>not</em> intended to be subclassed.
  * </p>
@@ -193,7 +191,7 @@ public DateTime (Composite parent, int style) {
  * interface.
  * <p>
  * <code>widgetSelected</code> is called when the user changes the control's value.
- * <code>widgetDefaultSelected</code> is not called.
+ * <code>widgetDefaultSelected</code> is typically called when ENTER is pressed.
  * </p>
  *
  * @param listener the listener which should be notified
@@ -233,7 +231,9 @@ static int checkStyle (int style) {
 	*/
 	style &= ~(SWT.H_SCROLL | SWT.V_SCROLL);
 	style = checkBits (style, SWT.DATE, SWT.TIME, SWT.CALENDAR, 0, 0, 0);
-	return checkBits (style, SWT.MEDIUM, SWT.SHORT, SWT.LONG, 0, 0, 0);
+	style = checkBits (style, SWT.MEDIUM, SWT.SHORT, SWT.LONG, 0, 0, 0);
+	if ((style & SWT.DATE) == 0) style &=~ SWT.DROP_DOWN;
+	return style;
 }
 
 protected void checkSubclass () {
@@ -917,7 +917,10 @@ int widgetStyle () {
 	*/
 	bits &= ~OS.WS_CLIPCHILDREN;
 	if ((style & SWT.TIME) != 0) bits |= OS.DTS_TIMEFORMAT;
-	if ((style & SWT.DATE) != 0) bits |= ((style & SWT.MEDIUM) != 0 ? OS.DTS_SHORTDATECENTURYFORMAT : OS.DTS_LONGDATEFORMAT) | OS.DTS_UPDOWN;
+	if ((style & SWT.DATE) != 0) {
+		bits |= ((style & SWT.MEDIUM) != 0 ? OS.DTS_SHORTDATECENTURYFORMAT : OS.DTS_LONGDATEFORMAT);
+		if ((style & SWT.DROP_DOWN) == 0) bits |= OS.DTS_UPDOWN;
+	}
 	return bits;
 }
 
@@ -1007,19 +1010,5 @@ LRESULT WM_LBUTTONUP (int /*long*/ wParam, int /*long*/ lParam) {
 	if (doubleClick) postEvent (SWT.DefaultSelection);
 	doubleClick = false;
 	return result;
-}
-
-LRESULT WM_TIMER (int /*long*/ wParam, int /*long*/ lParam) {
-	LRESULT result = super.WM_TIMER (wParam, lParam);
-	if (result != null) return result;
-	/*
-	* Feature in Windows. For some reason, Windows sends WM_NOTIFY with
-	* MCN_SELCHANGE at regular intervals. This is unexpected. The fix is
-	* to ignore MCN_SELCHANGE during WM_TIMER.
-	*/
-	ignoreSelection = true;
-	int /*long*/ code = callWindowProc(handle, OS.WM_TIMER, wParam, lParam);
-	ignoreSelection = false;
-	return code == 0 ? LRESULT.ZERO : new LRESULT(code);
 }
 }

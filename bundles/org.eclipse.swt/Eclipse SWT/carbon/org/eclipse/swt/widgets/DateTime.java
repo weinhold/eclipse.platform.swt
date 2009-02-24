@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
+
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.internal.carbon.LongDateRec;
 import org.eclipse.swt.internal.carbon.OS;
 import org.eclipse.swt.internal.carbon.Rect;
@@ -30,13 +32,14 @@ import org.eclipse.swt.internal.carbon.Rect;
  * </p>
  * <dl>
  * <dt><b>Styles:</b></dt>
- * <dd>DATE, TIME, CALENDAR, SHORT, MEDIUM, LONG</dd>
+ * <dd>DATE, TIME, CALENDAR, SHORT, MEDIUM, LONG, DROP_DOWN</dd>
  * <dt><b>Events:</b></dt>
- * <dd>Selection</dd>
+ * <dd>DefaultSelection, Selection</dd>
  * </dl>
  * <p>
  * Note: Only one of the styles DATE, TIME, or CALENDAR may be specified,
  * and only one of the styles SHORT, MEDIUM, or LONG may be specified.
+ * The DROP_DOWN style is only valid with the DATE style.
  * </p><p>
  * IMPORTANT: This class is <em>not</em> intended to be subclassed.
  * </p>
@@ -48,19 +51,28 @@ import org.eclipse.swt.internal.carbon.Rect;
  * @since 3.3
  */
 public class DateTime extends Composite {
+	/* DATE and TIME fields */
 	LongDateRec dateRec;
 	LongDateRec dateAndTime = new LongDateRec ();  // copy of date for a kControlClockTypeHourMinuteSecond or time for a kControlClockTypeMonthDayYear
-
-	static final int MIN_YEAR = 1752; // Gregorian switchover in North America: September 19, 1752
-	static final int MAX_YEAR = 9999;
 	
-	/* Emulated Calendar variables */
+	/* Emulated CALENDAR fields */
 	Color fg, bg;
 	Calendar calendar;
 	DateFormatSymbols formatSymbols;
 	Button monthDown, monthUp, yearDown, yearUp;
+	
+	/* Emulated DROP_DOWN calendar fields for DATE */
+	Button down;
+	boolean hasFocus;
+	int savedYear, savedMonth, savedDay;
+	Shell popupShell;
+	DateTime popupCalendar;
+	Listener popupListener, popupFilter;
+
 	static final int MARGIN_WIDTH = 2;
 	static final int MARGIN_HEIGHT = 1;
+	static final int MIN_YEAR = 1752; // Gregorian switchover in North America: September 19, 1752
+	static final int MAX_YEAR = 9999;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -95,60 +107,123 @@ public class DateTime extends Composite {
 public DateTime (Composite parent, int style) {
 	super (parent, checkStyle (style) | ((style & SWT.CALENDAR) != 0 ? SWT.NO_REDRAW_RESIZE : 0));
 	if ((this.style & SWT.CALENDAR) != 0) {
-		calendar = Calendar.getInstance();
-		formatSymbols = new DateFormatSymbols();
+		createCalendar();
+	} else {
+		createText((this.style & SWT.DROP_DOWN) != 0);
+	}
+	initAccessible ();
+}
 
-		Listener listener = new Listener() {
-			public void handleEvent(Event event) {
-				switch(event.type) {
-					case SWT.Paint:		handlePaint(event); break;
-					case SWT.Resize:	handleResize(event); break;
-					case SWT.MouseDown:	handleMouseDown(event); break;
-					case SWT.KeyDown:	handleKeyDown(event); break;
-					case SWT.Traverse:	handleTraverse(event); break;
-				}
+void createCalendar() {
+	calendar = Calendar.getInstance();
+	formatSymbols = new DateFormatSymbols();
+	Listener listener = new Listener() {
+		public void handleEvent(Event event) {
+			switch(event.type) {
+				case SWT.Paint:		calendarPaint(event); break;
+				case SWT.Resize:	calendarResize(event); break;
+				case SWT.MouseDown:	calendarMouseDown(event); break;
+				case SWT.KeyDown:	calendarKeyDown(event); break;
+				case SWT.Traverse:	calendarTraverse(event); break;
 			}
-		};
-		addListener(SWT.Paint, listener);
-		addListener(SWT.Resize, listener);
-		addListener(SWT.MouseDown, listener);
-		addListener(SWT.KeyDown, listener);
-		addListener(SWT.Traverse, listener);
-		yearDown = new Button(this, SWT.ARROW | SWT.LEFT);
-		//yearDown.setToolTipText(SWT.getMessage ("SWT_Last_Year")); //$NON-NLS-1$
-		monthDown = new Button(this, SWT.ARROW | SWT.LEFT);
-		//monthDown.setToolTipText(SWT.getMessage ("SWT_Last_Month")); //$NON-NLS-1$
-		monthUp = new Button(this, SWT.ARROW | SWT.RIGHT);
-		//monthUp.setToolTipText(SWT.getMessage ("SWT_Next_Month")); //$NON-NLS-1$
-		yearUp = new Button(this, SWT.ARROW | SWT.RIGHT);
-		//yearUp.setToolTipText(SWT.getMessage ("SWT_Next_Year")); //$NON-NLS-1$
-		listener = new Listener() {
-			public void handleEvent(Event event) {
-				handleSelection(event);
+		}
+	};
+	int [] listeners = new int [] {SWT.Paint, SWT.Resize, SWT.MouseDown, SWT.KeyDown, SWT.Traverse};
+	for (int i = 0; i < listeners.length; i++) {
+		addListener(listeners [i], listener);
+	}
+	
+	yearDown = new Button(this, SWT.ARROW | SWT.LEFT);
+	//yearDown.setToolTipText(SWT.getMessage ("SWT_Last_Year")); //$NON-NLS-1$
+	monthDown = new Button(this, SWT.ARROW | SWT.LEFT);
+	//monthDown.setToolTipText(SWT.getMessage ("SWT_Last_Month")); //$NON-NLS-1$
+	monthUp = new Button(this, SWT.ARROW | SWT.RIGHT);
+	//monthUp.setToolTipText(SWT.getMessage ("SWT_Next_Month")); //$NON-NLS-1$
+	yearUp = new Button(this, SWT.ARROW | SWT.RIGHT);
+	//yearUp.setToolTipText(SWT.getMessage ("SWT_Next_Year")); //$NON-NLS-1$
+	listener = new Listener() {
+		public void handleEvent(Event event) {
+			switch(event.type) {
+				case SWT.Selection:	calendarSelection(event); break;
+				case SWT.KeyDown:	calendarKeyDown(event); break;
+				case SWT.Traverse:	calendarTraverse(event); break;
 			}
-		};
-		yearDown.addListener(SWT.Selection, listener);
-		monthDown.addListener(SWT.Selection, listener);
-		monthUp.addListener(SWT.Selection, listener);
-		yearUp.addListener(SWT.Selection, listener);
+		}
+	};
+	listeners = new int [] {SWT.Selection, SWT.KeyDown, SWT.Traverse};
+	for (int i = 0; i < listeners.length; i++) {
+		yearDown.addListener(listeners [i], listener);
+		monthDown.addListener(listeners [i], listener);
+		monthUp.addListener(listeners [i], listener);
+		yearUp.addListener(listeners [i], listener);
 	}
 }
 
-static int checkStyle (int style) {
-	/*
-	* Even though it is legal to create this widget
-	* with scroll bars, they serve no useful purpose
-	* because they do not automatically scroll the
-	* widget's client area.  The fix is to clear
-	* the SWT style.
-	*/
-	style &= ~(SWT.H_SCROLL | SWT.V_SCROLL);
-	style = checkBits (style, SWT.MEDIUM, SWT.SHORT, SWT.LONG, 0, 0, 0);
-	return checkBits (style, SWT.DATE, SWT.TIME, SWT.CALENDAR, 0, 0, 0);
+void createText(boolean dropDown) {
+	if ((style & SWT.DATE) != 0 && dropDown) {
+		createDropDownButton();
+		createPopupShell(-1, -1, -1);
+	}
 }
 
-protected void checkSubclass () {
-	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+void createDropDownButton() {
+	down = new Button(this, SWT.ARROW  | SWT.DOWN);
+	down.addListener(SWT.Selection, new Listener() {
+		public void handleEvent(Event event) {
+			dropDownCalendar (true);
+		}
+	});
+	popupListener = new Listener () {
+		public void handleEvent (Event event) {
+			if (event.widget == popupShell) {
+				popupShellEvent (event);
+				return;
+			}
+			if (event.widget == popupCalendar) {
+				popupCalendarEvent (event);
+				return;
+			}
+			if (event.widget == DateTime.this) {
+				dateTimeEvent (event);
+				return;
+			}
+			if (event.widget == getShell ()) {
+				getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						if (isDisposed()) return;
+						popupCalendarFocus (SWT.FocusOut);
+					}
+				});
+			}
+		}
+	};
+	popupFilter = new Listener() {
+		public void handleEvent(Event event) {
+			Shell shell = ((Control)event.widget).getShell ();
+			if (shell == DateTime.this.getShell ()) {
+				popupCalendarFocus (SWT.FocusOut);
+			}
+		}
+	};
+}
+
+void createPopupShell(int year, int month, int day) {	
+	popupShell = new Shell (getShell (), SWT.NO_TRIM | SWT.ON_TOP);
+	popupCalendar = new DateTime (popupShell, SWT.CALENDAR);
+	if (font != null) popupCalendar.setFont (font);
+	if (fg != null) popupCalendar.setForeground (fg);
+	if (bg != null) popupCalendar.setBackground (bg);
+
+	int [] listeners = {SWT.Close, SWT.Paint, SWT.Deactivate};
+	for (int i=0; i < listeners.length; i++) {
+		popupShell.addListener (listeners [i], popupListener);
+	}
+	listeners = new int [] {SWT.MouseUp, SWT.Selection, SWT.Traverse, SWT.KeyDown, SWT.KeyUp, SWT.FocusIn, SWT.Dispose};
+	for (int i=0; i < listeners.length; i++) {
+		popupCalendar.addListener (listeners [i], popupListener);
+	}
+
+	if (year != -1) popupCalendar.setDate(year, month, day);
 }
 
 /**
@@ -158,7 +233,7 @@ protected void checkSubclass () {
  * interface.
  * <p>
  * <code>widgetSelected</code> is called when the user changes the control's value.
- * <code>widgetDefaultSelected</code> is not called.
+ * <code>widgetDefaultSelected</code> is typically called when ENTER is pressed.
  * </p>
  *
  * @param listener the listener which should be notified
@@ -181,6 +256,114 @@ public void addSelectionListener (SelectionListener listener) {
 	TypedListener typedListener = new TypedListener (listener);
 	addListener (SWT.Selection, typedListener);
 	addListener (SWT.DefaultSelection, typedListener);
+}
+
+void calendarKeyDown(Event event) {
+	if ((event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+		return;
+	}
+	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
+	switch (event.keyCode) {
+		case SWT.ARROW_DOWN: newDay += 7; break;
+		case SWT.ARROW_UP: newDay -= 7; break;
+		case SWT.ARROW_RIGHT: newDay += 1; break;
+		case SWT.ARROW_LEFT: newDay -= 1; break;
+		case SWT.PAGE_DOWN: calendarSelection((event.stateMask & SWT.ALT) != 0 ? yearUp : monthUp); break;
+		case SWT.PAGE_UP: calendarSelection((event.stateMask & SWT.ALT) != 0 ? yearDown : monthDown); break;
+	}
+	setDay(newDay, true);
+	if (event.character == SWT.CR) {
+		postEvent (SWT.DefaultSelection);
+	}
+}
+
+void calendarMouseDown(Event event) {
+	setFocus();
+	Point cellSize = getCellSize(null);
+	int column = event.x / cellSize.x;
+	int row = event.y / cellSize.y;	
+	int cell = row * 7 + column;
+	int newDay = getDate(cell);
+	setDay(newDay, true);
+}
+
+void calendarPaint(Event event) {
+	GC gc = event.gc;
+	Rectangle client = getClientArea();
+	Point cellSize = getCellSize(gc);
+	drawDaysOfWeek(gc, cellSize, client);
+	drawDays(gc, cellSize, client);
+	drawMonth(gc, cellSize, client);
+}
+
+void calendarResize(Event event) {
+	yearDown.pack();
+	monthDown.pack();
+	monthUp.pack();
+	yearUp.pack();
+	Point cellSize = getCellSize(null);
+	Point size = monthDown.getSize();
+	int height = Math.max(cellSize.y, size.y);
+	int y = cellSize.y * 7 + (height - size.y) / 2;
+	yearDown.setLocation(0, y);
+	monthDown.setLocation(size.x, y);
+	int x = cellSize.x * 7 - size.x;
+	monthUp.setLocation(x - size.x, y);
+	yearUp.setLocation(x, y);
+}
+
+void calendarSelection(Event event) {
+	if (event.widget == monthDown) {
+		calendar.add(Calendar.MONTH, -1);
+	} else if (event.widget == monthUp) {
+		calendar.add(Calendar.MONTH, 1);
+	} else if (event.widget == yearDown) {
+		calendar.add(Calendar.YEAR, -1);
+	} else if (event.widget == yearUp) {				
+		calendar.add(Calendar.YEAR, 1);
+	} else {
+		return;
+	}
+	redraw();
+	postEvent(SWT.Selection);
+}
+
+void calendarSelection(Button button) {
+	Event event = new Event();
+	event.widget = button;
+	calendarSelection(event);
+}
+
+void calendarTraverse(Event event) {
+	switch (event.detail) {
+		case SWT.TRAVERSE_ESCAPE:
+		case SWT.TRAVERSE_PAGE_NEXT:
+		case SWT.TRAVERSE_PAGE_PREVIOUS:
+		case SWT.TRAVERSE_RETURN:
+		case SWT.TRAVERSE_TAB_NEXT:
+		case SWT.TRAVERSE_TAB_PREVIOUS:
+			event.doit = true;
+			break;
+	}
+}
+
+static int checkStyle (int style) {
+	/*
+	* Even though it is legal to create this widget
+	* with scroll bars, they serve no useful purpose
+	* because they do not automatically scroll the
+	* widget's client area.  The fix is to clear
+	* the SWT style.
+	*/
+	style &= ~(SWT.H_SCROLL | SWT.V_SCROLL);
+	style = checkBits (style, SWT.DATE, SWT.TIME, SWT.CALENDAR, 0, 0, 0);
+	style = checkBits (style, SWT.MEDIUM, SWT.SHORT, SWT.LONG, 0, 0, 0);
+	if ((style & SWT.DATE) == 0) style &=~ SWT.DROP_DOWN;
+	return style;
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
 }
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
@@ -220,7 +403,6 @@ void createHandle () {
 		if (outControl [0] == 0) error (SWT.ERROR_NO_HANDLES);
 		handle = outControl [0];
 	} else { /* SWT.CALENDAR */
-		// TODO: on Cocoa, can use NSDatePicker - otherwise, use emulated:
 		super.createHandle();
 	}
 }
@@ -228,6 +410,39 @@ void createHandle () {
 void createWidget() {
 	super.createWidget ();
 	getDate();
+}
+
+void dateTimeEvent (Event event) {
+	switch (event.type) {
+		case SWT.Dispose:
+			if (popupShell != null && !popupShell.isDisposed ()) {
+				popupCalendar.removeListener (SWT.Dispose, popupListener);
+				popupShell.dispose ();
+			}
+			Shell shell = getShell ();
+			shell.removeListener (SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			popupShell = null;  
+			popupCalendar = null;  
+			down = null;
+			break;
+		case SWT.FocusIn:
+			Control focusControl = getDisplay ().getFocusControl ();
+			if (focusControl == down || focusControl == popupCalendar) return;
+			if (isDropped()) {
+				popupCalendar.setFocus();
+			} else {
+				setFocus();
+			}
+			break;
+		case SWT.Move:
+			dropDownCalendar (false);
+			break;
+		case SWT.Resize:
+			internalLayout (false);
+			break;
+	}
 }
 
 void drawDay(GC gc, Point cellSize, int day) {
@@ -240,7 +455,10 @@ void drawDay(GC gc, Point cellSize, int day) {
 		Display display = getDisplay();
 		gc.setBackground(display.getSystemColor(SWT.COLOR_LIST_SELECTION));
 		gc.setForeground(display.getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
-		gc.fillRectangle(location.x, location.y, cellSize.x, cellSize.y);
+		gc.fillRectangle(location.x + 1, location.y + 1, cellSize.x - 2, cellSize.y - 2);
+		if (isFocusControl()) {
+			gc.drawFocus(location.x, location.y, cellSize.x, cellSize.y);
+		}
 	}
 	gc.drawString(str, location.x + (cellSize.x - extent.x) / 2, location.y + (cellSize.y - extent.y) / 2, true);
 	if (day == date) {
@@ -288,79 +506,50 @@ void drawMonth(GC gc, Point cellSize, Rectangle client) {
 	gc.drawString(str, (cellSize.x * 7 - extent.x) / 2, y + (cellSize.y - extent.y) / 2, true);
 }
 
-void handleKeyDown(Event event) {
-	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
-	switch (event.keyCode) {
-		case SWT.ARROW_DOWN: newDay += 7; break;
-		case SWT.ARROW_UP: newDay -= 7; break;
-		case SWT.ARROW_RIGHT: newDay += 1; break;
-		case SWT.ARROW_LEFT: newDay -= 1; break;
-	}
-	setDay(newDay, true);
-}
-
-void handleMouseDown(Event event) {
-	setFocus();
-	Point cellSize = getCellSize(null);
-	int column = event.x / cellSize.x;
-	int row = event.y / cellSize.y;	
-	int cell = row * 7 + column;
-	int newDay = getDate(cell);
-	setDay(newDay, true);
-}
-
-void handlePaint(Event event) {
-	GC gc = event.gc;
-	Rectangle client = getClientArea();
-	Point cellSize = getCellSize(gc);
-	drawDaysOfWeek(gc, cellSize, client);
-	drawDays(gc, cellSize, client);
-	drawMonth(gc, cellSize, client);
-}
-
-void handleResize(Event event) {
-	yearDown.pack();
-	monthDown.pack();
-	monthUp.pack();
-	yearUp.pack();
-	Point cellSize = getCellSize(null);
-	Point size = monthDown.getSize();
-	int height = Math.max(cellSize.y, size.y);
-	int y = cellSize.y * 7 + (height - size.y) / 2;
-	yearDown.setLocation(0, y);
-	monthDown.setLocation(size.x, y);
-	int x = cellSize.x * 7 - size.x;
-	monthUp.setLocation(x - size.x, y);
-	yearUp.setLocation(x, y);
-}
-
-void handleSelection(Event event) {
-	if (event.widget == monthDown) {
-		calendar.add(Calendar.MONTH, -1);
-	} else if (event.widget == monthUp) {
-		calendar.add(Calendar.MONTH, 1);
-	} else if (event.widget == yearDown) {
-		calendar.add(Calendar.YEAR, -1);
-	} else if (event.widget == yearUp) {				
-		calendar.add(Calendar.YEAR, 1);
-	} else {
+void dropDownCalendar(boolean drop) {
+	if (drop == isDropped ()) return;
+	if (!drop) {
+		popupShell.setVisible (false);
+		if (!isDisposed () && isFocusControl()) {
+			setFocus();
+		}
 		return;
 	}
-	redraw();
-	postEvent(SWT.Selection);
-}
 
-void handleTraverse(Event event) {
-	switch (event.detail) {
-		case SWT.TRAVERSE_ESCAPE:
-		case SWT.TRAVERSE_PAGE_NEXT:
-		case SWT.TRAVERSE_PAGE_PREVIOUS:
-		case SWT.TRAVERSE_RETURN:
-		case SWT.TRAVERSE_TAB_NEXT:
-		case SWT.TRAVERSE_TAB_PREVIOUS:
-			event.doit = true;
-			break;
-	}	
+	savedYear = getYear ();
+	savedMonth = getMonth ();
+	savedDay = getDay ();
+	if (getShell() != popupShell.getParent ()) {
+		int year = popupCalendar.getYear ();
+		int month = popupCalendar.getMonth ();
+		int day = popupCalendar.getDay ();
+		popupCalendar.removeListener (SWT.Dispose, popupListener);
+		popupShell.dispose();
+		popupShell = null;
+		popupCalendar = null;
+		createPopupShell (year, month, day);
+	}
+	
+	Point dateBounds = getSize ();
+	Point calendarSize = popupCalendar.computeSize (SWT.DEFAULT, SWT.DEFAULT, false);
+	popupCalendar.setBounds (1, 1, Math.max (dateBounds.x - 2, calendarSize.x), calendarSize.y);
+	
+	int year = popupCalendar.getYear ();
+	int month = popupCalendar.getMonth ();
+	int day = popupCalendar.getDay ();
+	popupCalendar.setDate(year, month, day);
+	Display display = getDisplay ();
+	Rectangle parentRect = display.map (getParent (), null, getBounds ());
+	Rectangle displayRect = getMonitor ().getClientArea ();
+	int width = Math.max (dateBounds.x, calendarSize.x + 2);
+	int height = calendarSize.y + 2;
+	int x = parentRect.x;
+	int y = parentRect.y + dateBounds.y;
+	if (y + height > displayRect.y + displayRect.height) y = parentRect.y - height;
+	if (x + width > displayRect.x + displayRect.width) x = displayRect.x + displayRect.width - calendarSize.x;
+	popupShell.setBounds (x, y, width, height);
+	popupShell.setVisible (true);
+	if (isFocusControl()) popupCalendar.setFocus ();
 }
 
 Point getCellSize(GC gc) {
@@ -417,14 +606,6 @@ public Color getBackground() {
 	return bg;
 }
 
-public Color getForeground() {
-	checkWidget();
-	if (fg == null) {
-		return getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
-	}
-	return fg;
-}
-
 /**
  * Returns the receiver's date, or day of the month.
  * <p>
@@ -446,6 +627,14 @@ public int getDay () {
 	}
 	getDate();
 	return dateRec.day;
+}
+
+public Color getForeground() {
+	checkWidget();
+	if (fg == null) {
+		return getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+	}
+	return fg;
 }
 
 /**
@@ -545,6 +734,37 @@ public int getSeconds () {
 	return dateRec.second;
 }
 
+/*
+ * Returns a textual representation of the receiver,
+ * intended for speaking the text aloud.
+ */
+String getSpokenText () {
+	// TODO: needs more work for locale
+	StringBuffer result = new StringBuffer ();
+	if ((style & SWT.TIME) != 0) {
+		int h = calendar.get(Calendar.HOUR); if (h == 0) h = 12;
+		result.append(h);
+		int m = calendar.get(Calendar.MINUTE);
+		result.append(":" + (m < 10 ? "0" : "") + m);
+		if ((style & SWT.SHORT) == 0) {
+			int s = calendar.get(Calendar.SECOND);
+			result.append(":" + (s < 10 ? "0" : "") + s);
+		}
+		result.append(" " + formatSymbols.getAmPmStrings()[calendar.get(Calendar.AM_PM)]);
+	} else {
+		/* SWT.DATE or SWT.CALENDAR */
+		if ((style & SWT.SHORT) == 0) {
+			result.append(formatSymbols.getWeekdays()[calendar.get(Calendar.DAY_OF_WEEK)] + ", ");
+		}
+		result.append(formatSymbols.getMonths()[calendar.get(Calendar.MONTH)] + " ");
+		if ((style & SWT.SHORT) == 0) {
+			result.append(calendar.get(Calendar.DAY_OF_MONTH) + ", ");
+		}
+		result.append(calendar.get(Calendar.YEAR));
+	}
+	return result.toString();
+}
+
 /**
  * Returns the receiver's year.
  * <p>
@@ -578,6 +798,76 @@ void hookEvents () {
 		int controlTarget = OS.GetControlEventTarget (handle);
 		OS.InstallEventHandler (controlTarget, clockProc, mask.length / 2, mask, handle, null);
 	}
+}
+
+void initAccessible() {
+	Accessible accessible = getAccessible ();
+	accessible.addAccessibleListener (new AccessibleAdapter () {
+		public void getName (AccessibleEvent e) {
+			e.result = getSpokenText ();
+		}
+
+		public void getHelp(AccessibleEvent e) {
+			e.result = getToolTipText ();
+		}
+	});
+
+	accessible.addAccessibleControlListener (new AccessibleControlAdapter () {
+		public void getChildAtPoint (AccessibleControlEvent e) {
+			e.childID = ACC.CHILDID_SELF;
+		}
+		
+		public void getLocation (AccessibleControlEvent e) {
+			Rectangle rect = display.map (getParent (), null, getBounds ());
+			e.x = rect.x;
+			e.y = rect.y;
+			e.width = rect.width;
+			e.height = rect.height;
+		}
+		
+		public void getChildCount (AccessibleControlEvent e) {
+			e.detail = 0;
+		}
+		
+		public void getRole (AccessibleControlEvent e) {
+			e.detail = ((style & SWT.CALENDAR) != 0) ? ACC.ROLE_LABEL : ACC.ROLE_TEXT;
+		}
+		
+		public void getState (AccessibleControlEvent e) {
+			e.detail = ACC.STATE_FOCUSABLE;
+			if (hasFocus ()) e.detail |= ACC.STATE_FOCUSED;
+		}
+		
+		public void getSelection (AccessibleControlEvent e) {
+			if (hasFocus ()) e.childID = ACC.CHILDID_SELF;
+		}
+		
+		public void getFocus (AccessibleControlEvent e) {
+			if (hasFocus ()) e.childID = ACC.CHILDID_SELF;
+		}
+	});
+}
+
+void internalLayout (boolean changed) {
+	if (isDropped ()) dropDownCalendar (false);
+	Rectangle rect = getClientArea ();
+	int width = rect.width;
+	int height = rect.height;
+	Point arrowSize = down.computeSize (SWT.DEFAULT, height, changed);
+	setBounds (0, 0, width - arrowSize.x, height);
+	down.setBounds (width - arrowSize.x, 0, arrowSize.x, arrowSize.y);
+}
+
+boolean isDropped () {
+	return popupShell.getVisible ();
+}
+
+public boolean isFocusControl () {
+	checkWidget();
+	if ((style & SWT.DROP_DOWN) != 0 && (isFocusControl () || down.isFocusControl () || popupShell.isFocusControl ())) {
+		return true;
+	} 
+	return super.isFocusControl ();
 }
 
 boolean isValidTime(int fieldName, int value) {
@@ -617,6 +907,169 @@ int kEventTextInputUnicodeForKeyEvent (int nextHandler, int theEvent, int userDa
 
 boolean pollTrackEvent() {
 	return ((style & SWT.DATE) != 0) || ((style & SWT.TIME) != 0);
+}
+
+void popupCalendarEvent (Event event) {
+	switch (event.type) {
+		case SWT.Dispose:
+			if (popupShell != null && !popupShell.isDisposed () && !isDisposed() && getShell () != popupShell.getParent ()) {
+				int year = popupCalendar.getYear ();
+				int month = popupCalendar.getMonth ();
+				int day = popupCalendar.getDay ();
+				popupShell = null;
+				popupCalendar = null;
+				createPopupShell (year, month, day);
+			}
+			break;
+		case SWT.FocusIn: {
+			popupCalendarFocus (SWT.FocusIn);
+			break;
+		}
+		case SWT.MouseUp: {
+			if (event.button != 1) return;
+			dropDownCalendar (false);
+			break;
+		}
+		case SWT.Selection: {
+			int year = popupCalendar.getYear ();
+			int month = popupCalendar.getMonth ();
+			int day = popupCalendar.getDay ();
+			setDate(year, month, day);
+			Event e = new Event ();
+			e.time = event.time;
+			e.stateMask = event.stateMask;
+			e.doit = event.doit;
+			notifyListeners (SWT.Selection, e);
+			event.doit = e.doit;
+			break;
+		}
+		case SWT.Traverse: {
+			switch (event.detail) {
+				case SWT.TRAVERSE_RETURN:
+				case SWT.TRAVERSE_ESCAPE:
+				case SWT.TRAVERSE_ARROW_PREVIOUS:
+				case SWT.TRAVERSE_ARROW_NEXT:
+					event.doit = false;
+					break;
+				case SWT.TRAVERSE_TAB_NEXT:
+				case SWT.TRAVERSE_TAB_PREVIOUS:
+					event.doit = traverse(event.detail);
+					event.detail = SWT.TRAVERSE_NONE;
+					if (event.doit) dropDownCalendar (false);
+					return;
+				case SWT.TRAVERSE_PAGE_NEXT:
+				case SWT.TRAVERSE_PAGE_PREVIOUS:
+					return;
+			}
+			Event e = new Event ();
+			e.time = event.time;
+			e.detail = event.detail;
+			e.doit = event.doit;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			notifyListeners (SWT.Traverse, e);
+			event.doit = e.doit;
+			event.detail = e.detail;
+			break;
+		}
+		case SWT.KeyUp: {		
+			Event e = new Event ();
+			e.time = event.time;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			e.stateMask = event.stateMask;
+			notifyListeners (SWT.KeyUp, e);
+			break;
+		}
+		case SWT.KeyDown: {
+			if (event.character == SWT.ESC) {
+				/* Escape key cancels popupCalendar and reverts date */
+				popupCalendar.setDate (savedYear, savedMonth, savedDay);
+				dropDownCalendar (false);
+			}
+			if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+				/* Return, Alt+Down, and Alt+Up cancel popupCalendar and select date. */
+				dropDownCalendar (false);
+			}
+			/* At this point the widget may have been disposed.
+			 * If so, do not continue. */
+			if (isDisposed ()) break;
+			Event e = new Event();
+			e.time = event.time;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			e.stateMask = event.stateMask;
+			notifyListeners(SWT.KeyDown, e);
+			break;
+		}
+	}
+}
+
+void popupCalendarFocus (int type) {
+	if (isDisposed ()) return;
+	switch (type) {
+		case SWT.FocusIn: {
+			if (hasFocus) return;
+			hasFocus = true;
+			Shell shell = getShell ();
+			shell.removeListener (SWT.Deactivate, popupListener);
+			shell.addListener (SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			display.addFilter (SWT.FocusIn, popupFilter);
+			Event e = new Event ();
+			notifyListeners (SWT.FocusIn, e);
+			break;
+		}
+		case SWT.FocusOut: {
+			if (!hasFocus) return;
+			Control focusControl = getDisplay ().getFocusControl ();
+			if (focusControl == down || focusControl == popupCalendar || focusControl == this) return;
+			hasFocus = false;
+			Shell shell = getShell ();
+			shell.removeListener(SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			Event e = new Event ();
+			notifyListeners (SWT.FocusOut, e);
+			break;
+		}
+	}
+}
+
+void popupShellEvent(Event event) {
+	switch (event.type) {
+		case SWT.Paint:
+			/* Draw black rectangle around popupCalendar */
+			Rectangle bounds = popupCalendar.getBounds();
+			Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			event.gc.setForeground(black);
+			event.gc.drawRectangle(0, 0, bounds.width + 1, bounds.height + 1);
+			break;
+		case SWT.Close:
+			event.doit = false;
+			dropDownCalendar (false);
+			break;
+		case SWT.Deactivate:
+			/*
+			 * Feature in Carbon. When the arrow button is pressed the popup control receives
+			 * a deactivate event and then the arrow button receives a selection event. 
+			 * If we hide the popup in the deactivate event, the selection event will show 
+			 * it again. To prevent the popup from showing again, we will let the selection 
+			 * event of the arrow button hide the popup.
+			 * In Windows, hiding the popup during the deactivate causes the deactivate 
+			 * to be called twice and the selection event to disappear.
+			 */
+			if (!"carbon".equals(SWT.getPlatform())) {
+				Point point = down.toControl(getDisplay().getCursorLocation());
+				Point size = down.getSize();
+				Rectangle rect = new Rectangle(0, 0, size.x, size.y);
+				if (!rect.contains(point)) dropDownCalendar (false);
+			} else {
+				dropDownCalendar(false);
+			}
+			break;
+	}
 }
 
 void redraw(int cell, Point cellSize) {
@@ -680,17 +1133,6 @@ public void setForeground(Color color) {
 	fg = color;
 }
 
-void setDay(int newDay, boolean notify) {
-	int firstDay = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
-	int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-	if (!(firstDay <= newDay && newDay <= lastDay)) return;
-	Point cellSize = getCellSize(null);
-	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
-	calendar.set(Calendar.DAY_OF_MONTH, newDay);
-	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
-	if (notify) postEvent(SWT.Selection);
-}
-
 /**
  * Sets the receiver's year, month, and day in a single operation.
  * <p>
@@ -711,7 +1153,7 @@ void setDay(int newDay, boolean notify) {
  */
 public void setDate (int year, int month, int day) {
 	checkWidget ();
-	if (!isValidDate(year, month, day)) return;
+	if (!isValid(year, month, day)) return;
 	if ((style & SWT.CALENDAR) != 0) {
 		calendar.set(Calendar.YEAR, year);
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -758,6 +1200,17 @@ public void setDay (int day) {
 		if ((style & SWT.TIME) != 0) dateAndTime.day = (short)day;
 		redraw();
 	}
+}
+
+void setDay (int newDay, boolean notify) {
+	int firstDay = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
+	int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+	if (!(firstDay <= newDay && newDay <= lastDay)) return;
+	Point cellSize = getCellSize(null);
+	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
+	calendar.set(Calendar.DAY_OF_MONTH, newDay);
+	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
+	if (notify) postEvent(SWT.Selection);
 }
 
 /**
