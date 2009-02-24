@@ -172,6 +172,10 @@ public class DateTime extends Composite {
  * @see SWT#DATE
  * @see SWT#TIME
  * @see SWT#CALENDAR
+ * @see SHORT
+ * @see MEDIUM
+ * @see LONG
+ * @see DROP_DOWN
  * @see Widget#checkSubclass
  * @see Widget#getStyle
  */
@@ -408,19 +412,19 @@ int defaultBackground () {
 	return OS.GetSysColor (OS.COLOR_WINDOW);
 }
 
-String getComputeSizeString () {
-	// TODO: Not currently used but might need for WinCE
-	if ((style & SWT.DATE) != 0) {
-		if ((style & SWT.SHORT) != 0) return getCustomShortDateFormat ();
-		if ((style & SWT.MEDIUM) != 0) return getShortDateFormat ();
-		if ((style & SWT.LONG) != 0) return getLongDateFormat ();
-	}
-	if ((style & SWT.TIME) != 0) {
-		if ((style & SWT.SHORT) != 0) return getCustomShortTimeFormat ();
-		return getTimeFormat ();
-	}
-	return "";
-}
+// TODO: Not currently used but may need for WinCE
+//String getComputeSizeString () {
+//	if ((style & SWT.DATE) != 0) {
+//		if ((style & SWT.SHORT) != 0) return getCustomShortDateFormat ();
+//		if ((style & SWT.MEDIUM) != 0) return getShortDateFormat ();
+//		if ((style & SWT.LONG) != 0) return getLongDateFormat ();
+//	}
+//	if ((style & SWT.TIME) != 0) {
+//		if ((style & SWT.SHORT) != 0) return getCustomShortTimeFormat ();
+//		return getTimeFormat ();
+//	}
+//	return "";
+//}
 
 String getCustomShortDateFormat () {
 	TCHAR tchar = new TCHAR (getCodePage (), 80);
@@ -483,31 +487,31 @@ String getCustomShortTimeFormat () {
 	return buffer.toString ();
 }
 
-String getLongDateFormat () {
-	//TODO: Not currently used, but may need for WinCE
-	TCHAR tchar = new TCHAR (getCodePage (), 80);
-	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_SLONGDATE, tchar, 80);
-	return size > 0 ? tchar.toString (0, size - 1) : "dddd, MMMM dd, yyyy"; //$NON-NLS-1$
-}
+//TODO: Not currently used, but may need for WinCE
+//String getLongDateFormat () {
+//	TCHAR tchar = new TCHAR (getCodePage (), 80);
+//	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_SLONGDATE, tchar, 80);
+//	return size > 0 ? tchar.toString (0, size - 1) : "dddd, MMMM dd, yyyy"; //$NON-NLS-1$
+//}
 
-String getShortDateFormat () {
-	//TODO: Not currently used, but may need for WinCE
-	TCHAR tchar = new TCHAR (getCodePage (), 80);
-	//TODO: May need to OR with LOCALE_ICENTURY
-	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_SSHORTDATE, tchar, 80);
-	return size > 0 ? tchar.toString (0, size - 1) : "M/d/yyyy"; //$NON-NLS-1$
-}
+//TODO: Not currently used, but may need for WinCE
+//String getShortDateFormat () {
+//	TCHAR tchar = new TCHAR (getCodePage (), 80);
+//	//TODO: May need to OR with LOCALE_ICENTURY
+//	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_SSHORTDATE, tchar, 80);
+//	return size > 0 ? tchar.toString (0, size - 1) : "M/d/yyyy"; //$NON-NLS-1$
+//}
 
-int getShortDateFormatOrdering () {
-	//TODO: Not currently used, but may need for WinCE
-	TCHAR tchar = new TCHAR (getCodePage (), 4);
-	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_IDATE, tchar, 4);
-	if (size > 0) {
-		String number = tchar.toString (0, size - 1);
-		return Integer.parseInt (number);
-	}
-	return 0;
-}
+//TODO: Not currently used, but may need for WinCE
+//int getShortDateFormatOrdering () {
+//	TCHAR tchar = new TCHAR (getCodePage (), 4);
+//	int size = OS.GetLocaleInfo (OS.LOCALE_USER_DEFAULT, OS.LOCALE_IDATE, tchar, 4);
+//	if (size > 0) {
+//		String number = tchar.toString (0, size - 1);
+//		return Integer.parseInt (number);
+//	}
+//	return 0;
+//}
 
 String getTimeFormat () {
 	TCHAR tchar = new TCHAR (getCodePage (), 80);
@@ -934,6 +938,19 @@ int /*long*/ windowProc () {
 
 LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 	switch (hdr.code) {
+		case OS.DTN_CLOSEUP: {
+			/*
+			* Feature in Windows.  When the user selects the drop-down button,
+			* the DateTimePicker runs a modal loop and consumes WM_LBUTTONUP.
+			* This is done without adding a mouse capture.  Since WM_LBUTTONUP
+			* is not delivered, the normal mechanism where a mouse capture is
+			* added on mouse down and removed when the mouse is released
+			* is broken, leaving an unwanted capture.  The fix is to avoid
+			* setting capture on mouse down right after WM_LBUTTONUP is consumed.
+			*/
+			display.captureChanged = true;
+			break;
+		}
 		case OS.MCN_SELCHANGE: {
 			if (ignoreSelection) break;
 			SYSTEMTIME systime = new SYSTEMTIME ();
@@ -1010,5 +1027,19 @@ LRESULT WM_LBUTTONUP (int /*long*/ wParam, int /*long*/ lParam) {
 	if (doubleClick) postEvent (SWT.DefaultSelection);
 	doubleClick = false;
 	return result;
+}
+
+LRESULT WM_TIMER (int /*long*/ wParam, int /*long*/ lParam) {
+	LRESULT result = super.WM_TIMER (wParam, lParam);
+	if (result != null) return result;
+	/*
+	* Feature in Windows. For some reason, Windows sends WM_NOTIFY with
+	* MCN_SELCHANGE at regular intervals. This is unexpected. The fix is
+	* to ignore MCN_SELCHANGE during WM_TIMER.
+	*/
+	ignoreSelection = true;
+	int /*long*/ code = callWindowProc(handle, OS.WM_TIMER, wParam, lParam);
+	ignoreSelection = false;
+	return code == 0 ? LRESULT.ZERO : new LRESULT(code);
 }
 }
