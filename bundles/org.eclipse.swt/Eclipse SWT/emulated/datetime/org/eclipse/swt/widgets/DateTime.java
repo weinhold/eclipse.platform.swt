@@ -46,15 +46,6 @@ import org.eclipse.swt.accessibility.*;
  *
  * @since 3.3
  */
-// TODO: locale is currently hard-coded to EN_US. This needs to be fixed. Use java.text.DateFormat?
-
-// TODO: add accessibility to calendar - note: win32 calendar is not accessible... test gtk
-
-// TODO: Consider allowing an optional drop-down calendar for SWT.DATE | SWT.DROP_DOWN
-
-// TODO: Consider adding set/get day-of-week API, i.e. 1-7 (Sun-Sat)
-// Win, Mac, and Java all provide this (but GTK does not).
-
 public class DateTime extends Composite {
 	Color fg, bg;
 	Calendar calendar;
@@ -67,7 +58,6 @@ public class DateTime extends Composite {
 	boolean ignoreVerify = false;
 	
 	/* DROP_DOWN calendar fields for DATE */
-	Color fg, bg;
 	boolean hasFocus;
 	int savedYear, savedMonth, savedDay;
 	Shell popupShell;
@@ -316,7 +306,14 @@ public void addSelectionListener (SelectionListener listener) {
 }
 
 void calendarKeyDown(Event event) {
-	if ((event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+//	if (event.character == SWT.ESC) {
+//		/* Escape key cancels popupCalendar and reverts date */
+//		popupCalendar.setDate (savedYear, savedMonth, savedDay);
+//		dropDownCalendar (false);
+//		return;
+//	}
+	if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+		/* Return, Alt+Up, and Alt+Down cancel popupCalendar and select date. */
 		return;
 	}
 	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
@@ -1037,8 +1034,8 @@ void popupCalendarEvent (Event event) {
 				popupCalendar.setDate (savedYear, savedMonth, savedDay);
 				dropDownCalendar (false);
 			}
-			if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
-				/* Return, Alt+Down, and Alt+Up cancel popupCalendar and select date. */
+			else if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+				/* Return, Alt+Up, and Alt+Down cancel popupCalendar and select date. */
 				dropDownCalendar (false);
 			}
 			/* At this point the widget may have been disposed.
@@ -1473,6 +1470,158 @@ public void setYear (int year) {
 	if (year < MIN_YEAR || year > MAX_YEAR) return;
 	calendar.set(Calendar.YEAR, year);
 	updateControl();
+}
+
+void textFocusIn(Event event) {
+	selectField(currentField);
+}
+
+void textFocusOut(Event event) {
+	commitCurrentField();
+}
+
+void textKeyDown(Event event) {
+	if ((style & SWT.DROP_DOWN) != 0 && (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+		boolean dropped = isDropped ();
+		if (!dropped) setFocus ();
+		dropDownCalendar (!dropped);
+		return;
+	}
+	int fieldName;
+	switch (event.keyCode) {
+		case SWT.ARROW_RIGHT:
+		case SWT.KEYPAD_DIVIDE:
+			/* A right arrow or a valid separator navigates to the field on the right, with wraping */
+			selectField((currentField + 1) % fieldCount);
+			break;
+		case SWT.ARROW_LEFT:
+			/* Navigate to the field on the left, with wrapping */
+			int index = currentField - 1;
+			selectField(index < 0 ? fieldCount - 1 : index);
+			break;
+		case SWT.ARROW_UP:
+		case SWT.KEYPAD_ADD:
+			/* Set the value of the current field to value + 1, with wrapping */
+			commitCurrentField();
+			incrementField(+1);
+			break;
+		case SWT.ARROW_DOWN:
+		case SWT.KEYPAD_SUBTRACT:
+			/* Set the value of the current field to value - 1, with wrapping */
+			commitCurrentField();
+			incrementField(-1);
+			break;
+		case SWT.HOME:
+			/* Set the value of the current field to its minimum */
+			fieldName = fieldNames[currentField];
+			setTextField(fieldName, calendar.getActualMinimum(fieldName), true, true);
+			break;
+		case SWT.END:
+			/* Set the value of the current field to its maximum */
+			fieldName = fieldNames[currentField];
+			setTextField(fieldName, calendar.getActualMaximum(fieldName), true, true);
+			break;
+		default:
+			switch (event.character) {
+				case '/':
+				case ':':
+				case '-':
+				case '.':
+					/* A valid separator navigates to the field on the right, with wraping */
+					selectField((currentField + 1) % fieldCount);
+					break;
+				case SWT.CR:
+					/* Enter causes default selection */
+					Event e = new Event ();
+					e.time = event.time;
+					e.stateMask = event.stateMask;
+					notifyListeners (SWT.DefaultSelection, e);
+					break;
+			}
+	}
+}
+
+void textMouseClick(Event event) {
+	if (event.button != 1) return;
+	Point sel = text.getSelection();
+	for (int i = 0; i < fieldCount; i++) {
+		if (sel.x >= fieldIndices[i].x && sel.x <= fieldIndices[i].y) {
+			currentField = i;
+			break;
+		}
+	}
+	selectField(currentField);
+}
+
+void textResize(Event event) {
+	Rectangle rect = getClientArea ();
+	int width = rect.width;
+	int height = rect.height;
+	Point buttonSize = down.computeSize(SWT.DEFAULT, height);
+	text.setBounds(0, 0, width - buttonSize.x, height);
+	if ((style & SWT.DROP_DOWN) != 0) {
+		down.setBounds(width - buttonSize.x, 0, buttonSize.x, height);
+	} else {
+		int buttonHeight = height / 2;
+		up.setBounds(width - buttonSize.x, 0, buttonSize.x, buttonHeight);
+		down.setBounds(width - buttonSize.x, buttonHeight, buttonSize.x, buttonHeight);
+	}
+}
+
+void textVerify(Event event) {
+	if (ignoreVerify) return;
+	event.doit = false;
+	int fieldName = fieldNames[currentField];
+	int start = fieldIndices[currentField].x;
+	int end = fieldIndices[currentField].y;
+	int length = end - start;
+	String newText = event.text;
+	if (fieldName == Calendar.AM_PM) {
+		String[] ampm = formatSymbols.getAmPmStrings();
+		if (newText.equalsIgnoreCase(ampm[Calendar.AM].substring(0, 1)) || newText.equalsIgnoreCase(ampm[Calendar.AM])) {
+			setTextField(fieldName, Calendar.AM, true, false);
+		} else if (newText.equalsIgnoreCase(ampm[Calendar.PM].substring(0, 1)) || newText.equalsIgnoreCase(ampm[Calendar.PM])) {
+			setTextField(fieldName, Calendar.PM, true, false);
+		}
+		return;
+	}
+	if (characterCount > 0) {
+		try {
+			Integer.parseInt(newText);
+		} catch (NumberFormatException ex) {
+			return;
+		}
+		String value = text.getText(start, end - 1);
+		int s = value.lastIndexOf(' ');
+		if (s != -1) value = value.substring(s + 1);
+		newText = "" + value + newText;
+	}
+	int newTextLength = newText.length();
+	boolean first = characterCount == 0;
+	characterCount = (newTextLength < length) ? newTextLength : 0;
+	int max = calendar.getActualMaximum(fieldName);
+	int min = calendar.getActualMinimum(fieldName);
+	int newValue = unformattedIntValue(fieldName, newText, characterCount == 0, max);
+	if (newValue == -1) {
+		characterCount = 0;
+		return;
+	}
+	if (first && newValue == 0 && length > 1) {
+		setTextField(fieldName, newValue, false, false);
+	} else if (min <= newValue && newValue <= max) {
+		setTextField(fieldName, newValue, characterCount == 0, characterCount == 0);
+	} else {
+		if (newTextLength >= length) {
+			newText = newText.substring(newTextLength - length + 1);
+			newValue = unformattedIntValue(fieldName, newText, characterCount == 0, max);
+			if (newValue != -1) {
+				characterCount = length - 1;
+				if (min <= newValue && newValue <= max) {
+					setTextField(fieldName, newValue, characterCount == 0, true);
+				}
+			}
+		}
+	}
 }
 
 int unformattedIntValue(int fieldName, String newText, boolean adjust, int max) {
