@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
-
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
@@ -66,7 +65,7 @@ public class DateTime extends Composite {
 	boolean hasFocus;
 	int savedYear, savedMonth, savedDay;
 	Shell popupShell;
-	DateTime popupCalendar;
+	DateTime popupCalendar, popupOwner;
 	Listener popupListener, popupFilter;
 
 	static final int MARGIN_WIDTH = 2;
@@ -167,10 +166,14 @@ void createText(boolean dropDown) {
 }
 
 void createDropDownButton() {
+	//TODO: This doesn't work, because ClockControl doesn't take children
+	//TODO: Also, there's no easy way to hide the little arrows
+	//TODO: So need to come up with a better plan - either draw, or get in the way of events, or something
+	//TODO: (maybe create the ClockControl as a child of another, and clip the arrows, and add a button peer?)
 	down = new Button(this, SWT.ARROW  | SWT.DOWN);
 	down.addListener(SWT.Selection, new Listener() {
 		public void handleEvent(Event event) {
-			dropDownCalendar (true);
+			dropDownCalendar (!isDropped());
 		}
 	});
 	popupListener = new Listener () {
@@ -210,6 +213,7 @@ void createDropDownButton() {
 void createPopupShell(int year, int month, int day) {	
 	popupShell = new Shell (getShell (), SWT.NO_TRIM | SWT.ON_TOP);
 	popupCalendar = new DateTime (popupShell, SWT.CALENDAR);
+	popupCalendar.popupOwner = this;
 	if (font != null) popupCalendar.setFont (font);
 	if (fg != null) popupCalendar.setForeground (fg);
 	if (bg != null) popupCalendar.setBackground (bg);
@@ -259,8 +263,19 @@ public void addSelectionListener (SelectionListener listener) {
 }
 
 void calendarKeyDown(Event event) {
-	if ((event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
-		return;
+	if (popupOwner != null) {
+		/* Escape cancels popupCalendar and reverts date. */
+		if (event.character == SWT.ESC) {
+			popupOwner.setDate(popupOwner.savedYear, popupOwner.savedMonth, popupOwner.savedDay);
+			popupOwner.dropDownCalendar(false);
+			return;
+		}
+		
+		/* Return, Alt+Up, and Alt+Down cancel popupCalendar and select date. */
+		if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+			popupOwner.dropDownCalendar(false);
+			return;
+		}
 	}
 	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
 	switch (event.keyCode) {
@@ -1153,7 +1168,7 @@ public void setForeground(Color color) {
  */
 public void setDate (int year, int month, int day) {
 	checkWidget ();
-	if (!isValid(year, month, day)) return;
+	if (!isValidDate(year, month, day)) return;
 	if ((style & SWT.CALENDAR) != 0) {
 		calendar.set(Calendar.YEAR, year);
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -1211,6 +1226,7 @@ void setDay (int newDay, boolean notify) {
 	calendar.set(Calendar.DAY_OF_MONTH, newDay);
 	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
 	if (notify) postEvent(SWT.Selection);
+	getAccessible().selectionChanged();
 }
 
 /**
