@@ -61,7 +61,7 @@ public class DateTime extends Composite {
 	boolean hasFocus;
 	int savedYear, savedMonth, savedDay;
 	Shell popupShell;
-	DateTime popupCalendar;
+	DateTime popupCalendar, popupOwner;
 	Listener popupListener, popupFilter;
 
 	// TODO: default format strings need more work for locale
@@ -217,7 +217,7 @@ void createDropDownButton() {
 	down = new Button(this, SWT.ARROW  | SWT.DOWN);
 	down.addListener(SWT.Selection, new Listener() {
 		public void handleEvent(Event event) {
-			dropDownCalendar (true);
+			dropDownCalendar (!isDropped());
 		}
 	});
 	popupListener = new Listener () {
@@ -257,6 +257,7 @@ void createDropDownButton() {
 void createPopupShell(int year, int month, int day) {	
 	popupShell = new Shell (getShell (), SWT.NO_TRIM | SWT.ON_TOP);
 	popupCalendar = new DateTime (popupShell, SWT.CALENDAR);
+	popupCalendar.popupOwner = this;
 	if (font != null) popupCalendar.setFont (font);
 	if (fg != null) popupCalendar.setForeground (fg);
 	if (bg != null) popupCalendar.setBackground (bg);
@@ -306,14 +307,15 @@ public void addSelectionListener (SelectionListener listener) {
 }
 
 void calendarKeyDown(Event event) {
-//	if (event.character == SWT.ESC) {
-//		/* Escape key cancels popupCalendar and reverts date */
-//		popupCalendar.setDate (savedYear, savedMonth, savedDay);
-//		dropDownCalendar (false);
-//		return;
-//	}
+	if (event.character == SWT.ESC) {
+		/* Escape key cancels popupCalendar and reverts date */
+		popupOwner.setDate (popupOwner.savedYear, popupOwner.savedMonth, popupOwner.savedDay);
+		popupOwner.dropDownCalendar(false);
+		return;
+	}
 	if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
 		/* Return, Alt+Up, and Alt+Down cancel popupCalendar and select date. */
+		popupOwner.dropDownCalendar(false);
 		return;
 	}
 	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
