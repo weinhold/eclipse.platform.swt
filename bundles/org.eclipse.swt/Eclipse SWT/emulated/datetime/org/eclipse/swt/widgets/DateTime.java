@@ -307,16 +307,19 @@ public void addSelectionListener (SelectionListener listener) {
 }
 
 void calendarKeyDown(Event event) {
-	if (event.character == SWT.ESC) {
+	if (popupOwner != null) {
 		/* Escape key cancels popupCalendar and reverts date */
-		popupOwner.setDate (popupOwner.savedYear, popupOwner.savedMonth, popupOwner.savedDay);
-		popupOwner.dropDownCalendar(false);
-		return;
-	}
-	if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+		if (event.character == SWT.ESC) {
+			popupOwner.setDate (popupOwner.savedYear, popupOwner.savedMonth, popupOwner.savedDay);
+			popupOwner.dropDownCalendar(false);
+			return;
+		}
+
 		/* Return, Alt+Up, and Alt+Down cancel popupCalendar and select date. */
-		popupOwner.dropDownCalendar(false);
-		return;
+		if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+			popupOwner.dropDownCalendar(false);
+			return;
+		}
 	}
 	int newDay = calendar.get(Calendar.DAY_OF_MONTH);
 	switch (event.keyCode) {
@@ -1346,6 +1349,7 @@ void setDay (int newDay, boolean notify) {
 	calendar.set(Calendar.DAY_OF_MONTH, newDay);
 	redraw(getCell(calendar.get(Calendar.DAY_OF_MONTH)), cellSize);
 	if (notify) postEvent(SWT.Selection);
+	getAccessible ().selectionChanged();
 }
 
 /**
