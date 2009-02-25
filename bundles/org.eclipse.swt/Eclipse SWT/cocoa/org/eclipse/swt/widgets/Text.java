@@ -283,6 +283,11 @@ static int checkStyle (int style) {
 	if ((style & SWT.SEARCH) != 0) {
 		style |= SWT.SINGLE | SWT.BORDER;
 		style &= ~SWT.PASSWORD;
+		/* 
+		* NOTE: ICON_CANCEL has the same value as H_SCROLL and
+		* ICON_SEARCH has the same value as V_SCROLL so they are
+		* cleared because SWT.SINGLE is set. 
+		*/
 	}
 	if ((style & SWT.SINGLE) != 0 && (style & SWT.MULTI) != 0) {
 		style &= ~SWT.MULTI;
@@ -405,6 +410,7 @@ void createHandle () {
 		if ((style & SWT.CENTER) != 0) align = OS.NSCenterTextAlignment;
 		if ((style & SWT.RIGHT) != 0) align = OS.NSRightTextAlignment;
 		widget.setAlignment (align);
+		widget.cell().setWraps(false);
 //		widget.setTarget(widget);
 //		widget.setAction(OS.sel_sendSelection);
 		view = widget;
@@ -1517,9 +1523,9 @@ public void setMessage (String message) {
 	checkWidget ();
 	if (message == null) error (SWT.ERROR_NULL_ARGUMENT);
 	this.message = message;
-	if ((style & SWT.SEARCH) != 0) {
+	if ((style & SWT.SINGLE) != 0) {
 		NSString str = NSString.stringWith (message);
-		NSTextFieldCell cell = new NSTextFieldCell (((NSSearchField) view).cell ());
+		NSTextFieldCell cell = new NSTextFieldCell (((NSTextField) view).cell ());
 		cell.setPlaceholderString (str);
 	}
 }

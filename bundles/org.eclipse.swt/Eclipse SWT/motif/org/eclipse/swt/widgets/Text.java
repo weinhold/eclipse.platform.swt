@@ -234,6 +234,11 @@ static int checkStyle (int style) {
 	if ((style & SWT.SEARCH) != 0) {
 		style |= SWT.SINGLE | SWT.BORDER;
 		style &= ~SWT.PASSWORD;
+		/* 
+		* NOTE: ICON_CANCEL has the same value as H_SCROLL and
+		* ICON_SEARCH has the same value as V_SCROLL so they are
+		* cleared because SWT.SINGLE is set. 
+		*/
 	}
 	if ((style & SWT.SINGLE) != 0 && (style & SWT.MULTI) != 0) {
 		style &= ~SWT.MULTI;
@@ -321,7 +326,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 			OS.XmStringFree (xmString);
 		}
 		OS.XtFree (ptr);
-		if ((style & SWT.SEARCH) != 0 && message.length () != 0) {
+		if ((style & SWT.SINGLE) != 0 && message.length () > 0) {
 			if (wHint == SWT.DEFAULT) {
 				byte [] buffer = Converter.wcsToMbcs (getCodePage (), message, true);
 				int xmString = OS.XmStringGenerate (
@@ -442,7 +447,7 @@ void createWidget (int index) {
 	super.createWidget (index);	
 	hiddenText = message = "";
 	if ((style & SWT.PASSWORD) != 0) setEchoChar ('*');
-	if ((style & SWT.SEARCH) != 0) {
+	if ((style & SWT.SINGLE) != 0) {
 		disabledColor = new Color (display, MSG_FOREGROUND);
 	}
 }
@@ -1602,31 +1607,33 @@ int traversalCode (int key, XKeyEvent xEvent) {
 	return bits;
 }
 int XExposure (int w, int client_data, int call_data, int continue_to_dispatch) {
-	if ((style & SWT.SEARCH) != 0 && !hasFocus () && OS.XmTextGetLastPosition (handle) == 0) {
-		/* 
-		* Feature in Motif. XmText fills its background during exposure 
-		* without respecting the damage clipping. This erases all previous
-		* paints. The fix is always to draw the entire content ignoring
-		* the damage.
-		*/
-		int [] argList = new int [] {
-			OS.XmNmarginWidth, 0,
-			OS.XmNmarginHeight, 0,
-			OS.XmNshadowThickness, 0,
-			OS.XmNhighlightThickness, 0,
-			OS.XmNwidth, 0,
-			OS.XmNheight, 0,
-		};
-		OS.XtGetValues (handle, argList, argList.length / 2);
-		int marginWidth = argList [1] + argList[5] + argList[7];
-		int marginHeight = argList [3] + argList[5] + argList[7];
-		Rectangle rect = new Rectangle (marginWidth, marginHeight, argList [9] - 2 * marginWidth, argList [11] - 2 * marginHeight);
-		GCData data = new GCData ();
-		GC gc = GC.motif_new (this, data);
-		gc.setForeground (disabledColor);
-		gc.setClipping (rect);
-		gc.drawString (message, rect.x, rect.y, true);
-		gc.dispose ();
+	if ((style & SWT.SINGLE) != 0 && message.length () > 0) { 
+		if (!hasFocus () && OS.XmTextGetLastPosition (handle) == 0) {
+			/* 
+			* Feature in Motif. XmText fills its background during exposure 
+			* without respecting the damage clipping. This erases all previous
+			* paints. The fix is always to draw the entire content ignoring
+			* the damage.
+			*/
+			int [] argList = new int [] {
+				OS.XmNmarginWidth, 0,
+				OS.XmNmarginHeight, 0,
+				OS.XmNshadowThickness, 0,
+				OS.XmNhighlightThickness, 0,
+				OS.XmNwidth, 0,
+				OS.XmNheight, 0,
+			};
+			OS.XtGetValues (handle, argList, argList.length / 2);
+			int marginWidth = argList [1] + argList[5] + argList[7];
+			int marginHeight = argList [3] + argList[5] + argList[7];
+			Rectangle rect = new Rectangle (marginWidth, marginHeight, argList [9] - 2 * marginWidth, argList [11] - 2 * marginHeight);
+			GCData data = new GCData ();
+			GC gc = GC.motif_new (this, data);
+			gc.setForeground (disabledColor);
+			gc.setClipping (rect);
+			gc.drawString (message, rect.x, rect.y, true);
+			gc.dispose ();
+		}
 	}
 	return super.XExposure (w, client_data, call_data, continue_to_dispatch);
 }

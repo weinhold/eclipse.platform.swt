@@ -1059,6 +1059,7 @@ void releaseParent () {
 
 void releaseWidget () {
 	deregister ();
+	if (display.tooltipTarget == this) display.tooltipTarget = null;
 	eventTable = null;
 	data = null;
 }
@@ -1573,6 +1574,9 @@ void tabView_willSelectTabViewItem(int /*long*/ id, int /*long*/ sel, int /*long
 
 int /*long*/ view_stringForToolTip_point_userData (int /*long*/ id, int /*long*/ sel, int /*long*/ view, int /*long*/ tag, int /*long*/ point, int /*long*/ userData) {
 	return 0;
+}
+
+void viewDidMoveToWindow(int /*long*/ id, int /*long*/ sel) {	
 }
 
 void windowDidMove(int /*long*/ id, int /*long*/ sel, int /*long*/ notification) {

@@ -520,16 +520,17 @@ protected void checkDevice () {
 
 void checkEnterExit (Control control, NSEvent nsEvent, boolean send) {
 	if (control != currentControl) {
-		if (currentControl != null) {
+		if (currentControl != null && !currentControl.isDisposed()) {
 			currentControl.sendMouseEvent (nsEvent, SWT.MouseExit, send);
 		}
+		if (control != null && control.isDisposed()) control = null;
 		currentControl = control;
 		if (control != null) {
 			control.sendMouseEvent (nsEvent, SWT.MouseEnter, send);
 		}
 		setCursor (control);
 	}
-	timerExec (control != null ? getToolTipTime () : -1, hoverTimer);
+	timerExec (control != null && !control.isDisposed() ? getToolTipTime () : -1, hoverTimer);
 }
 
 /**
@@ -2074,6 +2075,7 @@ void initClasses () {
 	className = "SWTProgressIndicator";
 	cls = OS.objc_allocateClassPair(OS.class_NSProgressIndicator, className, 0);
 	OS.class_addIvar(cls, SWT_OBJECT, size, (byte)align, types);
+	OS.class_addMethod(cls, OS.sel_viewDidMoveToWindow, proc2, "@:");
 	addEventMethods(cls, proc2, proc3, drawRectProc, hitTestProc);
 	addFrameMethods(cls, setFrameOriginProc, setFrameSizeProc);
 	addAccessibilityMethods(cls, proc2, proc3, proc4, accessibilityHitTestProc);
@@ -3232,7 +3234,7 @@ public static void setAppName (String name) {
 Runnable hoverTimer = new Runnable () {
 	public void run () {
 		if (currentControl != null && !currentControl.isDisposed()) {
-			currentControl.sendMouseEvent (null, SWT.MouseHover, trackingControl != null);
+			currentControl.sendMouseEvent (null, SWT.MouseHover, trackingControl != null && !trackingControl.isDisposed());
 		}
 	}
 };
@@ -3260,7 +3262,7 @@ void setCurrentCaret (Caret caret) {
 
 void setCursor (Control control) {
 	Cursor cursor = null;
-	if (control != null) cursor = control.findCursor ();
+	if (control != null && !control.isDisposed()) cursor = control.findCursor ();
 	if (cursor == null) {
 		NSWindow window = application.keyWindow();
 		if (window != null) {
@@ -3736,19 +3738,20 @@ Control findControl (boolean checkTrim) {
 }
 
 int /*long*/ applicationNextEventMatchingMask (int /*long*/ id, int /*long*/ sel, int /*long*/ mask, int /*long*/ expiration, int /*long*/ mode, int /*long*/ dequeue) {
-	boolean run = trackingControl != null && dequeue != 0;
-	if (run) runDeferredEvents();
+	if (dequeue != 0 && trackingControl != null && !trackingControl.isDisposed()) runDeferredEvents();
 	objc_super super_struct = new objc_super();
 	super_struct.receiver = id;
 	super_struct.super_class = OS.objc_msgSend(id, OS.sel_superclass);
 	int /*long*/ result = OS.objc_msgSendSuper(super_struct, sel, mask, expiration, mode, dequeue != 0);
 	if (result != 0) {
-		if (run) applicationSendTrackingEvent(new NSEvent(result));
+		if (dequeue != 0 && trackingControl != null && !trackingControl.isDisposed()) {
+			applicationSendTrackingEvent(new NSEvent(result), trackingControl);
+		}
 	}
 	return result;
 }
 
-boolean applicationSendTrackingEvent (NSEvent nsEvent) {
+void applicationSendTrackingEvent (NSEvent nsEvent, Control trackingControl) {
 	int type = (int)/*64*/nsEvent.type();
 	switch (type) {
 		case OS.NSLeftMouseDown:
@@ -3760,22 +3763,24 @@ boolean applicationSendTrackingEvent (NSEvent nsEvent) {
 		case OS.NSRightMouseUp:
 		case OS.NSOtherMouseUp:
 			checkEnterExit (findControl (true), nsEvent, true);
+			if (trackingControl.isDisposed()) return;
 			trackingControl.sendMouseEvent (nsEvent, SWT.MouseUp, true);
 			break;
 		case OS.NSLeftMouseDragged:
 		case OS.NSRightMouseDragged:
 		case OS.NSOtherMouseDragged:
 			checkEnterExit (trackingControl, nsEvent, true);
+			if (trackingControl.isDisposed()) return;
 			//FALL THROUGH
 		case OS.NSMouseMoved:
 			trackingControl.sendMouseEvent (nsEvent, SWT.MouseMove, true);
 			break;
 	}
-	return false;
 }
 
 void applicationSendEvent (int /*long*/ id, int /*long*/ sel, int /*long*/ event) {
 	NSEvent nsEvent = new NSEvent(event);
+	NSWindow window = nsEvent.window ();
 	int type = (int)/*64*/nsEvent.type ();
 	boolean beep = false;
 	switch (type) {
@@ -3795,7 +3800,6 @@ void applicationSendEvent (int /*long*/ id, int /*long*/ sel, int /*long*/ event
 		case OS.NSKeyDown:
 		case OS.NSKeyUp:
 		case OS.NSScrollWheel:
-			NSWindow window = nsEvent.window ();
 			if (window != null) {
 				Shell shell = (Shell) getWidget (window.id);
 				if (shell != null && shell.getModalShell () != null) {
@@ -3806,10 +3810,18 @@ void applicationSendEvent (int /*long*/ id, int /*long*/ sel, int /*long*/ event
 			break;
 	}
 	sendEvent = true;
-	objc_super super_struct = new objc_super ();
-	super_struct.receiver = id;
-	super_struct.super_class = OS.objc_msgSend (id, OS.sel_superclass);
-	OS.objc_msgSendSuper (super_struct, sel, event);
+	/*
+	 * Feature in Cocoa. NSKeyUp events are not delivered to the window if the command key is down.
+	 * If the event is destined for the key window, and it's a key up and the command key is down, send it directly to the window.
+	 */
+	if (window != null && window.isKeyWindow() && nsEvent.type() == OS.NSKeyUp && (nsEvent.modifierFlags() & OS.NSCommandKeyMask) != 0)	{
+		window.sendEvent(nsEvent);
+	} else {
+		objc_super super_struct = new objc_super ();
+		super_struct.receiver = id;
+		super_struct.super_class = OS.objc_msgSend (id, OS.sel_superclass);
+		OS.objc_msgSendSuper (super_struct, sel, event);
+	}
 	sendEvent = false;
 }
 
@@ -4061,6 +4073,8 @@ static int /*long*/ windowDelegateProc(int /*long*/ id, int /*long*/ sel) {
 		widget.resetCursorRects(id, sel);
 	} else if (sel == OS.sel_updateTrackingAreas) {
 		widget.updateTrackingAreas(id, sel);
+	} else if (sel == OS.sel_viewDidMoveToWindow) {
+		widget.viewDidMoveToWindow(id, sel);
 	}
 	return 0;
 }
