@@ -308,7 +308,7 @@ public void addSelectionListener (SelectionListener listener) {
 
 void calendarKeyDown(Event event) {
 	if (popupOwner != null) {
-		/* Escape key cancels popupCalendar and reverts date */
+		/* Escape key cancels popupCalendar and reverts date. */
 		if (event.character == SWT.ESC) {
 			popupOwner.setDate (popupOwner.savedYear, popupOwner.savedMonth, popupOwner.savedDay);
 			popupOwner.dropDownCalendar(false);
@@ -708,6 +708,14 @@ int getFieldIndex(int fieldName) {
 	return -1;
 }
 
+public Color getForeground() {
+	checkWidget();
+	if (fg == null) {
+		return getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+	}
+	return fg;
+}
+
 String getFormattedString(int style) {
 	if ((style & SWT.TIME) != 0) {
 		String[] ampm = formatSymbols.getAmPmStrings();
@@ -724,14 +732,6 @@ String getFormattedString(int style) {
 	int d = calendar.get(Calendar.DAY_OF_MONTH);
 	if ((style & SWT.SHORT) != 0) return "" + (m < 10 ? " " : "") + m + "/" + y;
 	return "" + (m < 10 ? " " : "") + m + "/" + (d < 10 ? " " : "") + d + "/" + y;
-}
-
-public Color getForeground() {
-	checkWidget();
-	if (fg == null) {
-		return getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
-	}
-	return fg;
 }
 
 /**
@@ -1472,8 +1472,7 @@ public void setTime (int hours, int minutes, int seconds) {
  */
 public void setYear (int year) {
 	checkWidget();
-	//if (!isValidDate(year, getMonth(), getDay())) return;
-	if (year < MIN_YEAR || year > MAX_YEAR) return;
+	if (!isValidDate(year, getMonth(), getDay())) return;
 	calendar.set(Calendar.YEAR, year);
 	updateControl();
 }
