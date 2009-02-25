@@ -11,8 +11,6 @@
 package org.eclipse.swt.widgets;
 
 
-import GdkEventKey;
-
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
@@ -20,7 +18,7 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.accessibility.*;
-import org.eclipse.swt.internal.gtk.OS;
+import org.eclipse.swt.internal.gtk.*;
 
 /**
  * Instances of this class are selectable user interface
@@ -113,6 +111,8 @@ public class DateTime extends Composite {
  */
 public DateTime (Composite parent, int style) {
 	super (parent, checkStyle (style));
+	calendar = Calendar.getInstance();
+	formatSymbols = new DateFormatSymbols();
 	if ((this.style & SWT.CALENDAR) == 0) {
 		/* SWT.DATE and SWT.TIME */
 		createText((this.style & SWT.DROP_DOWN) != 0);
@@ -121,8 +121,6 @@ public DateTime (Composite parent, int style) {
 }
 
 void createText(boolean dropDown) {
-	calendar = Calendar.getInstance();
-	formatSymbols = new DateFormatSymbols();
 	addListener(SWT.Resize, new Listener() {
 		public void handleEvent(Event event) {
 			textResize(event);
