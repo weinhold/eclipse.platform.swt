@@ -380,10 +380,13 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 			if (newFont != 0) OS.SelectObject (hDC, oldFont);
 			OS.ReleaseDC (handle, hDC);
 			int upDownWidth = OS.GetSystemMetrics (OS.SM_CXVSCROLL);
-			width += upDownWidth + MARGIN;
 			int upDownHeight = OS.GetSystemMetrics (OS.SM_CYVSCROLL);
-			// TODO: On Vista, can send DTM_GETDATETIMEPICKERINFO to ask the Edit control what its margins are
-			if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) upDownHeight += 7;
+			if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (6, 0)) {
+				// TODO: On Vista, can send DTM_GETDATETIMEPICKERINFO to ask the Edit control what its margins are
+				upDownHeight += 7;
+				if ((style & SWT.DROP_DOWN) != 0) upDownWidth += 16;
+			}
+			width += upDownWidth + MARGIN;
 			height = Math.max (height, upDownHeight);
 		}
 	}
