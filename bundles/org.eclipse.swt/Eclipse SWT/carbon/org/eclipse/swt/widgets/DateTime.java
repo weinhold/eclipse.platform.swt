@@ -107,8 +107,9 @@ public DateTime (Composite parent, int style) {
 	super (parent, checkStyle (style) | ((style & SWT.CALENDAR) != 0 ? SWT.NO_REDRAW_RESIZE : 0));
 	if ((this.style & SWT.CALENDAR) != 0) {
 		createCalendar();
-	} else {
-		createText((this.style & SWT.DROP_DOWN) != 0);
+	} else if ((this.style & SWT.DROP_DOWN) != 0) {
+		createDropDownButton();
+		createPopupShell(-1, -1, -1);
 	}
 	initAccessible ();
 }
@@ -155,13 +156,6 @@ void createCalendar() {
 		monthDown.addListener(listeners [i], listener);
 		monthUp.addListener(listeners [i], listener);
 		yearUp.addListener(listeners [i], listener);
-	}
-}
-
-void createText(boolean dropDown) {
-	if ((style & SWT.DATE) != 0 && dropDown) {
-		createDropDownButton();
-		createPopupShell(-1, -1, -1);
 	}
 }
 
