@@ -1072,17 +1072,8 @@ void popupShellEvent(Event event) {
 			 * If we hide the popup in the deactivate event, the selection event will show 
 			 * it again. To prevent the popup from showing again, we will let the selection 
 			 * event of the arrow button hide the popup.
-			 * In Windows, hiding the popup during the deactivate causes the deactivate 
-			 * to be called twice and the selection event to disappear.
 			 */
-			if (!"carbon".equals(SWT.getPlatform())) {
-				Point point = down.toControl(getDisplay().getCursorLocation());
-				Point size = down.getSize();
-				Rectangle rect = new Rectangle(0, 0, size.x, size.y);
-				if (!rect.contains(point)) dropDownCalendar (false);
-			} else {
-				dropDownCalendar(false);
-			}
+			dropDownCalendar(false);
 			break;
 	}
 }
