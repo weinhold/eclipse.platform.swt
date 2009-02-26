@@ -1113,13 +1113,13 @@ void popupShellEvent(Event event) {
 			 * In Windows, hiding the popup during the deactivate causes the deactivate 
 			 * to be called twice and the selection event to disappear.
 			 */
-			if (!"carbon".equals(SWT.getPlatform())) {
+			if ("carbon".equals(SWT.getPlatform())) {
+				dropDownCalendar(false);
+			} else {
 				Point point = down.toControl(getDisplay().getCursorLocation());
 				Point size = down.getSize();
 				Rectangle rect = new Rectangle(0, 0, size.x, size.y);
 				if (!rect.contains(point)) dropDownCalendar (false);
-			} else {
-				dropDownCalendar(false);
 			}
 			break;
 	}
