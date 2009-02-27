@@ -46,6 +46,14 @@ public class DateTime extends Composite {
 	static final int MIN_YEAR = 1752; // Gregorian switchover in North America: September 19, 1752
 	static final int MAX_YEAR = 9999;
 	
+	/* Emulated DROP_DOWN calendar fields for DATE */
+	NSButton buttonView;
+	boolean hasFocus;
+	int savedYear, savedMonth, savedDay;
+	Shell popupShell;
+	DateTime popupCalendar, popupOwner;
+	Listener popupListener, popupFilter;
+
 /**
  * Constructs a new instance of this class given its parent
  * and a style value describing its behavior and appearance.
@@ -90,6 +98,7 @@ static int checkStyle (int style) {
 	*/
 	style &= ~(SWT.H_SCROLL | SWT.V_SCROLL);
 	style = checkBits (style, SWT.MEDIUM, SWT.SHORT, SWT.LONG, 0, 0, 0);
+	if ((style & SWT.DATE) == 0) style &=~ SWT.DROP_DOWN;
 	return checkBits (style, SWT.DATE, SWT.TIME, SWT.CALENDAR, 0, 0, 0);
 }
 
@@ -132,12 +141,18 @@ public void addSelectionListener (SelectionListener listener) {
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	int width = 0, height = 0;
-	NSControl widget = (NSControl)view;
+	NSControl widget = (NSControl)view; //TODO: Ask SSQ why cast? The call to cell() works fine on view
 	NSSize size = widget.cell ().cellSize ();
 	width = (int)Math.ceil (size.width);
 	height = (int)Math.ceil (size.height);
 	if (width == 0) width = DEFAULT_WIDTH;
 	if (height == 0) height = DEFAULT_HEIGHT;
+	if ((style & SWT.DROP_DOWN) != 0) {
+		widget = (NSControl)buttonView;
+		size = widget.cell ().cellSize ();
+		width += (int)Math.ceil (size.width) - 8;
+		height = Math.max(height, (int)Math.ceil (size.height));
+	}
 	if (wHint != SWT.DEFAULT) width = wHint;
 	if (hHint != SWT.DEFAULT) height = hHint;
 	int border = getBorderWidth ();
@@ -148,7 +163,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 void createHandle () {
 	NSDatePicker widget = (NSDatePicker)new SWTDatePicker().alloc();
 	widget.init();
-	int pickerStyle = OS.NSTextFieldAndStepperDatePickerStyle;
+	int pickerStyle = (style & SWT.DROP_DOWN) != 0 ? OS.NSTextFieldDatePickerStyle : OS.NSTextFieldAndStepperDatePickerStyle;
 	int elementFlags = 0;
 	if ((style & SWT.CALENDAR) != 0) {
 		pickerStyle = OS.NSClockAndCalendarDatePickerStyle;
@@ -169,10 +184,164 @@ void createHandle () {
 	widget.setTarget(widget);
 	widget.setAction(OS.sel_sendSelection);
 	view = widget;
+	
+	if ((this.style & SWT.DROP_DOWN) != 0) {
+		NSButton buttonWidget = (NSButton)new SWTButton().alloc();
+		buttonWidget.init();
+		buttonWidget.setButtonType(OS.NSMomentaryLightButton);
+		buttonWidget.setBezelStyle(OS.NSRoundedDisclosureBezelStyle);
+		buttonWidget.setFocusRingType(OS.NSFocusRingTypeNone);
+		buttonWidget.setTitle(NSString.stringWith(""));
+		buttonWidget.setImagePosition(OS.NSNoImage);
+		buttonWidget.setTarget(view);
+		buttonWidget.setAction(OS.sel_sendVerticalSelection);
+		view.addSubview(buttonWidget);
+		buttonView = buttonWidget;
+
+		createPopupShell(-1, -1, -1);
+	}
+}
+
+void createPopupShell(int year, int month, int day) {
+	popupShell = new Shell (getShell (), SWT.NO_TRIM | SWT.ON_TOP);
+	popupCalendar = new DateTime (popupShell, SWT.CALENDAR);
+	popupCalendar.popupOwner = this;
+	if (font != null) popupCalendar.setFont (font);
+
+	popupListener = new Listener () {
+		public void handleEvent (Event event) {
+			if (event.widget == popupShell) {
+				popupShellEvent (event);
+				return;
+			}
+			if (event.widget == popupCalendar) {
+				popupCalendarEvent (event);
+				return;
+			}
+			if (event.widget == DateTime.this) {
+				dateTimeEvent (event);
+				return;
+			}
+			if (event.widget == getShell ()) {
+				getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						if (isDisposed()) return;
+						popupCalendarFocus (SWT.FocusOut);
+					}
+				});
+			}
+		}
+	};
+	popupFilter = new Listener() {
+		public void handleEvent(Event event) {
+			Shell shell = ((Control)event.widget).getShell ();
+			if (shell == DateTime.this.getShell ()) {
+				popupCalendarFocus (SWT.FocusOut);
+			}
+		}
+	};
+
+	int [] listeners = {SWT.Close, SWT.Paint, SWT.Deactivate};
+	for (int i=0; i < listeners.length; i++) {
+		popupShell.addListener (listeners [i], popupListener);
+	}
+	listeners = new int [] {SWT.MouseUp, SWT.Selection, SWT.Traverse, SWT.KeyDown, SWT.KeyUp, SWT.FocusIn, SWT.Dispose};
+	for (int i=0; i < listeners.length; i++) {
+		popupCalendar.addListener (listeners [i], popupListener);
+	}
+
+	if (year != -1) popupCalendar.setDate(year, month, day);
+}
+
+void dateTimeEvent (Event event) {
+	switch (event.type) {
+		case SWT.Dispose:
+			if (popupShell != null && !popupShell.isDisposed ()) {
+				popupCalendar.removeListener (SWT.Dispose, popupListener);
+				popupShell.dispose ();
+			}
+			Shell shell = getShell ();
+			shell.removeListener (SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			popupShell = null;  
+			popupCalendar = null; 
+			break;
+		case SWT.FocusIn:
+			Control focusControl = getDisplay ().getFocusControl ();
+			if (focusControl == popupCalendar) return;
+			if (isDropped()) {
+				popupCalendar.setFocus();
+			} else {
+				setFocus();
+			}
+			break;
+		case SWT.Move:
+			dropDownCalendar (false);
+			break;
+//		case SWT.Resize:
+//			internalLayout (false);
+//			break;
+	}
 }
 
 NSFont defaultNSFont() {
 	return display.datePickerFont;
+}
+
+void deregister() {
+	super.deregister();
+	if (buttonView != null) {
+		display.removeWidget(buttonView);
+		display.removeWidget(buttonView.cell());
+	}
+
+}
+
+void dropDownCalendar(boolean drop) {
+	if (drop == isDropped ()) return;
+	if (!drop) {
+		popupShell.setVisible (false);
+		if (!isDisposed () && isFocusControl()) {
+			setFocus();
+		}
+		return;
+	}
+
+	savedYear = getYear ();
+	savedMonth = getMonth ();
+	savedDay = getDay ();
+	if (getShell() != popupShell.getParent ()) {
+		int year = popupCalendar.getYear ();
+		int month = popupCalendar.getMonth ();
+		int day = popupCalendar.getDay ();
+		popupCalendar.removeListener (SWT.Dispose, popupListener);
+		popupShell.dispose();
+		popupShell = null;
+		popupCalendar = null;
+		createPopupShell (year, month, day);
+	}
+	
+	Point dateBounds = getSize ();
+	Point calendarSize = popupCalendar.computeSize (SWT.DEFAULT, SWT.DEFAULT, false);
+	popupCalendar.setBounds (1, 1, Math.max (dateBounds.x - 2, calendarSize.x), calendarSize.y);
+	
+	int year = popupCalendar.getYear ();
+	int month = popupCalendar.getMonth ();
+	int day = popupCalendar.getDay ();
+	popupCalendar.setDate(year, month, day);
+	Display display = getDisplay ();
+	Rectangle parentRect = display.map (getParent (), null, getBounds ());
+	Rectangle displayRect = getMonitor ().getClientArea ();
+	int width = Math.max (dateBounds.x, calendarSize.x + 2);
+	int height = calendarSize.y + 2;
+	int x = parentRect.x;
+	int y = parentRect.y + dateBounds.y;
+	if (y + height > displayRect.y + displayRect.height) y = parentRect.y - height;
+	if (x + width > displayRect.x + displayRect.width) x = displayRect.x + displayRect.width - calendarSize.x;
+	popupShell.setBounds (x, y, width, height);
+	popupShell.setVisible (true);
+	if (isFocusControl()) popupCalendar.setFocus ();
 }
 
 NSCalendarDate getCalendarDate () {
@@ -293,8 +462,176 @@ public int getYear () {
 	return (int)/*64*/getCalendarDate().yearOfCommonEra();
 }
 
+boolean isDropped () {
+	return popupShell.getVisible ();
+}
+
 boolean isEventView (int /*long*/ id) {
 	return true;
+}
+
+void popupCalendarEvent (Event event) {
+	switch (event.type) {
+		case SWT.Dispose:
+			if (popupShell != null && !popupShell.isDisposed () && !isDisposed() && getShell () != popupShell.getParent ()) {
+				int year = popupCalendar.getYear ();
+				int month = popupCalendar.getMonth ();
+				int day = popupCalendar.getDay ();
+				popupShell = null;
+				popupCalendar = null;
+				createPopupShell (year, month, day);
+			}
+			break;
+		case SWT.FocusIn: {
+			popupCalendarFocus (SWT.FocusIn);
+			break;
+		}
+		case SWT.MouseUp: {
+			if (event.button != 1) return;
+			dropDownCalendar (false);
+			break;
+		}
+		case SWT.Selection: {
+			int year = popupCalendar.getYear ();
+			int month = popupCalendar.getMonth ();
+			int day = popupCalendar.getDay ();
+			setDate(year, month, day);
+			Event e = new Event ();
+			e.time = event.time;
+			e.stateMask = event.stateMask;
+			e.doit = event.doit;
+			notifyListeners (SWT.Selection, e);
+			event.doit = e.doit;
+			break;
+		}
+		case SWT.Traverse: {
+			switch (event.detail) {
+				case SWT.TRAVERSE_RETURN:
+				case SWT.TRAVERSE_ESCAPE:
+				case SWT.TRAVERSE_ARROW_PREVIOUS:
+				case SWT.TRAVERSE_ARROW_NEXT:
+					event.doit = false;
+					break;
+				case SWT.TRAVERSE_TAB_NEXT:
+				case SWT.TRAVERSE_TAB_PREVIOUS:
+					event.doit = traverse(event.detail);
+					event.detail = SWT.TRAVERSE_NONE;
+					if (event.doit) dropDownCalendar (false);
+					return;
+				case SWT.TRAVERSE_PAGE_NEXT:
+				case SWT.TRAVERSE_PAGE_PREVIOUS:
+					return;
+			}
+			Event e = new Event ();
+			e.time = event.time;
+			e.detail = event.detail;
+			e.doit = event.doit;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			notifyListeners (SWT.Traverse, e);
+			event.doit = e.doit;
+			event.detail = e.detail;
+			break;
+		}
+		case SWT.KeyUp: {		
+			Event e = new Event ();
+			e.time = event.time;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			e.stateMask = event.stateMask;
+			notifyListeners (SWT.KeyUp, e);
+			break;
+		}
+		case SWT.KeyDown: {
+			if (event.character == SWT.ESC) {
+				/* Escape key cancels popupCalendar and reverts date */
+				popupCalendar.setDate (savedYear, savedMonth, savedDay);
+				dropDownCalendar (false);
+			}
+			if (event.keyCode == SWT.CR || (event.stateMask & SWT.ALT) != 0 && (event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN)) {
+				/* Return, Alt+Down, and Alt+Up cancel popupCalendar and select date. */
+				dropDownCalendar (false);
+			}
+			/* At this point the widget may have been disposed.
+			 * If so, do not continue. */
+			if (isDisposed ()) break;
+			Event e = new Event();
+			e.time = event.time;
+			e.character = event.character;
+			e.keyCode = event.keyCode;
+			e.stateMask = event.stateMask;
+			notifyListeners(SWT.KeyDown, e);
+			break;
+		}
+	}
+}
+
+void popupCalendarFocus (int type) {
+	if (isDisposed ()) return;
+	switch (type) {
+		case SWT.FocusIn: {
+			if (hasFocus) return;
+			hasFocus = true;
+			Shell shell = getShell ();
+			shell.removeListener (SWT.Deactivate, popupListener);
+			shell.addListener (SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			display.addFilter (SWT.FocusIn, popupFilter);
+			Event e = new Event ();
+			notifyListeners (SWT.FocusIn, e);
+			break;
+		}
+		case SWT.FocusOut: {
+			if (!hasFocus) return;
+			Control focusControl = getDisplay ().getFocusControl ();
+			if (focusControl == popupCalendar || focusControl == this) return;
+			hasFocus = false;
+			Shell shell = getShell ();
+			shell.removeListener(SWT.Deactivate, popupListener);
+			Display display = getDisplay ();
+			display.removeFilter (SWT.FocusIn, popupFilter);
+			Event e = new Event ();
+			notifyListeners (SWT.FocusOut, e);
+			break;
+		}
+	}
+}
+
+void popupShellEvent(Event event) {
+	switch (event.type) {
+		case SWT.Paint:
+			/* Draw black rectangle around popupCalendar */
+			Rectangle bounds = popupCalendar.getBounds();
+			Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			event.gc.setForeground(black);
+			event.gc.drawRectangle(0, 0, bounds.width + 1, bounds.height + 1);
+			break;
+		case SWT.Close:
+			event.doit = false;
+			dropDownCalendar (false);
+			break;
+		case SWT.Deactivate:
+//			Point point = down.toControl(getDisplay().getCursorLocation());
+//			Point size = down.getSize();
+//			Rectangle rect = new Rectangle(0, 0, size.x, size.y);
+//			if (!rect.contains(point)) dropDownCalendar (false);
+			break;
+	}
+}
+
+void register () {
+	super.register ();
+	if (buttonView != null) {
+		display.addWidget (buttonView, this);
+		display.addWidget (buttonView.cell(), this);
+	}
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	if (buttonView != null) buttonView.release();
+	buttonView = null;
 }
 
 /**
@@ -322,8 +659,24 @@ public void removeSelectionListener (SelectionListener listener) {
 	eventTable.unhook (SWT.DefaultSelection, listener);	
 }
 
+void resized () {
+	super.resized ();
+	if (buttonView == null) return;
+	NSSize buttonSize = buttonView.cell ().cellSize ();
+	NSRect rect = view.bounds();
+	rect.x = rect.width - buttonSize.width + 4;
+	rect.y = -1;
+	rect.width = buttonSize.width;
+	rect.height = buttonSize.height;
+	buttonView.setFrame(rect);
+}
+
 void sendSelection () {
 	postEvent (SWT.Selection);
+}
+
+void sendVerticalSelection () {
+	dropDownCalendar (!isDropped());
 }
 
 void setBackground (float /*double*/ [] color) {
@@ -493,6 +846,10 @@ public void setSeconds (int seconds) {
 	NSCalendarDate newDate = NSCalendarDate.dateWithYear(date.yearOfCommonEra(), date.monthOfYear(), date.dayOfMonth(),
 			date.hourOfDay(), date.minuteOfHour(), seconds, date.timeZone());
 	((NSDatePicker)view).setDateValue(newDate);
+}
+
+void setSmallSize () {
+	if (buttonView != null) buttonView.cell ().setControlSize (OS.NSMiniControlSize);
 }
 
 /**
