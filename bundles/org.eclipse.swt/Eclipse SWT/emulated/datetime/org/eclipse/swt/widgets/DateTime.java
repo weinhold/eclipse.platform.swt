@@ -665,6 +665,11 @@ int getCell(int date) {
 	return result;
 }
 
+public Control [] getChildren () {
+	checkWidget();
+	return new Control [0];
+}
+
 int getDate(int cell) {
 	int day = calendar.get(Calendar.DAY_OF_MONTH);
 	calendar.set(Calendar.DAY_OF_MONTH, 1);
