@@ -36,6 +36,10 @@ public NSSize cellSizeForBounds(NSRect aRect) {
 	return result;
 }
 
+public int /*long*/ controlSize() {
+	return OS.objc_msgSend(this.id, OS.sel_controlSize);
+}
+
 public void drawInteriorWithFrame(NSRect cellFrame, NSView controlView) {
 	OS.objc_msgSend(this.id, OS.sel_drawInteriorWithFrame_inView_, cellFrame, controlView != null ? controlView.id : 0);
 }
@@ -115,5 +119,4 @@ public NSRect titleRectForBounds(NSRect theRect) {
 public boolean wraps() {
 	return OS.objc_msgSend_bool(this.id, OS.sel_wraps);
 }
-
 }
