@@ -40,6 +40,19 @@ public class Accessible {
 	Control control;
 
 	/**
+	 * Constructs a new instance of this class given its parent.
+	 * 
+	 * @param parent the Accessible parent
+	 * 
+	 * @see Control#getAccessible
+	 * 
+	 * @since 3.6
+	 */
+	public Accessible(Accessible parent) {
+//		this.parent = parent; //TODO: should we expose getParent()?
+	}
+
+	/**
 	 * @since 3.5
 	 */
 	protected Accessible() {
@@ -91,28 +104,6 @@ public class Accessible {
 	}
 	
 	/**
-	 * Removes the listener from the collection of listeners who will
-	 * be notified when an accessible client asks for certain strings,
-	 * such as name, description, help, or keyboard shortcut.
-	 *
-	 * @param listener the listener that should no longer be notified when the receiver
-	 * is asked for a name, description, help, or keyboard shortcut string
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleListener
-	 * @see #addAccessibleListener
-	 */
-	public void removeAccessibleListener(AccessibleListener listener) {
-	}
-	
-	/**
 	 * Adds the listener to the collection of listeners who will
 	 * be notified when an accessible client asks for custom control
 	 * specific information. The listener is notified by sending it
@@ -136,28 +127,6 @@ public class Accessible {
 	public void addAccessibleControlListener(AccessibleControlListener listener) {
 	}
 
-	/**
-	 * Removes the listener from the collection of listeners who will
-	 * be notified when an accessible client asks for custom control
-	 * specific information.
-	 *
-	 * @param listener the listener that should no longer be notified when the receiver
-	 * is asked for custom control specific information
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleControlListener
-	 * @see #addAccessibleControlListener
-	 */
-	public void removeAccessibleControlListener(AccessibleControlListener listener) {
-	}
-	
 	/**
 	 * Adds the listener to the collection of listeners who will
 	 * be notified when an accessible client asks for custom text control
@@ -185,6 +154,264 @@ public class Accessible {
 	}
 
 	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleAction</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleAction</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleActionListener
+	 * @see #removeAccessibleActionListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleActionListener(AccessibleActionListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleHyperlink</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleHyperlink</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleHyperlinkListener
+	 * @see #removeAccessibleHyperlinkListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleHyperlinkListener(AccessibleHyperlinkListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTable</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleTable</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTableListener
+	 * @see #removeAccessibleTableListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleTableListener(AccessibleTableListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTableCell</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleTableCell</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTableCellListener
+	 * @see #removeAccessibleTableCellListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleTableCellListener(AccessibleTableCellListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTextExtended</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleTextExtended</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTextExtendedListener
+	 * @see #removeAccessibleTextExtendedListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleValue</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleValue</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleValueListener
+	 * @see #removeAccessibleValueListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleValueListener(AccessibleValueListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleScroll</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleScroll</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleScrollListener
+	 * @see #removeAccessibleScrollListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleScrollListener(AccessibleScrollListener listener) {
+	}
+
+	/**
+	 * Adds the listener to the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleAttribute</code> interface.
+	 *
+	 * @param listener the listener that should be notified when the receiver
+	 * is asked for <code>AccessibleAttribute</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleAttributeListener
+	 * @see #removeAccessibleAttributeListener
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleAttributeListener(AccessibleAttributeListener listener) {
+	}
+
+	/**
+	 * Adds a relation with the specified type and targets
+	 * to the receiver's set of relations.
+	 * 
+	 * @param type a constant beginning with RELATION_* indicating the type of relation
+	 * @param targets the accessible(s) that are targets for this relation
+	 * 
+	 * @since 3.6
+	 */
+	public void addAccessibleRelation(int type, Accessible targets[]) {
+	}
+	
+	/**
+	 * Returns the control for this Accessible object. 
+	 *
+	 * @return the receiver's control
+	 * @since 3.0
+	 */
+	public Control getControl() {
+		return control;
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners who will
+	 * be notified when an accessible client asks for certain strings,
+	 * such as name, description, help, or keyboard shortcut.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for a name, description, help, or keyboard shortcut string
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleListener
+	 * @see #addAccessibleListener
+	 */
+	public void removeAccessibleListener(AccessibleListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners who will
+	 * be notified when an accessible client asks for custom control
+	 * specific information.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for custom control specific information
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleControlListener
+	 * @see #addAccessibleControlListener
+	 */
+	public void removeAccessibleControlListener(AccessibleControlListener listener) {
+	}
+
+	/**
 	 * Removes the listener from the collection of listeners who will
 	 * be notified when an accessible client asks for custom text control
 	 * specific information.
@@ -209,13 +436,224 @@ public class Accessible {
 	}
 
 	/**
-	 * Returns the control for this Accessible object. 
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleAction</code> interface.
 	 *
-	 * @return the receiver's control
-	 * @since 3.0
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleAction</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleActionListener
+	 * @see #addAccessibleActionListener
+	 * 
+	 * @since 3.6
 	 */
-	public Control getControl() {
-		return control;
+	public void removeAccessibleActionListener(AccessibleActionListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleHyperlink</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleHyperlink</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleHyperlinkListener
+	 * @see #addAccessibleHyperlinkListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleHyperlinkListener(AccessibleHyperlinkListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTable</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleTable</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTableListener
+	 * @see #addAccessibleTableListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleTableListener(AccessibleTableListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTableCell</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleTableCell</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTableCellListener
+	 * @see #addAccessibleTableCellListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleTableCellListener(AccessibleTableCellListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleTextExtended</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleTextExtended</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleTextExtendedListener
+	 * @see #addAccessibleTextExtendedListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleValue</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleValue</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleValueListener
+	 * @see #addAccessibleValueListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleValueListener(AccessibleValueListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleScroll</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleScroll</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleScrollListener
+	 * @see #addAccessibleScrollListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleScrollListener(AccessibleScrollListener listener) {
+	}
+
+	/**
+	 * Removes the listener from the collection of listeners that will be
+	 * notified when an accessible client asks for any of the properties
+	 * defined in the <code>AccessibleAttribute</code> interface.
+	 *
+	 * @param listener the listener that should no longer be notified when the receiver
+	 * is asked for <code>AccessibleAttribute</code> interface properties
+	 *
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+	 * </ul>
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 *
+	 * @see AccessibleAttributeListener
+	 * @see #addAccessibleAttributeListener
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleAttributeListener(AccessibleAttributeListener listener) {
+	}
+
+	/**
+	 * Removes the relation with the specified type and targets
+	 * from the receiver's set of relations.
+	 * 
+	 * @param type a constant beginning with RELATION_* indicating the type of relation
+	 * @param targets the accessible(s) that are targets for this relation
+	 * 
+	 * @since 3.6
+	 */
+	public void removeAccessibleRelation(int type, Accessible targets[]) {
+	}
+	
+	/**
+	 * Sends a message to accessible clients indicating that something
+	 * has changed within a custom control.
+	 *
+	 * @param event a constant beginning with EVENT_* indicating the message to send
+	 * @param childID an identifier specifying a child of the control or the control itself
+	 * 
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 * 
+	 * @since 3.6
+	 */
+	public void sendEvent(int event, int childID) {
 	}
 
 	/**
