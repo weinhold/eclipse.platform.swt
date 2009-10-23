@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.swt.accessibility;
 
-
-import java.lang.reflect.Method;
 import java.util.Vector;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
@@ -60,7 +58,6 @@ public class Accessible {
 	Object[] variants;
 	Accessible parent;
 	Control control;
-	static String ALTERNATE_ACCESSIBLE_CLASS_NAME = "org.eclipse.swt.accessibility2.Accessible2";
 
 	/**
 	 * Constructs a new instance of this class given its parent.
@@ -180,16 +177,6 @@ public class Accessible {
 	 * @return the platform specific accessible object
 	 */
 	public static Accessible internal_new_Accessible(Control control) {
-		if (ALTERNATE_ACCESSIBLE_CLASS_NAME != null) {
-			try {
-				Class clazz = Class.forName(ALTERNATE_ACCESSIBLE_CLASS_NAME);
-				Method method = clazz.getDeclaredMethod ("internal_new_Accessible", new Class [] {Control.class});
-				Object value = method.invoke(clazz, new Object [] {control});
-				return (Accessible)value;
-			} catch (Throwable e) {
-				ALTERNATE_ACCESSIBLE_CLASS_NAME = null;
-			}
-		}
 		return new Accessible(control);
 	}
 
