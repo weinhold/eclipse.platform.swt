@@ -89,8 +89,8 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * 
 	 * Given a point return the zero-based index of the character under that
 	 * point.  The same functionality could be achieved by using the bounding
-	 * boxes for each character as returned by AccessibleExtendedText::characterExtents.
-	 * The method AccessibleExtendedText::index - offsetAtPoint, however, can be implemented
+	 * boxes for each character as returned by AccessibleTextExtended::characterExtents.
+	 * The method AccessibleTextExtended::index - offsetAtPoint, however, can be implemented
 	 * more efficiently.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -132,7 +132,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * as a call with the two arguments being exchanged.
 	 * 
 	 * The whole string - text can be requested by passing the indices zero and
-	 * AccessibleExtendedText::nCharacters. If both indices have the same value, an empty
+	 * AccessibleTextExtended::nCharacters. If both indices have the same value, an empty
 	 * string is returned.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -155,7 +155,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * 
 	 * Returns the substring of the specified string - text type that is located before the
 	 * given character and does not include it. The result of this method should be
-	 * same as a result for AccessibleExtendedText::string - textAtOffset with a suitably decreased
+	 * same as a result for AccessibleTextExtended::string - textAtOffset with a suitably decreased
 	 * index value.
 	 * 
 	 * For example, if string - text type is TEXT_BOUNDARY_WORD, then the complete
@@ -187,7 +187,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * 
 	 * Returns the substring of the specified string - text type that is located after the
 	 * given character and does not include it. The result of this method should be
-	 * same as a result for AccessibleExtendedText::string - textAtOffset with a suitably increased
+	 * same as a result for AccessibleTextExtended::string - textAtOffset with a suitably increased
 	 * index value.
 	 * 
 	 * For example, if string - text type is TEXT_BOUNDARY_WORD, then the complete
@@ -268,7 +268,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * <li>[in] index - offset
 	 * 		The new index of the caret.  This caret is actually placed to the left side of
 	 * 		the character with that index.  An index of 0 places the caret so that the next
-	 * 		insertion goes before the first character.  An index of AccessibleExtendedText::nCharacters
+	 * 		insertion goes before the first character.  An index of AccessibleTextExtended::nCharacters
 	 * 		leads to insertion after the last character.
 	 * </ul>
 	 */

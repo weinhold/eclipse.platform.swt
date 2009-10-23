@@ -26,14 +26,14 @@ package org.eclipse.swt.accessibility;
  */
 public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	/**
-	 * Returns an accessible that represents the link anchor for the link at the specified index.
+	 * Returns the anchor for the link at the specified index.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - a 0 based index identifying the anchor when, as in the case of
-	 * 		an image map, there is more than one link represented by this object.
-	 * <li>[out] string
-	 * <li>[optional out] accessible
-	 * 		The returned anchor can either be a string or an accessible.
+	 * <li>[in] index - a 0 based index identifying the anchor if this object
+	 * 		has more than one link, as in the case of an image map
+	 * <li>[out] string - the returned anchor
+	 * <li>[optional out] accessible - the returned anchor.
+	 * 		Note: The returned anchor can either be a string or an accessible.
 	 * 		For example, for a text link this could be the substring of the containing string
 	 * 		where the substring is overridden with link behavior, and for an image link this could be
 	 * 		the accessible for the image.
@@ -42,15 +42,14 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	public void getAnchor(AccessibleHyperlinkEvent e) {};
 
 	/**
-	 * Returns an accessible representing the target of the link, as appropriate
-	 * for the link at the specified index.
+	 * Returns the target of the link at the specified index.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - a 0 based index identifying the anchor when, as in the case
-	 * 		of an image map, there is more than one link represented by this object.
-	 * <li>[out] string
-	 * <li>[optional out] accessible
-	 * 		The returned target can either be a string or an accessible.
+	 * <li>[in] index - a 0 based index identifying the anchor if this object
+	 * 		has more than one link, as in the case of an image map
+	 * <li>[out] string - the returned target
+	 * <li>[optional out] accessible - the returned target.
+	 * 		Note: The returned target can either be a string or an accessible.
 	 * 		For example, this could be a string URI, or the accessible for the target
 	 * 		object to be activated when the link is activated.
 	 * </ul>
@@ -60,7 +59,7 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink starts.
 	 * <p>
-	 * The returned value is related to the AccessibleExtendedText interface of the object that
+	 * The returned value is related to the AccessibleTextExtended interface of the object that
 	 * owns this hyperlink.
 	 * </p>
 	 * 
@@ -73,7 +72,7 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink ends.
 	 * <p>
-	 * The returned value is related to the AccessibleExtendedText interface of the object that
+	 * The returned value is related to the AccessibleTextExtended interface of the object that
 	 * owns this hyperlink. The character at the index is not part of the hypertext.
 	 * </p>
 	 * 

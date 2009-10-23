@@ -69,7 +69,7 @@ public interface AccessibleHyperlinkListener extends SWTEventListener {
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink starts.
 	 * 
-	 * The returned value is related to the AccessibleExtendedText interface of the object that
+	 * The returned value is related to the AccessibleTextExtended interface of the object that
 	 * owns this hyperlink.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -81,7 +81,7 @@ public interface AccessibleHyperlinkListener extends SWTEventListener {
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink ends.
 	 * 
-	 * The returned value is related to the AccessibleExtendedText interface of the object that
+	 * The returned value is related to the AccessibleTextExtended interface of the object that
 	 * owns this hyperlink. The character at the index is not part of the hypertext.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
