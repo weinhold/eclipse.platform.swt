@@ -31,7 +31,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	/**
 	 * Returns the number of accessible actions available in this object.
 	 * <p>
-	 * If there are more than one, the first one is considered the
+	 * If there are more than one, the first one (index 0) is considered the
 	 * "default" action of the object.
 	 * </p>
 	 * 
@@ -52,7 +52,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	public void doAction(AccessibleActionEvent e);
 
 	/**
-	 * Returns a description of the specified action of the object.
+	 * Returns a description of the specified action.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's description to return
@@ -63,16 +63,16 @@ public interface AccessibleActionListener extends SWTEventListener {
 	public void getDescription(AccessibleActionEvent e);
 
 	/**
-	 * Returns an array of strings describing one or more key bindings, if there are any,
-	 * associated with the specified action.
+	 * Returns an array of strings describing one or more key bindings, if there
+	 * are any, associated with the specified action.
 	 * <p>
-	 * A keyboard shortcut can either be a mnemonic, or an accelerator.
-	 * As a general rule, if the control or child can receive keyboard focus,
-	 * then you should expose its mnemonic, and if it cannot receive keyboard
-	 * focus, then you should expose its accelerator.
-	 * TODO: this whole comment needs work...
-	 * Since these key sequences are to be used when the object has focus, they
-	 * are like mnemonics (access keys), and not like shortcut (accelerator) keys.
+	 * A key binding can describe either a mnemonic, or an accelerator. As a
+	 * general rule, if the control or child can receive keyboard focus, then
+	 * you should expose its mnemonic(s), and if it cannot receive keyboard
+	 * focus, then you should expose its accelerator(s).
+	 * </p><p>
+	 * There is no need to implement this method for single action controls
+	 * since that would be redundant with AccessibleListener.getKeyboardShortcut.
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
