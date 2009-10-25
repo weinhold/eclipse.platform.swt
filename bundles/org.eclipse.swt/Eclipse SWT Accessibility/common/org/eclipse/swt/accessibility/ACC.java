@@ -125,111 +125,161 @@ public class ACC {
 	public static final int TEXT_INSERT = 0;
 	public static final int TEXT_DELETE = 1;
 
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_CHAR = 0;		/**< Typically, a single character is returned.  In some cases more than
-		 one character is returned, for example, when a document contains field
-		 data such as a field containing a date, time, or footnote reference.
-		 In this case the caret can move over several characters in one movement
-		 of the caret.  Note that after the caret moves, the caret offset changes
-		 by the number of characters in the field, e.g. by 8 characters in the 
-		 following date: 03/26/07. */
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_WORD = 1;		/**< The range provided matches the range observed when the application
-		 processes the Ctrl + left arrow and Ctrl + right arrow key sequences.
-		 Typically this is from the start of one word to the start of the next, but
-		 various applications are inconsistent in the handling of the end of a line. */
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_SENTENCE = 2;	///< Range is from start of one sentence to the start of another sentence.
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_PARAGRAPH = 3;	///< Range is from start of one paragraph to the start of another paragraph.
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_LINE = 4;		/**< Range is from start of one line to the start of another line. This
-      often means that an end-of-line character will appear at the end of the
-		 range. However in the case of some applications an end-of-line character
-		 indicates the end of a paragraph and the lines composing the paragraph,
-		 other than the last line, do not contain an end of line character. */
-	/** @since 3.6 */
-	public static final int TEXT_BOUNDARY_ALL = 5;			///< Using this value will cause all text to be returned.
+	/**
+	 * Typically, a single character is returned. In some cases more than one
+	 * character is returned, for example, when a document contains field data
+	 * such as a field containing a date, time, or footnote reference. In this
+	 * case the caret can move over several characters in one movement of the
+	 * caret. Note that after the caret moves, the caret offset changes by the
+	 * number of characters in the field, e.g. by 8 characters in the following
+	 * date: 03/26/07.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_CHAR = 0;
+	
+	/**
+	 * The range provided matches the range observed when the application
+	 * processes the Ctrl + left arrow and Ctrl + right arrow key sequences.
+	 * Typically this is from the start of one word to the start of the next,
+	 * but various applications are inconsistent in the handling of the end of a
+	 * line.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_WORD = 1;
+	
+	/**
+	 * Range is from start of one sentence to the start of another sentence.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_SENTENCE = 2;
 
-/** Scroll the top left corner of the object or substring such that the top left
-corner (and as much as possible of the rest of the object or substring) is within
-the top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
-	public static final int SCROLL_TYPE_TOP_LEFT = 0; 		
+	/**
+	 * Range is from start of one paragraph to the start of another paragraph.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_PARAGRAPH = 3;
 
-/** Scroll the bottom right corner of the object or substring such that the bottom right
-corner (and as much as possible of the rest of the object or substring) is within
-the top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
+	/**
+	 * Range is from start of one line to the start of another line. This often
+	 * means that an end-of-line character will appear at the end of the range.
+	 * However in the case of some applications an end-of-line character
+	 * indicates the end of a paragraph and the lines composing the paragraph,
+	 * other than the last line, do not contain an end of line character.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_LINE = 4;
+
+	/**
+	 * Using this value will cause all text to be returned.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int TEXT_BOUNDARY_ALL = 5;
+
+	/**
+	 * Scroll the top left corner of the object or substring such that the top
+	 * left corner (and as much as possible of the rest of the object or
+	 * substring) is within the top level window. In cases where the entire
+	 * object or substring fits within the top level window, the placement of
+	 * the object or substring is dependent on the application. For example, the
+	 * object or substring may be scrolled to the closest edge, the furthest
+	 * edge, or midway between those two edges. In cases where there is a
+	 * hierarchy of nested scrollable controls, more than one control may have
+	 * to be scrolled.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int SCROLL_TYPE_TOP_LEFT = 0;
+
+	/**
+	 * Scroll the bottom right corner of the object or substring such that the
+	 * bottom right corner (and as much as possible of the rest of the object or
+	 * substring) is within the top level window. In cases where the entire
+	 * object or substring fits within the top level window, the placement of
+	 * the object or substring is dependent on the application. For example, the
+	 * object or substring may be scrolled to the closest edge, the furthest
+	 * edge, or midway between those two edges. In cases where there is a
+	 * hierarchy of nested scrollable controls, more than one control may have
+	 * to be scrolled.
+	 * 
+	 * @since 3.6
+	 */
 	public static final int SCROLL_TYPE_BOTTOM_RIGHT = 1;
 
-/** Scroll the top edge of the object or substring such that the top edge 
-(and as much as possible of the rest of the object or substring) is within the
-top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
+	/**
+	 * Scroll the top edge of the object or substring such that the top edge
+	 * (and as much as possible of the rest of the object or substring) is
+	 * within the top level window. In cases where the entire object or substring
+	 * fits within the top level window, the placement of the object or
+	 * substring is dependent on the application. For example, the object or
+	 * substring may be scrolled to the closest edge, the furthest edge, or
+	 * midway between those two edges. In cases where there is a hierarchy of
+	 * nested scrollable controls, more than one control may have to be
+	 * scrolled.
+	 * 
+	 * @since 3.6
+	 */
 	public static final int SCROLL_TYPE_TOP_EDGE = 2;
 
-/** Scroll the bottom edge of the object or substring such that the bottom edge 
-(and as much as possible of the rest of the object or substring) is within the
-top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
-	public static final int SCROLL_TYPE_BOTTOM_EDGE = 3; 
+	/**
+	 * Scroll the bottom edge of the object or substring such that the bottom
+	 * edge (and as much as possible of the rest of the object or substring) is
+	 * within the top level window. In cases where the entire object or
+	 * substring fits within the top level window, the placement of the object
+	 * or substring is dependent on the application. For example, the object or
+	 * substring may be scrolled to the closest edge, the furthest edge, or
+	 * midway between those two edges. In cases where there is a hierarchy of
+	 * nested scrollable controls, more than one control may have to be
+	 * scrolled.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int SCROLL_TYPE_BOTTOM_EDGE = 3;
 
-/** Scroll the left edge of the object or substring such that the left edge 
-(and as much as possible of the rest of the object or substring) is within the
-top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
-	public static final int SCROLL_TYPE_LEFT_EDGE = 4; 
+	/**
+	 * Scroll the left edge of the object or substring such that the left edge
+	 * (and as much as possible of the rest of the object or substring) is
+	 * within the top level window. In cases where the entire object or substring
+	 * fits within the top level window, the placement of the object or
+	 * substring is dependent on the application. For example, the object or
+	 * substring may be scrolled to the closest edge, the furthest edge, or
+	 * midway between those two edges. In cases where there is a hierarchy of
+	 * nested scrollable controls, more than one control may have to be
+	 * scrolled.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int SCROLL_TYPE_LEFT_EDGE = 4;
 
-/** Scroll the right edge of the object or substring such that the right edge 
-(and as much as possible of the rest of the object or substring) is within the
-top level window.  In cases where the entire object or substring fits within 
-the top level window, the placement of the object or substring is dependent on 
-the application.  For example, the object or substring may be scrolled to the 
-closest edge, the furthest edge, or midway between those two edges.  In cases
-where there is a hierarchy of nested scrollable controls, more than one control
-may have to be scrolled.
-*/
-	/** @since 3.6 */
+	/**
+	 * Scroll the right edge of the object or substring such that the right edge
+	 * (and as much as possible of the rest of the object or substring) is
+	 * within the top level window. In cases where the entire object or
+	 * substring fits within the top level window, the placement of the object
+	 * or substring is dependent on the application. For example, the object or
+	 * substring may be scrolled to the closest edge, the furthest edge, or
+	 * midway between those two edges. In cases where there is a hierarchy of
+	 * nested scrollable controls, more than one control may have to be
+	 * scrolled.
+	 * 
+	 * @since 3.6
+	 */
 	public static final int SCROLL_TYPE_RIGHT_EDGE =  5;
 
-/** Scroll the object or substring such that as much as possible of the 
-object or substring is within the top level window.  The placement of 
-the object is dependent on the application.  For example, the object or
-substring may be scrolled to to closest edge, the furthest edge, or midway
-between those two edges.
-*/
-	/** @since 3.6 */
+	/**
+	 * Scroll the object or substring such that as much as possible of the
+	 * object or substring is within the top level window. The placement of the
+	 * object is dependent on the application. For example, the object or
+	 * substring may be scrolled to to closest edge, the furthest edge, or
+	 * midway between those two edges.
+	 * 
+	 * @since 3.6
+	 */
 	public static final int SCROLL_TYPE_ANYWHERE = 6;
 
 	/**
