@@ -241,7 +241,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	public void getTextAtOffset(AccessibleTextExtendedEvent e);
 
 	/**
-	 * Unselects a range of text.
+	 * Deselects a range of text.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - selectionIndex
