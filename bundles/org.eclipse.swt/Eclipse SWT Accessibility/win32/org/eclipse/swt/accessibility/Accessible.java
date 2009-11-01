@@ -962,7 +962,6 @@ public class Accessible {
 	 * must be incremented before returning.  Caller is responsible for releasing ppvObject.
 	 */
 	int QueryInterface(int /*long*/ iid, int /*long*/ ppvObject) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		GUID guid = new GUID();
 		COM.MoveMemory(guid, iid, GUID.sizeof);
 
@@ -990,11 +989,14 @@ public class Accessible {
 			enumIndex = 0;
 			return COM.S_OK;
 		}
+		
+		if (iaccessible == null) return COM.DISP_E_MEMBERNOTFOUND;
 
+		/* Forward any other GUIDs to the OS proxy. */
 		int /*long*/[] ppv = new int /*long*/[1];
-		int result = iaccessible.QueryInterface(guid, ppv);
+		int code = iaccessible.QueryInterface(guid, ppv);
 		COM.MoveMemory(ppvObject, ppv, OS.PTR_SIZEOF);
-		return result;
+		return code;
 	}
 
 	int AddRef() {
@@ -1017,25 +1019,30 @@ public class Accessible {
 		return refCount;
 	}
 
+	/* accDoDefaultAction([in] varChild) */
 	int accDoDefaultAction(int /*long*/ varChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-		// Currently, we don't let the application override this. Forward to the proxy.
-		int code = iaccessible.accDoDefaultAction(varChild);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		// TODO: Need to support this. Just do the same as for IA2 default doAction
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Currently, we don't expose this as API. Forward to the proxy. */
+			code = iaccessible.accDoDefaultAction(varChild);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		}
 		return code;
 	}
 
+	/* accHitTest([in] xLeft, [in] yTop, [out] pvarChild) */
 	int accHitTest(int xLeft, int yTop, int /*long*/ pvarChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-
-		/* Get the default (left, top) child from the OS. */
 		int osChild = ACC.CHILDID_NONE;
-		int code = iaccessible.accHitTest(xLeft, yTop, pvarChild);
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			VARIANT v = getVARIANT(pvarChild);
-			if (v.vt == COM.VT_I4) osChild = osToChildID(v.lVal);
-			/* Should also handle v.vt == COM.VT_DISPATCH */
+		if (iaccessible != null) {
+			/* Get the default child at point (left, top) from the OS. */
+			int code = iaccessible.accHitTest(xLeft, yTop, pvarChild);
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				VARIANT v = getVARIANT(pvarChild);
+				if (v.vt == COM.VT_I4) osChild = osToChildID(v.lVal);
+				// TODO: Should also handle v.vt == COM.VT_DISPATCH
+			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1052,23 +1059,24 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* accLocation([out] pxLeft, [out] pyTop, [out] pcxWidth, [out] pcyHeight, [in] varChild) */
 	int accLocation(int /*long*/ pxLeft, int /*long*/ pyTop, int /*long*/ pcxWidth, int /*long*/ pcyHeight, int /*long*/ varChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-
-		/* Get the default location from the OS. */
 		int osLeft = 0, osTop = 0, osWidth = 0, osHeight = 0;
-		int code = iaccessible.accLocation(pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int[] pLeft = new int[1], pTop = new int[1], pWidth = new int[1], pHeight = new int[1];
-			COM.MoveMemory(pLeft, pxLeft, 4);
-			COM.MoveMemory(pTop, pyTop, 4);
-			COM.MoveMemory(pWidth, pcxWidth, 4);
-			COM.MoveMemory(pHeight, pcyHeight, 4);
-			osLeft = pLeft[0]; osTop = pTop[0]; osWidth = pWidth[0]; osHeight = pHeight[0];
+		if (iaccessible != null) {
+			/* Get the default location from the OS. */
+			int code = iaccessible.accLocation(pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int[] pLeft = new int[1], pTop = new int[1], pWidth = new int[1], pHeight = new int[1];
+				COM.MoveMemory(pLeft, pxLeft, 4);
+				COM.MoveMemory(pTop, pyTop, 4);
+				COM.MoveMemory(pWidth, pcxWidth, 4);
+				COM.MoveMemory(pHeight, pcyHeight, 4);
+				osLeft = pLeft[0]; osTop = pTop[0]; osWidth = pWidth[0]; osHeight = pHeight[0];
+			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1088,22 +1096,28 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* accNavigate([in] navDir, [in]  varStart, [out]  pvarEndUpAt) */
 	int accNavigate(int navDir, int /*long*/ varStart, int /*long*/ pvarEndUpAt) {
-		/* MSAA: "The accNavigate method is deprecated and should not be used."
-		 * 
-		 * NOTE: Since many of the native controls still handle accNavigate,
-		 * we will continue to send this through to the proxy.
-		 */
-		int code = iaccessible.accNavigate(navDir, varStart, pvarEndUpAt);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		/* MSAA: "The accNavigate method is deprecated and should not be used." */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Since many of the native controls still handle accNavigate,
+			 * we will continue to send this through to the proxy. */
+			code = iaccessible.accNavigate(navDir, varStart, pvarEndUpAt);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		}
 		return code;
 	}
 	
+	/* accSelect([in] flagsSelect, [in] varChild) */
 	int accSelect(int flagsSelect, int /*long*/ varChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-		// Currently, we don't let the application override this. Forward to the proxy.
-		int code = iaccessible.accSelect(flagsSelect, varChild);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		// TODO: Are we going to support this?
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Currently, we don't expose this as API. Forward to the proxy. */
+			code = iaccessible.accSelect(flagsSelect, varChild);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		}
 		return code;
 	}
 
@@ -1112,13 +1126,13 @@ public class Accessible {
 	 * must be incremented before returning.  The caller is responsible for releasing ppdispChild.
 	 */
 	int get_accChild(int /*long*/ varChild, int /*long*/ ppdispChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		if (accessibleControlListeners.size() == 0) {
-			int code = iaccessible.get_accChild(varChild, ppdispChild);
+		int code = COM.S_FALSE;
+		if (iaccessible != null) {
+			/* Get the default child from the OS. */
+			code = iaccessible.get_accChild(varChild, ppdispChild);
 			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-			return code;
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1133,20 +1147,21 @@ public class Accessible {
 			COM.MoveMemory(ppdispChild, new int /*long*/[] { accessible.objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 			return COM.S_OK;
 		}
-		return COM.S_FALSE;
+		return code;
 	}
 	
+	/* get_accChildCount([out] pcountChildren) */
 	int get_accChildCount(int /*long*/ pcountChildren) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-
-		/* Get the default child count from the OS. */
 		int osChildCount = 0;
-		int code = iaccessible.get_accChildCount(pcountChildren);
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int[] pChildCount = new int[1];
-			COM.MoveMemory(pChildCount, pcountChildren, 4);
-			osChildCount = pChildCount[0];
+		if (iaccessible != null) {
+			/* Get the default child count from the OS. */
+			int code = iaccessible.get_accChildCount(pcountChildren);
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int[] pChildCount = new int[1];
+				COM.MoveMemory(pChildCount, pcountChildren, 4);
+				osChildCount = pChildCount[0];
+			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1161,24 +1176,26 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* get_accDefaultAction([in] varChild, [out] pszDefaultAction) */
 	int get_accDefaultAction(int /*long*/ varChild, int /*long*/ pszDefaultAction) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		
-		/* Get the default defaultAction from the OS. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
 		String osDefaultAction = null;
-		int code = iaccessible.get_accDefaultAction(varChild, pszDefaultAction);
-		if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pDefaultAction = new int /*long*/[1];
-			COM.MoveMemory(pDefaultAction, pszDefaultAction, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pDefaultAction[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pDefaultAction[0], size);
-				osDefaultAction = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default defaultAction from the OS. */
+			code = iaccessible.get_accDefaultAction(varChild, pszDefaultAction);
+			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pDefaultAction = new int /*long*/[1];
+				COM.MoveMemory(pDefaultAction, pszDefaultAction, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pDefaultAction[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pDefaultAction[0], size);
+					osDefaultAction = new String(buffer);
+				}
 			}
 		}
 
@@ -1190,39 +1207,43 @@ public class Accessible {
 			listener.getDefaultAction(event);
 		}
 		if (event.result == null) return code;
+		if (event.result.length() == 0) return COM.S_FALSE;
 		char[] data = (event.result + "\0").toCharArray();
 		int /*long*/ ptr = COM.SysAllocString(data);
 		COM.MoveMemory(pszDefaultAction, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 	
+	/* get_accDescription([in] varChild, [out] pszDescription) */
 	int get_accDescription(int /*long*/ varChild, int /*long*/ pszDescription) {
 		/* 
 		 * MSAA: "The accDescription property is not supported in the transition to
 		 * UI Automation. MSAA servers and applications should not use it."
 		 * 
-		 * NOTE: Description was exposed as SWT API. We will need to either deprecate this,
-		 * or find a suitable replacement. Note that the trick to expose tree columns
-		 * was not supported by screen readers, so it should be replaced.
+		 * TODO: Description was exposed as SWT API. We will need to either deprecate this (?),
+		 * or find a suitable replacement. Also, check description property on other platforms.
+		 * Note that the trick to expose tree columns (below) was not supported by screen readers
+		 * (verify W-E?), so it should be replaced.
 		 */
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		
-		/* Get the default description from the OS. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
 		String osDescription = null;
-		int code = iaccessible.get_accDescription(varChild, pszDescription);
-		if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-		// TEMPORARY CODE - process tree even if there are no apps listening
-		if (accessibleListeners.size() == 0 && !(control instanceof Tree)) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pDescription = new int /*long*/[1];
-			COM.MoveMemory(pDescription, pszDescription, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pDescription[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pDescription[0], size);
-				osDescription = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default description from the OS. */
+			code = iaccessible.get_accDescription(varChild, pszDescription);
+			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
+			// TEMPORARY CODE - process tree even if there are no apps listening
+			if (accessibleListeners.size() == 0 && !(control instanceof Tree)) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pDescription = new int /*long*/[1];
+				COM.MoveMemory(pDescription, pszDescription, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pDescription[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pDescription[0], size);
+					osDescription = new String(buffer);
+				}
 			}
 		}
 		
@@ -1262,26 +1283,27 @@ public class Accessible {
 			listener.getDescription(event);
 		}
 		if (event.result == null) return code;
+		if (event.result.length() == 0) return COM.S_FALSE;
 		char[] data = (event.result + "\0").toCharArray();
 		int /*long*/ ptr = COM.SysAllocString(data);
 		COM.MoveMemory(pszDescription, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 	
-	/* get_accFocus([out] int pvarChild)
+	/* get_accFocus([out] pvarChild)
 	 * Ownership of pvarChild transfers from callee to caller so reference count on pvarChild 
 	 * must be incremented before returning.  The caller is responsible for releasing pvarChild.
 	 */
 	int get_accFocus(int /*long*/ pvarChild) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-
-		/* Get the default focus child from the OS. */
 		int osChild = ACC.CHILDID_NONE;
-		int code = iaccessible.get_accFocus(pvarChild);
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			VARIANT v = getVARIANT(pvarChild);
-			if (v.vt == COM.VT_I4) osChild = osToChildID(v.lVal);
+		if (iaccessible != null) {
+			/* Get the default focus child from the OS. */
+			int code = iaccessible.get_accFocus(pvarChild);
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				VARIANT v = getVARIANT(pvarChild);
+				if (v.vt == COM.VT_I4) osChild = osToChildID(v.lVal);
+			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1310,24 +1332,26 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* get_accHelp([in] varChild, [out] pszHelp) */
 	int get_accHelp(int /*long*/ varChild, int /*long*/ pszHelp) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		
-		/* Get the default help string from the OS. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
 		String osHelp = null;
-		int code = iaccessible.get_accHelp(varChild, pszHelp);
-		if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-		if (accessibleListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pHelp = new int /*long*/[1];
-			COM.MoveMemory(pHelp, pszHelp, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pHelp[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pHelp[0], size);
-				osHelp = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default help string from the OS. */
+			code = iaccessible.get_accHelp(varChild, pszHelp);
+			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
+			if (accessibleListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pHelp = new int /*long*/[1];
+				COM.MoveMemory(pHelp, pszHelp, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pHelp[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pHelp[0], size);
+					osHelp = new String(buffer);
+				}
 			}
 		}
 
@@ -1346,35 +1370,39 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* get_accHelpTopic([out] pszHelpFile, [in] varChild, [out] pidTopic) */
 	int get_accHelpTopic(int /*long*/ pszHelpFile, int /*long*/ varChild, int /*long*/ pidTopic) {
-		/* MSAA: "The accHelpTopic property is deprecated and should not be used."
-		 * 
-		 * NOTE: Since it is possible that a native control might still handle get_accHelpTopic,
-		 * we will continue to send this through to the proxy.
-		 */
-		int code = iaccessible.get_accHelpTopic(pszHelpFile, varChild, pidTopic);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		/* MSAA: "The accHelpTopic property is deprecated and should not be used." */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Since it is possible that a native control might still handle get_accHelpTopic,
+			 * we will continue to send this through to the proxy. */
+			code = iaccessible.get_accHelpTopic(pszHelpFile, varChild, pidTopic);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		}
 		return code;
 	}
 
+	/* get_accKeyboardShortcut([in] varChild, [out] pszKeyboardShortcut) */
 	int get_accKeyboardShortcut(int /*long*/ varChild, int /*long*/ pszKeyboardShortcut) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		
-		/* Get the default keyboard shortcut from the OS. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
 		String osKeyboardShortcut = null;
-		int code = iaccessible.get_accKeyboardShortcut(varChild, pszKeyboardShortcut);
-		if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-		if (accessibleListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pKeyboardShortcut = new int /*long*/[1];
-			COM.MoveMemory(pKeyboardShortcut, pszKeyboardShortcut, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pKeyboardShortcut[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pKeyboardShortcut[0], size);
-				osKeyboardShortcut = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default keyboard shortcut from the OS. */
+			code = iaccessible.get_accKeyboardShortcut(varChild, pszKeyboardShortcut);
+			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
+			if (accessibleListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pKeyboardShortcut = new int /*long*/[1];
+				COM.MoveMemory(pKeyboardShortcut, pszKeyboardShortcut, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pKeyboardShortcut[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pKeyboardShortcut[0], size);
+					osKeyboardShortcut = new String(buffer);
+				}
 			}
 		}
 
@@ -1386,30 +1414,33 @@ public class Accessible {
 			listener.getKeyboardShortcut(event);
 		}
 		if (event.result == null) return code;
+		if (event.result.length() == 0) return COM.S_FALSE;
 		char[] data = (event.result + "\0").toCharArray();
 		int /*long*/ ptr = COM.SysAllocString(data);
 		COM.MoveMemory(pszKeyboardShortcut, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 	
+	/* get_accName([in] varChild, [out] pszName) */
 	int get_accName(int /*long*/ varChild, int /*long*/ pszName) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-
-		/* Get the default name from the OS. */
+		int code = COM.S_FALSE;
 		String osName = null;
-		int code = iaccessible.get_accName(varChild, pszName);
-		if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
-		if (accessibleListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pName = new int /*long*/[1];
-			COM.MoveMemory(pName, pszName, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pName[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pName[0], size);
-				osName = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default name from the OS. */
+			code = iaccessible.get_accName(varChild, pszName);
+			if (code == COM.E_INVALIDARG) code = COM.S_FALSE; // proxy doesn't know about app childID
+			if (accessibleListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pName = new int /*long*/[1];
+				COM.MoveMemory(pName, pszName, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pName[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pName[0], size);
+					osName = new String(buffer);
+				}
 			}
 		}
 
@@ -1433,22 +1464,27 @@ public class Accessible {
 	 * must be incremented before returning.  The caller is responsible for releasing ppdispParent.
 	 */
 	int get_accParent(int /*long*/ ppdispParent) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-		// Currently, we don't let the application override this. Forward to the proxy.
-		return iaccessible.get_accParent(ppdispParent);
+		// TODO: Need to support this now. Either return parent from proxy, or accessible's parent if no proxy.
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Currently, we don't expose this as API. Forward to the proxy. */
+			code = iaccessible.get_accParent(ppdispParent);
+		}
+		return code;
 	}
 	
+	/* get_accRole([in] varChild, [out] pvarRole) */
 	int get_accRole(int /*long*/ varChild, int /*long*/ pvarRole) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-
-		/* Get the default role from the OS. */
 		int osRole = COM.ROLE_SYSTEM_CLIENT;
-		int code = iaccessible.get_accRole(varChild, pvarRole);
-		if (code == COM.S_OK) {
-			VARIANT v2 = getVARIANT(pvarRole);
-			if (v2.vt == COM.VT_I4) osRole = osToChildID(v2.lVal);
+		if (iaccessible != null) {
+			/* Get the default role from the OS. */
+			int code = iaccessible.get_accRole(varChild, pvarRole);
+			if (code == COM.S_OK) {
+				VARIANT v2 = getVARIANT(pvarRole);
+				if (v2.vt == COM.VT_I4) osRole = osToChildID(v2.lVal);
+			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1473,21 +1509,21 @@ public class Accessible {
 	 * must be incremented before returning.  The caller is responsible for releasing pvarChildren.
 	 */
 	int get_accSelection(int /*long*/ pvarChildren) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-
-		/* Get the default selection from the OS. */
 		int osChild = ACC.CHILDID_NONE;
-		int code = iaccessible.get_accSelection(pvarChildren);
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			VARIANT v = getVARIANT(pvarChildren);
-			if (v.vt == COM.VT_I4) {
-				osChild = osToChildID(v.lVal);
-			} else if (v.vt == COM.VT_UNKNOWN) {
-				osChild = ACC.CHILDID_MULTIPLE;
-				/* Should get IEnumVARIANT from punkVal field, and enumerate children... */
+		if (iaccessible != null) {
+			/* Get the default selection from the OS. */
+			int code = iaccessible.get_accSelection(pvarChildren);
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				VARIANT v = getVARIANT(pvarChildren);
+				if (v.vt == COM.VT_I4) {
+					osChild = osToChildID(v.lVal);
+				} else if (v.vt == COM.VT_UNKNOWN) {
+					osChild = ACC.CHILDID_MULTIPLE;
+					// TODO: Should get IEnumVARIANT from punkVal field, and enumerate children...
+				}
+				// TODO: Should also handle (v.vt == COM.VT_DISPATCH)
 			}
-			/* Should also handle (v.vt == COM.VT_DISPATCH) */
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -1521,18 +1557,20 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* get_accState([in] varChild, [out] pvarState) */
 	int get_accState(int /*long*/ varChild, int /*long*/ pvarState) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-
-		/* Get the default state from the OS. */
 		int osState = 0;
-		int code = iaccessible.get_accState(varChild, pvarState);
-		if (code == COM.S_OK) {
-			VARIANT v2 = getVARIANT(pvarState);
-			if (v2.vt == COM.VT_I4) osState = v2.lVal;
+		if (iaccessible != null) {
+			/* Get the default state from the OS. */
+			int code = iaccessible.get_accState(varChild, pvarState);
+			if (code == COM.S_OK) {
+				VARIANT v2 = getVARIANT(pvarState);
+				if (v2.vt == COM.VT_I4) osState = v2.lVal;
+			}
 		}
+		
 		boolean grayed = false;
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		event.childID = osToChildID(v.lVal);
@@ -1578,24 +1616,26 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
+	/* get_accValue([in] varChild, [out] pszValue) */
 	int get_accValue(int /*long*/ varChild, int /*long*/ pszValue) {
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
-		
-		/* Get the default value string from the OS. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
 		String osValue = null;
-		int code = iaccessible.get_accValue(varChild, pszValue);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
-		if (accessibleControlListeners.size() == 0) return code;
-		if (code == COM.S_OK) {
-			int /*long*/[] pValue = new int /*long*/[1];
-			COM.MoveMemory(pValue, pszValue, OS.PTR_SIZEOF);
-			int size = COM.SysStringByteLen(pValue[0]);
-			if (size > 0) {
-				char[] buffer = new char[(size + 1) /2];
-				COM.MoveMemory(buffer, pValue[0], size);
-				osValue = new String(buffer);
+		if (iaccessible != null) {
+			/* Get the default value string from the OS. */
+			code = iaccessible.get_accValue(varChild, pszValue);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+			if (accessibleControlListeners.size() == 0) return code;
+			if (code == COM.S_OK) {
+				int /*long*/[] pValue = new int /*long*/[1];
+				COM.MoveMemory(pValue, pszValue, OS.PTR_SIZEOF);
+				int size = COM.SysStringByteLen(pValue[0]);
+				if (size > 0) {
+					char[] buffer = new char[(size + 1) /2];
+					COM.MoveMemory(buffer, pValue[0], size);
+					osValue = new String(buffer);
+				}
 			}
 		}
 
@@ -1607,23 +1647,29 @@ public class Accessible {
 			listener.getValue(event);
 		}
 		if (event.result == null) return code;
+		// empty string is a valid value, so do not test for it
 		char[] data = (event.result + "\0").toCharArray();
 		int /*long*/ ptr = COM.SysAllocString(data);
 		COM.MoveMemory(pszValue, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 	
+	/* put_accName([in] varChild, [in] szName) */
 	int put_accName(int /*long*/ varChild, int /*long*/ szName) {
 		/* MSAA: "The IAccessible::put_accName method is no longer supported. Servers should return E_NOTIMPL." */
 		return COM.E_NOTIMPL;
 	}
 	
+	/* put_accValue([in] varChild, [in] szValue) */
 	int put_accValue(int /*long*/ varChild, int /*long*/ szValue) {
-		// MSAA: this method is typically only used for edit controls
-		if (iaccessible == null) return COM.CO_E_OBJNOTCONNECTED;
-		// We don't implement this. Forward to the proxy.
-		int code = iaccessible.put_accValue(varChild, szValue);
-		if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		// TODO: Are we going to support this?
+		/* MSAA: this method is typically only used for edit controls. */
+		int code = COM.DISP_E_MEMBERNOTFOUND;
+		if (iaccessible != null) {
+			/* Currently, we don't expose this as API. Forward to the proxy. */
+			code = iaccessible.put_accValue(varChild, szValue);
+			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
+		}
 		return code;
 	}
 
@@ -1635,7 +1681,7 @@ public class Accessible {
 	 * (unless the caller passed in NULL for that parameter).
 	 */
 	 
-	 /* Next([in] celt, [out] rgvar, [in, out] pceltFetched)
+	/* Next([in] celt, [out] rgvar, [in, out] pceltFetched)
 	 * Ownership of rgvar transfers from callee to caller so reference count on rgvar 
 	 * must be incremented before returning.  The caller is responsible for releasing rgvar.
 	 */
@@ -1643,7 +1689,7 @@ public class Accessible {
 		/* If there are no listeners, query the proxy for
 		 * its IEnumVariant, and get the Next items from it.
 		 */
-		if (accessibleControlListeners.size() == 0) {
+		if (iaccessible != null && accessibleControlListeners.size() == 0) {
 			int /*long*/[] ppvObject = new int /*long*/[1];
 			int code = iaccessible.QueryInterface(COM.IIDIEnumVARIANT, ppvObject);
 			if (code != COM.S_OK) return code;
@@ -1710,7 +1756,7 @@ public class Accessible {
 		/* If there are no listeners, query the proxy
 		 * for its IEnumVariant, and tell it to Skip.
 		 */
-		if (accessibleControlListeners.size() == 0) {
+		if (iaccessible != null && accessibleControlListeners.size() == 0) {
 			int /*long*/[] ppvObject = new int /*long*/[1];
 			int code = iaccessible.QueryInterface(COM.IIDIEnumVARIANT, ppvObject);
 			if (code != COM.S_OK) return code;
@@ -1734,7 +1780,7 @@ public class Accessible {
 		/* If there are no listeners, query the proxy
 		 * for its IEnumVariant, and tell it to Reset.
 		 */
-		if (accessibleControlListeners.size() == 0) {
+		if (iaccessible != null && accessibleControlListeners.size() == 0) {
 			int /*long*/[] ppvObject = new int /*long*/[1];
 			int code = (int)/*64*/iaccessible.QueryInterface(COM.IIDIEnumVARIANT, ppvObject);
 			if (code != COM.S_OK) return code;
@@ -1748,7 +1794,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	 /* Clone([out] ppEnum)
+	/* Clone([out] ppEnum)
 	 * Ownership of ppEnum transfers from callee to caller so reference count on ppEnum 
 	 * must be incremented before returning.  The caller is responsible for releasing ppEnum.
 	 */
@@ -1756,7 +1802,7 @@ public class Accessible {
 		/* If there are no listeners, query the proxy for
 		 * its IEnumVariant, and get the Clone from it.
 		 */
-		if (accessibleControlListeners.size() == 0) {
+		if (iaccessible != null && accessibleControlListeners.size() == 0) {
 			int /*long*/[] ppvObject = new int /*long*/[1];
 			int code = iaccessible.QueryInterface(COM.IIDIEnumVARIANT, ppvObject);
 			if (code != COM.S_OK) return code;
