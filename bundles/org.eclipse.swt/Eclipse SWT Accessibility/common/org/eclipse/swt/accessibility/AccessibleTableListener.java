@@ -29,17 +29,14 @@ import org.eclipse.swt.internal.SWTEventListener;
  */
 public interface AccessibleTableListener extends SWTEventListener {
 	/**
-	 * Returns the accessible object at the specified row and column in the table.
+	 * Returns the accessible object at the specified row and column in
+	 * the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row
-	 * 		The 0 based row index for which to retrieve the accessible - cell.
-	 * <li>[in] column
-	 * 		The 0 based column index for which to retrieve the accessible - cell.
-	 * <li>[out] accessible - cell
-	 * 		If both row and column index are valid then the corresponding accessible
-	 * 		object is returned that represents the requested accessible - cell regardless of whether
-	 * 		the accessible - cell is currently visible (on the screen).
+	 * <li>[in] row - the 0 based row index for which to retrieve the accessible
+	 * <li>[in] column - the 0 based column index for which to retrieve the accessible
+	 * <li>[out] accessible - if both row and column index are valid then the corresponding
+	 * 		accessible cell object is returned.
 	 * </ul>
 	 */
 	public void getCellAt(AccessibleTableEvent e);

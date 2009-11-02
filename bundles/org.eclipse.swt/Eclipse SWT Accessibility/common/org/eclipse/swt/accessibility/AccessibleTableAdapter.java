@@ -30,9 +30,9 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row the 0 based row index for which to retrieve the accessible
-	 * <li>[in] column the 0 based column index for which to retrieve the accessible
-	 * <li>[out] accessible if both row and column index are valid then the corresponding
+	 * <li>[in] row - the 0 based row index for which to retrieve the accessible
+	 * <li>[in] column - the 0 based column index for which to retrieve the accessible
+	 * <li>[out] accessible - if both row and column index are valid then the corresponding
 	 * 		accessible cell object is returned.
 	 * </ul>
 	 */

@@ -42,8 +42,6 @@ public interface AccessibleScrollListener extends SWTEventListener {
 	 * Moves the top left of an object to a specified location.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] type - coordinateType
-	 * 		Specifies whether the coordinates are relative to the screen or the parent object.
 	 * <li>[in] x
 	 * 		Defines the x coordinate.
 	 * <li>[in] y
