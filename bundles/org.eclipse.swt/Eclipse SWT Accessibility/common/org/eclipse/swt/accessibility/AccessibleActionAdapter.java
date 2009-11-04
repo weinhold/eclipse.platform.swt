@@ -36,7 +36,7 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * <li>[out] count - the number of actions, or zero if there are no actions
 	 * </ul>
 	 */
-	public void actionCount(AccessibleActionEvent e) {};
+	public void getActionCount(AccessibleActionEvent e) {};
 
 	/**
 	 * Performs the specified action on the object.
