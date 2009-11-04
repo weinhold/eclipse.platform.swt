@@ -42,11 +42,14 @@ import org.eclipse.swt.internal.ole.win32.*;
  */
 public class Accessible {
 	int refCount = 0, enumIndex = 0;
-	COMObject objIAccessible, objIEnumVARIANT;
+	COMObject objIAccessible, objIEnumVARIANT, objIServiceProvider, objIAccessible2, objIAccessibleAction,
+		objIAccessibleApplication, objIAccessibleComponent, objIAccessibleEditableText, objIAccessibleHyperlink,
+		objIAccessibleHypertext, objIAccessibleImage, objIAccessibleRelation, objIAccessibleTable2,
+		objIAccessibleTableCell, objIAccessibleText, objIAccessibleValue;
 	IAccessible iaccessible;
 	Vector accessibleListeners = new Vector();
 	Vector accessibleControlListeners = new Vector();
-	Vector textListeners = new Vector ();
+	Vector accessibleTextListeners = new Vector ();
 	Vector accessibleActionListeners = new Vector();
 	Vector accessibleHyperlinkListeners = new Vector();
 	Vector accessibleTableListeners = new Vector();
@@ -161,6 +164,200 @@ public class Accessible {
 			public int /*long*/ method6(int /*long*/[] args) {return Clone(args[0]);}
 		};
 		AddRef();
+		
+		objIServiceProvider = new COMObject(new int[] {2,0,0,3}) {
+		    public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+		    public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+		    public int /*long*/ method2(int /*long*/[] args) {return Release();}        
+		    public int /*long*/ method3(int /*long*/[] args) {return QueryService(args[0], args[1], args[2]);}
+		};
+
+		objIAccessible2 = new COMObject(new int[] {2,0,0,/*TODO: IAccessible*/1,2,3,1,1,3,3,1,1,1,1,3,3,1,1,1,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			// TODO: Add IAccessible methods here
+			public int /*long*/ method28(int /*long*/[] args) {return get_nRelations(args[0]);}
+			public int /*long*/ method29(int /*long*/[] args) {return get_relation((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method30(int /*long*/[] args) {return get_relations((int)/*64*/args[0], args[1], args[2]);}
+			public int /*long*/ method31(int /*long*/[] args) {return get_role(args[0]);}
+			public int /*long*/ method32(int /*long*/[] args) {return scrollTo(args[0]);}
+			public int /*long*/ method33(int /*long*/[] args) {return scrollToPoint(args[0], (int)/*64*/args[1], (int)/*64*/args[2]);}
+			public int /*long*/ method34(int /*long*/[] args) {return get_groupPosition(args[0], args[1], args[2]);}
+			public int /*long*/ method35(int /*long*/[] args) {return get_states(args[0]);}
+			public int /*long*/ method36(int /*long*/[] args) {return get_extendedRole(args[0]);}
+			public int /*long*/ method37(int /*long*/[] args) {return get_localizedExtendedRole(args[0]);}
+			public int /*long*/ method38(int /*long*/[] args) {return get_nExtendedStates(args[0]);}
+			public int /*long*/ method39(int /*long*/[] args) {return get_extendedStates((int)/*64*/args[0], args[1], args[2]);}
+			public int /*long*/ method40(int /*long*/[] args) {return get_localizedExtendedStates((int)/*64*/args[0], args[1], args[2]);}
+			public int /*long*/ method41(int /*long*/[] args) {return get_uniqueID(args[0]);}
+			public int /*long*/ method42(int /*long*/[] args) {return get_windowHandle(args[0]);}
+			public int /*long*/ method43(int /*long*/[] args) {return get_indexInParent(args[0]);}
+			public int /*long*/ method44(int /*long*/[] args) {return get_locale(args[0]);}
+			public int /*long*/ method45(int /*long*/[] args) {return get_attributes(args[0]);}
+		};
+
+		objIAccessibleAction = new COMObject(new int[] {2,0,0,1,1,2,4,2,2}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_nActions((int)/*64*/args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return doAction((int)/*64*/args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_description((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_keyBinding((int)/*64*/args[0], (int)/*64*/args[1], args[2], args[3]);}
+			public int /*long*/ method7(int /*long*/[] args) {return get_name((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method8(int /*long*/[] args) {return get_localizedName((int)/*64*/args[0], args[1]);}
+		};
+
+		objIAccessibleApplication = new COMObject(new int[] {2,0,0,1,1,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_appName(args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_appVersion(args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_toolkitName(args[0]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_toolkitVersion(args[0]);}
+		};
+
+		objIAccessibleComponent = new COMObject(new int[] {2,0,0,2,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_locationInParent(args[0], args[1]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_foreground(args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_background(args[0]);}
+		};
+
+		objIAccessibleEditableText = new COMObject(new int[] {2,0,0,2,2,2,2,1,3,3}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return copyText((int)/*64*/args[0], (int)/*64*/args[1]);}
+			public int /*long*/ method4(int /*long*/[] args) {return deleteText((int)/*64*/args[0], (int)/*64*/args[1]);}
+			public int /*long*/ method5(int /*long*/[] args) {return insertText((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method6(int /*long*/[] args) {return cutText((int)/*64*/args[0], (int)/*64*/args[1]);}
+			public int /*long*/ method7(int /*long*/[] args) {return pasteText((int)/*64*/args[0]);}
+			public int /*long*/ method8(int /*long*/[] args) {return replaceText((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
+			public int /*long*/ method9(int /*long*/[] args) {return setAttributes((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
+		};
+
+		objIAccessibleHyperlink = new COMObject(new int[] {2,0,0,/*TODO: IAccessibleAction*/2,2,1,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			// TODO: Add IAccessibleAction methods here
+			public int /*long*/ method9(int /*long*/[] args) {return get_anchor((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method10(int /*long*/[] args) {return get_anchorTarget((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method11(int /*long*/[] args) {return get_startIndex(args[0]);}
+			public int /*long*/ method12(int /*long*/[] args) {return get_endIndex(args[0]);}
+			public int /*long*/ method13(int /*long*/[] args) {return get_valid(args[0]);}
+		};
+
+		objIAccessibleHypertext = new COMObject(new int[] {2,0,0,/*TODO: IAccessibleText*/1,2,2}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			// TODO: Add IAccessibleText methods here
+			public int /*long*/ method22(int /*long*/[] args) {return get_nHyperlinks(args[0]);}
+			public int /*long*/ method23(int /*long*/[] args) {return get_hyperlink((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method24(int /*long*/[] args) {return get_hyperlinkIndex((int)/*64*/args[0], args[1]);}
+		};
+
+		objIAccessibleImage = new COMObject(new int[] {2,0,0,1,3,2}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_description(args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_imagePosition(args[0], args[1], args[2]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_imageSize(args[0], args[1]);}
+		};
+
+		objIAccessibleRelation = new COMObject(new int[] {2,0,0,1,1,1,2,3}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_relationType(args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_localizedRelationType(args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_nTargets(args[0]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_target((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method7(int /*long*/[] args) {return get_targets((int)/*64*/args[0], args[1], args[2]);}
+		};
+
+		objIAccessibleTable2 = new COMObject(new int[] {2,0,0,3,1,2,1,1,1,1,1,2,2,2,2,1,2,2,1,1,1,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_cellAt((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_caption(args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_columnDescription((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_nColumns(args[0]);}
+			public int /*long*/ method7(int /*long*/[] args) {return get_nRows(args[0]);}
+			public int /*long*/ method8(int /*long*/[] args) {return get_nSelectedCells(args[0]);}
+			public int /*long*/ method9(int /*long*/[] args) {return get_nSelectedColumns(args[0]);}
+			public int /*long*/ method10(int /*long*/[] args) {return get_nSelectedRows(args[0]);}
+			public int /*long*/ method11(int /*long*/[] args) {return get_rowDescription((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method12(int /*long*/[] args) {return get_selectedCells(args[0], args[1]);}
+			public int /*long*/ method13(int /*long*/[] args) {return get_selectedColumns(args[0], args[1]);}
+			public int /*long*/ method14(int /*long*/[] args) {return get_selectedRows(args[0], args[1]);}
+			public int /*long*/ method15(int /*long*/[] args) {return get_summary(args[0]);}
+			public int /*long*/ method16(int /*long*/[] args) {return get_isColumnSelected((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method17(int /*long*/[] args) {return get_isRowSelected((int)/*64*/args[0], args[1]);}
+			public int /*long*/ method18(int /*long*/[] args) {return selectRow((int)/*64*/args[0]);}
+			public int /*long*/ method19(int /*long*/[] args) {return selectColumn((int)/*64*/args[0]);}
+			public int /*long*/ method20(int /*long*/[] args) {return unselectRow((int)/*64*/args[0]);}
+			public int /*long*/ method21(int /*long*/[] args) {return unselectColumn((int)/*64*/args[0]);}
+			public int /*long*/ method22(int /*long*/[] args) {return get_modelChange(args[0]);}
+		};
+
+		objIAccessibleTableCell = new COMObject(new int[] {2,0,0,1,2,1,1,2,1,1,5,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_columnExtent(args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_columnHeaderCells(args[0], args[1]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_columnIndex(args[0]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_rowExtent(args[0]);}
+			public int /*long*/ method7(int /*long*/[] args) {return get_rowHeaderCells(args[0], args[1]);}
+			public int /*long*/ method8(int /*long*/[] args) {return get_rowIndex(args[0]);}
+			public int /*long*/ method9(int /*long*/[] args) {return get_isSelected(args[0]);}
+			public int /*long*/ method10(int /*long*/[] args) {return get_rowColumnExtents(args[0], args[1], args[2], args[3], args[4]);}
+			public int /*long*/ method11(int /*long*/[] args) {return get_table(args[0]);}
+		};
+
+		objIAccessibleText = new COMObject(new int[] {2,0,0,2,4,1,6,1,4,3,3,5,5,5,1,1,3,1,3,5,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return addSelection((int)/*64*/args[0], (int)/*64*/args[1]);}
+			public int /*long*/ method4(int /*long*/[] args) {return get_attributes((int)/*64*/args[0], args[1], args[2], args[3]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_caretOffset(args[0]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_characterExtents((int)/*64*/args[0], args[1], args[2], args[3], args[4], args[5]);}
+			public int /*long*/ method7(int /*long*/[] args) {return get_nSelections(args[0]);}
+			public int /*long*/ method8(int /*long*/[] args) {return get_offsetAtPoint((int)/*64*/args[0], (int)/*64*/args[1], args[2], args[3]);}
+			public int /*long*/ method9(int /*long*/[] args) {return get_selection((int)/*64*/args[0], args[1], args[2]);}
+			public int /*long*/ method10(int /*long*/[] args) {return get_text((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
+			public int /*long*/ method11(int /*long*/[] args) {return get_textBeforeOffset((int)/*64*/args[0], args[1], args[2], args[3], args[4]);}
+			public int /*long*/ method12(int /*long*/[] args) {return get_textAfterOffset((int)/*64*/args[0], args[1], args[2], args[3], args[4]);}
+			public int /*long*/ method13(int /*long*/[] args) {return get_textAtOffset((int)/*64*/args[0], args[1], args[2], args[3], args[4]);}
+			public int /*long*/ method14(int /*long*/[] args) {return removeSelection((int)/*64*/args[0]);}
+			public int /*long*/ method15(int /*long*/[] args) {return setCaretOffset((int)/*64*/args[0]);}
+			public int /*long*/ method16(int /*long*/[] args) {return setSelection((int)/*64*/args[0], (int)/*64*/args[1], (int)/*64*/args[2]);}
+			public int /*long*/ method17(int /*long*/[] args) {return get_nCharacters(args[0]);}
+			public int /*long*/ method18(int /*long*/[] args) {return scrollSubstringTo((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
+			public int /*long*/ method19(int /*long*/[] args) {return scrollSubstringToPoint((int)/*64*/args[0], (int)/*64*/args[1], args[2], (int)/*64*/args[3], (int)/*64*/args[4]);}
+			public int /*long*/ method20(int /*long*/[] args) {return get_newText(args[0]);}
+			public int /*long*/ method21(int /*long*/[] args) {return get_oldText(args[0]);}
+		};
+
+		objIAccessibleValue = new COMObject(new int[] {2,0,0,1,1,1,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return get_currentValue(args[0]);}
+			public int /*long*/ method4(int /*long*/[] args) {return setCurrentValue(args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return get_maximumValue(args[0]);}
+			public int /*long*/ method6(int /*long*/[] args) {return get_minimumValue(args[0]);}
+		};
 	}
 	
 	/**
@@ -260,7 +457,7 @@ public class Accessible {
 	public void addAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		textListeners.addElement (listener);		
+		accessibleTextListeners.addElement (listener);		
 	}
 	
 	/**
@@ -616,7 +813,7 @@ public class Accessible {
 	public void removeAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		textListeners.removeElement (listener);
+		accessibleTextListeners.removeElement (listener);
 	}
 
 	/**
@@ -966,25 +1163,25 @@ public class Accessible {
 		COM.MoveMemory(guid, iid, GUID.sizeof);
 
 		if (COM.IsEqualGUID(guid, COM.IIDIUnknown)) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress()}, OS.PTR_SIZEOF);
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 
 		if (COM.IsEqualGUID(guid, COM.IIDIDispatch)) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress()}, OS.PTR_SIZEOF);
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessible)) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress()}, OS.PTR_SIZEOF);
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 
 		if (COM.IsEqualGUID(guid, COM.IIDIEnumVARIANT)) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIEnumVARIANT.getAddress()}, OS.PTR_SIZEOF);
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIEnumVARIANT.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			enumIndex = 0;
 			return COM.S_OK;
@@ -1019,7 +1216,125 @@ public class Accessible {
 		return refCount;
 	}
 
-	/* accDoDefaultAction([in] varChild) */
+	/* QueryService([in] iid1, [in] iid2, [out] ppvObject) */
+    int QueryService(int /*long*/ iid1, int /*long*/ iid2, int /*long*/ ppvObject) {
+        GUID guid1 = new GUID();
+        COM.MoveMemory(guid1, iid1, GUID.sizeof);
+        GUID guid2 = new GUID();
+        COM.MoveMemory(guid2, iid2, GUID.sizeof);
+
+        // TODO: This all needs to be verified & rewritten - see IA2 mailing list for discussion
+        if (COM.IsEqualGUID(guid2, COM.IIDIUnknown)) {
+            if (COM.IsEqualGUID(guid1, COM.IIDIAccessible)) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
+	            AddRef();
+	            return COM.S_OK;
+	        }
+
+	        if (COM.IsEqualGUID(guid1, COM.IIDIAccessible2)) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
+	            AddRef();
+	            return COM.S_OK;
+	        }
+        }
+
+        if (COM.IsEqualGUID(guid1, COM.IIDIAccessible) || COM.IsEqualGUID(guid1, COM.IIDIAccessible2)) {
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessible2)/*&&accessible2Listeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
+            	AddRef();
+            	return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleApplication)/*&&accessibleApplicationListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleApplication.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleComponent)/*&&accessibleComponentListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleComponent.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleEditableText)/*&&accessibleEditableTextListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleEditableText.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleHypertext)/*&&accessibleHypertextListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHypertext.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleImage)/*&&accessibleImageListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleImage.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleTable) /*&& accessibleTableListeners.size() != 0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTable2.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleTableCell) /*&& accessibleTableListeners.size() != 0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTableCell.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleText)/*&&accessibleExtendedTextListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleText.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleValue)/*&&accessibleValueListeners.size() !=0*/) {
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleValue.getAddress() }, OS.PTR_SIZEOF);
+                AddRef();
+                return COM.S_OK;
+            }
+            
+            /* Action, Relation, and Hyperlink are handled in separate objects because
+             * these interfaces have a many-to-one relationship with Accessible2 objects. */
+//            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleAction) && accessibleActionListeners.size() != 0) {
+//            	COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleAction.getAddress() }, OS.PTR_SIZEOF);
+//                AddRef();
+//                return COM.S_OK;
+//            }
+//            
+//            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleRelation) && accessibleRelationListeners.size() != 0) {
+//                COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleRelation.getAddress() }, OS.PTR_SIZEOF);
+//                AddRef();
+//                return COM.S_OK;
+//            }
+//            
+//            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleHyperlink) && accessibleHyperlinkListeners.size() != 0) {
+//                COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHyperlink.getAddress() }, OS.PTR_SIZEOF);
+//                AddRef();
+//                return COM.S_OK;
+//            }
+        }
+
+        if (iaccessible != null) {
+            int[] ppv = new int[1];
+            int result = iaccessible.QueryInterface(COM.IIDIServiceProvider, ppv);
+            if (result >= 0) {
+                IServiceProvider iserviceProvider = new IServiceProvider(ppv[0]);
+                int[] ppvx = new int[1];
+                result = iserviceProvider.QueryService(guid1, guid2, ppvx);
+    			COM.MoveMemory(ppvObject, new int /*long*/[] { ppvx[0] }, OS.PTR_SIZEOF);
+                return result;
+            }
+        }
+        return COM.E_NOINTERFACE;
+    }
+
+    /* accDoDefaultAction([in] varChild) */
 	int accDoDefaultAction(int /*long*/ varChild) {
 		// TODO: Need to support this. Just do the same as for IA2 default doAction
 		int code = COM.DISP_E_MEMBERNOTFOUND;
@@ -1803,11 +2118,1361 @@ public class Accessible {
 		}
 
 		if (ppEnum == 0) return COM.E_INVALIDARG;
-		COM.MoveMemory(ppEnum, new int /*long*/[] { objIEnumVARIANT.getAddress()}, OS.PTR_SIZEOF);
+		COM.MoveMemory(ppEnum, new int /*long*/[] { objIEnumVARIANT.getAddress() }, OS.PTR_SIZEOF);
 		AddRef();
 		return COM.S_OK;
 	}
 	
+	/* get_nRelations([out] pNRelations) */
+	int get_nRelations(int /*long*/ pNRelations) {
+		// TODO: return relations.length
+		//COM.MoveMemory(pNRelations, new int [] { relationCount }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_relation([in] relationIndex, [out] ppRelation) */
+	int get_relation(int relationIndex, int /*long*/ ppRelation) {
+		// TODO: return relations@index????? Note: this may be deprecated some day
+//		Accessible accessible = relation;
+//		if (accessible != null) {
+//			accessible.AddRef();
+//			setPtrVARIANT(ppRelation, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+//		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_relations([in] maxRelations, [out] ppRelations, [out] pNRelations) */
+	int get_relations(int maxRelations, int /*long*/ ppRelations, int /*long*/ pNRelations) {
+		// TODO: return relations - NOTE: Relations need to be [private] accessible objects...
+//		Accessible accessible = relations;
+//		if (accessible != null) {
+//			accessible.AddRef();
+//			setPtrVARIANT(ppRelations, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+//		}
+//		COM.MoveMemory(pNRelations, new int [] { event.relationCount }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there are no relations, nRelations is set to 0
+	}
+
+	/* get_role([out] pRole) */
+	int get_role(int /*long*/ pRole) {
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		event.childID = ACC.CHILDID_SELF;
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getRole(event);
+		}
+		COM.MoveMemory(pRole, new int [] { event.detail }, 4);
+		return COM.S_OK;
+	}
+
+	/* scrollTo([in] scrollType) */
+	int scrollTo(int scrollType) {
+		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
+		event.type = scrollType;
+		for (int i = 0; i < accessibleScrollListeners.size(); i++) {
+			AccessibleScrollListener listener = (AccessibleScrollListener) accessibleScrollListeners.elementAt(i);
+			listener.scrollTo(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* scrollToPoint([in] coordinateType, [in] x, [in] y) */
+	int scrollToPoint(int coordinateType, int x, int y) {
+		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
+		event.x = x;
+		event.y = y;
+		for (int i = 0; i < accessibleScrollListeners.size(); i++) {
+			AccessibleScrollListener listener = (AccessibleScrollListener) accessibleScrollListeners.elementAt(i);
+			listener.scrollToPoint(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_groupPosition([out] pGroupLevel, [out] pSimilarItemsInGroup, [out] pPositionInGroup) */
+	int get_groupPosition(int /*long*/ pGroupLevel, int /*long*/ pSimilarItemsInGroup, int /*long*/ pPositionInGroup) {
+		// TODO: handle where possible - maybe add AccessibleGroup later
+//		COM.MoveMemory(pGroupLevel, new int [] { groupLevel }, 4);
+//		COM.MoveMemory(pSimilarItemsInGroup, new int [] { similarItemsInGroup }, 4);
+//		COM.MoveMemory(pPositionInGroup, new int [] { positionInGroup }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_OK if at least one value is valid@retval S_FALSE if no values are valid
+	}
+
+	/* get_states([out] pStates) */
+	int get_states(int /*long*/ pStates) {
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		event.childID = ACC.CHILDID_SELF;
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getState(event);
+		}
+		COM.MoveMemory(pStates, new int [] { event.detail }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_extendedRole([out] pbstrExtendedRole) */
+	int get_extendedRole(int /*long*/ pbstrExtendedRole) {
+		// TODO: this feature is not supported.
+		setString(pbstrExtendedRole, null);
+		return COM.DISP_E_MEMBERNOTFOUND;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_localizedExtendedRole([out] pbstrLocalizedExtendedRole) */
+	int get_localizedExtendedRole(int /*long*/ pbstrLocalizedExtendedRole) {
+		// TODO: this feature is not supported.
+		setString(pbstrLocalizedExtendedRole, null);
+		return COM.DISP_E_MEMBERNOTFOUND;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_nExtendedStates([out] pNExtendedStates) */
+	int get_nExtendedStates(int /*long*/ pNExtendedStates) {
+		// TODO: this feature is not supported.
+		COM.MoveMemory(pNExtendedStates, new int [] { 0 }, 4);
+		return COM.DISP_E_MEMBERNOTFOUND;
+	}
+
+	/* get_extendedStates([in] maxExtendedStates, [out] ppbstrExtendedStates, [out] pNExtendedStates) */
+	int get_extendedStates(int maxExtendedStates, int /*long*/ ppbstrExtendedStates, int /*long*/ pNExtendedStates) {
+		// TODO: this feature is not supported.
+		setString(ppbstrExtendedStates, null);
+		COM.MoveMemory(pNExtendedStates, new int [] { 0 }, 4);
+		return COM.DISP_E_MEMBERNOTFOUND;
+		// TODO: @retval S_FALSE if there are no states, [out] values are NULL and 0 respectively
+	}
+
+	/* get_localizedExtendedStates([in] maxLocalizedExtendedStates, [out] ppbstrLocalizedExtendedStates, [out] pNLocalizedExtendedStates) */
+	int get_localizedExtendedStates(int maxLocalizedExtendedStates, int /*long*/ ppbstrLocalizedExtendedStates, int /*long*/ pNLocalizedExtendedStates) {
+		// TODO: this feature is not supported.
+		setString(ppbstrLocalizedExtendedStates, null);
+		COM.MoveMemory(pNLocalizedExtendedStates, new int [] { 0 }, 4);
+		return COM.DISP_E_MEMBERNOTFOUND;
+		// TODO: @retval S_FALSE if there are no states, [out] values are NULL and 0 respectively
+	}
+
+	/* get_uniqueID([out] pUniqueID) */
+	int get_uniqueID(int /*long*/ pUniqueID) {
+		// TODO: just return a hash on the Accessible or something
+		//COM.MoveMemory(pUniqueID, new int [] { uniqueID }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_windowHandle([out] pWindowHandle) */
+	int get_windowHandle(int /*long*/ pWindowHandle) {
+		// TODO: platform-specific - return HWND on Windows
+		//COM.MoveMemory(pWindowHandle, new int /*long*/ [] { windowHandle }, OS.PTR_SIZEOF);
+		return COM.S_OK;
+	}
+
+	/* get_indexInParent([out] pIndexInParent) */
+	int get_indexInParent(int /*long*/ pIndexInParent) {
+		// TODO: look up index in AccessibleControl.getChildren
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		event.childID = ACC.CHILDID_SELF;
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getChildren(event);
+		}
+		Object [] children = event.children;
+		int indexInParent = 0;
+		// TODO: look up index in AccessibleControl.getChildren
+		COM.MoveMemory(pIndexInParent, new int [] { indexInParent }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if no parent, [out] value is -1
+	}
+
+	/* get_locale([out] pLocale) */
+	int get_locale(int /*long*/ pLocale) {
+		// TODO: just return current locale - maybe add later in AccessibleLocale
+		// Note: need to return an IA2Locale struct: String language, String country, String variant
+		//COM.MoveMemory(pLocale, new int [] { locale }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_attributes([out] pbstrAttributes) */
+	int get_attributes(int /*long*/ pbstrAttributes) {
+		AccessibleAttributeEvent event = new AccessibleAttributeEvent(this);
+		for (int i = 0; i < accessibleAttributeListeners.size(); i++) {
+			AccessibleAttributeListener listener = (AccessibleAttributeListener) accessibleAttributeListeners.elementAt(i);
+			listener.getAttributes(event);
+		}
+		String attributes = "";
+		// TODO: Create an attributes string from the event data
+		if (attributes.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrAttributes, attributes);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE returned if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_nActions([out] pNActions) */
+	int get_nActions(int /*long*/ pNActions) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.getActionCount(event);
+		}
+		COM.MoveMemory(pNActions, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* doAction([in] actionIndex) */
+	int doAction(int actionIndex) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		event.index = actionIndex;
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.doAction(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_description([in] actionIndex, [out] pbstrDescription) */
+	int get_description(int actionIndex, int /*long*/ pbstrDescription) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		event.index = actionIndex;
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.getDescription(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_keyBinding([in] actionIndex, [in] nMaxBindings, [out] ppbstrKeyBindings, [out] pNBindings) */
+	int get_keyBinding(int actionIndex, int nMaxBindings, int /*long*/ ppbstrKeyBindings, int /*long*/ pNBindings) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		event.index = actionIndex;
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.getKeyBinding(event);
+		}
+		if (event.keyBindings.length == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		// TODO: Need to return all of the bindings, not just the first
+		setString(ppbstrKeyBindings, event.keyBindings[0]);
+		COM.MoveMemory(pNBindings, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there are no relations, [out] values are NULL and 0 respectively@retval E_INVALIDARG if bad [in] passed, [out] values are NULL and 0 respectively
+	}
+
+	/* get_name([in] actionIndex, [out] pbstrName) */
+	int get_name(int actionIndex, int /*long*/ pbstrName) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		event.index = actionIndex;
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.getName(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrName, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_localizedName([in] actionIndex, [out] pbstrLocalizedName) */
+	int get_localizedName(int actionIndex, int /*long*/ pbstrLocalizedName) {
+		AccessibleActionEvent event = new AccessibleActionEvent(this);
+		event.index = actionIndex;
+		for (int i = 0; i < accessibleActionListeners.size(); i++) {
+			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+			listener.getLocalizedName(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrLocalizedName, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_appName([out] pbstrName) */
+	int get_appName(int /*long*/ pbstrName) {
+		// TODO: use Display.getAppName (version?) new API in Display
+		String appName = "";
+		if (appName.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrName, appName);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_appVersion([out] pbstrVersion) */
+	int get_appVersion(int /*long*/ pbstrVersion) {
+		// TODO: use Display.getAppName (version?) new API in Display
+		String appVersion = "";
+		if (appVersion.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrVersion, appVersion);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_toolkitName([out] pbstrName) */
+	int get_toolkitName(int /*long*/ pbstrName) {
+		// TODO: use SWT for toolkit name and version
+		String toolkitName = "SWT";
+		if (toolkitName.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrName, toolkitName);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_toolkitVersion([out] pbstrVersion) */
+	int get_toolkitVersion(int /*long*/ pbstrVersion) {
+		// TODO: use SWT for toolkit name and version
+		String toolkitVersion = "" + SWT.getVersion();
+		if (toolkitVersion.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrVersion, toolkitVersion);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_locationInParent([out] pX, [out] pY) */
+	int get_locationInParent(int /*long*/ pX, int /*long*/ pY) {
+		// TODO: support transparently (hard for fake parents - screen vs. parent coords)
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getLocation (event);
+		}
+		COM.MoveMemory(pX, new int [] { event.x }, 4);
+		COM.MoveMemory(pY, new int [] { event.y }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_foreground([out] pForeground) */
+	int get_foreground(int /*long*/ pForeground) {
+		// TODO: Do not support foreground for children (support transparently for controls)
+		//COM.MoveMemory(pForeground, new int [] { control.getForegroundPixel() }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_background([out] pBackground) */
+	int get_background(int /*long*/ pBackground) {
+		// TODO: Do not support background for children (support transparently for controls)
+		//COM.MoveMemory(pBackground, new int [] { control.getBackgroundPixel() }, 4);
+		return COM.S_OK;
+	}
+
+	/* copyText([in] startOffset, [in] endOffset) */
+	int copyText(int startOffset, int endOffset) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.start = startOffset;
+//		event.end = endOffset;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.copyText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* deleteText([in] startOffset, [in] endOffset) */
+	int deleteText(int startOffset, int endOffset) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.start = startOffset;
+//		event.end = endOffset;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.deleteText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* insertText([in] offset, [in] pbstrText) */
+	int insertText(int offset, int /*long*/ pbstrText) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.index = offset;
+//		event.string = pbstrText;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.insertText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* cutText([in] startOffset, [in] endOffset) */
+	int cutText(int startOffset, int endOffset) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.start = startOffset;
+//		event.end = endOffset;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.cutText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* pasteText([in] offset) */
+	int pasteText(int offset) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.index = offset;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.pasteText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* replaceText([in] startOffset, [in] endOffset, [in] pbstrText) */
+	int replaceText(int startOffset, int endOffset, int /*long*/ pbstrText) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.start = startOffset;
+//		event.end = endOffset;
+//		event.string = pbstrText;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.replaceText(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* setAttributes([in] startOffset, [in] endOffset, [in] pbstrAttributes) */
+	int setAttributes(int startOffset, int endOffset, int /*long*/ pbstrAttributes) {
+		// TODO: Do not provide at this time
+		return COM.DISP_E_MEMBERNOTFOUND;
+//		AccessibleEditableTextEvent event = new AccessibleEditableTextEvent(this);
+//		event.start = startOffset;
+//		event.end = endOffset;
+//		event.attributes = pbstrAttributes;
+//		for (int i = 0; i < accessibleEditableTextListeners.size(); i++) {
+//			AccessibleEditableTextListener listener = (AccessibleEditableTextListener) accessibleEditableTextListeners.elementAt(i);
+//			listener.setAttributes(event);
+//		}
+//		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_anchor([in] index, [out] pAnchor) */
+	int get_anchor(int index, int /*long*/ pAnchor) {
+		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
+		event.index = index;
+		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
+			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
+			listener.getAnchor(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		// TODO: pAnchor is a VARIANT that can be either a bstr (event.string) or a dispatch (event.accessible)
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_anchorTarget([in] index, [out] pAnchorTarget) */
+	int get_anchorTarget(int index, int /*long*/ pAnchorTarget) {
+		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
+		event.index = index;
+		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
+			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
+			listener.getAnchorTarget(event);
+		}
+		// TODO: pAnchorTarget is a VARIANT that can be either a bstr (event.string) or a dispatch (event.accessible)
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_startIndex([out] pIndex) */
+	int get_startIndex(int /*long*/ pIndex) {
+		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
+		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
+			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
+			listener.getStartIndex(event);
+		}
+		COM.MoveMemory(pIndex, new int [] { event.index }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_endIndex([out] pIndex) */
+	int get_endIndex(int /*long*/ pIndex) {
+		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
+		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
+			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
+			listener.getEndIndex(event);
+		}
+		COM.MoveMemory(pIndex, new int [] { event.index }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_valid([out] pValid) */
+	int get_valid(int /*long*/ pValid) {
+		// TODO: deprecated
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is FALSE
+	}
+
+	/* get_nHyperlinks([out] pHyperlinkCount) */
+	int get_nHyperlinks(int /*long*/ pHyperlinkCount) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getHyperlinkCount(event);
+		}
+		COM.MoveMemory(pHyperlinkCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_hyperlink([in] index, [out] ppHyperlink) */
+	int get_hyperlink(int index, int /*long*/ ppHyperlink) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = index;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getHyperlink(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppHyperlink, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_hyperlinkIndex([in] charIndex, [out] pHyperlinkIndex) */
+	int get_hyperlinkIndex(int charIndex, int /*long*/ pHyperlinkIndex) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = charIndex;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getHyperlinkIndex(event);
+		}
+		COM.MoveMemory(pHyperlinkIndex, new int [] { event.index }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is -1@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_description([out] pbstrDescription) */
+	int get_description(int /*long*/ pbstrDescription) {
+		// TODO: Does it make sense to just reuse description?
+		AccessibleEvent event = new AccessibleEvent(this);
+		for (int i = 0; i < accessibleListeners.size(); i++) {
+			AccessibleListener listener = (AccessibleListener) accessibleListeners.elementAt(i);
+			listener.getDescription(event);
+		}
+		if (event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.result);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_imagePosition([in] coordinateType, [out] pX, [out] pY) */
+	int get_imagePosition(int coordinateType, int /*long*/ pX, int /*long*/ pY) {
+		// TODO: does it make sense to just reuse getLocation?
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getLocation(event);
+		}
+		// TODO: make sure to return the correct coordinateType
+		COM.MoveMemory(pX, new int [] { event.x }, 4);
+		COM.MoveMemory(pY, new int [] { event.y }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_imageSize([out] pHeight, [out] pWidth) */
+	int get_imageSize(int /*long*/ pHeight, int /*long*/ pWidth) {
+		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		for (int i = 0; i < accessibleControlListeners.size(); i++) {
+			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+			listener.getLocation(event);
+		}
+		COM.MoveMemory(pHeight, new int [] { event.height }, 4);
+		COM.MoveMemory(pWidth, new int [] { event.width }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_relationType([out] pbstrRelationType) */
+	int get_relationType(int /*long*/ pbstrRelationType) {
+		// TODO: Fix this
+//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
+//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
+//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
+//			listener.getRelationType(event);
+//		}
+//		if (event.type.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+//		setString(pbstrRelationType, event.type);
+		return COM.S_OK;
+	}
+
+	/* get_localizedRelationType([out] pbstrLocalizedRelationType) */
+	int get_localizedRelationType(int /*long*/ pbstrLocalizedRelationType) {
+		// TODO: Fix this
+//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
+//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
+//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
+//			listener.getLocalizedRelationType(event);
+//		}
+//		if (event.type == null) return code;
+//		if (event.type.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+//		setString(pbstrLocalizedRelationType, event.type);
+		return COM.S_OK;
+	}
+
+	/* get_nTargets([out] pNTargets) */
+	int get_nTargets(int /*long*/ pNTargets) {
+		// TODO: Fix this
+//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
+//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
+//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
+//			listener.getTargetCount(event);
+//		}
+//		COM.MoveMemory(pNTargets, new int [] { event.targetCount }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_target([in] targetIndex, [out] ppTarget) */
+	int get_target(int targetIndex, int /*long*/ ppTarget) {
+		// TODO: Fix this
+//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
+//		event.index = targetIndex;
+//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
+//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
+//			listener.getTarget(event);
+//		}
+//		Accessible accessible = event.target;
+//		if (accessible != null) {
+//			accessible.AddRef();
+//			setPtrVARIANT(ppTarget, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+//		}
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_targets([in] maxTargets, [out] ppTargets, [out] pNTargets) */
+	int get_targets(int maxTargets, int /*long*/ ppTargets, int /*long*/ pNTargets) {
+		// TODO: Fix this
+//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
+//		event.maxTargets = maxTargets;
+//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
+//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
+//			listener.getTargets(event);
+//		}
+//		Accessible accessible = event.targets;
+//		if (accessible != null) {
+//			accessible.AddRef();
+//			setPtrVARIANT(ppTargets, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+//		}
+//		COM.MoveMemory(pNTargets, new int [] { event.targetCount }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, nTargets is set to 0
+	}
+
+	/* get_cellAt([in] row, [in] column, [out] ppCell) */
+	int get_cellAt(int row, int column, int /*long*/ ppCell) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.row = row;
+		event.column = column;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getCellAt(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppCell, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_caption([out] ppAccessible) */
+	int get_caption(int /*long*/ ppAccessible) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getCaption(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_columnDescription([in] column, [out] pbstrDescription) */
+	int get_columnDescription(int column, int /*long*/ pbstrDescription) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.column = column;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getColumnDescription(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_nColumns([out] pColumnCount) */
+	int get_nColumns(int /*long*/ pColumnCount) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getColumnCount(event);
+		}
+		COM.MoveMemory(pColumnCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_nRows([out] pRowCount) */
+	int get_nRows(int /*long*/ pRowCount) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getRowCount(event);
+		}
+		COM.MoveMemory(pRowCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_nSelectedCells([out] pCellCount) */
+	int get_nSelectedCells(int /*long*/ pCellCount) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedCellCount(event);
+		}
+		COM.MoveMemory(pCellCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_nSelectedColumns([out] pColumnCount) */
+	int get_nSelectedColumns(int /*long*/ pColumnCount) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedColumnCount(event);
+		}
+		COM.MoveMemory(pColumnCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_nSelectedRows([out] pRowCount) */
+	int get_nSelectedRows(int /*long*/ pRowCount) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedRowCount(event);
+		}
+		COM.MoveMemory(pRowCount, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_rowDescription([in] row, [out] pbstrDescription) */
+	int get_rowDescription(int row, int /*long*/ pbstrDescription) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.row = row;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getRowDescription(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_selectedCells([out] ppCells, [out] pNSelectedCells) */
+	int get_selectedCells(int /*long*/ ppCells, int /*long*/ pNSelectedCells) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedCells(event);
+		}
+		// TODO: Handle array, not just first element
+		Accessible accessible = event.accessibles[0];
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppCells, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		COM.MoveMemory(pNSelectedCells, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
+	}
+
+	/* get_selectedColumns([out] ppSelectedColumns, [out] pNColumns) */
+	int get_selectedColumns(int /*long*/ ppSelectedColumns, int /*long*/ pNColumns) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedColumns(event);
+		}
+		// TODO: return whole array of selected items, not just first
+		COM.MoveMemory(ppSelectedColumns, new int [] { event.selected[0] }, 4);
+		COM.MoveMemory(pNColumns, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
+	}
+
+	/* get_selectedRows([out] ppSelectedRows, [out] pNRows) */
+	int get_selectedRows(int /*long*/ ppSelectedRows, int /*long*/ pNRows) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedRows(event);
+		}
+		// TODO: return whole array of selected items, not just first
+		COM.MoveMemory(ppSelectedRows, new int [] { event.selected[0] }, 4);
+		COM.MoveMemory(pNRows, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
+	}
+
+	/* get_summary([out] ppAccessible) */
+	int get_summary(int /*long*/ ppAccessible) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSummary(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_isColumnSelected([in] column, [out] pIsSelected) */
+	int get_isColumnSelected(int column, int /*long*/ pIsSelected) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.column = column;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getIsColumnSelected(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
+	}
+
+	/* get_isRowSelected([in] row, [out] pIsSelected) */
+	int get_isRowSelected(int row, int /*long*/ pIsSelected) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.row = row;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getIsRowSelected(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
+	}
+
+	/* selectRow([in] row) */
+	int selectRow(int row) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.row = row;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.selectRow(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* selectColumn([in] column) */
+	int selectColumn(int column) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.column = column;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.selectColumn(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* unselectRow([in] row) */
+	int unselectRow(int row) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.row = row;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.unselectRow(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* unselectColumn([in] column) */
+	int unselectColumn(int column) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		event.column = column;
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.unselectColumn(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_modelChange([out] pModelChange) */
+	int get_modelChange(int /*long*/ pModelChange) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getModelChange(event);
+		}
+		// TODO: create modelChange struct to return from event data
+		//COM.MoveMemory(pModelChange, new int [] { event.modelChange }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_columnExtent([out] pNColumnsSpanned) */
+	int get_columnExtent(int /*long*/ pNColumnsSpanned) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getColumnExtent(event);
+		}
+		COM.MoveMemory(pNColumnsSpanned, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_columnHeaderCells([out] ppCellAccessibles, [out] pNColumnHeaderCells) */
+	int get_columnHeaderCells(int /*long*/ ppCellAccessibles, int /*long*/ pNColumnHeaderCells) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getColumnHeaderCells(event);
+		}
+		// TODO: Handle array, not just first element
+		Accessible accessible = event.accessibles[0];
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		COM.MoveMemory(pNColumnHeaderCells, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
+	}
+
+	/* get_columnIndex([out] pColumnIndex) */
+	int get_columnIndex(int /*long*/ pColumnIndex) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getColumnIndex(event);
+		}
+		COM.MoveMemory(pColumnIndex, new int [] { event.index }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_rowExtent([out] pNRowsSpanned) */
+	int get_rowExtent(int /*long*/ pNRowsSpanned) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getRowExtent(event);
+		}
+		COM.MoveMemory(pNRowsSpanned, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_rowHeaderCells([out] ppCellAccessibles, [out] pNRowHeaderCells) */
+	int get_rowHeaderCells(int /*long*/ ppCellAccessibles, int /*long*/ pNRowHeaderCells) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getRowHeaderCells(event);
+		}
+		// TODO: Handle array, not just first element
+		Accessible accessible = event.accessibles[0];
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		COM.MoveMemory(pNRowHeaderCells, new int [] { event.count }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
+	}
+
+	/* get_rowIndex([out] pRowIndex) */
+	int get_rowIndex(int /*long*/ pRowIndex) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getRowIndex(event);
+		}
+		COM.MoveMemory(pRowIndex, new int [] { event.index }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_isSelected([out] pIsSelected) */
+	int get_isSelected(int /*long*/ pIsSelected) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getIsSelected(event);
+		}
+		return COM.S_OK;
+	}
+
+	/* get_rowColumnExtents([out] pRow, [out] pColumn, [out] pRowExtents, [out] pColumnExtents, [out] pIsSelected) */
+	int get_rowColumnExtents(int /*long*/ pRow, int /*long*/ pColumn, int /*long*/ pRowExtents, int /*long*/ pColumnExtents, int /*long*/ pIsSelected) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getRowColumnExtents(event);
+		}
+		COM.MoveMemory(pRow, new int [] { event.row }, 4);
+		COM.MoveMemory(pColumn, new int [] { event.column }, 4);
+		COM.MoveMemory(pRowExtents, new int [] { event.rowExtents }, 4);
+		COM.MoveMemory(pColumnExtents, new int [] { event.columnExtents }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_table([out] ppTable) */
+	int get_table(int /*long*/ ppTable) {
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getTable(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppTable, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		}
+		return COM.S_OK;
+	}
+
+	/* addSelection([in] startOffset, [in] endOffset) */
+	int addSelection(int startOffset, int endOffset) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.start = startOffset;
+		event.end = endOffset;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.addSelection(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_attributes([in] offset, [out] pStartOffset, [out] pEndOffset, [out] pbstrTextAttributes) */
+	int get_attributes(int offset, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrTextAttributes) {
+		AccessibleTextAttributeEvent event = new AccessibleTextAttributeEvent(this);
+		event.offset = offset;
+		for (int i = 0; i < accessibleAttributeListeners.size(); i++) {
+			AccessibleAttributeListener listener = (AccessibleAttributeListener) accessibleAttributeListeners.elementAt(i);
+			listener.getTextAttributes(event);
+		}
+		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
+		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
+		String textAttributes = "";
+		// TODO: Construct text attributes string from event data
+		if (textAttributes.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrTextAttributes, textAttributes);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] values are 0s and NULL respectively@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
+	}
+
+	/* get_caretOffset([out] pOffset) */
+	int get_caretOffset(int /*long*/ pOffset) {
+		// TODO: already in old API (in super interface)
+		AccessibleTextEvent event = new AccessibleTextEvent(this);
+		for (int i = 0; i < accessibleTextListeners.size(); i++) {
+			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
+			listener.getCaretOffset (event);
+		}
+		COM.MoveMemory(pOffset, new int [] { event.offset }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if the caret is not currently active on this object, i.e. the
+	}
+
+	/* get_characterExtents([in] offset, [in] coordType, [out] pX, [out] pY, [out] pWidth, [out] pHeight) */
+	int get_characterExtents(int offset, int coordType, int /*long*/ pX, int /*long*/ pY, int /*long*/ pWidth, int /*long*/ pHeight) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = offset;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getCharacterExtents(event);
+		}
+		COM.MoveMemory(pX, new int [] { event.x }, 4);
+		COM.MoveMemory(pY, new int [] { event.y }, 4);
+		COM.MoveMemory(pWidth, new int [] { event.width }, 4);
+		COM.MoveMemory(pHeight, new int [] { event.height }, 4);
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] values are 0s
+	}
+
+	/* get_nSelections([out] pNSelections) */
+	int get_nSelections(int /*long*/ pNSelections) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getSelectionCount(event);
+		}
+		COM.MoveMemory(pNSelections, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_offsetAtPoint([in] x, [in] y, [in] coordType, [out] pOffset) */
+	int get_offsetAtPoint(int x, int y, int coordType, int /*long*/ pOffset) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.x = x;
+		event.y = y;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getOffsetAtPoint(event);
+		}
+		COM.MoveMemory(pOffset, new int [] { event.index }, 4);
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is 0
+	}
+
+	/* get_selection([in] selectionIndex, [out] pStartOffset, [out] pEndOffset) */
+	int get_selection(int selectionIndex, int /*long*/ pStartOffset, int /*long*/ pEndOffset) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = selectionIndex;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getSelection(event);
+		}
+		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
+		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] values are 0s@retval E_INVALIDARG if bad [in] passed, [out] values are 0s
+	}
+
+	/* get_text([in] startOffset, [in] endOffset, [out] pbstrText) */
+	int get_text(int startOffset, int endOffset, int /*long*/ pbstrText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.start = startOffset;
+		event.end = endOffset;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getText(event);
+		}
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.string);
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+	}
+
+	/* get_textBeforeOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	int get_textBeforeOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.offset = offset;
+		event.type = boundaryType;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getTextBeforeOffset(event);
+		}
+		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
+		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
+	}
+
+	/* get_textAfterOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	int get_textAfterOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.offset = offset;
+		event.type = boundaryType;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getTextAfterOffset(event);
+		}
+		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
+		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
+	}
+
+	/* get_textAtOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	int get_textAtOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.offset = offset;
+		event.type = boundaryType;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getTextAtOffset(event);
+		}
+		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
+		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
+		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.string);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
+	}
+
+	/* removeSelection([in] selectionIndex) */
+	int removeSelection(int selectionIndex) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = selectionIndex;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.removeSelection(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* setCaretOffset([in] offset) */
+	int setCaretOffset(int offset) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = offset;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.setCaretOffset(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_FAIL if the caret cannot be set@retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* setSelection([in] selectionIndex, [in] startOffset, [in] endOffset) */
+	int setSelection(int selectionIndex, int startOffset, int endOffset) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.index = selectionIndex;
+		event.start = startOffset;
+		event.end = endOffset;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.setSelection(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_nCharacters([out] pNCharacters) */
+	int get_nCharacters(int /*long*/ pNCharacters) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getCharacterCount(event);
+		}
+		COM.MoveMemory(pNCharacters, new int [] { event.count }, 4);
+		return COM.S_OK;
+	}
+
+	/* scrollSubstringTo([in] startIndex, [in] endIndex, [in] scrollType) */
+	int scrollSubstringTo(int startIndex, int endIndex, int scrollType) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.start = startIndex;
+		event.end = endIndex;
+		event.type = scrollType;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.scrollSubstringTo(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* scrollSubstringToPoint([in] startIndex, [in] endIndex, [in] coordinateType, [in] x, [in] y) */
+	int scrollSubstringToPoint(int startIndex, int endIndex, int coordinateType, int x, int y) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.start = startIndex;
+		event.end = endIndex;
+		event.x = x;
+		event.y = y;
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.scrollSubstringToPoint(event);
+		}
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if the object is already at the specified location.@retval E_INVALIDARG if bad [in] passed
+	}
+
+	/* get_newText([out] pNewText) */
+	int get_newText(int /*long*/ pNewText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getNewText(event);
+		}
+		// TODO: create a text segment struct using the data in the event
+		//COM.MoveMemory(pNewText, new int [] { event.string }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_oldText([out] pOldText) */
+	int get_oldText(int /*long*/ pOldText) {
+		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			listener.getOldText(event);
+		}
+		// TODO: create a text segment struct using the data in the event
+		//COM.MoveMemory(pOldText, new int [] { event.string }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* get_currentValue([out] pCurrentValue) */
+	int get_currentValue(int /*long*/ pCurrentValue) {
+		AccessibleValueEvent event = new AccessibleValueEvent(this);
+		for (int i = 0; i < accessibleValueListeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+			listener.getCurrentValue(event);
+		}
+		COM.MoveMemory(pCurrentValue, new int [] { event.value }, 4);
+		return COM.S_OK;
+		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+	}
+
+	/* setCurrentValue([in] value) */
+	int setCurrentValue(int /*long*/ value) {
+		AccessibleValueEvent event = new AccessibleValueEvent(this);
+		event.value = value;
+		for (int i = 0; i < accessibleValueListeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+			listener.setCurrentValue(event);
+		}
+		return COM.S_OK;
+	}
+
+	/* get_maximumValue([out] pMaximumValue) */
+	int get_maximumValue(int /*long*/ pMaximumValue) {
+		AccessibleValueEvent event = new AccessibleValueEvent(this);
+		for (int i = 0; i < accessibleValueListeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+			listener.getMaximumValue(event);
+		}
+		COM.MoveMemory(pMaximumValue, new int [] { event.value }, 4);
+		return COM.S_OK;
+	}
+
+	/* get_minimumValue([out] pMinimumValue) */
+	int get_minimumValue(int /*long*/ pMinimumValue) {
+		AccessibleValueEvent event = new AccessibleValueEvent(this);
+		for (int i = 0; i < accessibleValueListeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+			listener.getMinimumValue(event);
+		}
+		COM.MoveMemory(pMinimumValue, new int [] { event.value }, 4);
+		return COM.S_OK;
+	}
+
 	int childIDToOs(int childID) {
 		if (childID == ACC.CHILDID_SELF) return COM.CHILDID_SELF;
 		/*
