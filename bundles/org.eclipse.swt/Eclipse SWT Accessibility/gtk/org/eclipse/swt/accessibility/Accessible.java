@@ -48,6 +48,7 @@ public class Accessible {
 	Vector accessibleTableListeners = new Vector();
 	Vector accessibleTableCellListeners = new Vector();
 	Vector accessibleTextListeners = new Vector();
+	Vector accessibleTextExtendedListeners = new Vector();
 	Vector accessibleValueListeners = new Vector();
 	Vector accessibleScrollListeners = new Vector();
 	Vector accessibleAttributeListeners = new Vector();
