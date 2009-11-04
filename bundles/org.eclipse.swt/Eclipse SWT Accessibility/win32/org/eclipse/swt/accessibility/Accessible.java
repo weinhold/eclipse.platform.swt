@@ -1208,9 +1208,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszDefaultAction, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszDefaultAction, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1284,9 +1282,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszDescription, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszDescription, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1364,9 +1360,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszHelp, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszHelp, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1415,9 +1409,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszKeyboardShortcut, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszKeyboardShortcut, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1453,9 +1445,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszName, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszName, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1648,9 +1638,7 @@ public class Accessible {
 		}
 		if (event.result == null) return code;
 		// empty string is a valid value, so do not test for it
-		char[] data = (event.result + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(pszValue, new int /*long*/[] { ptr }, OS.PTR_SIZEOF);
+		setString(pszValue, event.result);
 		return COM.S_OK;
 	}
 	
@@ -1980,6 +1968,12 @@ public class Accessible {
 			COM.MoveMemory(variant, new short[] { vt }, 2);
 			COM.MoveMemory(variant + 8, new int /*long*/[] { lVal }, OS.PTR_SIZEOF);
 		}
+	}
+	
+	void setString(int psz, String string) {
+		char[] data = (string + "\0").toCharArray();
+		int /*long*/ ptr = COM.SysAllocString(data);
+		COM.MoveMemory(psz, new int /*long*/ [] { ptr }, OS.PTR_SIZEOF);
 	}
 
 	/* checkWidget was copied from Widget, and rewritten to work in this package */
