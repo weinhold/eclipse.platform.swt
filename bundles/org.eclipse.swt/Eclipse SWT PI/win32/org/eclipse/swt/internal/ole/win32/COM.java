@@ -144,8 +144,8 @@ public class COM extends OS {
 	public static final GUID IIDIAccessibleHyperlink = IIDFromString("{01C20F2B-3DD2-400f-949F-AD00BDAB1D41}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleHypertext = IIDFromString("{6B4F8BBF-F1F2-418a-B35E-A195BC4103B9}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleTable = IIDFromString("{35AD8070-C20C-4fb4-B094-F4F7275DD469}"); //$NON-NLS-1$
-	public static final GUID IIDIAccessibleTable2 = IIDFromString("{35AD8070-C20C-4fb4-B094-F4F7275DD469}"); //$NON-NLS-1$
-	public static final GUID IIDIAccessibleTableCell = IIDFromString("{35AD8070-C20C-4fb4-B094-F4F7275DD469}"); //$NON-NLS-1$
+	public static final GUID IIDIAccessibleTable2 = IIDFromString("{6167f295-06f0-4cdd-a1fa-02e25153d869}"); //$NON-NLS-1$
+	public static final GUID IIDIAccessibleTableCell = IIDFromString("{594116B1-C99F-4847-AD06-0A7A86ECE645}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleImage = IIDFromString("{FE5ABB3D-615E-4f7b-909F-5F0EDA9E8DDE}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleApplication = IIDFromString("{D49DED83-5B25-43F4-9B95-93B44595979E}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleContext = IIDFromString("{77A123E4-5794-44e0-B8BF-DE600C9D29BD}"); //$NON-NLS-1$
