@@ -1187,13 +1187,27 @@ public class Accessible {
 			return COM.S_OK;
 		}
 		
-		if (iaccessible == null) return COM.DISP_E_MEMBERNOTFOUND;
+		if (COM.IsEqualGUID(guid, COM.IIDIServiceProvider)) {
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIServiceProvider.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			return COM.S_OK;
+		}
 
-		/* Forward any other GUIDs to the OS proxy. */
-		int /*long*/[] ppv = new int /*long*/[1];
-		int code = iaccessible.QueryInterface(guid, ppv);
-		COM.MoveMemory(ppvObject, ppv, OS.PTR_SIZEOF);
-		return code;
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessible2)) {
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			return COM.S_OK;
+		}
+
+		if (iaccessible != null) {
+			/* Forward any other GUIDs to the OS proxy. */
+			int /*long*/[] ppv = new int /*long*/[1];
+			int code = iaccessible.QueryInterface(guid, ppv);
+			COM.MoveMemory(ppvObject, ppv, OS.PTR_SIZEOF);
+			return code;
+		}
+		
+		return COM.E_NOINTERFACE;
 	}
 
 	int AddRef() {
@@ -1216,84 +1230,84 @@ public class Accessible {
 		return refCount;
 	}
 
-	/* QueryService([in] iid1, [in] iid2, [out] ppvObject) */
-    int QueryService(int /*long*/ iid1, int /*long*/ iid2, int /*long*/ ppvObject) {
-        GUID guid1 = new GUID();
-        COM.MoveMemory(guid1, iid1, GUID.sizeof);
-        GUID guid2 = new GUID();
-        COM.MoveMemory(guid2, iid2, GUID.sizeof);
+	/* QueryService([in] guidService, [in] riid, [out] ppvObject) */
+    int QueryService(int /*long*/ guidService, int /*long*/ riid, int /*long*/ ppvObject) {
+        GUID service = new GUID();
+        COM.MoveMemory(service, guidService, GUID.sizeof);
+        GUID guid = new GUID();
+        COM.MoveMemory(guid, riid, GUID.sizeof);
 
-        // TODO: This all needs to be verified & rewritten - see IA2 mailing list for discussion
-        if (COM.IsEqualGUID(guid2, COM.IIDIUnknown)) {
-            if (COM.IsEqualGUID(guid1, COM.IIDIAccessible)) {
+        // TODO: This all needs to be verified & rewritten - see IA2 mailing list for discussion - for now, just always answer everything <grin>
+        if (COM.IsEqualGUID(guid, COM.IIDIUnknown)) {
+            if (COM.IsEqualGUID(service, COM.IIDIAccessible)) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 	            AddRef();
 	            return COM.S_OK;
 	        }
 
-	        if (COM.IsEqualGUID(guid1, COM.IIDIAccessible2)) {
+	        if (COM.IsEqualGUID(service, COM.IIDIAccessible2)) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
 	            AddRef();
 	            return COM.S_OK;
 	        }
         }
 
-        if (COM.IsEqualGUID(guid1, COM.IIDIAccessible) || COM.IsEqualGUID(guid1, COM.IIDIAccessible2)) {
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessible2)/*&&accessible2Listeners.size() !=0*/) {
+        if (COM.IsEqualGUID(service, COM.IIDIAccessible) || COM.IsEqualGUID(service, COM.IIDIAccessible2)) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessible2)/*&&accessible2Listeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
             	AddRef();
             	return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleApplication)/*&&accessibleApplicationListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleApplication)/*&&accessibleApplicationListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleApplication.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleComponent)/*&&accessibleComponentListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleComponent)/*&&accessibleComponentListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleComponent.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleEditableText)/*&&accessibleEditableTextListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleEditableText)/*&&accessibleEditableTextListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleEditableText.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleHypertext)/*&&accessibleHypertextListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleHypertext)/*&&accessibleHypertextListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHypertext.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleImage)/*&&accessibleImageListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleImage)/*&&accessibleImageListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleImage.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleTable) /*&& accessibleTableListeners.size() != 0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTable) /*&& accessibleTableListeners.size() != 0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTable2.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleTableCell) /*&& accessibleTableListeners.size() != 0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTableCell) /*&& accessibleTableListeners.size() != 0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTableCell.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleText)/*&&accessibleExtendedTextListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleText)/*&&accessibleExtendedTextListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleText.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
             }
             
-            if (COM.IsEqualGUID(guid2, COM.IIDIAccessibleValue)/*&&accessibleValueListeners.size() !=0*/) {
+            if (COM.IsEqualGUID(guid, COM.IIDIAccessibleValue)/*&&accessibleValueListeners.size() !=0*/) {
     			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleValue.getAddress() }, OS.PTR_SIZEOF);
                 AddRef();
                 return COM.S_OK;
@@ -1320,17 +1334,19 @@ public class Accessible {
 //            }
         }
 
-        if (iaccessible != null) {
+         if (iaccessible != null) {
+            /* Forward any other GUIDs to the OS proxy. */
             int[] ppv = new int[1];
             int result = iaccessible.QueryInterface(COM.IIDIServiceProvider, ppv);
-            if (result >= 0) {
+            if (result == COM.S_OK) {
                 IServiceProvider iserviceProvider = new IServiceProvider(ppv[0]);
                 int[] ppvx = new int[1];
-                result = iserviceProvider.QueryService(guid1, guid2, ppvx);
+                result = iserviceProvider.QueryService(service, guid, ppvx);
     			COM.MoveMemory(ppvObject, new int /*long*/[] { ppvx[0] }, OS.PTR_SIZEOF);
                 return result;
             }
         }
+        
         return COM.E_NOINTERFACE;
     }
 
