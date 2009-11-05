@@ -42,12 +42,11 @@ import org.eclipse.swt.widgets.*;
 public class Accessible {
 	Vector accessibleListeners = new Vector ();
 	Vector controlListeners = new Vector ();
-	Vector textListeners = new Vector ();
+	Vector accessibleTextListeners = new Vector ();
 	Vector accessibleActionListeners = new Vector();
 	Vector accessibleHyperlinkListeners = new Vector();
 	Vector accessibleTableListeners = new Vector();
 	Vector accessibleTableCellListeners = new Vector();
-	Vector accessibleTextListeners = new Vector();
 	Vector accessibleTextExtendedListeners = new Vector();
 	Vector accessibleValueListeners = new Vector();
 	Vector accessibleScrollListeners = new Vector();
@@ -167,7 +166,7 @@ public class Accessible {
 	public void addAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		textListeners.addElement (listener);		
+		accessibleTextListeners.addElement (listener);		
 	}
 	
 	/**
@@ -434,9 +433,9 @@ public class Accessible {
 	}
 
 	AccessibleTextListener[] getTextListeners () {
-		if (textListeners == null) return null;
-		AccessibleTextListener[] result = new AccessibleTextListener [textListeners.size ()];
-		textListeners.copyInto (result);
+		if (accessibleTextListeners == null) return null;
+		AccessibleTextListener[] result = new AccessibleTextListener [accessibleTextListeners.size ()];
+		accessibleTextListeners.copyInto (result);
 		return result;
 	}
 
@@ -543,7 +542,7 @@ public class Accessible {
 	public void removeAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		textListeners.removeElement (listener);
+		accessibleTextListeners.removeElement (listener);
 	}
 	
 	/**
