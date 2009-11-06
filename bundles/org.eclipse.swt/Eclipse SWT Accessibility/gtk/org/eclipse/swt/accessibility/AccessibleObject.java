@@ -40,6 +40,7 @@ class AccessibleObject {
 	static final int /*long*/ ATK_HYPERTEXT_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkHypertext", true));
 	static final int /*long*/ ATK_SELECTION_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkSelection", true));		
 	static final int /*long*/ ATK_TEXT_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkText", true));
+	static final int /*long*/ ATK_VALUE_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkValue", true));
 	static final boolean DEBUG = Display.DEBUG;
 
 	AccessibleObject (int /*long*/ type, int /*long*/ widget, Accessible accessible, int /*long*/ parentType, boolean isLightweight) {
@@ -56,6 +57,57 @@ class AccessibleObject {
 	void addChild (AccessibleObject child) {
 		children.put (new LONG (child.handle), child);		
 		child.setParent (this);
+	}
+
+	static int /*long*/ atkAction_do_action (int /*long*/ atkObject, int /*long*/ index) {
+		if (DEBUG) System.out.println ("-->atkAction_do_action");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
+			AtkActionIface actionIface = new AtkActionIface ();
+			ATK.memmove (actionIface, superType);
+			if (actionIface.do_action != 0) {
+				parentResult = ATK.call (actionIface.do_action, object.handle, index);
+			}
+		}
+		//TODO
+		return parentResult; 	
+	}
+
+	static int /*long*/ atkAction_get_n_actions (int /*long*/ atkObject) {
+		if (DEBUG) System.out.println ("-->atkAction_get_n_actions");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
+			AtkActionIface actionIface = new AtkActionIface ();
+			ATK.memmove (actionIface, superType);
+			if (actionIface.get_n_actions != 0) {
+				parentResult = ATK.call (actionIface.get_n_actions, object.handle);
+			}
+		}
+		//TODO
+		return parentResult; 	
+	}
+	
+	static int /*long*/ atkAction_get_description (int /*long*/ atkObject, int /*long*/ index) {
+		if (DEBUG) System.out.println ("-->atkAction_get_description");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
+			AtkActionIface actionIface = new AtkActionIface ();
+			ATK.memmove (actionIface, superType);
+			if (actionIface.get_description != 0) {
+				parentResult = ATK.call (actionIface.get_description, object.handle, index);
+			}
+		}
+		//TODO
+		return parentResult; 	
 	}
 	
 	static int /*long*/ atkAction_get_keybinding (int /*long*/ atkObject, int /*long*/ index) {
@@ -622,6 +674,107 @@ class AccessibleObject {
 		return parentResult;
 	}
 
+	static int /*long*/ atkText_get_character_extents (int /*long*/ atkObject, int /*long*/ offset, int /*long*/ x, int /*long*/ y, int /*long*/ width, int /*long*/ height, int /*long*/ coords) {
+		if (DEBUG) System.out.println ("-->atkText_get_character_extents");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_character_extents != 0) {
+				ATK.call (textIface.get_character_extents, object.handle, offset, x, y, width, height, coords);
+			}
+		}
+		//TODO
+		return 0;
+	}
+	
+	static int /*long*/ atkText_get_run_attributes (int /*long*/ atkObject, int /*long*/ offset, int /*long*/ start_offset, int /*long*/ end_offset) {
+		if (DEBUG) System.out.println ("-->atkText_get_run_attributes");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_run_attributes != 0) {
+				parentResult = ATK.call (textIface.get_run_attributes, object.handle, offset, start_offset, end_offset);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkText_get_offset_at_point (int /*long*/ atkObject, int /*long*/ x, int /*long*/ y, int /*long*/ coords) {
+		if (DEBUG) System.out.println ("-->atkText_get_offset_at_point");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_offset_at_point != 0) {
+				parentResult = ATK.call (textIface.get_offset_at_point, object.handle, x, y, coords);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkText_add_selection (int /*long*/ atkObject, int /*long*/ start_offset, int /*long*/ end_offset) {
+		if (DEBUG) System.out.println ("-->atkText_add_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.add_selection != 0) {
+				parentResult = ATK.call (textIface.add_selection, object.handle, start_offset, end_offset);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkText_remove_selection (int /*long*/ atkObject, int /*long*/ selection_num) {
+		if (DEBUG) System.out.println ("-->atkText_remove_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.remove_selection != 0) {
+				parentResult = ATK.call (textIface.remove_selection, object.handle, selection_num);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkText_set_selection (int /*long*/ atkObject, int /*long*/ selection_num, int /*long*/ start_offset, int /*long*/ end_offset) {
+		if (DEBUG) System.out.println ("-->atkText_set_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.set_selection != 0) {
+				parentResult = ATK.call (textIface.set_selection, object.handle, selection_num, start_offset, end_offset);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
 	static int /*long*/ atkText_get_caret_offset (int /*long*/ atkObject) {
 		if (DEBUG) System.out.println ("-->atkText_get_caret_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
@@ -1167,6 +1320,71 @@ class AccessibleObject {
 			return result;
 		} 
 		return 0;
+	}
+
+	static int /*long*/ atkValue_get_current_value (int /*long*/ atkObject, int /*long*/ value) {
+		if (DEBUG) System.out.println ("-->atkValue_get_current_value");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_VALUE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_VALUE_GET_IFACE (object.handle));
+			AtkValueIface iface = new AtkValueIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_current_value != 0) {
+				ATK.call (iface.get_current_value, object.handle, value);
+			}
+		}
+		//TODO
+		return 0;
+	}
+
+	static int /*long*/ atkValue_get_maximum_value (int /*long*/ atkObject, int /*long*/ value) {
+		if (DEBUG) System.out.println ("-->atkValue_get_maximum_value");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_VALUE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_VALUE_GET_IFACE (object.handle));
+			AtkValueIface iface = new AtkValueIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_maximum_value != 0) {
+				ATK.call (iface.get_maximum_value, object.handle, value);
+			}
+		}
+		//TODO
+		return 0;
+	}
+
+	static int /*long*/ atkValue_get_minimum_value (int /*long*/ atkObject, int /*long*/ value) {
+		if (DEBUG) System.out.println ("-->atkValue_get_minimum_value");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_VALUE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_VALUE_GET_IFACE (object.handle));
+			AtkValueIface iface = new AtkValueIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_minimum_value != 0) {
+				ATK.call (iface.get_minimum_value, object.handle, value);
+			}
+		}
+		//TODO
+		return 0;
+	}
+
+	static int /*long*/ atkValue_set_current_value (int /*long*/ atkObject, int /*long*/ value) {
+		if (DEBUG) System.out.println ("-->atkValue_set_current_value");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_VALUE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_VALUE_GET_IFACE (object.handle));
+			AtkValueIface iface = new AtkValueIface ();
+			ATK.memmove (iface, superType);
+			if (iface.set_current_value != 0) {
+				parentResult = ATK.call (iface.set_current_value, object.handle, value);
+			}
+		}
+		//TODO
+		return parentResult;
 	}
 
 	AccessibleListener[] getAccessibleListeners () {

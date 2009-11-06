@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2009 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int ATK_nativeFunctionCount = 42;
-int ATK_nativeFunctionCallCount[42];
+int ATK_nativeFunctionCount = 45;
+int ATK_nativeFunctionCallCount[45];
 char * ATK_nativeFunctionNames[] = {
 	"AtkObjectFactoryClass_1sizeof",
 	"AtkObjectFactory_1sizeof",
@@ -28,6 +28,7 @@ char * ATK_nativeFunctionNames[] = {
 	"_1ATK_1OBJECT_1FACTORY_1CLASS",
 	"_1ATK_1SELECTION_1GET_1IFACE",
 	"_1ATK_1TEXT_1GET_1IFACE",
+	"_1ATK_1VALUE_1GET_1IFACE",
 	"_1GTK_1ACCESSIBLE",
 	"_1atk_1focus_1tracker_1notify",
 	"_1atk_1get_1default_1registry",
@@ -108,6 +109,11 @@ char * ATK_nativeFunctionNames[] = {
 	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2",
 #endif
 #ifndef JNI64
+	"memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2",
+#else
+	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2",
+#endif
+#ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkActionIface_2I",
 #else
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkActionIface_2J",
@@ -141,6 +147,11 @@ char * ATK_nativeFunctionNames[] = {
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2I",
 #else
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2J",
+#endif
+#ifndef JNI64
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2I",
+#else
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2J",
 #endif
 #ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_GtkAccessible_2I",

@@ -135,6 +135,15 @@ public static final int /*long*/ ATK_TEXT_GET_IFACE (int /*long*/ handle) {
 		lock.unlock();
 	}
 }
+public static final native int /*long*/ _ATK_VALUE_GET_IFACE (int /*long*/ handle);
+public static final int /*long*/ ATK_VALUE_GET_IFACE (int /*long*/ handle) {
+	lock.lock();
+	try {
+		return _ATK_VALUE_GET_IFACE(handle);
+	} finally {
+		lock.unlock();
+	}
+}
 public static final native int /*long*/ _GTK_ACCESSIBLE (int /*long*/ handle);
 public static final int /*long*/ GTK_ACCESSIBLE (int /*long*/ handle) {
 	lock.lock();
@@ -352,6 +361,7 @@ public static final native void memmove (AtkObjectClass dest, int /*long*/ src);
 public static final native void memmove (AtkObjectFactoryClass  dest, int /*long*/ src);
 public static final native void memmove (AtkSelectionIface dest, int /*long*/ src);	
 public static final native void memmove (AtkTextIface dest, int /*long*/ src);
+public static final native void memmove (AtkValueIface dest, int /*long*/ src);
 public static final native void memmove (GtkAccessible  dest, int /*long*/ src);
 public static final native void memmove (int /*long*/ dest, AtkActionIface src);
 public static final native void memmove (int /*long*/ dest, AtkComponentIface src);
@@ -360,4 +370,5 @@ public static final native void memmove (int /*long*/ dest, AtkObjectClass src);
 public static final native void memmove (int /*long*/ dest, AtkObjectFactoryClass src);
 public static final native void memmove (int /*long*/ dest, AtkSelectionIface src);
 public static final native void memmove (int /*long*/ dest, AtkTextIface src);
+public static final native void memmove (int /*long*/ dest, AtkValueIface src);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2009 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -437,6 +437,49 @@ void setAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_changed, (jintLong)lpStruct->text_changed);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_caret_moved, (jintLong)lpStruct->text_caret_moved);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_selection_changed, (jintLong)lpStruct->text_selection_changed);
+}
+#endif
+
+#ifndef NO_AtkValueIface
+typedef struct AtkValueIface_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID get_current_value, get_maximum_value, get_minimum_value, set_current_value, get_minimum_increment;
+} AtkValueIface_FID_CACHE;
+
+AtkValueIface_FID_CACHE AtkValueIfaceFc;
+
+void cacheAtkValueIfaceFields(JNIEnv *env, jobject lpObject)
+{
+	if (AtkValueIfaceFc.cached) return;
+	AtkValueIfaceFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	AtkValueIfaceFc.get_current_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_current_value", I_J);
+	AtkValueIfaceFc.get_maximum_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_maximum_value", I_J);
+	AtkValueIfaceFc.get_minimum_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_minimum_value", I_J);
+	AtkValueIfaceFc.set_current_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "set_current_value", I_J);
+	AtkValueIfaceFc.get_minimum_increment = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_minimum_increment", I_J);
+	AtkValueIfaceFc.cached = 1;
+}
+
+AtkValueIface *getAtkValueIfaceFields(JNIEnv *env, jobject lpObject, AtkValueIface *lpStruct)
+{
+	if (!AtkValueIfaceFc.cached) cacheAtkValueIfaceFields(env, lpObject);
+	lpStruct->get_current_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_current_value);
+	lpStruct->get_maximum_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_maximum_value);
+	lpStruct->get_minimum_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_value);
+	lpStruct->set_current_value = (gboolean (*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.set_current_value);
+	lpStruct->get_minimum_increment = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_increment);
+	return lpStruct;
+}
+
+void setAtkValueIfaceFields(JNIEnv *env, jobject lpObject, AtkValueIface *lpStruct)
+{
+	if (!AtkValueIfaceFc.cached) cacheAtkValueIfaceFields(env, lpObject);
+	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_current_value, (jintLong)lpStruct->get_current_value);
+	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_maximum_value, (jintLong)lpStruct->get_maximum_value);
+	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_value, (jintLong)lpStruct->get_minimum_value);
+	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.set_current_value, (jintLong)lpStruct->set_current_value);
+	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_increment, (jintLong)lpStruct->get_minimum_increment);
 }
 #endif
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2009 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -36,6 +36,7 @@ typedef enum {
 	_1ATK_1OBJECT_1FACTORY_1CLASS_FUNC,
 	_1ATK_1SELECTION_1GET_1IFACE_FUNC,
 	_1ATK_1TEXT_1GET_1IFACE_FUNC,
+	_1ATK_1VALUE_1GET_1IFACE_FUNC,
 	_1GTK_1ACCESSIBLE_FUNC,
 	_1atk_1focus_1tracker_1notify_FUNC,
 	_1atk_1get_1default_1registry_FUNC,
@@ -116,6 +117,11 @@ typedef enum {
 	memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2_FUNC,
 #endif
 #ifndef JNI64
+	memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2_FUNC,
+#else
+	memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2_FUNC,
+#endif
+#ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkActionIface_2I_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkActionIface_2J_FUNC,
@@ -149,6 +155,11 @@ typedef enum {
 	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2I_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2J_FUNC,
+#endif
+#ifndef JNI64
+	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2I_FUNC,
+#else
+	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2J_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_accessibility_gtk_GtkAccessible_2I_FUNC,
