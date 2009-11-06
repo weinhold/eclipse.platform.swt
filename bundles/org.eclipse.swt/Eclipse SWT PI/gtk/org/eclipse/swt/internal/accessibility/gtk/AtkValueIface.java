@@ -16,14 +16,12 @@ package org.eclipse.swt.internal.accessibility.gtk;
 
 
 public class AtkValueIface {
-	/** @field cast=(void *(*)()) */
+	/** @field cast=(void (*)()) */
 	public int /*long*/ get_current_value;
-	/** @field cast=(void *(*)()) */
+	/** @field cast=(void (*)()) */
 	public int /*long*/ get_maximum_value;
-	/** @field cast=(void *(*)()) */
+	/** @field cast=(void (*)()) */
 	public int /*long*/ get_minimum_value;
 	/** @field cast=(gboolean (*)()) */
 	public int /*long*/ set_current_value ;
-	/** @field cast=(void *(*)()) */
-	public int /*long*/ get_minimum_increment;
 }

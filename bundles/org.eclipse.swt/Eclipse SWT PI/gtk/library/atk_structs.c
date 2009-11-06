@@ -444,7 +444,7 @@ void setAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct
 typedef struct AtkValueIface_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_current_value, get_maximum_value, get_minimum_value, set_current_value, get_minimum_increment;
+	jfieldID get_current_value, get_maximum_value, get_minimum_value, set_current_value;
 } AtkValueIface_FID_CACHE;
 
 AtkValueIface_FID_CACHE AtkValueIfaceFc;
@@ -457,18 +457,16 @@ void cacheAtkValueIfaceFields(JNIEnv *env, jobject lpObject)
 	AtkValueIfaceFc.get_maximum_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_maximum_value", I_J);
 	AtkValueIfaceFc.get_minimum_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_minimum_value", I_J);
 	AtkValueIfaceFc.set_current_value = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "set_current_value", I_J);
-	AtkValueIfaceFc.get_minimum_increment = (*env)->GetFieldID(env, AtkValueIfaceFc.clazz, "get_minimum_increment", I_J);
 	AtkValueIfaceFc.cached = 1;
 }
 
 AtkValueIface *getAtkValueIfaceFields(JNIEnv *env, jobject lpObject, AtkValueIface *lpStruct)
 {
 	if (!AtkValueIfaceFc.cached) cacheAtkValueIfaceFields(env, lpObject);
-	lpStruct->get_current_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_current_value);
-	lpStruct->get_maximum_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_maximum_value);
-	lpStruct->get_minimum_value = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_value);
+	lpStruct->get_current_value = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_current_value);
+	lpStruct->get_maximum_value = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_maximum_value);
+	lpStruct->get_minimum_value = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_value);
 	lpStruct->set_current_value = (gboolean (*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.set_current_value);
-	lpStruct->get_minimum_increment = (void *(*)())(*env)->GetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_increment);
 	return lpStruct;
 }
 
@@ -479,7 +477,6 @@ void setAtkValueIfaceFields(JNIEnv *env, jobject lpObject, AtkValueIface *lpStru
 	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_maximum_value, (jintLong)lpStruct->get_maximum_value);
 	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_value, (jintLong)lpStruct->get_minimum_value);
 	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.set_current_value, (jintLong)lpStruct->set_current_value);
-	(*env)->SetIntLongField(env, lpObject, AtkValueIfaceFc.get_minimum_increment, (jintLong)lpStruct->get_minimum_increment);
 }
 #endif
 
