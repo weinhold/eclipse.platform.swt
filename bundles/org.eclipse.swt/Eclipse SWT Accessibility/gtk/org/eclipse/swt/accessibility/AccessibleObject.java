@@ -15,7 +15,6 @@ import java.util.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.accessibility.gtk.*;
 import org.eclipse.swt.internal.gtk.*;
-import org.eclipse.swt.widgets.*;
 
 class AccessibleObject {
 	int /*long*/ handle;
@@ -35,13 +34,13 @@ class AccessibleObject {
 	static int /*long*/ keybindingPtr = -1;
 	static int /*long*/ namePtr = -1;
 	static final Hashtable AccessibleObjects = new Hashtable (9);
-	static final int /*long*/ ATK_ACTION_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkAction", true));
-	static final int /*long*/ ATK_COMPONENT_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkComponent", true));
-	static final int /*long*/ ATK_HYPERTEXT_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkHypertext", true));
-	static final int /*long*/ ATK_SELECTION_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkSelection", true));		
-	static final int /*long*/ ATK_TEXT_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkText", true));
-	static final int /*long*/ ATK_VALUE_TYPE = ATK.g_type_from_name (Converter.wcsToMbcs (null, "AtkValue", true));
-	static final boolean DEBUG = Display.DEBUG;
+	static final int /*long*/ ATK_ACTION_TYPE = ATK.ATK_TYPE_ACTION();
+	static final int /*long*/ ATK_COMPONENT_TYPE = ATK.ATK_TYPE_COMPONENT();
+	static final int /*long*/ ATK_HYPERTEXT_TYPE = ATK.ATK_TYPE_HYPERTEXT();
+	static final int /*long*/ ATK_SELECTION_TYPE = ATK.ATK_TYPE_SELECTION();		
+	static final int /*long*/ ATK_TEXT_TYPE = ATK.ATK_TYPE_TEXT();
+	static final int /*long*/ ATK_VALUE_TYPE = ATK.ATK_TYPE_VALUE();
+	static final boolean DEBUG = true;
 
 	AccessibleObject (int /*long*/ type, int /*long*/ widget, Accessible accessible, int /*long*/ parentType, boolean isLightweight) {
 		super ();
@@ -1583,13 +1582,10 @@ class AccessibleObject {
 			Vector idsToKeep = new Vector (children.size ());
 			if (event.children [0] instanceof Integer) {
 				/*	an array of child id's (Integers) was answered */
-				int /*long*/ parentType = AccessibleFactory.getDefaultParentType ();
 				for (int i = 0; i < event.children.length; i++) {
 					AccessibleObject object = getChildByIndex (i);
 					if (object == null) {
-						int /*long*/ childType = AccessibleFactory.getChildType (accessible, i);
-						object = new AccessibleObject (childType, 0, accessible, parentType, true);
-						AccessibleObjects.put (new LONG (object.handle), object);
+						object = AccessibleFactory.createChildAccessible (accessible, i);
 						addChild (object);
 						object.index = i;
 					}
