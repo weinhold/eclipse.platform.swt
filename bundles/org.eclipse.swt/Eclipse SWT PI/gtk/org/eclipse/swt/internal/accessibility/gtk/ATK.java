@@ -103,6 +103,8 @@ public static final native int /*long*/ ATK_TYPE_SELECTION ();
 public static final native int /*long*/ ATK_TYPE_TEXT ();
 /** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_VALUE ();
+/** @method flags=const */
+public static final native int /*long*/ ATK_TYPE_OBJECT_FACTORY ();
 public static final native int /*long*/ _ATK_ACTION_GET_IFACE (int /*long*/ obj);
 public static final int /*long*/ ATK_ACTION_GET_IFACE (int /*long*/ obj) {
 	lock.lock();
