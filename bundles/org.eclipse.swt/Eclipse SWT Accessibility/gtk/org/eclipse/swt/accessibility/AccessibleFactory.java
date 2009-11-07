@@ -222,11 +222,6 @@ class AccessibleFactory {
 		return new String(Converter.mbcsToWcs(null, buffer));
 	}
 
-	static void addAccessible (Accessible accessible) {
-		int /*long*/ controlHandle = accessible.getControlHandle ();
-		accessibles.put (new LONG (controlHandle), accessible);
-	}
-
 	static int /*long*/ atkObjectFactory_create_accessible (int /*long*/ widget) {
 		Accessible accessible = (Accessible) accessibles.get (new LONG (widget));
 		if (accessible == null) {
@@ -435,19 +430,16 @@ class AccessibleFactory {
 
 	static void registerAccessible (Accessible accessible) {
 		/* If NO_OP factory is registered then OS accessibility is not active */
-		int /*long*/ widgetType = OS.G_OBJECT_TYPE (accessible.getControlHandle ());
+		int /*long*/ widget = accessible.getControlHandle ();
+		int /*long*/ widgetType = OS.G_OBJECT_TYPE (widget);
 		if (ATK.ATK_IS_NO_OP_OBJECT_FACTORY(ATK.atk_registry_get_factory (ATK.atk_get_default_registry (), widgetType))) return;
 		LONG key = new LONG (widgetType);
 		AccessibleFactory factory = (AccessibleFactory) Factories.get (key);
 		if (factory == null) Factories.put (new LONG (widgetType), new AccessibleFactory (widgetType));
-		addAccessible (accessible);
-	}
-	
-	static void removeAccessible (Accessible accessible) {
-		accessibles.remove (new LONG (accessible.getControlHandle ()));
+		accessibles.put (new LONG (widget), accessible);
 	}
 	
 	static void unregisterAccessible (Accessible accessible) {
-		removeAccessible (accessible);
+		accessibles.remove (new LONG (accessible.getControlHandle ()));
 	}
 }
