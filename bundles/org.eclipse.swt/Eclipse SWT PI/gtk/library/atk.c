@@ -19,6 +19,18 @@
 
 #define ATK_NATIVE(func) Java_org_eclipse_swt_internal_accessibility_gtk_ATK_##func
 
+#ifndef NO_ATK_1IS_1NO_1OP_1OBJECT_1FACTORY
+JNIEXPORT jboolean JNICALL ATK_NATIVE(ATK_1IS_1NO_1OP_1OBJECT_1FACTORY)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	jboolean rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1IS_1NO_1OP_1OBJECT_1FACTORY_FUNC);
+	rc = (jboolean)ATK_IS_NO_OP_OBJECT_FACTORY(arg0);
+	ATK_NATIVE_EXIT(env, that, ATK_1IS_1NO_1OP_1OBJECT_1FACTORY_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_ATK_1TYPE_1ACTION
 JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1ACTION)
 	(JNIEnv *env, jclass that)
@@ -123,6 +135,18 @@ JNIEXPORT jint JNICALL ATK_NATIVE(AtkObjectFactory_1sizeof)
 	ATK_NATIVE_ENTER(env, that, AtkObjectFactory_1sizeof_FUNC);
 	rc = (jint)AtkObjectFactory_sizeof();
 	ATK_NATIVE_EXIT(env, that, AtkObjectFactory_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_GTK_1TYPE_1ACCESSIBLE
+JNIEXPORT jintLong JNICALL ATK_NATIVE(GTK_1TYPE_1ACCESSIBLE)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, GTK_1TYPE_1ACCESSIBLE_FUNC);
+	rc = (jintLong)GTK_TYPE_ACCESSIBLE;
+	ATK_NATIVE_EXIT(env, that, GTK_1TYPE_1ACCESSIBLE_FUNC);
 	return rc;
 }
 #endif

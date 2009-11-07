@@ -92,6 +92,8 @@ public static final native int AtkObjectFactoryClass_sizeof ();
 /** Natives */
 
 /** @method flags=const */
+public static final native int /*long*/ GTK_TYPE_ACCESSIBLE ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_ACTION ();
 /** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_COMPONENT ();
@@ -105,6 +107,7 @@ public static final native int /*long*/ ATK_TYPE_TEXT ();
 public static final native int /*long*/ ATK_TYPE_VALUE ();
 /** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_OBJECT_FACTORY ();
+public static final native boolean ATK_IS_NO_OP_OBJECT_FACTORY (int /*long*/ obj);
 public static final native int /*long*/ _ATK_ACTION_GET_IFACE (int /*long*/ obj);
 public static final int /*long*/ ATK_ACTION_GET_IFACE (int /*long*/ obj) {
 	lock.lock();
@@ -124,14 +127,6 @@ public static final int /*long*/ ATK_COMPONENT_GET_IFACE(int /*long*/ atkHandle)
 	}
 }
 public static final native int /*long*/ _ATK_OBJECT_FACTORY_CLASS (int /*long*/ klass);
-public static final int /*long*/ ATK_OBJECT_FACTORY_CLASS (int /*long*/ klass) {
-	lock.lock();
-	try {
-		return _ATK_OBJECT_FACTORY_CLASS(klass);
-	} finally {
-		lock.unlock();
-	}
-}
 public static final native int /*long*/ _ATK_SELECTION_GET_IFACE (int /*long*/ obj);
 public static final int /*long*/ ATK_SELECTION_GET_IFACE (int /*long*/ obj) {
 	lock.lock();
