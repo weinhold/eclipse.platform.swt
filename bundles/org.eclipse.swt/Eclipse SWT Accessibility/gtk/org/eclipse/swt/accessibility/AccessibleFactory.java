@@ -25,7 +25,7 @@ class AccessibleFactory {
 	static final Hashtable Factories = new Hashtable (9);	
 	static final int /*long*/ DefaultParentType = ATK.GTK_TYPE_ACCESSIBLE(); //$NON-NLS-1$
 	static final String SWT_TYPE_PREFIX = "SWTAccessible"; //$NON-NLS-1$
-	static final byte[] CHILD_TYPENAME = Converter.wcsToMbcs (null, "Child", false); //$NON-NLS-1$
+	static final String CHILD_TYPENAME = "Child"; //$NON-NLS-1$
 	static final String FACTORY_TYPENAME = "SWTFactory"; //$NON-NLS-1$
 	static final int[] actionRoles = {
 		ACC.ROLE_CHECKBUTTON, ACC.ROLE_COMBOBOX, ACC.ROLE_LINK,
@@ -194,11 +194,7 @@ class AccessibleFactory {
 	private AccessibleFactory (int /*long*/ widgetType) {
 		super ();
 		this.widgetType = widgetType;
-		int /*long*/ widgetTypeName = OS.g_type_name (widgetType);
-		int widgetTypeNameLength = OS.strlen (widgetTypeName);
-		byte[] buffer = new byte [widgetTypeNameLength];
-		OS.memmove (buffer, widgetTypeName, widgetTypeNameLength);
-		String name = FACTORY_TYPENAME + new String(Converter.mbcsToWcs(null, buffer));
+		String name = FACTORY_TYPENAME + getTypeName(widgetType);
 		byte[] factoryName = Converter.wcsToMbcs(null, name, true);
 		if (OS.g_type_from_name (factoryName) == 0) {
 			if (AccessibleObject.DEBUG) System.out.println("-->New Factory=" + name); //$NON-NLS-1$
@@ -216,6 +212,14 @@ class AccessibleFactory {
 			int /*long*/ swtFactoryType = OS.g_type_register_static (ATK.ATK_TYPE_OBJECT_FACTORY(), factoryName, info, 0);
 			ATK.atk_registry_set_factory_type (registry, widgetType, swtFactoryType);
 		}
+	}
+	
+	static String getTypeName (int /*long*/ type) {
+		int /*long*/ typeName = OS.g_type_name (type);
+		int widgetTypeNameLength = OS.strlen (typeName);
+		byte[] buffer = new byte [widgetTypeNameLength];
+		OS.memmove (buffer, typeName, widgetTypeNameLength);
+		return new String(Converter.mbcsToWcs(null, buffer));
 	}
 
 	static void addAccessible (Accessible accessible) {
@@ -240,12 +244,8 @@ class AccessibleFactory {
 			return accessible.accessibleObject.handle;
 		}
 		int /*long*/ widgetType = OS.G_OBJECT_TYPE (widget);
-		int /*long*/ widgetTypeName = OS.g_type_name (widgetType);
-		int typeNameLength = OS.strlen (widgetTypeName);
-		byte[] buffer = new byte [typeNameLength];
-		OS.memmove (buffer, widgetTypeName, typeNameLength);
 		AccessibleFactory factory = (AccessibleFactory) Factories.get(new LONG(widgetType));
-		int /*long*/ type = getType (buffer, accessible, factory.objectParentType, ACC.CHILDID_SELF);
+		int /*long*/ type = getType (getTypeName(widgetType), accessible, factory.objectParentType, ACC.CHILDID_SELF);
 		AccessibleObject object = new AccessibleObject (type, widget, accessible, factory.objectParentType, false);
 		accessible.accessibleObject = object;
 		return object.handle;
@@ -256,7 +256,7 @@ class AccessibleFactory {
 		return new AccessibleObject(childType, 0, accessible, DefaultParentType, true);
 	}
 
-	static int /*long*/ getType (byte[] widgetTypeName, Accessible accessible, int /*long*/ parentType, int childId) {
+	static int /*long*/ getType (String widgetTypeName, Accessible accessible, int /*long*/ parentType, int childId) {
 		AccessibleControlEvent event = new AccessibleControlEvent (accessible);
 		event.childID = childId;
 		AccessibleControlListener[] listeners = accessible.getControlListeners ();
@@ -292,8 +292,7 @@ class AccessibleFactory {
 		} else {
 			action = hypertext = selection = text = value = true;
 		}
-		String swtTypeName = SWT_TYPE_PREFIX;
-		swtTypeName += new String (Converter.mbcsToWcs(null, widgetTypeName));
+		String swtTypeName = SWT_TYPE_PREFIX + widgetTypeName;
 		if (action) swtTypeName += "Action"; //$NON-NLS-1$
 		if (hypertext) swtTypeName += "Hypertext"; //$NON-NLS-1$
 		if (selection) swtTypeName += "Selection"; //$NON-NLS-1$
