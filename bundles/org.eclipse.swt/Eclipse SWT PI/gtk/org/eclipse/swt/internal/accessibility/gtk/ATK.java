@@ -91,12 +91,17 @@ public static final native int AtkObjectFactoryClass_sizeof ();
 	
 /** Natives */
 
-/** method flags=const */
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_ACTION ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_COMPONENT ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_HYPERTEXT ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_SELECTION ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_TEXT ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_VALUE ();
 public static final native int /*long*/ _ATK_ACTION_GET_IFACE (int /*long*/ obj);
 public static final int /*long*/ ATK_ACTION_GET_IFACE (int /*long*/ obj) {

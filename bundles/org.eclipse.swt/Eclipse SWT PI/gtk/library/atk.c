@@ -25,7 +25,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1ACTION)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1ACTION_FUNC);
-	rc = (jintLong)ATK_TYPE_ACTION();
+	rc = (jintLong)ATK_TYPE_ACTION;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1ACTION_FUNC);
 	return rc;
 }
@@ -37,7 +37,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1COMPONENT)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1COMPONENT_FUNC);
-	rc = (jintLong)ATK_TYPE_COMPONENT();
+	rc = (jintLong)ATK_TYPE_COMPONENT;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1COMPONENT_FUNC);
 	return rc;
 }
@@ -49,7 +49,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1HYPERTEXT)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1HYPERTEXT_FUNC);
-	rc = (jintLong)ATK_TYPE_HYPERTEXT();
+	rc = (jintLong)ATK_TYPE_HYPERTEXT;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1HYPERTEXT_FUNC);
 	return rc;
 }
@@ -61,7 +61,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1SELECTION)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1SELECTION_FUNC);
-	rc = (jintLong)ATK_TYPE_SELECTION();
+	rc = (jintLong)ATK_TYPE_SELECTION;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1SELECTION_FUNC);
 	return rc;
 }
@@ -73,7 +73,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1TEXT)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1TEXT_FUNC);
-	rc = (jintLong)ATK_TYPE_TEXT();
+	rc = (jintLong)ATK_TYPE_TEXT;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1TEXT_FUNC);
 	return rc;
 }
@@ -85,7 +85,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1VALUE)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1VALUE_FUNC);
-	rc = (jintLong)ATK_TYPE_VALUE();
+	rc = (jintLong)ATK_TYPE_VALUE;
 	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1VALUE_FUNC);
 	return rc;
 }
