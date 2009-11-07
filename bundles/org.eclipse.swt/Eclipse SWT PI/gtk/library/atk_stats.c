@@ -18,9 +18,15 @@
 
 #ifdef NATIVE_STATS
 
-int ATK_nativeFunctionCount = 45;
-int ATK_nativeFunctionCallCount[45];
+int ATK_nativeFunctionCount = 51;
+int ATK_nativeFunctionCallCount[51];
 char * ATK_nativeFunctionNames[] = {
+	"ATK_1TYPE_1ACTION",
+	"ATK_1TYPE_1COMPONENT",
+	"ATK_1TYPE_1HYPERTEXT",
+	"ATK_1TYPE_1SELECTION",
+	"ATK_1TYPE_1TEXT",
+	"ATK_1TYPE_1VALUE",
 	"AtkObjectFactoryClass_1sizeof",
 	"AtkObjectFactory_1sizeof",
 	"_1ATK_1ACTION_1GET_1IFACE",

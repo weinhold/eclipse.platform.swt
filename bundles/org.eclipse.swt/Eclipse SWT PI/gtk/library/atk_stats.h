@@ -29,6 +29,12 @@ extern char* ATK_nativeFunctionNames[];
 #endif
 
 typedef enum {
+	ATK_1TYPE_1ACTION_FUNC,
+	ATK_1TYPE_1COMPONENT_FUNC,
+	ATK_1TYPE_1HYPERTEXT_FUNC,
+	ATK_1TYPE_1SELECTION_FUNC,
+	ATK_1TYPE_1TEXT_FUNC,
+	ATK_1TYPE_1VALUE_FUNC,
 	AtkObjectFactoryClass_1sizeof_FUNC,
 	AtkObjectFactory_1sizeof_FUNC,
 	_1ATK_1ACTION_1GET_1IFACE_FUNC,

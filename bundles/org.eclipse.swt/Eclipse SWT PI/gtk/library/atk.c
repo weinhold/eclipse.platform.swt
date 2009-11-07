@@ -19,6 +19,78 @@
 
 #define ATK_NATIVE(func) Java_org_eclipse_swt_internal_accessibility_gtk_ATK_##func
 
+#ifndef NO_ATK_1TYPE_1ACTION
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1ACTION)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1ACTION_FUNC);
+	rc = (jintLong)ATK_TYPE_ACTION();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1ACTION_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_ATK_1TYPE_1COMPONENT
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1COMPONENT)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1COMPONENT_FUNC);
+	rc = (jintLong)ATK_TYPE_COMPONENT();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1COMPONENT_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_ATK_1TYPE_1HYPERTEXT
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1HYPERTEXT)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1HYPERTEXT_FUNC);
+	rc = (jintLong)ATK_TYPE_HYPERTEXT();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1HYPERTEXT_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_ATK_1TYPE_1SELECTION
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1SELECTION)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1SELECTION_FUNC);
+	rc = (jintLong)ATK_TYPE_SELECTION();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1SELECTION_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_ATK_1TYPE_1TEXT
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1TEXT)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1TEXT_FUNC);
+	rc = (jintLong)ATK_TYPE_TEXT();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1TEXT_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_ATK_1TYPE_1VALUE
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1VALUE)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1VALUE_FUNC);
+	rc = (jintLong)ATK_TYPE_VALUE();
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1VALUE_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_AtkObjectFactoryClass_1sizeof
 JNIEXPORT jint JNICALL ATK_NATIVE(AtkObjectFactoryClass_1sizeof)
 	(JNIEnv *env, jclass that)
