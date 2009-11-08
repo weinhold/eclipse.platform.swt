@@ -462,7 +462,7 @@ public class Accessible {
 	}
 	
 	void release () {
-		AccessibleFactory.unregisterAccessible (Accessible.this);
+		AccessibleFactory.unregisterAccessible (this);
 		if (accessibleObject != null) {
 			accessibleObject.release ();
 			accessibleObject = null;

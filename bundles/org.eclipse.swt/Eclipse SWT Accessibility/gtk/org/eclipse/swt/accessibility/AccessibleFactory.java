@@ -18,10 +18,7 @@ import org.eclipse.swt.internal.gtk.*;
 import org.eclipse.swt.*;
 
 class AccessibleFactory {
-	int /*long*/ widgetType, objectParentType;
-	
-	static final Hashtable accessibles = new Hashtable (9);
-	static final Hashtable Types = new Hashtable (9);
+	static final Hashtable Accessibles = new Hashtable (9);
 	static final Hashtable Factories = new Hashtable (9);	
 	static final int /*long*/ DefaultParentType = ATK.GTK_TYPE_ACCESSIBLE(); //$NON-NLS-1$
 	static final String SWT_TYPE_PREFIX = "SWTAccessible"; //$NON-NLS-1$
@@ -94,7 +91,6 @@ class AccessibleFactory {
 	static final Callback InitValueIfaceCB;
 	static final Callback GTypeInfo_base_init_factory;
 	/* interface definitions */
-	static int /*long*/ ObjectIfaceDefinition;
 	static final int /*long*/ ActionIfaceDefinition;
 	static final int /*long*/ ComponentIfaceDefinition;
 	static final int /*long*/ HypertextIfaceDefinition;
@@ -191,29 +187,6 @@ class AccessibleFactory {
 		return callback;
 	}
 
-	private AccessibleFactory (int /*long*/ widgetType) {
-		super ();
-		this.widgetType = widgetType;
-		String name = FACTORY_TYPENAME + getTypeName(widgetType);
-		byte[] factoryName = Converter.wcsToMbcs(null, name, true);
-		if (OS.g_type_from_name (factoryName) == 0) {
-			if (AccessibleObject.DEBUG) System.out.println("-->New Factory=" + name); //$NON-NLS-1$
-			/* register the factory */
-			int /*long*/ registry = ATK.atk_get_default_registry ();
-			int /*long*/ previousFactory = ATK.atk_registry_get_factory (registry, widgetType);
-			objectParentType = ATK.atk_object_factory_get_accessible_type (previousFactory);
-			if (objectParentType == 0) objectParentType = DefaultParentType;
-			GTypeInfo typeInfo = new GTypeInfo ();
-			typeInfo.base_init = GTypeInfo_base_init_factory.getAddress ();
-			typeInfo.class_size = (short)ATK.AtkObjectFactoryClass_sizeof ();
-			typeInfo.instance_size = (short)ATK.AtkObjectFactory_sizeof ();
-			int /*long*/ info = OS.g_malloc (GTypeInfo.sizeof); 
-			OS.memmove (info, typeInfo, GTypeInfo.sizeof); 
-			int /*long*/ swtFactoryType = OS.g_type_register_static (ATK.ATK_TYPE_OBJECT_FACTORY(), factoryName, info, 0);
-			ATK.atk_registry_set_factory_type (registry, widgetType, swtFactoryType);
-		}
-	}
-	
 	static String getTypeName (int /*long*/ type) {
 		int /*long*/ typeName = OS.g_type_name (type);
 		int widgetTypeNameLength = OS.strlen (typeName);
@@ -221,16 +194,19 @@ class AccessibleFactory {
 		OS.memmove (buffer, typeName, widgetTypeNameLength);
 		return new String(Converter.mbcsToWcs(null, buffer));
 	}
+	
+	static int /*long*/ getParentType (int /*long*/ widgetType) {
+		return ((LONG) Factories.get(new LONG(widgetType))).value;
+	}
 
 	static int /*long*/ atkObjectFactory_create_accessible (int /*long*/ widget) {
-		Accessible accessible = (Accessible) accessibles.get (new LONG (widget));
+		Accessible accessible = (Accessible) Accessibles.get (new LONG (widget));
 		if (accessible == null) {
 			/*
 			* we don't care about this control, so create it with the parent's
 			* type so that its accessibility callbacks will not pass though here 
 			*/  
-			AccessibleFactory factory = (AccessibleFactory) Factories.get(new LONG(OS.G_OBJECT_TYPE (widget)));
-			int /*long*/ result = OS.g_object_new (factory.objectParentType, 0);
+			int /*long*/ result = OS.g_object_new (getParentType(OS.G_OBJECT_TYPE (widget)), 0);
 			ATK.atk_object_initialize (result, widget);
 			return result;
 		}
@@ -239,9 +215,10 @@ class AccessibleFactory {
 			return accessible.accessibleObject.handle;
 		}
 		int /*long*/ widgetType = OS.G_OBJECT_TYPE (widget);
-		AccessibleFactory factory = (AccessibleFactory) Factories.get(new LONG(widgetType));
-		int /*long*/ type = getType (getTypeName(widgetType), accessible, factory.objectParentType, ACC.CHILDID_SELF);
-		AccessibleObject object = new AccessibleObject (type, widget, accessible, factory.objectParentType, false);
+		int /*long*/ parentType = getParentType (widgetType);
+		if (parentType == 0) parentType = DefaultParentType;
+		int /*long*/ type = getType (getTypeName(widgetType), accessible, parentType, ACC.CHILDID_SELF);
+		AccessibleObject object = new AccessibleObject (type, widget, accessible, parentType, false);
 		accessible.accessibleObject = object;
 		return object.handle;
 	}
@@ -294,11 +271,9 @@ class AccessibleFactory {
 		if (text) swtTypeName += "Text"; //$NON-NLS-1$
 		if (value) swtTypeName += "Value"; //$NON-NLS-1$
 
-		int /*long*/ type = 0;
-		LONG typeInt = (LONG)Types.get (swtTypeName);
-		if (typeInt != null) {
-			type = typeInt.value;
-		} else {
+		byte[] nameBytes = Converter.wcsToMbcs(null, swtTypeName, true);
+		int /*long*/ type = OS.g_type_from_name(nameBytes);
+		if (type == 0) {
 			if (AccessibleObject.DEBUG) System.out.println("-->New Type=" + swtTypeName); //$NON-NLS-1$
 			/* define the type */
 			int /*long*/ queryPtr = OS.g_malloc (GTypeQuery.sizeof);
@@ -310,17 +285,15 @@ class AccessibleFactory {
 			typeInfo.base_init = GTypeInfo_base_init_type.getAddress ();
 			typeInfo.class_size = (short) query.class_size;
 			typeInfo.instance_size = (short) query.instance_size;
-			ObjectIfaceDefinition = OS.g_malloc (GTypeInfo.sizeof); 
-			OS.memmove (ObjectIfaceDefinition, typeInfo, GTypeInfo.sizeof);
-			byte[] nameBytes = Converter.wcsToMbcs(null, swtTypeName, true);
-			type = OS.g_type_register_static (parentType, nameBytes, ObjectIfaceDefinition, 0);
+			int /*long*/ definition = OS.g_malloc (GTypeInfo.sizeof); 
+			OS.memmove (definition, typeInfo, GTypeInfo.sizeof);
+			type = OS.g_type_register_static (parentType, nameBytes, definition, 0);
 			OS.g_type_add_interface_static (type, AccessibleObject.ATK_COMPONENT_TYPE, ComponentIfaceDefinition);
 			if (action) OS.g_type_add_interface_static (type, AccessibleObject.ATK_ACTION_TYPE, ActionIfaceDefinition);
 			if (hypertext) OS.g_type_add_interface_static (type, AccessibleObject.ATK_HYPERTEXT_TYPE, HypertextIfaceDefinition);
 			if (selection) OS.g_type_add_interface_static (type, AccessibleObject.ATK_SELECTION_TYPE, SelectionIfaceDefinition);
 			if (text) OS.g_type_add_interface_static (type, AccessibleObject.ATK_TEXT_TYPE, TextIfaceDefinition);
 			if (value) OS.g_type_add_interface_static (type, AccessibleObject.ATK_VALUE_TYPE, ValueIfaceDefinition);
-			Types.put (swtTypeName, new LONG (type));
 		}
 		return type;
 	}
@@ -429,17 +402,33 @@ class AccessibleFactory {
 	}
 
 	static void registerAccessible (Accessible accessible) {
-		/* If NO_OP factory is registered then OS accessibility is not active */
 		int /*long*/ widget = accessible.getControlHandle ();
 		int /*long*/ widgetType = OS.G_OBJECT_TYPE (widget);
-		if (ATK.ATK_IS_NO_OP_OBJECT_FACTORY(ATK.atk_registry_get_factory (ATK.atk_get_default_registry (), widgetType))) return;
-		LONG key = new LONG (widgetType);
-		AccessibleFactory factory = (AccessibleFactory) Factories.get (key);
-		if (factory == null) Factories.put (new LONG (widgetType), new AccessibleFactory (widgetType));
-		accessibles.put (new LONG (widget), accessible);
+		int /*long*/ registry = ATK.atk_get_default_registry ();
+		int /*long*/ factory = ATK.atk_registry_get_factory (registry, widgetType);
+		/* If NO_OP factory is registered then OS accessibility is not active */
+		if (ATK.ATK_IS_NO_OP_OBJECT_FACTORY(factory)) return;
+		String name = FACTORY_TYPENAME + getTypeName(widgetType);
+		byte[] factoryName = Converter.wcsToMbcs(null, name, true);
+		if (OS.g_type_from_name (factoryName) == 0) {
+			if (AccessibleObject.DEBUG) System.out.println("-->New Factory=" + name); //$NON-NLS-1$
+			/* register the factory */
+			GTypeInfo typeInfo = new GTypeInfo ();
+			typeInfo.base_init = GTypeInfo_base_init_factory.getAddress ();
+			typeInfo.class_size = (short)ATK.AtkObjectFactoryClass_sizeof ();
+			typeInfo.instance_size = (short)ATK.AtkObjectFactory_sizeof ();
+			int /*long*/ info = OS.g_malloc (GTypeInfo.sizeof); 
+			OS.memmove (info, typeInfo, GTypeInfo.sizeof); 
+			int /*long*/ swtFactoryType = OS.g_type_register_static (ATK.ATK_TYPE_OBJECT_FACTORY(), factoryName, info, 0);
+			int /*long*/ parentType = ATK.atk_object_factory_get_accessible_type(factory);
+			ATK.atk_registry_set_factory_type (registry, widgetType, swtFactoryType);
+			Factories.put (new LONG (widgetType), new LONG (parentType));
+		}
+		Accessibles.put (new LONG (widget), accessible);
 	}
 	
 	static void unregisterAccessible (Accessible accessible) {
-		accessibles.remove (new LONG (accessible.getControlHandle ()));
+		int /*long*/ widget = accessible.getControlHandle ();
+		Accessibles.remove (new LONG (widget));
 	}
 }
