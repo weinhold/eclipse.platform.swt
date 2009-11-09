@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1298;
-int OS_nativeFunctionCallCount[1298];
+int OS_nativeFunctionCount = 1300;
+int OS_nativeFunctionCallCount[1300];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -1398,6 +1398,16 @@ char * OS_nativeFunctionNames[] = {
 	"_1pango_1tab_1array_1new",
 	"_1pango_1tab_1array_1set_1tab",
 	"g_1main_1context_1wakeup",
+#ifndef JNI64
+	"g_1value_1get_1int__I",
+#else
+	"g_1value_1get_1int__J",
+#endif
+#ifndef JNI64
+	"g_1value_1get_1int__II",
+#else
+	"g_1value_1get_1int__JI",
+#endif
 	"localeconv_1decimal_1point",
 #ifndef JNI64
 	"memmove__ILorg_eclipse_swt_internal_gtk_GInterfaceInfo_2I",
