@@ -37,7 +37,8 @@ class AccessibleObject {
 	static final int /*long*/ ATK_ACTION_TYPE = ATK.ATK_TYPE_ACTION();
 	static final int /*long*/ ATK_COMPONENT_TYPE = ATK.ATK_TYPE_COMPONENT();
 	static final int /*long*/ ATK_HYPERTEXT_TYPE = ATK.ATK_TYPE_HYPERTEXT();
-	static final int /*long*/ ATK_SELECTION_TYPE = ATK.ATK_TYPE_SELECTION();		
+	static final int /*long*/ ATK_SELECTION_TYPE = ATK.ATK_TYPE_SELECTION();			
+	static final int /*long*/ ATK_TABLE_TYPE = ATK.ATK_TYPE_TABLE();	
 	static final int /*long*/ ATK_TEXT_TYPE = ATK.ATK_TYPE_TEXT();
 	static final int /*long*/ ATK_VALUE_TYPE = ATK.ATK_TYPE_VALUE();
 	static final boolean DEBUG = true;
@@ -670,6 +671,380 @@ class AccessibleObject {
 			OS.g_object_ref (accObj.handle);	
 			return accObj.handle;
 		}
+		return parentResult;
+	}
+	
+	static int /*long*/ atkTable_ref_at (int /*long*/ atkObject, int /*long*/ row, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_ref_at");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.ref_at != 0) {
+				parentResult = ATK.call (iface.ref_at, object.handle, row, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_index_at (int /*long*/ atkObject, int /*long*/ row, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_get_index_at");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_index_at != 0) {
+				parentResult = ATK.call (iface.get_index_at, object.handle, row, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_column_at_index (int /*long*/ atkObject, int /*long*/ index) {
+		if (DEBUG) System.out.println ("-->atkTable_get_column_at_index");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_column_at_index != 0) {
+				parentResult = ATK.call (iface.get_column_at_index, object.handle, index);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_row_at_index (int /*long*/ atkObject, int /*long*/ index) {
+		if (DEBUG) System.out.println ("-->atkTable_get_row_at_index");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_row_at_index != 0) {
+				parentResult = ATK.call (iface.get_row_at_index, object.handle, index);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_n_columns (int /*long*/ atkObject) {
+		if (DEBUG) System.out.println ("-->atkTable_get_n_columns");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_n_columns != 0) {
+				parentResult = ATK.call (iface.get_n_columns, object.handle);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_n_rows (int /*long*/ atkObject) {
+		if (DEBUG) System.out.println ("-->atkTable_get_n_rows");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_n_rows != 0) {
+				parentResult = ATK.call (iface.get_n_rows, object.handle);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_column_extent_at (int /*long*/ atkObject, int /*long*/ row, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_get_column_extent_at");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_column_extent_at != 0) {
+				parentResult = ATK.call (iface.get_column_extent_at, object.handle, row, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_row_extent_at (int /*long*/ atkObject, int /*long*/ row, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_get_row_extent_at");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_row_extent_at != 0) {
+				parentResult = ATK.call (iface.get_row_extent_at, object.handle, row, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_caption (int /*long*/ atkObject) {
+		if (DEBUG) System.out.println ("-->atkTable_get_caption");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_caption != 0) {
+				parentResult = ATK.call (iface.get_caption, object.handle);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+	
+	static int /*long*/ atkTable_get_column_description (int /*long*/ atkObject, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_get_column_description");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_column_description != 0) {
+				parentResult = ATK.call (iface.get_column_description, object.handle, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+	
+	static int /*long*/ atkTable_get_column_header (int /*long*/ atkObject, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_get_column_header");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_column_header != 0) {
+				parentResult = ATK.call (iface.get_column_header, object.handle, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+	
+	static int /*long*/ atkTable_get_row_description (int /*long*/ atkObject, int /*long*/ row) {
+		if (DEBUG) System.out.println ("-->atkTable_get_row_description");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_row_description != 0) {
+				parentResult = ATK.call (iface.get_row_description, object.handle, row);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_row_header (int /*long*/ atkObject, int /*long*/ row) {
+		if (DEBUG) System.out.println ("-->atkTable_get_row_header");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_row_header != 0) {
+				parentResult = ATK.call (iface.get_row_header, object.handle, row);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_selected_columns (int /*long*/ atkObject, int /*long*/ selected) {
+		if (DEBUG) System.out.println ("-->atkTable_get_selected_columns");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_selected_columns != 0) {
+				parentResult = ATK.call (iface.get_selected_columns, object.handle, selected);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_get_selected_rows (int /*long*/ atkObject, int /*long*/ selected) {
+		if (DEBUG) System.out.println ("-->atkTable_get_selected_rows");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_selected_rows != 0) {
+				parentResult = ATK.call (iface.get_selected_rows, object.handle, selected);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_is_column_selected (int /*long*/ atkObject, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_is_column_selected");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.is_column_selected != 0) {
+				parentResult = ATK.call (iface.is_column_selected, object.handle, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_is_row_selected (int /*long*/ atkObject, int /*long*/ row) {
+		if (DEBUG) System.out.println ("-->atkTable_is_row_selected");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.is_row_selected != 0) {
+				parentResult = ATK.call (iface.is_row_selected, object.handle, row);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_is_selected (int /*long*/ atkObject, int /*long*/ row, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_is_selected");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.is_selected != 0) {
+				parentResult = ATK.call (iface.is_selected, object.handle, row, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_add_row_selection (int /*long*/ atkObject, int /*long*/ row) {
+		if (DEBUG) System.out.println ("-->atkTable_add_row_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.add_row_selection != 0) {
+				parentResult = ATK.call (iface.add_row_selection, object.handle, row);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_remove_row_selection (int /*long*/ atkObject, int /*long*/ row) {
+		if (DEBUG) System.out.println ("-->atkTable_remove_row_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.remove_row_selection != 0) {
+				parentResult = ATK.call (iface.remove_row_selection, object.handle, row);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_add_column_selection (int /*long*/ atkObject, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_add_column_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.add_column_selection != 0) {
+				parentResult = ATK.call (iface.add_column_selection, object.handle, column);
+			}
+		}
+		//TODO
+		return parentResult;
+	}
+
+	static int /*long*/ atkTable_remove_column_selection (int /*long*/ atkObject, int /*long*/ column) {
+		if (DEBUG) System.out.println ("-->atkTable_remove_column_selection");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TABLE_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TABLE_GET_IFACE (object.handle));
+			AtkTableIface iface = new AtkTableIface ();
+			ATK.memmove (iface, superType);
+			if (iface.remove_column_selection != 0) {
+				parentResult = ATK.call (iface.remove_column_selection, object.handle, column);
+			}
+		}
+		//TODO
 		return parentResult;
 	}
 

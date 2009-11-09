@@ -29,27 +29,41 @@ class AccessibleFactory {
 		ACC.ROLE_MENUITEM, ACC.ROLE_PUSHBUTTON, ACC.ROLE_RADIOBUTTON,
 		ACC.ROLE_SPLITBUTTON,
 	};
-	static final int[] hypertextRoles = {ACC.ROLE_LINK};
+	static final int[] hypertextRoles = {
+		ACC.ROLE_LINK
+	};
 	static final int[] selectionRoles = {
 		ACC.ROLE_LIST, ACC.ROLE_TABFOLDER, ACC.ROLE_TABLE, ACC.ROLE_TREE,
 	};
 	static final int[] textRoles = {
 		ACC.ROLE_COMBOBOX, ACC.ROLE_LINK, ACC.ROLE_LABEL, ACC.ROLE_TEXT,
 	};
+	static final int[] tableRoles = {
+		ACC.ROLE_TABLE, ACC.ROLE_TREE,
+	};
+	static final int[] valueRoles = {
+		ACC.ROLE_SCROLLBAR, ACC.ROLE_SPINBUTTON, ACC.ROLE_PROGRESSBAR,
+	};
 
-	/* AT callbacks*/
+	/* Action callbacks */
 	static final Callback AtkActionCB_do_action;
 	static final Callback AtkActionCB_get_n_actions;	
 	static final Callback AtkActionCB_get_description;
 	static final Callback AtkActionCB_get_keybinding;
 	static final Callback AtkActionCB_get_name;	
+	
+	/* Component callbacks */
 	static final Callback AtkComponentCB_get_extents;
 	static final Callback AtkComponentCB_get_position;
 	static final Callback AtkComponentCB_get_size;
 	static final Callback AtkComponentCB_ref_accessible_at_point;
+	
+	/* Hypertext callbacks */
 	static final Callback AtkHypertextCB_get_link;
 	static final Callback AtkHypertextCB_get_n_links;
 	static final Callback AtkHypertextCB_get_link_index;
+	
+	/* Object callbacks */
 	static final Callback AtkObjectCB_get_description;
 	static final Callback AtkObjectCB_get_index_in_parent;
 	static final Callback AtkObjectCB_get_n_children;
@@ -58,8 +72,36 @@ class AccessibleFactory {
 	static final Callback AtkObjectCB_get_role;
 	static final Callback AtkObjectCB_ref_child;
 	static final Callback AtkObjectCB_ref_state_set;
+	
+	/* Selection callbacks */
 	static final Callback AtkSelectionCB_is_child_selected;
 	static final Callback AtkSelectionCB_ref_selection;
+
+	/* Table callbacks */
+	static final Callback AtkTableCB_ref_at;
+	static final Callback AtkTableCB_get_index_at;
+	static final Callback AtkTableCB_get_column_at_index;
+	static final Callback AtkTableCB_get_row_at_index;
+	static final Callback AtkTableCB_get_n_columns;
+	static final Callback AtkTableCB_get_n_rows;
+	static final Callback AtkTableCB_get_column_extent_at;
+	static final Callback AtkTableCB_get_row_extent_at;
+	static final Callback AtkTableCB_get_caption;
+	static final Callback AtkTableCB_get_column_description;
+	static final Callback AtkTableCB_get_row_description;
+	static final Callback AtkTableCB_get_column_header;
+	static final Callback AtkTableCB_get_row_header;
+	static final Callback AtkTableCB_get_selected_columns;
+	static final Callback AtkTableCB_get_selected_rows;
+	static final Callback AtkTableCB_is_column_selected;
+	static final Callback AtkTableCB_is_row_selected;
+	static final Callback AtkTableCB_is_selected;
+	static final Callback AtkTableCB_add_column_selection;
+	static final Callback AtkTableCB_add_row_selection;
+	static final Callback AtkTableCB_remove_column_selection;
+	static final Callback AtkTableCB_remove_row_selection;
+	
+	/* Text callbacks */
 	static final Callback AtkTextCB_get_character_extents;
 	static final Callback AtkTextCB_get_run_attributes;
 	static final Callback AtkTextCB_get_offset_at_point;
@@ -75,18 +117,23 @@ class AccessibleFactory {
 	static final Callback AtkTextCB_get_text_before_offset;
 	static final Callback AtkTextCB_get_character_at_offset;
 	static final Callback AtkTextCB_get_character_count;
+	
+	/* Value callbacks */
 	static final Callback AtkValueCB_get_current_value;
 	static final Callback AtkValueCB_get_maximum_value;
 	static final Callback AtkValueCB_get_minimum_value;
 	static final Callback AtkValueCB_set_current_value;
+	
 	static final Callback GObjectClass_finalize;
 	static final Callback AtkObjectFactoryCB_create_accessible;
+	
 	/* interface initialization callbacks */
 	static final Callback InitActionIfaceCB;		
 	static final Callback InitComponentIfaceCB;
 	static final Callback InitHypertextIfaceCB;
 	static final Callback GTypeInfo_base_init_type;
 	static final Callback InitSelectionIfaceCB;
+	static final Callback InitTableIfaceCB;
 	static final Callback InitTextIfaceCB;
 	static final Callback InitValueIfaceCB;
 	static final Callback GTypeInfo_base_init_factory;
@@ -95,6 +142,7 @@ class AccessibleFactory {
 	static final int /*long*/ ComponentIfaceDefinition;
 	static final int /*long*/ HypertextIfaceDefinition;
 	static final int /*long*/ SelectionIfaceDefinition;
+	static final int /*long*/ TableIfaceDefinition;
 	static final int /*long*/ TextIfaceDefinition;
 	static final int /*long*/ ValueIfaceDefinition;
 	static {
@@ -120,6 +168,28 @@ class AccessibleFactory {
 		AtkObjectCB_ref_child = newCallback (AccessibleObject.class, "atkObject_ref_child", 2); //$NON-NLS-1$
 		AtkSelectionCB_is_child_selected = newCallback (AccessibleObject.class, "atkSelection_is_child_selected", 2); //$NON-NLS-1$
 		AtkSelectionCB_ref_selection = newCallback (AccessibleObject.class, "atkSelection_ref_selection", 2); //$NON-NLS-1$
+		AtkTableCB_ref_at = newCallback (AccessibleObject.class, "atkTable_ref_at", 3); //$NON-NLS-1$
+		AtkTableCB_get_index_at = newCallback (AccessibleObject.class, "atkTable_get_index_at", 3); //$NON-NLS-1$
+		AtkTableCB_get_column_at_index = newCallback (AccessibleObject.class, "atkTable_get_column_at_index", 2); //$NON-NLS-1$
+		AtkTableCB_get_row_at_index = newCallback (AccessibleObject.class, "atkTable_get_row_at_index", 2); //$NON-NLS-1$
+		AtkTableCB_get_n_columns = newCallback (AccessibleObject.class, "atkTable_get_n_columns", 1); //$NON-NLS-1$
+		AtkTableCB_get_n_rows = newCallback (AccessibleObject.class, "atkTable_get_n_rows", 1); //$NON-NLS-1$
+		AtkTableCB_get_column_extent_at = newCallback (AccessibleObject.class, "atkTable_get_column_extent_at", 3); //$NON-NLS-1$
+		AtkTableCB_get_row_extent_at = newCallback (AccessibleObject.class, "atkTable_get_row_extent_at", 3); //$NON-NLS-1$
+		AtkTableCB_get_caption = newCallback (AccessibleObject.class, "atkTable_get_caption", 1); //$NON-NLS-1$
+		AtkTableCB_get_column_description = newCallback (AccessibleObject.class, "atkTable_get_column_description", 2); //$NON-NLS-1$
+		AtkTableCB_get_row_description = newCallback (AccessibleObject.class, "atkTable_get_row_description", 2); //$NON-NLS-1$
+		AtkTableCB_get_column_header = newCallback (AccessibleObject.class, "atkTable_get_column_header", 2); //$NON-NLS-1$
+		AtkTableCB_get_row_header = newCallback (AccessibleObject.class, "atkTable_get_row_header", 2); //$NON-NLS-1$
+		AtkTableCB_get_selected_columns = newCallback (AccessibleObject.class, "atkTable_get_selected_columns", 2); //$NON-NLS-1$
+		AtkTableCB_get_selected_rows = newCallback (AccessibleObject.class, "atkTable_get_selected_rows", 2); //$NON-NLS-1$
+		AtkTableCB_is_column_selected = newCallback (AccessibleObject.class, "atkTable_is_column_selected", 2); //$NON-NLS-1$
+		AtkTableCB_is_row_selected = newCallback (AccessibleObject.class, "atkTable_is_row_selected", 2); //$NON-NLS-1$
+		AtkTableCB_is_selected = newCallback (AccessibleObject.class, "atkTable_is_selected", 3); //$NON-NLS-1$
+		AtkTableCB_add_column_selection = newCallback (AccessibleObject.class, "atkTable_add_column_selection", 2); //$NON-NLS-1$
+		AtkTableCB_add_row_selection = newCallback (AccessibleObject.class, "atkTable_add_row_selection", 2); //$NON-NLS-1$
+		AtkTableCB_remove_column_selection = newCallback (AccessibleObject.class, "atkTable_remove_column_selection", 2); //$NON-NLS-1$
+		AtkTableCB_remove_row_selection = newCallback (AccessibleObject.class, "atkTable_remove_row_selection", 2); //$NON-NLS-1$
 		AtkTextCB_get_character_extents = newCallback (AccessibleObject.class, "atkText_get_character_extents", 7); //$NON-NLS-1$
 		AtkTextCB_get_run_attributes = newCallback (AccessibleObject.class, "atkText_get_run_attributes", 4); //$NON-NLS-1$
 		AtkTextCB_get_offset_at_point = newCallback (AccessibleObject.class, "atkText_get_offset_at_point", 4); //$NON-NLS-1$
@@ -167,6 +237,12 @@ class AccessibleFactory {
 		interfaceInfo.interface_init = InitSelectionIfaceCB.getAddress ();
 		SelectionIfaceDefinition = OS.g_malloc (GInterfaceInfo.sizeof);  
 		OS.memmove (SelectionIfaceDefinition, interfaceInfo, GInterfaceInfo.sizeof);
+		/* Text interface */
+		InitTableIfaceCB = newCallback (AccessibleFactory.class, "initTableIfaceCB", 1); //$NON-NLS-1$
+		interfaceInfo = new GInterfaceInfo ();
+		interfaceInfo.interface_init = InitTableIfaceCB.getAddress ();
+		TableIfaceDefinition = OS.g_malloc (GInterfaceInfo.sizeof);  
+		OS.memmove (TableIfaceDefinition, interfaceInfo, GInterfaceInfo.sizeof);
 		/* Text interface */
 		InitTextIfaceCB = newCallback (AccessibleFactory.class, "initTextIfaceCB", 1); //$NON-NLS-1$
 		interfaceInfo = new GInterfaceInfo ();
@@ -235,7 +311,7 @@ class AccessibleFactory {
 		for (int i = 0; i < listeners.length; i++) {
 			listeners [i].getRole (event);
 		}
-		boolean action = false, hypertext = false, selection = false, text = false, value = false;
+		boolean action = false, hypertext = false, selection = false, table = false, text = false, value = false;
 		if (event.detail != 0) {	/* a role was specified */
 			for (int i = 0; i < actionRoles.length; i++) {
 				if (event.detail == actionRoles [i]) {
@@ -255,19 +331,32 @@ class AccessibleFactory {
 					break;
 				}
 			}
+			for (int i = 0; i < tableRoles.length; i++) {
+				if (event.detail == tableRoles [i]) {
+					table = true;
+					break;
+				}
+			}
 			for (int i = 0; i < textRoles.length; i++) {
 				if (event.detail == textRoles [i]) {
 					text = true;
 					break;
 				}
 			}
+			for (int i = 0; i < valueRoles.length; i++) {
+				if (event.detail == valueRoles [i]) {
+					value = true;
+					break;
+				}
+			}
 		} else {
-			action = hypertext = selection = text = value = true;
+			action = hypertext = selection = table = text = value = true;
 		}
 		String swtTypeName = SWT_TYPE_PREFIX + widgetTypeName;
 		if (action) swtTypeName += "Action"; //$NON-NLS-1$
 		if (hypertext) swtTypeName += "Hypertext"; //$NON-NLS-1$
 		if (selection) swtTypeName += "Selection"; //$NON-NLS-1$
+		if (table) swtTypeName += "Table"; //$NON-NLS-1$
 		if (text) swtTypeName += "Text"; //$NON-NLS-1$
 		if (value) swtTypeName += "Value"; //$NON-NLS-1$
 
@@ -292,6 +381,7 @@ class AccessibleFactory {
 			if (action) OS.g_type_add_interface_static (type, AccessibleObject.ATK_ACTION_TYPE, ActionIfaceDefinition);
 			if (hypertext) OS.g_type_add_interface_static (type, AccessibleObject.ATK_HYPERTEXT_TYPE, HypertextIfaceDefinition);
 			if (selection) OS.g_type_add_interface_static (type, AccessibleObject.ATK_SELECTION_TYPE, SelectionIfaceDefinition);
+			if (table) OS.g_type_add_interface_static (type, AccessibleObject.ATK_TABLE_TYPE, TableIfaceDefinition);
 			if (text) OS.g_type_add_interface_static (type, AccessibleObject.ATK_TEXT_TYPE, TextIfaceDefinition);
 			if (value) OS.g_type_add_interface_static (type, AccessibleObject.ATK_VALUE_TYPE, ValueIfaceDefinition);
 		}
@@ -327,66 +417,95 @@ class AccessibleFactory {
 	}
 	
 	static int /*long*/ initActionIfaceCB (int /*long*/ iface) {
-		AtkActionIface actionIface = new AtkActionIface ();
-		ATK.memmove (actionIface, iface);
-		actionIface.do_action = AtkActionCB_do_action.getAddress (); 
-		actionIface.get_n_actions = AtkActionCB_get_n_actions.getAddress ();
-		actionIface.get_description = AtkActionCB_get_description.getAddress ();
-		actionIface.get_keybinding = AtkActionCB_get_keybinding.getAddress (); 
-		actionIface.get_name = AtkActionCB_get_name.getAddress ();
-		ATK.memmove (iface, actionIface);
+		AtkActionIface inter = new AtkActionIface ();
+		ATK.memmove (inter, iface);
+		inter.do_action = AtkActionCB_do_action.getAddress (); 
+		inter.get_n_actions = AtkActionCB_get_n_actions.getAddress ();
+		inter.get_description = AtkActionCB_get_description.getAddress ();
+		inter.get_keybinding = AtkActionCB_get_keybinding.getAddress (); 
+		inter.get_name = AtkActionCB_get_name.getAddress ();
+		ATK.memmove (iface, inter);
 		return 0;
 	}
 	
 	static int /*long*/ initComponentIfaceCB (int /*long*/ iface) {
-		AtkComponentIface componentIface = new AtkComponentIface ();
-		ATK.memmove (componentIface, iface);
-		componentIface.get_extents = AtkComponentCB_get_extents.getAddress ();
-		componentIface.get_position = AtkComponentCB_get_position.getAddress ();
-		componentIface.get_size = AtkComponentCB_get_size.getAddress ();
-		componentIface.ref_accessible_at_point = AtkComponentCB_ref_accessible_at_point.getAddress ();
-		ATK.memmove (iface, componentIface);
+		AtkComponentIface inter = new AtkComponentIface ();
+		ATK.memmove (inter, iface);
+		inter.get_extents = AtkComponentCB_get_extents.getAddress ();
+		inter.get_position = AtkComponentCB_get_position.getAddress ();
+		inter.get_size = AtkComponentCB_get_size.getAddress ();
+		inter.ref_accessible_at_point = AtkComponentCB_ref_accessible_at_point.getAddress ();
+		ATK.memmove (iface, inter);
 		return 0;
 	}
 
 	static int /*long*/ initHypertextIfaceCB (int /*long*/ iface) {
-		AtkHypertextIface hypertextIface = new AtkHypertextIface ();
-		ATK.memmove (hypertextIface, iface);
-		hypertextIface.get_link = AtkHypertextCB_get_link.getAddress (); 
-		hypertextIface.get_link_index = AtkHypertextCB_get_link_index.getAddress ();
-		hypertextIface.get_n_links = AtkHypertextCB_get_n_links.getAddress ();
-		ATK.memmove (iface, hypertextIface);
+		AtkHypertextIface inter = new AtkHypertextIface ();
+		ATK.memmove (inter, iface);
+		inter.get_link = AtkHypertextCB_get_link.getAddress (); 
+		inter.get_link_index = AtkHypertextCB_get_link_index.getAddress ();
+		inter.get_n_links = AtkHypertextCB_get_n_links.getAddress ();
+		ATK.memmove (iface, inter);
 		return 0;
 	}
 
 	static int /*long*/ initSelectionIfaceCB (int /*long*/ iface) {
-		AtkSelectionIface selectionIface = new AtkSelectionIface ();
-		ATK.memmove (selectionIface, iface);
-		selectionIface.is_child_selected = AtkSelectionCB_is_child_selected.getAddress ();
-		selectionIface.ref_selection = AtkSelectionCB_ref_selection.getAddress ();
-		ATK.memmove (iface, selectionIface);
+		AtkSelectionIface inter = new AtkSelectionIface ();
+		ATK.memmove (inter, iface);
+		inter.is_child_selected = AtkSelectionCB_is_child_selected.getAddress ();
+		inter.ref_selection = AtkSelectionCB_ref_selection.getAddress ();
+		ATK.memmove (iface, inter);
+		return 0;
+	}
+
+	static int /*long*/ initTableIfaceCB (int /*long*/ iface) {
+		AtkTableIface inter = new AtkTableIface ();
+		ATK.memmove (inter, iface);
+		inter.ref_at = AtkTableCB_ref_at.getAddress();
+		inter.get_index_at = AtkTableCB_get_index_at.getAddress();
+		inter.get_column_at_index = AtkTableCB_get_column_at_index.getAddress();
+		inter.get_row_at_index = AtkTableCB_get_row_at_index.getAddress();
+		inter.get_n_columns = AtkTableCB_get_n_columns.getAddress();
+		inter.get_n_rows = AtkTableCB_get_n_rows.getAddress();
+		inter.get_column_extent_at = AtkTableCB_get_column_extent_at.getAddress();
+		inter.get_row_extent_at = AtkTableCB_get_row_extent_at.getAddress();
+		inter.get_caption = AtkTableCB_get_caption.getAddress();
+		inter.get_column_description = AtkTableCB_get_column_description.getAddress();
+		inter.get_row_description = AtkTableCB_get_row_description.getAddress();
+		inter.get_column_header = AtkTableCB_get_column_header.getAddress();
+		inter.get_row_header = AtkTableCB_get_row_header.getAddress();
+		inter.get_selected_columns = AtkTableCB_get_selected_columns.getAddress();
+		inter.get_selected_rows = AtkTableCB_get_selected_rows.getAddress();
+		inter.is_column_selected = AtkTableCB_is_column_selected.getAddress();
+		inter.is_row_selected = AtkTableCB_is_row_selected.getAddress();
+		inter.is_selected = AtkTableCB_is_selected.getAddress();
+		inter.add_column_selection = AtkTableCB_add_column_selection.getAddress();
+		inter.add_row_selection = AtkTableCB_add_row_selection.getAddress();
+		inter.remove_column_selection = AtkTableCB_remove_column_selection.getAddress();
+		inter.remove_row_selection = AtkTableCB_remove_row_selection.getAddress();
+		ATK.memmove (iface, inter);
 		return 0;
 	}
 
 	static int /*long*/ initTextIfaceCB (int /*long*/ iface) {
-		AtkTextIface textInterface = new AtkTextIface ();
-		ATK.memmove (textInterface, iface);
-		textInterface.get_character_extents = AtkTextCB_get_character_extents.getAddress ();
-		textInterface.get_run_attributes= AtkTextCB_get_run_attributes.getAddress ();
-		textInterface.get_offset_at_point = AtkTextCB_get_offset_at_point.getAddress ();
-		textInterface.add_selection = AtkTextCB_add_selection.getAddress ();
-		textInterface.remove_selection = AtkTextCB_remove_selection.getAddress ();
-		textInterface.set_selection = AtkTextCB_set_selection.getAddress ();
-		textInterface.get_caret_offset = AtkTextCB_get_caret_offset.getAddress ();
-		textInterface.get_character_at_offset = AtkTextCB_get_character_at_offset.getAddress ();
-		textInterface.get_character_count = AtkTextCB_get_character_count.getAddress ();
-		textInterface.get_n_selections = AtkTextCB_get_n_selections.getAddress ();
-		textInterface.get_selection = AtkTextCB_get_selection.getAddress ();
-		textInterface.get_text = AtkTextCB_get_text.getAddress ();
-		textInterface.get_text_after_offset = AtkTextCB_get_text_after_offset.getAddress ();
-		textInterface.get_text_at_offset = AtkTextCB_get_text_at_offset.getAddress ();
-		textInterface.get_text_before_offset = AtkTextCB_get_text_before_offset.getAddress ();
-		ATK.memmove (iface, textInterface);
+		AtkTextIface inter = new AtkTextIface ();
+		ATK.memmove (inter, iface);
+		inter.get_character_extents = AtkTextCB_get_character_extents.getAddress ();
+		inter.get_run_attributes= AtkTextCB_get_run_attributes.getAddress ();
+		inter.get_offset_at_point = AtkTextCB_get_offset_at_point.getAddress ();
+		inter.add_selection = AtkTextCB_add_selection.getAddress ();
+		inter.remove_selection = AtkTextCB_remove_selection.getAddress ();
+		inter.set_selection = AtkTextCB_set_selection.getAddress ();
+		inter.get_caret_offset = AtkTextCB_get_caret_offset.getAddress ();
+		inter.get_character_at_offset = AtkTextCB_get_character_at_offset.getAddress ();
+		inter.get_character_count = AtkTextCB_get_character_count.getAddress ();
+		inter.get_n_selections = AtkTextCB_get_n_selections.getAddress ();
+		inter.get_selection = AtkTextCB_get_selection.getAddress ();
+		inter.get_text = AtkTextCB_get_text.getAddress ();
+		inter.get_text_after_offset = AtkTextCB_get_text_after_offset.getAddress ();
+		inter.get_text_at_offset = AtkTextCB_get_text_at_offset.getAddress ();
+		inter.get_text_before_offset = AtkTextCB_get_text_before_offset.getAddress ();
+		ATK.memmove (iface, inter);
 		return 0;
 	}
 
