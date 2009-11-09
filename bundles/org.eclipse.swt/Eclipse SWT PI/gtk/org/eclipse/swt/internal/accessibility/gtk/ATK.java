@@ -102,6 +102,8 @@ public static final native int /*long*/ ATK_TYPE_HYPERTEXT ();
 /** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_SELECTION ();
 /** @method flags=const */
+public static final native int /*long*/ ATK_TYPE_TABLE ();
+/** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_TEXT ();
 /** @method flags=const */
 public static final native int /*long*/ ATK_TYPE_VALUE ();
@@ -132,6 +134,15 @@ public static final int /*long*/ ATK_SELECTION_GET_IFACE (int /*long*/ obj) {
 	lock.lock();
 	try {
 		return _ATK_SELECTION_GET_IFACE(obj);
+	} finally {
+		lock.unlock();
+	}
+}
+public static final native int /*long*/ _ATK_TABLE_GET_IFACE (int /*long*/ handle);
+public static final int /*long*/ ATK_TABLE_GET_IFACE (int /*long*/ handle) {
+	lock.lock();
+	try {
+		return _ATK_TABLE_GET_IFACE(handle);
 	} finally {
 		lock.unlock();
 	}
@@ -370,6 +381,7 @@ public static final native void memmove (AtkHypertextIface dest, int /*long*/ sr
 public static final native void memmove (AtkObjectClass dest, int /*long*/ src);
 public static final native void memmove (AtkObjectFactoryClass  dest, int /*long*/ src);
 public static final native void memmove (AtkSelectionIface dest, int /*long*/ src);	
+public static final native void memmove (AtkTableIface dest, int /*long*/ src);
 public static final native void memmove (AtkTextIface dest, int /*long*/ src);
 public static final native void memmove (AtkValueIface dest, int /*long*/ src);
 public static final native void memmove (GtkAccessible  dest, int /*long*/ src);
@@ -379,6 +391,7 @@ public static final native void memmove (int /*long*/ dest, AtkHypertextIface sr
 public static final native void memmove (int /*long*/ dest, AtkObjectClass src);
 public static final native void memmove (int /*long*/ dest, AtkObjectFactoryClass src);
 public static final native void memmove (int /*long*/ dest, AtkSelectionIface src);
+public static final native void memmove (int /*long*/ dest, AtkTableIface src);
 public static final native void memmove (int /*long*/ dest, AtkTextIface src);
 public static final native void memmove (int /*long*/ dest, AtkValueIface src);
 }

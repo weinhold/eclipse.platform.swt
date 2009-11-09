@@ -415,10 +415,10 @@ AtkTableIface *getAtkTableIfaceFields(JNIEnv *env, jobject lpObject, AtkTableIfa
 	lpStruct->get_n_rows = (gint (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_n_rows);
 	lpStruct->get_column_extent_at = (gint (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_column_extent_at);
 	lpStruct->get_row_extent_at = (gint (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_row_extent_at);
-	lpStruct->get_caption = (AtkObject (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_caption);
-	lpStruct->get_column_description = (gchar* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_column_description);
+	lpStruct->get_caption = (AtkObject* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_caption);
+	lpStruct->get_column_description = (G_CONST_RETURN gchar* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_column_description);
 	lpStruct->get_column_header = (AtkObject* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_column_header);
-	lpStruct->get_row_description = (gchar* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_row_description);
+	lpStruct->get_row_description = (G_CONST_RETURN gchar* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_row_description);
 	lpStruct->get_row_header = (AtkObject* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_row_header);
 	lpStruct->get_summary = (AtkObject* (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.get_summary);
 	lpStruct->set_caption = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTableIfaceFc.set_caption);
