@@ -1971,7 +1971,17 @@ class AccessibleObject {
 				ATK.call (iface.get_current_value, object.handle, value);
 			}
 		}
-		//TODO
+		Accessible accessible = object.accessible;
+		if (accessible == null) return 0;
+		Vector listeners = accessible.accessibleValueListeners;
+		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
+		event.value = OS.g_value_get_int(value);
+		for (int i = 0; i < listeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
+			listener.getCurrentValue(event);
+			OS.g_value_init(value, OS.G_TYPE_INT());
+			OS.g_value_set_int(value, event.value);
+		}
 		return 0;
 	}
 
@@ -1987,7 +1997,17 @@ class AccessibleObject {
 				ATK.call (iface.get_maximum_value, object.handle, value);
 			}
 		}
-		//TODO
+		Accessible accessible = object.accessible;
+		if (accessible == null) return 0;
+		Vector listeners = accessible.accessibleValueListeners;
+		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
+		event.value = OS.g_value_get_int(value);
+		for (int i = 0; i < listeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
+			listener.getMaximumValue(event);
+			OS.g_value_init(value, OS.G_TYPE_INT());
+			OS.g_value_set_int(value, event.value);
+		}
 		return 0;
 	}
 
@@ -2003,7 +2023,17 @@ class AccessibleObject {
 				ATK.call (iface.get_minimum_value, object.handle, value);
 			}
 		}
-		//TODO
+		Accessible accessible = object.accessible;
+		if (accessible == null) return 0;
+		Vector listeners = accessible.accessibleValueListeners;
+		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
+		event.value = OS.g_value_get_int(value);
+		for (int i = 0; i < listeners.size(); i++) {
+			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
+			listener.getMinimumValue(event);
+			OS.g_value_init(value, OS.G_TYPE_INT());
+			OS.g_value_set_int(value, event.value);
+		}
 		return 0;
 	}
 
