@@ -1398,16 +1398,8 @@ char * OS_nativeFunctionNames[] = {
 	"_1pango_1tab_1array_1new",
 	"_1pango_1tab_1array_1set_1tab",
 	"g_1main_1context_1wakeup",
-#ifndef JNI64
-	"g_1value_1get_1int__I",
-#else
-	"g_1value_1get_1int__J",
-#endif
-#ifndef JNI64
-	"g_1value_1get_1int__II",
-#else
-	"g_1value_1get_1int__JI",
-#endif
+	"g_1value_1get_1int",
+	"g_1value_1set_1int",
 	"localeconv_1decimal_1point",
 #ifndef JNI64
 	"memmove__ILorg_eclipse_swt_internal_gtk_GInterfaceInfo_2I",

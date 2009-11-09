@@ -17185,47 +17185,25 @@ JNIEXPORT void JNICALL OS_NATIVE(g_1main_1context_1wakeup)
 }
 #endif
 
-#if (!defined(NO_g_1value_1get_1int__I) && !defined(JNI64)) || (!defined(NO_g_1value_1get_1int__J) && defined(JNI64))
-#ifndef JNI64
-JNIEXPORT jint JNICALL OS_NATIVE(g_1value_1get_1int__I)(JNIEnv *env, jclass that, jintLong arg0)
-#else
-JNIEXPORT jint JNICALL OS_NATIVE(g_1value_1get_1int__J)(JNIEnv *env, jclass that, jintLong arg0)
-#endif
+#ifndef NO_g_1value_1get_1int
+JNIEXPORT jint JNICALL OS_NATIVE(g_1value_1get_1int)
+	(JNIEnv *env, jclass that, jintLong arg0)
 {
 	jint rc = 0;
-#ifndef JNI64
-	OS_NATIVE_ENTER(env, that, g_1value_1get_1int__I_FUNC);
-#else
-	OS_NATIVE_ENTER(env, that, g_1value_1get_1int__J_FUNC);
-#endif
+	OS_NATIVE_ENTER(env, that, g_1value_1get_1int_FUNC);
 	rc = (jint)g_value_get_int((const GValue *)arg0);
-#ifndef JNI64
-	OS_NATIVE_EXIT(env, that, g_1value_1get_1int__I_FUNC);
-#else
-	OS_NATIVE_EXIT(env, that, g_1value_1get_1int__J_FUNC);
-#endif
+	OS_NATIVE_EXIT(env, that, g_1value_1get_1int_FUNC);
 	return rc;
 }
 #endif
 
-#if (!defined(NO_g_1value_1get_1int__II) && !defined(JNI64)) || (!defined(NO_g_1value_1get_1int__JI) && defined(JNI64))
-#ifndef JNI64
-JNIEXPORT void JNICALL OS_NATIVE(g_1value_1get_1int__II)(JNIEnv *env, jclass that, jintLong arg0, jint arg1)
-#else
-JNIEXPORT void JNICALL OS_NATIVE(g_1value_1get_1int__JI)(JNIEnv *env, jclass that, jintLong arg0, jint arg1)
-#endif
+#ifndef NO_g_1value_1set_1int
+JNIEXPORT void JNICALL OS_NATIVE(g_1value_1set_1int)
+	(JNIEnv *env, jclass that, jintLong arg0, jint arg1)
 {
-#ifndef JNI64
-	OS_NATIVE_ENTER(env, that, g_1value_1get_1int__II_FUNC);
-#else
-	OS_NATIVE_ENTER(env, that, g_1value_1get_1int__JI_FUNC);
-#endif
-	g_value_get_int((const GValue *)arg0, arg1);
-#ifndef JNI64
-	OS_NATIVE_EXIT(env, that, g_1value_1get_1int__II_FUNC);
-#else
-	OS_NATIVE_EXIT(env, that, g_1value_1get_1int__JI_FUNC);
-#endif
+	OS_NATIVE_ENTER(env, that, g_1value_1set_1int_FUNC);
+	g_value_set_int((const GValue *)arg0, arg1);
+	OS_NATIVE_EXIT(env, that, g_1value_1set_1int_FUNC);
 }
 #endif
 

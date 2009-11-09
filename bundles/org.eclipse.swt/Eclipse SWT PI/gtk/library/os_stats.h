@@ -1406,16 +1406,8 @@ typedef enum {
 	_1pango_1tab_1array_1new_FUNC,
 	_1pango_1tab_1array_1set_1tab_FUNC,
 	g_1main_1context_1wakeup_FUNC,
-#ifndef JNI64
-	g_1value_1get_1int__I_FUNC,
-#else
-	g_1value_1get_1int__J_FUNC,
-#endif
-#ifndef JNI64
-	g_1value_1get_1int__II_FUNC,
-#else
-	g_1value_1get_1int__JI_FUNC,
-#endif
+	g_1value_1get_1int_FUNC,
+	g_1value_1set_1int_FUNC,
 	localeconv_1decimal_1point_FUNC,
 #ifndef JNI64
 	memmove__ILorg_eclipse_swt_internal_gtk_GInterfaceInfo_2I_FUNC,

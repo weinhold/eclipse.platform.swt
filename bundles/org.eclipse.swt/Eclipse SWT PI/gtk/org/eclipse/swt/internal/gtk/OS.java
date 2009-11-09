@@ -2946,7 +2946,7 @@ public static final int /*long*/ g_utf8_to_utf16(int /*long*/ str, int /*long*/ 
 /** @param value cast=(const GValue *) */
 public static final native int g_value_get_int (int /*long*/ value);
 /** @param value cast=(const GValue *) */
-public static final native void g_value_get_int (int /*long*/ value, int v);
+public static final native void g_value_set_int (int /*long*/ value, int v);
 /** @param value cast=(const GValue *) */
 public static final native int /*long*/ _g_value_peek_pointer (int /*long*/ value);
 public static final  int /*long*/ g_value_peek_pointer (int /*long*/ value) {
