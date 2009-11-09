@@ -1407,6 +1407,7 @@ typedef enum {
 	_1pango_1tab_1array_1set_1tab_FUNC,
 	g_1main_1context_1wakeup_FUNC,
 	g_1value_1get_1int_FUNC,
+	g_1value_1init_FUNC,
 	g_1value_1set_1int_FUNC,
 	localeconv_1decimal_1point_FUNC,
 #ifndef JNI64

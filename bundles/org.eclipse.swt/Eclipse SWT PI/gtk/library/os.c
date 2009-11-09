@@ -17197,6 +17197,18 @@ JNIEXPORT jint JNICALL OS_NATIVE(g_1value_1get_1int)
 }
 #endif
 
+#ifndef NO_g_1value_1init
+JNIEXPORT jintLong JNICALL OS_NATIVE(g_1value_1init)
+	(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
+{
+	jintLong rc = 0;
+	OS_NATIVE_ENTER(env, that, g_1value_1init_FUNC);
+	rc = (jintLong)g_value_init((const GValue *)arg0, arg1);
+	OS_NATIVE_EXIT(env, that, g_1value_1init_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_g_1value_1set_1int
 JNIEXPORT void JNICALL OS_NATIVE(g_1value_1set_1int)
 	(JNIEnv *env, jclass that, jintLong arg0, jint arg1)

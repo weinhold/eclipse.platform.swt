@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1300;
-int OS_nativeFunctionCallCount[1300];
+int OS_nativeFunctionCount = 1301;
+int OS_nativeFunctionCallCount[1301];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -1399,6 +1399,7 @@ char * OS_nativeFunctionNames[] = {
 	"_1pango_1tab_1array_1set_1tab",
 	"g_1main_1context_1wakeup",
 	"g_1value_1get_1int",
+	"g_1value_1init",
 	"g_1value_1set_1int",
 	"localeconv_1decimal_1point",
 #ifndef JNI64
