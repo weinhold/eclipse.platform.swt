@@ -87,6 +87,18 @@ void setAtkSelectionIfaceFields(JNIEnv *env, jobject lpObject, AtkSelectionIface
 #define AtkSelectionIface_sizeof() 0
 #endif
 
+#ifndef NO_AtkTableIface
+void cacheAtkTableIfaceFields(JNIEnv *env, jobject lpObject);
+AtkTableIface *getAtkTableIfaceFields(JNIEnv *env, jobject lpObject, AtkTableIface *lpStruct);
+void setAtkTableIfaceFields(JNIEnv *env, jobject lpObject, AtkTableIface *lpStruct);
+#define AtkTableIface_sizeof() sizeof(AtkTableIface)
+#else
+#define cacheAtkTableIfaceFields(a,b)
+#define getAtkTableIfaceFields(a,b,c) NULL
+#define setAtkTableIfaceFields(a,b,c)
+#define AtkTableIface_sizeof() 0
+#endif
+
 #ifndef NO_AtkTextIface
 void cacheAtkTextIfaceFields(JNIEnv *env, jobject lpObject);
 AtkTextIface *getAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct);

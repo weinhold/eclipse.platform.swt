@@ -91,6 +91,18 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1SELECTION)
 }
 #endif
 
+#ifndef NO_ATK_1TYPE_1TABLE
+JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1TABLE)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, ATK_1TYPE_1TABLE_FUNC);
+	rc = (jintLong)ATK_TYPE_TABLE;
+	ATK_NATIVE_EXIT(env, that, ATK_1TYPE_1TABLE_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_ATK_1TYPE_1TEXT
 JNIEXPORT jintLong JNICALL ATK_NATIVE(ATK_1TYPE_1TEXT)
 	(JNIEnv *env, jclass that)
@@ -195,6 +207,18 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(_1ATK_1SELECTION_1GET_1IFACE)
 	ATK_NATIVE_ENTER(env, that, _1ATK_1SELECTION_1GET_1IFACE_FUNC);
 	rc = (jintLong)ATK_SELECTION_GET_IFACE(arg0);
 	ATK_NATIVE_EXIT(env, that, _1ATK_1SELECTION_1GET_1IFACE_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO__1ATK_1TABLE_1GET_1IFACE
+JNIEXPORT jintLong JNICALL ATK_NATIVE(_1ATK_1TABLE_1GET_1IFACE)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	jintLong rc = 0;
+	ATK_NATIVE_ENTER(env, that, _1ATK_1TABLE_1GET_1IFACE_FUNC);
+	rc = (jintLong)ATK_TABLE_GET_IFACE(arg0);
+	ATK_NATIVE_EXIT(env, that, _1ATK_1TABLE_1GET_1IFACE_FUNC);
 	return rc;
 }
 #endif
@@ -647,6 +671,27 @@ JNIEXPORT void JNICALL ATK_NATIVE(memmove__JLorg_eclipse_swt_internal_accessibil
 }
 #endif
 
+#if (!defined(NO_memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1)
+#endif
+{
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2_FUNC);
+#endif
+	if (arg1) getAtkTableIfaceFields(env, arg1, (AtkTableIface *)arg0);
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2_FUNC);
+#endif
+}
+#endif
+
 #if (!defined(NO_memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL ATK_NATIVE(memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1)
@@ -811,6 +856,27 @@ JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibili
 	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkSelectionIface_2I_FUNC);
 #else
 	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkSelectionIface_2J_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2I) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2J) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2I)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2J)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1)
+#endif
+{
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2I_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2J_FUNC);
+#endif
+	if (arg0) setAtkTableIfaceFields(env, arg0, (AtkTableIface *)arg1);
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2I_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTableIface_2J_FUNC);
 #endif
 }
 #endif
