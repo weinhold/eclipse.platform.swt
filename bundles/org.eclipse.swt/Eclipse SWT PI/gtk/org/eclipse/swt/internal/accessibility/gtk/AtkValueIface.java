@@ -23,5 +23,5 @@ public class AtkValueIface {
 	/** @field cast=(void (*)()) */
 	public int /*long*/ get_minimum_value;
 	/** @field cast=(gboolean (*)()) */
-	public int /*long*/ set_current_value ;
+	public int /*long*/ set_current_value;
 }
