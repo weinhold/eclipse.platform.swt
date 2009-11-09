@@ -106,7 +106,7 @@ public interface AccessibleTableCellListener extends SWTEventListener {
 	 * 		Returns TRUE if the specified cell is selected and FALSE otherwise.
 	 * </ul>
 	 */
-	public void getIsSelected(AccessibleTableCellEvent e);
+	public void isSelected(AccessibleTableCellEvent e);
 
 	/**
 	 * Gets the row and column indexes and extents of this cell accessible
