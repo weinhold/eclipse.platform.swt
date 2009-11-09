@@ -86,6 +86,7 @@ class AccessibleFactory {
 	static final Callback AtkTableCB_get_n_rows;
 	static final Callback AtkTableCB_get_column_extent_at;
 	static final Callback AtkTableCB_get_row_extent_at;
+	static final Callback AtkTableCB_get_summary;
 	static final Callback AtkTableCB_get_caption;
 	static final Callback AtkTableCB_get_column_description;
 	static final Callback AtkTableCB_get_row_description;
@@ -177,6 +178,7 @@ class AccessibleFactory {
 		AtkTableCB_get_column_extent_at = newCallback (AccessibleObject.class, "atkTable_get_column_extent_at", 3); //$NON-NLS-1$
 		AtkTableCB_get_row_extent_at = newCallback (AccessibleObject.class, "atkTable_get_row_extent_at", 3); //$NON-NLS-1$
 		AtkTableCB_get_caption = newCallback (AccessibleObject.class, "atkTable_get_caption", 1); //$NON-NLS-1$
+		AtkTableCB_get_summary = newCallback (AccessibleObject.class, "atkTable_get_summary", 1); //$NON-NLS-1$
 		AtkTableCB_get_column_description = newCallback (AccessibleObject.class, "atkTable_get_column_description", 2); //$NON-NLS-1$
 		AtkTableCB_get_row_description = newCallback (AccessibleObject.class, "atkTable_get_row_description", 2); //$NON-NLS-1$
 		AtkTableCB_get_column_header = newCallback (AccessibleObject.class, "atkTable_get_column_header", 2); //$NON-NLS-1$
@@ -470,6 +472,7 @@ class AccessibleFactory {
 		inter.get_column_extent_at = AtkTableCB_get_column_extent_at.getAddress();
 		inter.get_row_extent_at = AtkTableCB_get_row_extent_at.getAddress();
 		inter.get_caption = AtkTableCB_get_caption.getAddress();
+		inter.get_summary = AtkTableCB_get_summary.getAddress();
 		inter.get_column_description = AtkTableCB_get_column_description.getAddress();
 		inter.get_row_description = AtkTableCB_get_row_description.getAddress();
 		inter.get_column_header = AtkTableCB_get_column_header.getAddress();
