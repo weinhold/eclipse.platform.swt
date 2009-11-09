@@ -187,7 +187,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * 		Returns TRUE if the specified column is selected completely and FALSE otherwise.
 	 * </ul>
 	 */
-	public void getIsColumnSelected(AccessibleTableEvent e) {};
+	public void isColumnSelected(AccessibleTableEvent e) {};
 
 	/**
 	 * Returns a boolean value indicating whether the specified row is completely
@@ -200,7 +200,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * 		Returns TRUE if the specified row is selected completely and FALSE otherwise.
 	 * </ul>
 	 */
-	public void getIsRowSelected(AccessibleTableEvent e) {};
+	public void isRowSelected(AccessibleTableEvent e) {};
 
 	/**
 	 * Selects a row and unselects all previously selected rows.

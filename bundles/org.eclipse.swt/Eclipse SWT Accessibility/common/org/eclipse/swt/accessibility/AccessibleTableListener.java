@@ -184,13 +184,11 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * completely selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column
-	 * 		0 based index of the column for which to determine whether it is selected.
-	 * <li>[out] isSelected
-	 * 		Returns TRUE if the specified column is selected completely and FALSE otherwise.
+	 * <li>[in] column - 0 based index of the column for which to determine whether it is selected.
+	 * <li>[out] isSelected - returns TRUE if the specified column is selected completely and FALSE otherwise.
 	 * </ul>
 	 */
-	public void getIsColumnSelected(AccessibleTableEvent e);
+	public void isColumnSelected(AccessibleTableEvent e);
 
 	/**
 	 * Returns a boolean value indicating whether the specified row is completely
@@ -203,7 +201,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * 		Returns TRUE if the specified row is selected completely and FALSE otherwise.
 	 * </ul>
 	 */
-	public void getIsRowSelected(AccessibleTableEvent e);
+	public void isRowSelected(AccessibleTableEvent e);
 
 	/**
 	 * Selects a row and unselects all previously selected rows.
