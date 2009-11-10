@@ -23,7 +23,7 @@ import org.eclipse.swt.internal.*;
  */
 public class AccessibleValueEvent extends SWTEventObject {
 
-	public int value;
+	public Number value;
 
 	static final long serialVersionUID = 0L; // TODO: run serialver -show
 

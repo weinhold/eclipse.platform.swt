@@ -23,23 +23,18 @@ public class AccessibleValueExample {
 				e.result = "This is the scale's new accessible name";
 			}
 		});
-//		accessibleScale.addAccessibleControlListener(new AccessibleControlAdapter() {
-//			public void getValue(AccessibleControlEvent e) {
-//				e.result = Integer.toString(scale.getSelection());
-//			}
-//		});
 		accessibleScale.addAccessibleValueListener(new AccessibleValueAdapter() {
 			public void setCurrentValue(AccessibleValueEvent e) {
-				scale.setSelection(e.value);
+				scale.setSelection(e.value.intValue());
 			}
 			public void getMinimumValue(AccessibleValueEvent e) {
-				e.value = scale.getMinimum();
+				e.value = new Integer(scale.getMinimum());
 			}
 			public void getMaximumValue(AccessibleValueEvent e) {
-				e.value = scale.getMaximum();
+				e.value = new Integer(scale.getMaximum());
 			}
 			public void getCurrentValue(AccessibleValueEvent e) {
-				e.value = scale.getSelection(); // seems like a duplicate of the string value?
+				e.value = new Integer(scale.getSelection());
 			}
 		});
 
