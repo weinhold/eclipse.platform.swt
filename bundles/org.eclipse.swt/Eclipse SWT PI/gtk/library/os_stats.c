@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1312;
-int OS_nativeFunctionCallCount[1312];
+int OS_nativeFunctionCount = 1313;
+int OS_nativeFunctionCallCount[1313];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -207,6 +207,7 @@ char * OS_nativeFunctionNames[] = {
 	"_1XTestFakeMotionEvent",
 	"_1XWarpPointer",
 	"_1atk_1object_1add_1relationship",
+	"_1atk_1object_1remove_1relationship",
 	"_1call",
 	"_1dlclose",
 	"_1dlopen",

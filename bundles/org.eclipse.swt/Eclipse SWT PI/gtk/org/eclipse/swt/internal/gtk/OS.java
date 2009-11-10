@@ -14458,4 +14458,19 @@ public static final boolean atk_object_add_relationship (int /*long*/ object, in
 		lock.unlock();
 	}
 }
+/**
+ * @method flags=dynamic
+ * @param object cast=(AtkObject *)
+ * @param relationship cast=(AtkRelationType)
+ * @param target cast=(AtkObject *)
+ */
+public static final native boolean _atk_object_remove_relationship (int /*long*/ object, int relationship, int /*long*/ target);
+public static final boolean atk_object_remove_relationship (int /*long*/ object, int relationship, int /*long*/ target) {
+	lock.lock();
+	try {
+		return _atk_object_remove_relationship(object, relationship, target);
+	} finally {
+		lock.unlock();
+	}
+}
 }

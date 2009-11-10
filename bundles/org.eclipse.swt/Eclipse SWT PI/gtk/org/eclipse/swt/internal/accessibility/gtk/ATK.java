@@ -24,7 +24,22 @@ public class ATK extends OS {
 	}
 	
 	/** Constants */
+	public static final int ATK_RELATION_NULL = 0;
+	public static final int ATK_RELATION_CONTROLLED_BY = 1;
+	public static final int ATK_RELATION_CONTROLLER_FOR = 2;
+	public static final int ATK_RELATION_LABEL_FOR = 3;
 	public static final int ATK_RELATION_LABELLED_BY = 4;
+	public static final int ATK_RELATION_MEMBER_OF = 5;
+	public static final int ATK_RELATION_NODE_CHILD_OF = 6;
+	public static final int ATK_RELATION_FLOWS_TO = 7;
+	public static final int ATK_RELATION_FLOWS_FROM = 8;
+	public static final int ATK_RELATION_SUBWINDOW_OF = 9;
+	public static final int ATK_RELATION_EMBEDS = 10;
+	public static final int ATK_RELATION_EMBEDDED_BY = 11;
+	public static final int ATK_RELATION_POPUP_FOR = 12; 
+	public static final int ATK_RELATION_PARENT_WINDOW_OF = 13;
+	public static final int ATK_RELATION_DESCRIBED_BY = 14;
+	public static final int ATK_RELATION_DESCRIPTION_FOR = 15;
 	public static final int ATK_ROLE_CHECK_BOX = 7;
 	public static final int ATK_ROLE_COMBO_BOX = 11;
 	public static final int ATK_ROLE_DIALOG = 16;
