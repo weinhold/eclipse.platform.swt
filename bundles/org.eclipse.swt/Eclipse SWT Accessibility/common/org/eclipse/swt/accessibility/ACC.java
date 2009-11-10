@@ -452,35 +452,35 @@ public class ACC {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_CONTROLLED_BY = 1;
+	public static final int RELATION_CONTROLLED_BY = 0;
 
 	/**
 	 * This object is interactive and controls some attribute of a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_CONTROLLER_FOR = 2;
+	public static final int RELATION_CONTROLLER_FOR = 1;
 
 	/**
 	 * This object is described by the target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_DESCRIBED_BY = 3;
+	public static final int RELATION_DESCRIBED_BY = 2;
 
 	/**
 	 * This object is describes the target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_DESCRIPTION_FOR = 4;
+	public static final int RELATION_DESCRIPTION_FOR = 3;
 
 	/**
 	 * This object is embedded by a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_EMBEDDED_BY = 5;
+	public static final int RELATION_EMBEDDED_BY = 4;
 
 	/**
 	 * This object embeds a target object. This relation can be used on a
@@ -488,7 +488,7 @@ public class ACC {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_EMBEDS = 6;
+	public static final int RELATION_EMBEDS = 5;
 
 	/**
 	 * Content flows to this object from a target object. 
@@ -498,28 +498,28 @@ public class ACC {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_FLOWS_FROM = 7;
+	public static final int RELATION_FLOWS_FROM = 6;
 
 	/**
 	 * Content flows from this object to a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_FLOWS_TO = 8;
+	public static final int RELATION_FLOWS_TO = 7;
 
 	/**
 	 * This object is label for a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_LABEL_FOR = 9;
+	public static final int RELATION_LABEL_FOR = 8;
 
 	/**
 	 * This object is labelled by a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_LABELLED_BY = 10;
+	public static final int RELATION_LABELLED_BY = 9;
 
 	/**
 	 * This object is a member of a group of one or more objects. When 
@@ -529,21 +529,21 @@ public class ACC {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_MEMBER_OF = 11;
+	public static final int RELATION_MEMBER_OF = 10;
 
 	/**
 	 * This object is a child of a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_NODE_CHILD_OF = 12;
+	public static final int RELATION_NODE_CHILD_OF = 11;
 
 	/**
 	 * This object is a parent window of the target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_PARENT_WINDOW_OF = 13;
+	public static final int RELATION_PARENT_WINDOW_OF = 12;
 
 	/**
 	 * This object is a transient component related to the target object. 
@@ -551,12 +551,12 @@ public class ACC {
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_POPUP_FOR = 14;
+	public static final int RELATION_POPUP_FOR = 13;
 
 	/**
 	 * This object is a sub window of a target object.
 	 * 
 	 * @since 3.6
 	 */
-	public static final int RELATION_SUBWINDOW_OF = 15;
+	public static final int RELATION_SUBWINDOW_OF = 14;
 }
