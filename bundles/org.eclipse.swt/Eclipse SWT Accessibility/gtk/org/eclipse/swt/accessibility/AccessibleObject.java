@@ -1958,6 +1958,32 @@ class AccessibleObject {
 		} 
 		return 0;
 	}
+	
+	static void setGValue (int /*long*/ value, Number number) {
+		if (number == null) return;
+		OS.g_value_unset(value);
+		if (number instanceof Double) {
+			OS.g_value_init(value, OS.G_TYPE_DOUBLE());
+			OS.g_value_set_double(value, number.doubleValue());
+		} else if (number instanceof Float) {
+			OS.g_value_init(value, OS.G_TYPE_FLOAT());
+			OS.g_value_set_float(value, number.floatValue());
+		} else if (number instanceof Long) {
+			OS.g_value_init(value, OS.G_TYPE_INT64());
+			OS.g_value_set_int64(value, number.longValue());
+		} else {
+			OS.g_value_init(value, OS.G_TYPE_INT());
+			OS.g_value_set_int(value, number.intValue());
+		}
+	}
+
+	static Number getGValue (int /*long*/ value) {
+		int /*long*/ type = OS.G_VALUE_TYPE(value);
+		if (type == OS.G_TYPE_DOUBLE()) return new Double(OS.g_value_get_double(value));
+		if (type == OS.G_TYPE_FLOAT()) return new Float(OS.g_value_get_float(value));
+		if (type == OS.G_TYPE_INT64()) return new Long(OS.g_value_get_int64(value));
+		return new Integer(OS.g_value_get_int(value));
+	}
 
 	static int /*long*/ atkValue_get_current_value (int /*long*/ atkObject, int /*long*/ value) {
 		if (DEBUG) System.out.println ("-->atkValue_get_current_value");
@@ -1975,13 +2001,12 @@ class AccessibleObject {
 		if (accessible == null) return 0;
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
-		event.value = OS.g_value_get_int(value);
+		event.value = getGValue(value);
 		for (int i = 0; i < listeners.size(); i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getCurrentValue(event);
-			OS.g_value_init(value, OS.G_TYPE_INT());
-			OS.g_value_set_int(value, event.value);
 		}
+		setGValue(value, event.value);
 		return 0;
 	}
 
@@ -2001,13 +2026,12 @@ class AccessibleObject {
 		if (accessible == null) return 0;
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
-		event.value = OS.g_value_get_int(value);
+		event.value = getGValue(value);
 		for (int i = 0; i < listeners.size(); i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getMaximumValue(event);
-			OS.g_value_init(value, OS.G_TYPE_INT());
-			OS.g_value_set_int(value, event.value);
 		}
+		setGValue(value, event.value);
 		return 0;
 	}
 
@@ -2027,13 +2051,12 @@ class AccessibleObject {
 		if (accessible == null) return 0;
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
-		event.value = OS.g_value_get_int(value);
+		event.value = getGValue(value);
 		for (int i = 0; i < listeners.size(); i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getMinimumValue(event);
-			OS.g_value_init(value, OS.G_TYPE_INT());
-			OS.g_value_set_int(value, event.value);
 		}
+		setGValue(value, event.value);
 		return 0;
 	}
 
@@ -2041,6 +2064,19 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkValue_set_current_value");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleValueListeners;
+			if (listeners.size() > 0) {
+				AccessibleValueEvent event = new AccessibleValueEvent(accessible);
+				event.value = getGValue(value);
+				for (int i = 0; i < listeners.size(); i++) {
+					AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
+					listener.setCurrentValue(event);
+				}
+				return 0;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_VALUE_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_VALUE_GET_IFACE (object.handle));
@@ -2050,7 +2086,6 @@ class AccessibleObject {
 				parentResult = ATK.call (iface.set_current_value, object.handle, value);
 			}
 		}
-		//TODO
 		return parentResult;
 	}
 

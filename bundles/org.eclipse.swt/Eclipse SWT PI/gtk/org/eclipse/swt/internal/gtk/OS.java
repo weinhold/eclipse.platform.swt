@@ -1677,7 +1677,6 @@ public static final native int /*long*/ G_TYPE_FLOAT();
 public static final native int /*long*/ G_TYPE_INT();
 /** @method flags=const */
 public static final native int /*long*/ G_TYPE_INT64();
-/** @method flags=const */
 public static final native int /*long*/ G_VALUE_TYPE(int /*long*/ value);
 public static final native int /*long*/ _G_OBJECT_TYPE (int /*long*/ instance);
 public static final int /*long*/ G_OBJECT_TYPE (int /*long*/ instance) {
@@ -2935,25 +2934,28 @@ public static final int /*long*/ g_utf8_to_utf16(int /*long*/ str, int /*long*/ 
 		lock.unlock();
 	}
 }
-/** @param value cast=(const GValue *) */
-public static final native int /*long*/ g_value_init (int /*long*/ value, int /*long*/ g_type);
-/** @param value cast=(const GValue *) */
+/**
+ * @param value cast=(GValue *)
+ * @param type cast=(GType)
+ */
+public static final native int /*long*/ g_value_init (int /*long*/ value, int /*long*/ type);
+/** @param value cast=(GValue *) */
 public static final native int g_value_get_int (int /*long*/ value);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native void g_value_set_int (int /*long*/ value, int v);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native double g_value_get_double (int /*long*/ value);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native void g_value_set_double (int /*long*/ value, double v);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native float g_value_get_float (int /*long*/ value);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native void g_value_set_float (int /*long*/ value, float v);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native long g_value_get_int64 (int /*long*/ value);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native void g_value_set_int64 (int /*long*/ value, long v);
-/** @param value cast=(const GValue *) */
+/** @param value cast=(GValue *) */
 public static final native void g_value_unset (int /*long*/ value);
 /** @param value cast=(const GValue *) */
 public static final native int /*long*/ _g_value_peek_pointer (int /*long*/ value);
