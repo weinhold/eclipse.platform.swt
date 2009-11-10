@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1301;
-int OS_nativeFunctionCallCount[1301];
+int OS_nativeFunctionCount = 1311;
+int OS_nativeFunctionCallCount[1311];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -66,6 +66,12 @@ char * OS_nativeFunctionNames[] = {
 	"GTypeQuery_1sizeof",
 	"G_1OBJECT_1CLASS_1CONSTRUCTOR",
 	"G_1OBJECT_1CLASS_1SET_1CONSTRUCTOR",
+	"G_1TYPE_1BOOLEAN",
+	"G_1TYPE_1DOUBLE",
+	"G_1TYPE_1FLOAT",
+	"G_1TYPE_1INT",
+	"G_1TYPE_1INT64",
+	"G_1VALUE_1TYPE",
 	"GdkColor_1sizeof",
 	"GdkDragContext_1sizeof",
 	"GdkEventAny_1sizeof",
@@ -163,8 +169,6 @@ char * OS_nativeFunctionNames[] = {
 	"_1G_1OBJECT_1GET_1CLASS",
 	"_1G_1OBJECT_1TYPE",
 	"_1G_1OBJECT_1TYPE_1NAME",
-	"_1G_1TYPE_1BOOLEAN",
-	"_1G_1TYPE_1INT",
 	"_1G_1TYPE_1STRING",
 	"_1PANGO_1PIXELS",
 	"_1PANGO_1TYPE_1FONT_1DESCRIPTION",
@@ -1398,9 +1402,15 @@ char * OS_nativeFunctionNames[] = {
 	"_1pango_1tab_1array_1new",
 	"_1pango_1tab_1array_1set_1tab",
 	"g_1main_1context_1wakeup",
+	"g_1value_1get_1double",
+	"g_1value_1get_1float",
 	"g_1value_1get_1int",
+	"g_1value_1get_1long",
 	"g_1value_1init",
+	"g_1value_1set_1double",
+	"g_1value_1set_1float",
 	"g_1value_1set_1int",
+	"g_1value_1set_1long",
 	"localeconv_1decimal_1point",
 #ifndef JNI64
 	"memmove__ILorg_eclipse_swt_internal_gtk_GInterfaceInfo_2I",
