@@ -298,6 +298,7 @@ class AccessibleFactory {
 		int /*long*/ type = getType (getTypeName(widgetType), accessible, parentType, ACC.CHILDID_SELF);
 		AccessibleObject object = new AccessibleObject (type, widget, accessible, parentType, false);
 		accessible.accessibleObject = object;
+		accessible.addRelations ();
 		return object.handle;
 	}
 	

@@ -58,7 +58,12 @@ class AccessibleObject {
 		children.put (new LONG (child.handle), child);		
 		child.setParent (this);
 	}
-
+	
+	void addRelation (int type, Accessible target) {
+		OS.gtk_widget_get_accessible (target.getControlHandle ());
+		OS.atk_object_add_relationship(handle, toATKRelation(type), target.accessibleObject.handle);
+	}
+	
 	static int /*long*/ atkAction_do_action (int /*long*/ atkObject, int /*long*/ index) {
 		if (DEBUG) System.out.println ("-->atkAction_do_action");
 		AccessibleObject object = getAccessibleObject (atkObject);
@@ -375,17 +380,89 @@ class AccessibleObject {
 
 	static int /*long*/ atkHypertext_get_link (int /*long*/ atkObject, int /*long*/ link_index) {
 		if (DEBUG) System.out.println ("-->atkHypertext_get_link");
-		return 0;
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			if (listeners.size() != 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.index = (int)/*int*/link_index;
+				for (int i = 0; i < listeners.size(); i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getHyperlink(event);
+				}
+				Accessible result = event.accessible;
+				return result != null ? result.accessibleObject.handle : 0;
+			}
+		}
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_HYPERTEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_HYPERTEXT_GET_IFACE (object.handle));
+			AtkHypertextIface iface = new AtkHypertextIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_link != 0) {
+				parentResult = ATK.call (iface.get_link, object.handle, link_index);
+			}
+		}
+		return parentResult;
 	}
 
 	static int /*long*/ atkHypertext_get_n_links (int /*long*/ atkObject) {
 		if (DEBUG) System.out.println ("-->atkHypertext_get_n_links");
-		return 0;	/* read hyperlink's name */
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			if (listeners.size() != 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				for (int i = 0; i < listeners.size(); i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getHyperlinkCount(event);
+				}
+				return event.count;
+			}
+		}
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_HYPERTEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_HYPERTEXT_GET_IFACE (object.handle));
+			AtkHypertextIface iface = new AtkHypertextIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_n_links != 0) {
+				parentResult = ATK.call (iface.get_n_links, object.handle);
+			}
+		}
+		return parentResult;
 	}
 
 	static int /*long*/ atkHypertext_get_link_index (int /*long*/ atkObject, int /*long*/ char_index) {
 		if (DEBUG) System.out.println ("-->atkHypertext_get_link_index");
-		return 0;
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			if (listeners.size() != 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*int*/char_index;
+				for (int i = 0; i < listeners.size(); i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getHyperlinkIndex(event);
+				}
+				return event.index;
+			}
+		}
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_HYPERTEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_HYPERTEXT_GET_IFACE (object.handle));
+			AtkHypertextIface iface = new AtkHypertextIface ();
+			ATK.memmove (iface, superType);
+			if (iface.get_link != 0) {
+				parentResult = ATK.call (iface.get_link, object.handle, char_index);
+			}
+		}
+		return parentResult;
 	}
 
 	static int /*long*/ atkObject_get_description (int /*long*/ atkObject) {
@@ -2240,6 +2317,10 @@ class AccessibleObject {
 		if (unref && child.isLightweight) OS.g_object_unref (child.handle);
 	}
 	
+	void removeRelation (int type, Accessible target) {
+		OS.atk_object_remove_relationship (handle, toATKRelation(type), target.accessibleObject.handle);
+	}
+	
 	void selectionChanged () {
 		OS.g_signal_emit_by_name (handle, ATK.selection_changed);
 	}
@@ -2270,6 +2351,27 @@ class AccessibleObject {
 
 	void textSelectionChanged() {
 		OS.g_signal_emit_by_name (handle, ATK.text_selection_changed);
+	}
+	
+	static int toATKRelation (int relation) {
+		switch (relation) {
+			case ACC.RELATION_CONTROLLED_BY: return ATK.ATK_RELATION_CONTROLLED_BY;
+			case ACC.RELATION_CONTROLLER_FOR: return ATK.ATK_RELATION_CONTROLLER_FOR;
+			case ACC.RELATION_DESCRIBED_BY: return ATK.ATK_RELATION_DESCRIBED_BY;
+			case ACC.RELATION_DESCRIPTION_FOR: return ATK.ATK_RELATION_DESCRIPTION_FOR;
+			case ACC.RELATION_EMBEDDED_BY: return ATK.ATK_RELATION_EMBEDDED_BY;
+			case ACC.RELATION_EMBEDS: return ATK.ATK_RELATION_EMBEDS;
+			case ACC.RELATION_FLOWS_FROM: return ATK.ATK_RELATION_FLOWS_FROM;
+			case ACC.RELATION_FLOWS_TO: return ATK.ATK_RELATION_FLOWS_TO;
+			case ACC.RELATION_LABEL_FOR: return ATK.ATK_RELATION_LABEL_FOR;
+			case ACC.RELATION_LABELLED_BY: return ATK.ATK_RELATION_LABELLED_BY;
+			case ACC.RELATION_MEMBER_OF: return ATK.ATK_RELATION_MEMBER_OF;
+			case ACC.RELATION_NODE_CHILD_OF: return ATK.ATK_RELATION_NODE_CHILD_OF;
+			case ACC.RELATION_PARENT_WINDOW_OF: return ATK.ATK_RELATION_PARENT_WINDOW_OF;
+			case ACC.RELATION_POPUP_FOR: return ATK.ATK_RELATION_POPUP_FOR;
+			case ACC.RELATION_SUBWINDOW_OF: return ATK.ATK_RELATION_SUBWINDOW_OF;
+		}
+		return 0;
 	}
 
 	void updateChildren () {

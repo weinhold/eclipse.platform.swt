@@ -54,6 +54,17 @@ public class Accessible {
 	Accessible parent;
 	AccessibleObject accessibleObject;
 	Control control;
+	Vector relations;
+	
+	static class Relation {
+		int type;
+		Accessible target;
+		
+		public Relation(int type, Accessible target) {
+			this.type = type;
+			this.target = target;
+		}
+	}
 	
 	/**
 	 * Constructs a new instance of this class given its parent.
@@ -395,7 +406,22 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public void addAccessibleRelation(int type, Accessible targets[]) {
-		//TODO: platform-specific? (we will manage the set on Windows)
+		checkWidget();
+		if (relations == null) relations = new Vector();
+		for (int i = 0; i < targets.length; i++) {
+			Accessible target = targets[i];
+			relations.add(new Relation(type, target));
+			if (accessibleObject != null) accessibleObject.addRelation(type, target);
+		}
+	}
+	
+	void addRelations () {
+		if (relations == null) return;
+		if (accessibleObject == null) return;
+		for (int i = 0; i < relations.size(); i++) {
+			Relation relation = (Relation)relations.elementAt(i);
+			accessibleObject.addRelation(relation.type, relation.target);
+		}
 	}
 	
 	/**
@@ -770,8 +796,19 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void removeAccessibleRelation(int type, Accessible targets[]) {
-		//TODO: platform-specific? (we will manage the set on Windows)
+	public void removeAccessibleRelation(int type, Accessible target) {
+		checkWidget();
+		if (relations == null) return;
+		for (int i = relations.size() - 1; i >= 0; i--) {
+			Relation relation = (Relation)relations.elementAt(i);
+			if (relation.type == type && relation.target == target) {
+				relations.remove(i);
+				if (accessibleObject != null) {
+					accessibleObject.removeRelation(relation.type, relation.target);
+				}
+				break;
+			}
+		}
 	}
 	
 	/**
