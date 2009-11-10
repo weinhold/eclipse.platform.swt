@@ -2950,9 +2950,11 @@ public static final native float g_value_get_float (int /*long*/ value);
 /** @param value cast=(const GValue *) */
 public static final native void g_value_set_float (int /*long*/ value, float v);
 /** @param value cast=(const GValue *) */
-public static final native long g_value_get_long (int /*long*/ value);
+public static final native long g_value_get_int64 (int /*long*/ value);
 /** @param value cast=(const GValue *) */
-public static final native void g_value_set_long (int /*long*/ value, long v);
+public static final native void g_value_set_int64 (int /*long*/ value, long v);
+/** @param value cast=(const GValue *) */
+public static final native void g_value_unset (int /*long*/ value);
 /** @param value cast=(const GValue *) */
 public static final native int /*long*/ _g_value_peek_pointer (int /*long*/ value);
 public static final  int /*long*/ g_value_peek_pointer (int /*long*/ value) {
