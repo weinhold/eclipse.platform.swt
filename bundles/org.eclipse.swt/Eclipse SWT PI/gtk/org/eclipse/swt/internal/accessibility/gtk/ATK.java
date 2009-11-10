@@ -153,6 +153,15 @@ public static final int /*long*/ ATK_SELECTION_GET_IFACE (int /*long*/ obj) {
 		lock.unlock();
 	}
 }
+public static final native int /*long*/ _ATK_HYPERTEXT_GET_IFACE (int /*long*/ handle);
+public static final int /*long*/ ATK_HYPERTEXT_GET_IFACE (int /*long*/ handle) {
+	lock.lock();
+	try {
+		return _ATK_HYPERTEXT_GET_IFACE(handle);
+	} finally {
+		lock.unlock();
+	}
+}
 public static final native int /*long*/ _ATK_TABLE_GET_IFACE (int /*long*/ handle);
 public static final int /*long*/ ATK_TABLE_GET_IFACE (int /*long*/ handle) {
 	lock.lock();
