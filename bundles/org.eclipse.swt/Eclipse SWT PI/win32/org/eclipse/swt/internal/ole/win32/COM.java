@@ -944,6 +944,8 @@ public static final native int /*long*/ accDoDefaultAction_CALLBACK(int /*long*/
 public static final native int /*long*/ put_accName_CALLBACK(int /*long*/ func);
 /** @method flags=no_gen */
 public static final native int /*long*/ put_accValue_CALLBACK(int /*long*/ func);
+/** @method flags=no_gen,callback_types=HRESULT;VARIANT;,callback_flags=none;struct; */
+public static final native int /*long*/ CALLBACK_setCurrentValue(int /*long*/ func);
 
 /* sizeof's */
 public static final native int CAUUID_sizeof();
