@@ -385,10 +385,11 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTextExtendedListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.index = (int)/*int*/link_index;
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getHyperlink(event);
 				}
@@ -415,9 +416,10 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTextExtendedListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getHyperlinkCount(event);
 				}
@@ -443,10 +445,11 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTextExtendedListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.offset = (int)/*int*/char_index;
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getHyperlinkIndex(event);
 				}
@@ -770,7 +773,7 @@ class AccessibleObject {
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.row = (int)/*64*/row;
 		event.column = (int)/*64*/column;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getCellAt(event);
 		}
@@ -793,7 +796,7 @@ class AccessibleObject {
 			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 			event.row = (int)/*64*/row;
 			event.column = (int)/*64*/column;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 				listener.getCellAt(event);
 			}
@@ -865,7 +868,7 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleTableListeners;
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.count = (int)/*64*/parentResult;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getColumnCount(event);
 			parentResult = event.count;
@@ -891,7 +894,7 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleTableListeners;
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.count = (int)/*64*/parentResult;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getRowCount(event);
 			parentResult = event.count;
@@ -918,7 +921,7 @@ class AccessibleObject {
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.row = (int)/*64*/row;
 		event.column = (int)/*64*/column;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getCellAt(event);
 		}
@@ -927,7 +930,7 @@ class AccessibleObject {
 			listeners = result.accessibleTableListeners;
 			AccessibleTableCellEvent cellEvent = new AccessibleTableCellEvent(result);
 			cellEvent.count = (int)/*64*/parentResult;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableCellListener listener = (AccessibleTableCellListener) listeners.elementAt(i);
 				listener.getColumnExtent(cellEvent);
 			}
@@ -955,7 +958,7 @@ class AccessibleObject {
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.row = (int)/*64*/row;
 		event.column = (int)/*64*/column;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getCellAt(event);
 		}
@@ -964,7 +967,7 @@ class AccessibleObject {
 			listeners = result.accessibleTableListeners;
 			AccessibleTableCellEvent cellEvent = new AccessibleTableCellEvent(result);
 			cellEvent.count = (int)/*64*/parentResult;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableCellListener listener = (AccessibleTableCellListener) listeners.elementAt(i);
 				listener.getRowExtent(cellEvent);
 			}
@@ -989,9 +992,10 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible == null) return parentResult;
 		Vector listeners = accessible.accessibleTableListeners;
-		if (listeners.size() != 0) {
+		int length = listeners.size();
+		if (length > 0) {
 			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 				listener.getCaption(event);
 			}
@@ -1017,9 +1021,10 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible == null) return parentResult;
 		Vector listeners = accessible.accessibleTableListeners;
-		if (listeners.size() != 0) {
+		int length = listeners.size();
+		if (length > 0) {
 			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 				listener.getSummary(event);
 			}
@@ -1053,7 +1058,7 @@ class AccessibleObject {
 			OS.memmove (buffer, parentResult, length);
 			event.string = new String (Converter.mbcsToWcs (null, buffer));
 		}
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getColumnDescription(event);
 		}
@@ -1106,7 +1111,7 @@ class AccessibleObject {
 			OS.memmove (buffer, parentResult, length);
 			event.string = new String (Converter.mbcsToWcs (null, buffer));
 		}
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getRowDescription(event);
 		}
@@ -1142,9 +1147,10 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTableListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTableEvent event = new AccessibleTableEvent(accessible);
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 					listener.getSelectedColumns(event);
 				}
@@ -1174,9 +1180,10 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTableListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTableEvent event = new AccessibleTableEvent(accessible);
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 					listener.getSelectedRows(event);
 				}
@@ -1215,11 +1222,12 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible == null) return parentResult;
 		Vector listeners = accessible.accessibleTableListeners;
-		if (listeners.size() != 0) {
+		int length = listeners.size();
+		if (length > 0) {
 			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 			event.isSelected = parentResult != 0;
 			event.column = (int)/*64*/column;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 				listener.isColumnSelected(event);
 			}
@@ -1244,11 +1252,12 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible == null) return parentResult;
 		Vector listeners = accessible.accessibleTableListeners;
-		if (listeners.size() != 0) {
+		int length = listeners.size();
+		if (length > 0) {
 			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 			event.isSelected = parentResult != 0;
 			event.row = (int)/*64*/row;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0; i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 				listener.isRowSelected(event);
 			}
@@ -1276,7 +1285,7 @@ class AccessibleObject {
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.row = (int)/*64*/row;
 		event.column = (int)/*64*/column;
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getCellAt(event);
 		}
@@ -1285,7 +1294,7 @@ class AccessibleObject {
 			listeners = result.accessibleTableListeners;
 			AccessibleTableCellEvent cellEvent = new AccessibleTableCellEvent(result);
 			cellEvent.isSelected = parentResult != 0;
-			for (int i = 0; i < listeners.size(); i++) {
+			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableCellListener listener = (AccessibleTableCellListener) listeners.elementAt(i);
 				listener.isSelected(cellEvent);
 			}
@@ -1318,10 +1327,11 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTableListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 				event.row = (int)/*64*/row;
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 					listener.unselectRow(event);
 				}
@@ -1365,10 +1375,11 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleTableListeners;
-			if (listeners.size() != 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 				event.column = (int)/*64*/column;
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 					listener.unselectColumn(event);
 				}
@@ -1502,16 +1513,32 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.get_caret_offset, object.handle);
 			}
 		}
-		AccessibleTextListener[] listeners = object.getTextListeners ();
-		if (listeners.length == 0) return parentResult;
-		
-		AccessibleTextEvent event = new AccessibleTextEvent (object.accessible);
-		event.childID = object.id;
-		event.offset = (int)/*64*/parentResult;
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getCaretOffset (event);	
-		} 
-		return event.offset; 	
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getCaretOffset (event);
+				}
+				return event.offset;
+			}
+			listeners = accessible.accessibleTextListeners;
+			length = listeners.size();
+			if (length > 0) {
+				AccessibleTextEvent event = new AccessibleTextEvent (object.accessible);
+				event.childID = object.id;
+				event.offset = (int)/*64*/parentResult;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextListener listener = (AccessibleTextListener) listeners.elementAt(i);
+					listener.getCaretOffset (event);	
+				}
+				return event.offset;
+			}
+		}
+		return parentResult; 	
 	}
 	
 	static int /*long*/ atkText_get_character_at_offset (int /*long*/ atkObject, int /*long*/ offset) {
@@ -1535,6 +1562,19 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_character_count");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getCharacterCount(event);
+				}
+				return event.count;
+			}
+		}
 		String text = object.getText ();
 		if (text != null) return text.length ();
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
@@ -1552,6 +1592,30 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_n_selections");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getSelectionCount (event);
+				}
+				return event.count;
+			}
+			listeners = accessible.accessibleTextListeners;
+			length = listeners.size();
+			if (length > 0) {
+				AccessibleTextEvent event = new AccessibleTextEvent (object.accessible);
+				event.childID = object.id;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextListener listener = (AccessibleTextListener) listeners.elementAt(i);
+					listener.getSelectionRange (event);
+				}
+				if (event.length > 0) return 1;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1561,21 +1625,14 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.get_n_selections, object.handle);
 			}
 		}
-		AccessibleTextListener[] listeners = object.getTextListeners ();
-		if (listeners.length == 0) return parentResult;
-
-		AccessibleTextEvent event = new AccessibleTextEvent (object.accessible);
-		event.childID = object.id;
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getSelectionRange (event);
-		}
-		return event.length == 0 ? parentResult : 1;
+		return parentResult;
 	}
 
 	static int /*long*/ atkText_get_selection (int /*long*/ atkObject, int /*long*/ selection_num, int /*long*/ start_offset, int /*long*/ end_offset) {
 		if (DEBUG) System.out.println ("-->atkText_get_selection");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		int /*long*/ parentResult = 0;
 		OS.memmove (start_offset, new int[] {0}, 4);
 		OS.memmove (end_offset, new int[] {0}, 4);
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
@@ -1583,32 +1640,79 @@ class AccessibleObject {
 			AtkTextIface textIface = new AtkTextIface ();
 			ATK.memmove (textIface, superType);
 			if (textIface.get_selection != 0) {
-				ATK.call (textIface.get_selection, object.handle, selection_num, start_offset, end_offset);
+				parentResult = ATK.call (textIface.get_selection, object.handle, selection_num, start_offset, end_offset);
 			}
 		}
-		AccessibleTextListener[] listeners = object.getTextListeners ();
-		if (listeners.length == 0) return 0;
-
-		AccessibleTextEvent event = new AccessibleTextEvent (object.accessible);
-		event.childID = object.id;
 		int[] parentStart = new int [1];
 		int[] parentEnd = new int [1];
 		OS.memmove (parentStart, start_offset, 4);
 		OS.memmove (parentEnd, end_offset, 4);
-		event.offset = parentStart [0];
-		event.length = parentEnd [0] - parentStart [0];
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getSelectionRange (event);
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.index = (int)/*64*/selection_num;
+				event.start = parentStart[0];
+				event.end = parentEnd[0];
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getSelection (event);
+				}
+				parentStart [0] = event.start;
+				parentEnd [0] = event.end;
+				OS.memmove (start_offset, parentStart, 4);
+				OS.memmove (end_offset, parentEnd, 4);
+				//TODO return the selected text, should we free parent result
+				return 0;
+			}
+			if (selection_num == 0) {
+				listeners = accessible.accessibleTextListeners;
+				length = listeners.size();
+				if (length > 0) {
+					AccessibleTextEvent event = new AccessibleTextEvent (accessible);
+					event.childID = object.id;
+					event.offset = parentStart [0];
+					event.length = parentEnd [0] - parentStart [0];
+					for (int i = 0; i < length; i++) {
+						AccessibleTextListener listener = (AccessibleTextListener) listeners.elementAt(i);
+						listener.getSelectionRange (event);
+					}
+					OS.memmove (start_offset, new int[] {event.offset}, 4);
+					OS.memmove (end_offset, new int[] {event.offset + event.length}, 4);
+					//TODO return the selected text, should we free parent result
+					return 0;
+				}
+			}
 		}
-		OS.memmove (start_offset, new int[] {event.offset}, 4);
-		OS.memmove (end_offset, new int[] {event.offset + event.length}, 4);
-		return 0;
+		return parentResult;
 	}
 
 	static int /*long*/ atkText_get_text (int /*long*/ atkObject, int /*long*/ start_offset, int /*long*/ end_offset) {
 		if (DEBUG) System.out.println ("-->atkText_get_text: " + start_offset + "," + end_offset);
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.start = (int)/*64*/start_offset;
+				event.end = (int)/*64*/end_offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getText(event);
+				}
+				String text = event.string != null ? event.string : "";
+				byte[] bytes = Converter.wcsToMbcs (null, text, true);
+				//TODO is this leaking?
+				int /*long*/ result = OS.g_malloc (bytes.length);
+				OS.memmove (result, bytes, bytes.length);
+				return result;
+			}
+		}
 		String text = object.getText ();
 		if (text.length () > 0) {
 			if (end_offset == -1) {
@@ -1630,6 +1734,28 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_text_after_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*64*/offset_value;
+				event.type = (int)/*64*/boundary_type;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getTextAfterOffset(event);
+				}
+				OS.memmove (start_offset, new int[] {event.start}, 4);
+				OS.memmove (end_offset, new int[] {event.end}, 4);
+				String text = event.string != null ? event.string : "";
+				byte[] bytes = Converter.wcsToMbcs (null, text, true);
+				//TODO is this leaking?
+				int /*long*/ result = OS.g_malloc (bytes.length);
+				OS.memmove (result, bytes, bytes.length);
+				return result;
+			}
+		}
 		int offset = (int)/*64*/offset_value;
 		String text = object.getText ();
 		if (text.length () > 0) {
@@ -1919,6 +2045,28 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_text_before_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*64*/offset_value;
+				event.type = (int)/*64*/boundary_type;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getTextBeforeOffset(event);
+				}
+				OS.memmove (start_offset, new int[] {event.start}, 4);
+				OS.memmove (end_offset, new int[] {event.end}, 4);
+				String text = event.string != null ? event.string : "";
+				byte[] bytes = Converter.wcsToMbcs (null, text, true);
+				//TODO is this leaking?
+				int /*long*/ result = OS.g_malloc (bytes.length);
+				OS.memmove (result, bytes, bytes.length);
+				return result;
+			}
+		}
 		int offset = (int)/*64*/offset_value;
 		String text = object.getText ();
 		if (text.length () > 0) {
@@ -2079,7 +2227,7 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
 		event.value = getGValue(value);
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getCurrentValue(event);
 		}
@@ -2104,7 +2252,7 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
 		event.value = getGValue(value);
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getMaximumValue(event);
 		}
@@ -2129,7 +2277,7 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleValueListeners;
 		AccessibleValueEvent event = new AccessibleValueEvent(accessible);
 		event.value = getGValue(value);
-		for (int i = 0; i < listeners.size(); i++) {
+		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 			listener.getMinimumValue(event);
 		}
@@ -2144,10 +2292,11 @@ class AccessibleObject {
 		Accessible accessible = object.accessible;
 		if (accessible != null) {
 			Vector listeners = accessible.accessibleValueListeners;
-			if (listeners.size() > 0) {
+			int length = listeners.size();
+			if (length > 0) {
 				AccessibleValueEvent event = new AccessibleValueEvent(accessible);
 				event.value = getGValue(value);
-				for (int i = 0; i < listeners.size(); i++) {
+				for (int i = 0; i < length; i++) {
 					AccessibleValueListener listener = (AccessibleValueListener) listeners.elementAt(i);
 					listener.setCurrentValue(event);
 				}
@@ -2235,12 +2384,6 @@ class AccessibleObject {
 			controlListeners [i].getValue (event);				
 		}
 		return event.result;
-	}
-	
-	AccessibleTextListener[] getTextListeners () {
-		if (accessible == null) return new AccessibleTextListener [0];
-		AccessibleTextListener[] result = accessible.getTextListeners (); 
-		return result != null ? result : new AccessibleTextListener [0];
 	}
 
 	static int /*long*/ gObjectClass_finalize (int /*long*/ atkObject) {

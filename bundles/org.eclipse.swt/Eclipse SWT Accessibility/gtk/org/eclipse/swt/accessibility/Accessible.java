@@ -455,13 +455,6 @@ public class Accessible {
 		return result;
 	}
 
-	AccessibleTextListener[] getTextListeners () {
-		if (accessibleTextListeners == null) return null;
-		AccessibleTextListener[] result = new AccessibleTextListener [accessibleTextListeners.size ()];
-		accessibleTextListeners.copyInto (result);
-		return result;
-	}
-
 	/**
 	 * Invokes platform specific functionality to allocate a new accessible object.
 	 * <p>
