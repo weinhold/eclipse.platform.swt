@@ -44,10 +44,10 @@ class Relation {
 		"subwindow of",
 	};
 
-	Relation(Accessible accessible, int type, Accessible[] targets) {
+	Relation(Accessible accessible, int type) {
 		this.accessible = accessible;
 		this.type = type;
-		this.targets = targets;
+		this.targets = new Accessible[0];
 	}
 	
 	/* QueryInterface([in] iid, [out] ppvObject)
@@ -128,7 +128,7 @@ class Relation {
 		Accessible target = targets[targetIndex];
 		if (target != null) {
 			target.AddRef();
-			setPtrVARIANT(ppTarget, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppTarget, COM.VT_DISPATCH, target.objIAccessible.getAddress());
 		}
 		return COM.S_OK;
 	}
@@ -163,5 +163,12 @@ class Relation {
 			COM.MoveMemory(variant, new short[] { vt }, 2);
 			COM.MoveMemory(variant + 8, new int /*long*/[] { lVal }, OS.PTR_SIZEOF);
 		}
+	}
+
+	void addTarget(Accessible target) {
+		Accessible[] newTargets = new Accessible[targets.length + 1];
+		System.arraycopy(targets, 0, newTargets, 0, targets.length);
+		newTargets[targets.length] = target;
+		targets = newTargets;
 	}
 }

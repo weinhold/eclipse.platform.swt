@@ -41,6 +41,7 @@ import org.eclipse.swt.internal.ole.win32.*;
  * @since 2.0
  */
 public class Accessible {
+	static final int MAX_RELATION_TYPES = 15;
 	int refCount = 0, enumIndex = 0;
 	COMObject objIAccessible, objIEnumVARIANT, objIServiceProvider, objIAccessible2, objIAccessibleAction,
 		objIAccessibleApplication, objIAccessibleComponent, objIAccessibleEditableText, objIAccessibleHyperlink,
@@ -58,10 +59,10 @@ public class Accessible {
 	Vector accessibleValueListeners = new Vector();
 	Vector accessibleScrollListeners = new Vector();
 	Vector accessibleAttributeListeners = new Vector();
+	Relation relations[] = new Relation[MAX_RELATION_TYPES];
 	Object[] variants;
 	Accessible parent;
 	Control control;
-	Vector relations;
 
 	/**
 	 * Constructs a new instance of this class given its parent.
@@ -388,6 +389,14 @@ public class Accessible {
 			public int /*long*/ method5(int /*long*/[] args) {return get_maximumValue(args[0]);}
 			public int /*long*/ method6(int /*long*/[] args) {return get_minimumValue(args[0]);}
 		};
+		/* Dereference VARIANT struct parameters. */
+		ppVtable = objIAccessibleValue.ppVtable;
+		pVtable = new int /*long*/[1];
+		COM.MoveMemory(pVtable, ppVtable, OS.PTR_SIZEOF);
+		funcs = new int /*long*/[7];
+		COM.MoveMemory(funcs, pVtable[0], OS.PTR_SIZEOF * funcs.length);
+		funcs[4] = COM.CALLBACK_setCurrentValue(funcs[4]);
+		COM.MoveMemory(pVtable[0], funcs, OS.PTR_SIZEOF * funcs.length);
 	}
 	
 	/**
@@ -707,16 +716,19 @@ public class Accessible {
 	}
 
 	/**
-	 * Adds a relation with the specified type and targets
+	 * Adds a relation with the specified type and target
 	 * to the receiver's set of relations.
 	 * 
 	 * @param type a constant beginning with RELATION_* indicating the type of relation
-	 * @param targets the accessible(s) that are targets for this relation
+	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
 	 */
-	public void addAccessibleRelation(int type, Accessible targets[]) {
-		relations.add(new Relation(this, type, targets));
+	public void addAccessibleRelation(int type, Accessible target) {
+		if (relations[type] == null) {
+			relations[type] = new Relation(this, type);
+		}
+		relations[type].addTarget(target);
 	}
 	
 	/**
@@ -1063,11 +1075,11 @@ public class Accessible {
 	}
 
 	/**
-	 * Removes the relation with the specified type and targets
+	 * Removes the relation with the specified type and target
 	 * from the receiver's set of relations.
 	 * 
 	 * @param type a constant beginning with RELATION_* indicating the type of relation
-	 * @param targets the accessible(s) that are targets for this relation
+	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
 	 */
@@ -1220,12 +1232,15 @@ public class Accessible {
 			return COM.S_OK;
 		}
 
-		queryAccessible2Interfaces(guid, ppvObject);
+		int code = queryAccessible2Interfaces(guid, ppvObject);
+		if (code == COM.S_OK) {
+			return COM.S_OK;
+		}
 
 		if (iaccessible != null) {
 			/* Forward any other GUIDs to the OS proxy. */
 			int /*long*/[] ppv = new int /*long*/[1];
-			int code = iaccessible.QueryInterface(guid, ppv);
+			code = iaccessible.QueryInterface(guid, ppv);
 			COM.MoveMemory(ppvObject, ppv, OS.PTR_SIZEOF);
 			return code;
 		}
@@ -1249,6 +1264,60 @@ public class Accessible {
 			if (objIEnumVARIANT != null)
 				objIEnumVARIANT.dispose();
 			objIEnumVARIANT = null;
+
+			if (objIServiceProvider != null)
+				objIServiceProvider.dispose();
+			objIServiceProvider = null;
+
+			if (objIAccessible2 != null)
+				objIAccessible2.dispose();
+			objIAccessible2 = null;
+
+			if (objIAccessibleAction != null)
+				objIAccessibleAction.dispose();
+			objIAccessibleAction = null;
+
+			if (objIAccessibleApplication != null)
+				objIAccessibleApplication.dispose();
+			objIAccessibleApplication = null;
+
+			if (objIAccessibleComponent != null)
+				objIAccessibleComponent.dispose();
+			objIAccessibleComponent = null;
+
+			if (objIAccessibleEditableText != null)
+				objIAccessibleEditableText.dispose();
+			objIAccessibleEditableText = null;
+
+			if (objIAccessibleHyperlink != null)
+				objIAccessibleHyperlink.dispose();
+			objIAccessibleHyperlink = null;
+
+			if (objIAccessibleHypertext != null)
+				objIAccessibleHypertext.dispose();
+			objIAccessibleHypertext = null;
+
+			if (objIAccessibleImage != null)
+				objIAccessibleImage.dispose();
+			objIAccessibleImage = null;
+
+			if (objIAccessibleTable2 != null)
+				objIAccessibleTable2.dispose();
+			objIAccessibleTable2 = null;
+
+			if (objIAccessibleTableCell != null)
+				objIAccessibleTableCell.dispose();
+			objIAccessibleTableCell = null;
+
+			if (objIAccessibleText != null)
+				objIAccessibleText.dispose();
+			objIAccessibleText = null;
+
+			if (objIAccessibleValue != null)
+				objIAccessibleValue.dispose();
+			objIAccessibleValue = null;
+
+			// TODO: dispose relations
 		}
 		return refCount;
 	}
@@ -1267,6 +1336,12 @@ public class Accessible {
 				AddRef();
 				return COM.S_OK;
 			}
+			
+			/* TODO: The following 2 lines shouldn't work, according to the spec,
+			 * but this is what AccProbe and UnoInspect use... so need to support it for now.
+			 */
+			int code = queryAccessible2Interfaces(guid, ppvObject);
+			if (code == COM.S_OK) return code;
 		}
 
 		if (COM.IsEqualGUID(service, COM.IIDIAccessible2)) {
@@ -1374,7 +1449,7 @@ public class Accessible {
 		return COM.E_NOINTERFACE;
 	}
 	
-	// START TEMPORARY DEBUG CODE
+	// ---------------------- START TEMPORARY DEBUG CODE
 	String guidString(GUID guid) {
 		final GUID IIDIAccessibleHandler = IIDFromString("{03022430-ABC4-11D0-BDE2-00AA001A1953}"); //$NON-NLS-1$
 		final GUID IIDIAccessor = IIDFromString("{0C733A8C-2A1C-11CE-ADE5-00AA0044773D}"); //$NON-NLS-1$
@@ -1563,9 +1638,9 @@ public class Accessible {
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleImage)) return "IIDIAccessibleImage";
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleApplication)) return "IIDIAccessibleApplication";
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleContext)) return "IIDIAccessibleContext";
-		return "Unknown GUID";
+		return StringFromIID(guid);
 	}
-	private static GUID IIDFromString(String lpsz) {
+	static GUID IIDFromString(String lpsz) {
 		int length = lpsz.length();
 		char[] buffer = new char[length + 1];
 		lpsz.getChars(0, length, buffer, 0);
@@ -1573,7 +1648,23 @@ public class Accessible {
 		if (COM.IIDFromString(buffer, lpiid) == COM.S_OK) return lpiid;
 		return null;
 	}
-// END TEMPORARY DEBUG CODE
+	static String StringFromIID(GUID guid) {
+		return '{' + toHex(guid.Data1, 8) + "-" + 
+        toHex(guid.Data2, 4) + "-" + 
+        toHex(guid.Data3, 4) + "-" + 
+        toHex(guid.Data4[0], 2) + toHex(guid.Data4[1], 2) + "-" + 
+        toHex(guid.Data4[2], 2) + toHex(guid.Data4[3], 2) + toHex(guid.Data4[4], 2) + toHex(guid.Data4[5], 2) + toHex(guid.Data4[6], 2) + toHex(guid.Data4[7], 2) + '}';
+	}
+	static final String zeros = "00000000";
+	static String toHex(int v, int length) {
+		String t = Integer.toHexString(v).toUpperCase();
+		int tlen = t.length();
+		if (tlen > length) {
+			t = t.substring(tlen - length);
+		}
+		return zeros.substring(0, Math.max(0, length - tlen)) + t;
+	}
+// ------------- END TEMPORARY DEBUG CODE
 	
 	/* accDoDefaultAction([in] varChild) */
 	int accDoDefaultAction(int /*long*/ varChild) {
@@ -1611,7 +1702,7 @@ public class Accessible {
 		}
 		int childID = event.childID;
 		if (childID == ACC.CHILDID_NONE) return COM.S_FALSE;
-		setVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
+		setIntVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
 		return COM.S_OK;
 	}
 	
@@ -1652,7 +1743,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
-	/* accNavigate([in] navDir, [in]  varStart, [out]  pvarEndUpAt) */
+	/* accNavigate([in] navDir, [in] varStart, [out] pvarEndUpAt) */
 	int accNavigate(int navDir, int /*long*/ varStart, int /*long*/ pvarEndUpAt) {
 		/* MSAA: "The accNavigate method is deprecated and should not be used." */
 		int code = COM.DISP_E_MEMBERNOTFOUND;
@@ -1872,7 +1963,7 @@ public class Accessible {
 		}
 		int childID = event.childID;
 		if (childID == ACC.CHILDID_NONE) {
-			setVARIANT(pvarChild, COM.VT_EMPTY, 0);
+			setIntVARIANT(pvarChild, COM.VT_EMPTY, 0);
 			return COM.S_FALSE;
 		}
 		if (childID == ACC.CHILDID_SELF) {
@@ -1880,7 +1971,7 @@ public class Accessible {
 			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, objIAccessible.getAddress());
 			return COM.S_OK;
 		}
-		setVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
+		setIntVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
 		return COM.S_OK;
 	}
 	
@@ -2046,7 +2137,7 @@ public class Accessible {
 			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
 			listener.getRole(event);
 		}
-		setVARIANT(pvarRole, COM.VT_I4, roleToOs(event.detail));
+		setIntVARIANT(pvarRole, COM.VT_I4, roleToOs(event.detail));
 		return COM.S_OK;
 	}
 	
@@ -2086,7 +2177,7 @@ public class Accessible {
 		}
 		int childID = event.childID;
 		if (childID == ACC.CHILDID_NONE) {
-			setVARIANT(pvarChildren, COM.VT_EMPTY, 0);
+			setIntVARIANT(pvarChildren, COM.VT_EMPTY, 0);
 			return COM.S_FALSE;
 		}
 		if (childID == ACC.CHILDID_MULTIPLE) {
@@ -2099,7 +2190,7 @@ public class Accessible {
 			setPtrVARIANT(pvarChildren, COM.VT_DISPATCH, objIAccessible.getAddress());
 			return COM.S_OK;
 		}
-		setVARIANT(pvarChildren, COM.VT_I4, childIDToOs(childID));
+		setIntVARIANT(pvarChildren, COM.VT_I4, childIDToOs(childID));
 		return COM.S_OK;
 	}
 	
@@ -2158,7 +2249,7 @@ public class Accessible {
 			state &= ~ COM.STATE_SYSTEM_CHECKED;
 			state |= COM.STATE_SYSTEM_MIXED;
 		}
-		setVARIANT(pvarState, COM.VT_I4, state);
+		setIntVARIANT(pvarState, COM.VT_I4, state);
 		return COM.S_OK;
 	}
 	
@@ -2278,7 +2369,7 @@ public class Accessible {
 				Object nextItem = nextItems[i];
 				if (nextItem instanceof Integer) {
 					int item = ((Integer) nextItem).intValue();
-					setVARIANT(rgvar + i * VARIANT.sizeof, COM.VT_I4, item);
+					setIntVARIANT(rgvar + i * VARIANT.sizeof, COM.VT_I4, item);
 				} else {
 					Accessible accessible = (Accessible) nextItem;
 					accessible.AddRef();
@@ -2366,17 +2457,27 @@ public class Accessible {
 	
 	/* get_nRelations([out] pNRelations) */
 	int get_nRelations(int /*long*/ pNRelations) {
-		COM.MoveMemory(pNRelations, new int [] { relations.size() }, 4);
+		int relationCount = 0;
+		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
+			if (relations[type] != null) relationCount++;
+		}
+		COM.MoveMemory(pNRelations, new int [] { relationCount }, 4);
 		return COM.S_OK;
 	}
 
 	/* get_relation([in] relationIndex, [out] ppRelation) */
 	int get_relation(int relationIndex, int /*long*/ ppRelation) {
-		if (relationIndex < 0 || relationIndex > relations.size()) return COM.E_INVALIDARG;
-		Relation relation = (Relation)relations.elementAt(relationIndex);
-		relation.AddRef();
-		setPtrVARIANT(ppRelation, COM.VT_DISPATCH, relation.objIAccessibleRelation.getAddress());
-		return COM.S_OK;
+		int i = -1;
+		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
+			if (relations[type] != null) i++;
+			if (i == relationIndex) {
+				Relation relation = (Relation)relations[relationIndex];
+				relation.AddRef();
+				setPtrVARIANT(ppRelation, COM.VT_DISPATCH, relation.objIAccessibleRelation.getAddress());
+				return COM.S_OK;
+			}
+		}
+		return COM.E_INVALIDARG;
 	}
 
 	/* get_relations([in] maxRelations, [out] ppRelations, [out] pNRelations) */
@@ -2578,7 +2679,7 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getDescription(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrDescription, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -2592,7 +2693,7 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getKeyBinding(event);
 		}
-		if (event.keyBindings.length == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.keyBindings == null || event.keyBindings.length == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		// TODO: Need to return all of the bindings, not just the first
 		setString(ppbstrKeyBindings, event.keyBindings[0]);
 		COM.MoveMemory(pNBindings, new int [] { event.count }, 4);
@@ -2608,7 +2709,7 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getName(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrName, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -2622,7 +2723,7 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getLocalizedName(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrLocalizedName, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -2809,7 +2910,7 @@ public class Accessible {
 			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
 			listener.getAnchor(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		// TODO: pAnchor is a VARIANT that can be either a bstr (event.string) or a dispatch (event.accessible)
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -2906,7 +3007,7 @@ public class Accessible {
 			AccessibleListener listener = (AccessibleListener) accessibleListeners.elementAt(i);
 			listener.getDescription(event);
 		}
-		if (event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrDescription, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
@@ -2980,7 +3081,7 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getColumnDescription(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrDescription, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -3049,7 +3150,7 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getRowDescription(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrDescription, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -3063,6 +3164,7 @@ public class Accessible {
 			listener.getSelectedCells(event);
 		}
 		// TODO: Handle array, not just first element
+		if (event.accessibles == null || event.accessibles.length == 0) return COM.S_FALSE;
 		Accessible accessible = event.accessibles[0];
 		if (accessible != null) {
 			accessible.AddRef();
@@ -3080,6 +3182,7 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getSelectedColumns(event);
 		}
+		if (event.selected == null || event.selected.length == 0) return COM.S_FALSE;
 		// TODO: return whole array of selected items, not just first
 		COM.MoveMemory(ppSelectedColumns, new int [] { event.selected[0] }, 4);
 		COM.MoveMemory(pNColumns, new int [] { event.count }, 4);
@@ -3094,11 +3197,11 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getSelectedRows(event);
 		}
+		if (event.selected == null || event.selected.length == 0) return COM.S_FALSE;
 		// TODO: return whole array of selected items, not just first
 		COM.MoveMemory(ppSelectedRows, new int [] { event.selected[0] }, 4);
 		COM.MoveMemory(pNRows, new int [] { event.count }, 4);
 		return COM.S_OK;
-		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
 	}
 
 	/* get_summary([out] ppAccessible) */
@@ -3109,12 +3212,10 @@ public class Accessible {
 			listener.getSummary(event);
 		}
 		Accessible accessible = event.accessible;
-		if (accessible != null) {
-			accessible.AddRef();
-			setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
-		}
+		if (accessible == null) return COM.S_FALSE;
+		accessible.AddRef();
+		setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
 		return COM.S_OK;
-		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
 	/* get_isColumnSelected([in] column, [out] pIsSelected) */
@@ -3123,7 +3224,7 @@ public class Accessible {
 		event.column = column;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.getIsColumnSelected(event);
+			listener.isColumnSelected(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
@@ -3135,7 +3236,7 @@ public class Accessible {
 		event.row = row;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.getIsRowSelected(event);
+			listener.isRowSelected(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
@@ -3287,7 +3388,7 @@ public class Accessible {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
 			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
-			listener.getIsSelected(event);
+			listener.isSelected(event);
 		}
 		return COM.S_OK;
 	}
@@ -3429,7 +3530,7 @@ public class Accessible {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 			listener.getText(event);
 		}
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrText, event.string);
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -3446,7 +3547,7 @@ public class Accessible {
 		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrText, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
@@ -3463,7 +3564,7 @@ public class Accessible {
 		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrText, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
@@ -3480,7 +3581,7 @@ public class Accessible {
 		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		setString(pbstrText, event.string);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
@@ -3597,7 +3698,7 @@ public class Accessible {
 			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
 			listener.getCurrentValue(event);
 		}
-		COM.MoveMemory(pCurrentValue, new int [] { event.value }, 4);
+		setNumberVARIANT(pCurrentValue, event.value);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
@@ -3605,7 +3706,7 @@ public class Accessible {
 	/* setCurrentValue([in] value) */
 	int setCurrentValue(int /*long*/ value) {
 		AccessibleValueEvent event = new AccessibleValueEvent(this);
-		event.value = value;
+		event.value = getNumberVARIANT(value);
 		for (int i = 0; i < accessibleValueListeners.size(); i++) {
 			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
 			listener.setCurrentValue(event);
@@ -3620,7 +3721,7 @@ public class Accessible {
 			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
 			listener.getMaximumValue(event);
 		}
-		COM.MoveMemory(pMaximumValue, new int [] { event.value }, 4);
+		setNumberVARIANT(pMaximumValue, event.value);
 		return COM.S_OK;
 	}
 
@@ -3631,7 +3732,7 @@ public class Accessible {
 			AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
 			listener.getMinimumValue(event);
 		}
-		COM.MoveMemory(pMinimumValue, new int [] { event.value }, 4);
+		setNumberVARIANT(pMinimumValue, event.value);
 		return COM.S_OK;
 	}
 
@@ -3782,8 +3883,15 @@ public class Accessible {
 		COM.MoveMemory(v, variant, VARIANT.sizeof);
 		return v;
 	}
+	
+	Number getNumberVARIANT(int /*long*/ variant) {
+		VARIANT v = new VARIANT();
+		COM.MoveMemory(v, variant, VARIANT.sizeof);
+		if (v.vt == COM.VT_I8) return new Long(v.lVal); // TODO: Fix this - v.lVal is an int - don't use struct
+		return new Integer(v.lVal);
+	}
 
-	void setVARIANT(int /*long*/ variant, short vt, int lVal) {
+	void setIntVARIANT(int /*long*/ variant, short vt, int lVal) {
 		if (vt == COM.VT_I4 || vt == COM.VT_EMPTY) {
 			COM.MoveMemory(variant, new short[] { vt }, 2);
 			COM.MoveMemory(variant + 8, new int[] { lVal }, 4);
@@ -3797,6 +3905,22 @@ public class Accessible {
 		}
 	}
 	
+	void setNumberVARIANT(int /*long*/ variant, Number number) {
+		if (number instanceof Double) {
+			COM.MoveMemory(variant, new short[] { COM.VT_R8 }, 2);
+			COM.MoveMemory(variant + 8, new double[] { number.doubleValue() }, 8);
+		} else if (number instanceof Float) {
+			COM.MoveMemory(variant, new short[] { COM.VT_R4 }, 2);
+			COM.MoveMemory(variant + 8, new float[] { number.floatValue() }, 4);
+		} else if (number instanceof Long) {
+			COM.MoveMemory(variant, new short[] { COM.VT_I8 }, 2);
+			COM.MoveMemory(variant + 8, new long[] { number.longValue() }, 8);
+		} else {
+			COM.MoveMemory(variant, new short[] { COM.VT_I4 }, 2);
+			COM.MoveMemory(variant + 8, new int[] { number.intValue() }, 4);
+		}
+	}
+
 	void setString(int psz, String string) {
 		char[] data = (string + "\0").toCharArray();
 		int /*long*/ ptr = COM.SysAllocString(data);
