@@ -397,22 +397,19 @@ public class Accessible {
 	}
 
 	/**
-	 * Adds a relation with the specified type and targets
+	 * Adds a relation with the specified type and target
 	 * to the receiver's set of relations.
 	 * 
 	 * @param type a constant beginning with RELATION_* indicating the type of relation
-	 * @param targets the accessible(s) that are targets for this relation
+	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
 	 */
-	public void addAccessibleRelation(int type, Accessible targets[]) {
+	public void addRelation(int type, Accessible target) {
 		checkWidget();
 		if (relations == null) relations = new Vector();
-		for (int i = 0; i < targets.length; i++) {
-			Accessible target = targets[i];
-			relations.add(new Relation(type, target));
-			if (accessibleObject != null) accessibleObject.addRelation(type, target);
-		}
+		relations.add(new Relation(type, target));
+		if (accessibleObject != null) accessibleObject.addRelation(type, target);
 	}
 	
 	void addRelations () {
@@ -788,15 +785,15 @@ public class Accessible {
 	}
 
 	/**
-	 * Removes the relation with the specified type and targets
+	 * Removes the relation with the specified type and target
 	 * from the receiver's set of relations.
 	 * 
 	 * @param type a constant beginning with RELATION_* indicating the type of relation
-	 * @param targets the accessible(s) that are targets for this relation
+	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
 	 */
-	public void removeAccessibleRelation(int type, Accessible target) {
+	public void removeRelation(int type, Accessible target) {
 		checkWidget();
 		if (relations == null) return;
 		for (int i = relations.size() - 1; i >= 0; i--) {
