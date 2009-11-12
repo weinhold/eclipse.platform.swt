@@ -1829,7 +1829,6 @@ class AccessibleObject {
 				}
 				String text = event.string != null ? event.string : "";
 				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				//TODO is this leaking?
 				int /*long*/ result = OS.g_malloc (bytes.length);
 				OS.memmove (result, bytes, bytes.length);
 				return result;
@@ -1872,7 +1871,6 @@ class AccessibleObject {
 				OS.memmove (end_offset, new int[] {event.end}, 4);
 				String text = event.string != null ? event.string : "";
 				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				//TODO is this leaking?
 				int /*long*/ result = OS.g_malloc (bytes.length);
 				OS.memmove (result, bytes, bytes.length);
 				return result;
@@ -2067,7 +2065,6 @@ class AccessibleObject {
 				OS.memmove (end_offset, new int[] {event.end}, 4);
 				String text = event.string != null ? event.string : "";
 				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				//TODO is this leaking?
 				int /*long*/ result = OS.g_malloc (bytes.length);
 				OS.memmove (result, bytes, bytes.length);
 				return result;
@@ -2205,7 +2202,6 @@ class AccessibleObject {
 				OS.memmove (end_offset, new int[] {event.end}, 4);
 				String text = event.string != null ? event.string : "";
 				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				//TODO is this leaking?
 				int /*long*/ result = OS.g_malloc (bytes.length);
 				OS.memmove (result, bytes, bytes.length);
 				return result;
@@ -2516,6 +2512,7 @@ class AccessibleObject {
 					byte [] buffer = new byte [length];
 					OS.memmove (buffer, parentResult, length);
 					parentText = new String (Converter.mbcsToWcs (null, buffer));
+					OS.g_free(parentResult);
 				}
 			}
 		}
