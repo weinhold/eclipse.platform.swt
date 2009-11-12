@@ -26,6 +26,7 @@ public class SimpleAccessibleNameExample {
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
+		shell.setText("Accessible Name");
 		
 		Button button = new Button(shell, SWT.PUSH);
 		button.setText("Button"); // the first button's accessible name is "Button"

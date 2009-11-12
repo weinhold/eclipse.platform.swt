@@ -10,6 +10,7 @@ public class AccessibleValueExample {
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
+		shell.setText("Accessible Value");
 		
 		Text text = new Text(shell, SWT.BORDER);
 		text.setText("Tab over to the scale");

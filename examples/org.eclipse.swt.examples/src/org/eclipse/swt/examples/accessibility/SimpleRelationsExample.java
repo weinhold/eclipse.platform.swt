@@ -13,6 +13,7 @@ public class SimpleRelationsExample {
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout(2, false));
+		shell.setText("Accessible Relations");
 
 		Canvas canvas = new Canvas(shell, SWT.NONE);
 		canvas.addPaintListener(new PaintListener() {
