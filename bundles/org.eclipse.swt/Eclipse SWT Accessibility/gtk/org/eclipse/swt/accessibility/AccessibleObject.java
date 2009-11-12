@@ -1403,6 +1403,24 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_character_extents");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*64*/offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getCharacterBounds(event);
+				}
+				OS.memmove (x, new int[]{event.x}, 4);
+				OS.memmove (y, new int[]{event.y}, 4);
+				OS.memmove (width, new int[]{event.width}, 4);
+				OS.memmove (height, new int[]{event.height}, 4);				
+				return 0;
+			}
+		}
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
 			AtkTextIface textIface = new AtkTextIface ();
@@ -1411,7 +1429,6 @@ class AccessibleObject {
 				ATK.call (textIface.get_character_extents, object.handle, offset, x, y, width, height, coords);
 			}
 		}
-		//TODO
 		return 0;
 	}
 	
@@ -1436,6 +1453,22 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_offset_at_point");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.x = (int)/*64*/x;
+				event.y = (int)/*64*/y;
+				//TODO coord type
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getOffsetAtPoint(event);
+				}
+				return event.offset;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1445,7 +1478,6 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.get_offset_at_point, object.handle, x, y, coords);
 			}
 		}
-		//TODO
 		return parentResult;
 	}
 
@@ -1453,6 +1485,22 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_add_selection");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.start = (int)/*64*/start_offset;
+				event.end = (int)/*64*/end_offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.addSelection(event);
+				}
+				//TODO should listener say it did or not
+				return 1;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1462,7 +1510,6 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.add_selection, object.handle, start_offset, end_offset);
 			}
 		}
-		//TODO
 		return parentResult;
 	}
 
@@ -1470,6 +1517,21 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_remove_selection");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.index = (int)/*64*/selection_num;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.removeSelection(event);
+				}
+				//TODO should listener say it did or not
+				return 1;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1479,14 +1541,59 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.remove_selection, object.handle, selection_num);
 			}
 		}
-		//TODO
 		return parentResult;
+	}
+	
+	static int /*long*/ atkText_set_caret_offset (int /*long*/ atkObject, int /*long*/ offset) {
+		if (DEBUG) System.out.println ("-->atkText_gset_character_offset");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*64*/offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.setCaretOffset(event);
+				}
+				return 0;
+			}
+		}
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_class_peek (object.parentType);
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_character_at_offset != 0) {
+				return ATK.call (textIface.get_character_at_offset, object.handle, offset);
+			}
+		}
+		return 0;
 	}
 
 	static int /*long*/ atkText_set_selection (int /*long*/ atkObject, int /*long*/ selection_num, int /*long*/ start_offset, int /*long*/ end_offset) {
 		if (DEBUG) System.out.println ("-->atkText_set_selection");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.index = (int)/*64*/selection_num;
+				event.start = (int)/*64*/start_offset;
+				event.end = (int)/*64*/end_offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.setSelection(event);
+				}
+				//TODO should listener say it did or not
+				return 1;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1496,7 +1603,6 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.set_selection, object.handle, selection_num, start_offset, end_offset);
 			}
 		}
-		//TODO
 		return parentResult;
 	}
 
@@ -1545,8 +1651,24 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_character_at_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.start = (int)/*64*/offset;
+				event.end = event.start + 1;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getText(event);
+				}
+				String text = event.string;
+				if (text != null && text.length() > 0) return text.charAt(0);
+			}
+		}
 		String text = object.getText ();
-		if (text != null) return text.charAt ((int)/*64*/offset); // TODO
+		if (text != null) return text.charAt ((int)/*64*/offset);
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_class_peek (object.parentType);
 			AtkTextIface textIface = new AtkTextIface ();
@@ -1929,6 +2051,28 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkText_get_text_at_offset: " + offset_value + " start: " + start_offset + " end: " + end_offset);
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.offset = (int)/*64*/offset_value;
+				event.type = (int)/*64*/boundary_type;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getTextAtOffset(event);
+				}
+				OS.memmove (start_offset, new int[] {event.start}, 4);
+				OS.memmove (end_offset, new int[] {event.end}, 4);
+				String text = event.string != null ? event.string : "";
+				byte[] bytes = Converter.wcsToMbcs (null, text, true);
+				//TODO is this leaking?
+				int /*long*/ result = OS.g_malloc (bytes.length);
+				OS.memmove (result, bytes, bytes.length);
+				return result;
+			}
+		}
 		int offset = (int)/*64*/offset_value;
 		String text = object.getText ();
 		if (text.length () > 0) {

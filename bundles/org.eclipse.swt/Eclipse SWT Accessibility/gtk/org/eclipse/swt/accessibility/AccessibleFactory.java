@@ -110,6 +110,7 @@ class AccessibleFactory {
 	static final Callback AtkTextCB_remove_selection;
 	static final Callback AtkTextCB_set_selection;
 	static final Callback AtkTextCB_get_caret_offset;
+	static final Callback AtkTextCB_set_caret_offset;
 	static final Callback AtkTextCB_get_n_selections;
 	static final Callback AtkTextCB_get_selection;
 	static final Callback AtkTextCB_get_text;
@@ -199,6 +200,7 @@ class AccessibleFactory {
 		AtkTextCB_remove_selection = newCallback (AccessibleObject.class, "atkText_remove_selection", 2); //$NON-NLS-1$
 		AtkTextCB_set_selection = newCallback (AccessibleObject.class, "atkText_set_selection", 4); //$NON-NLS-1$
 		AtkTextCB_get_caret_offset = newCallback (AccessibleObject.class, "atkText_get_caret_offset", 1); //$NON-NLS-1$
+		AtkTextCB_set_caret_offset = newCallback (AccessibleObject.class, "atkText_set_caret_offset", 2); //$NON-NLS-1$
 		AtkTextCB_get_n_selections = newCallback (AccessibleObject.class, "atkText_get_n_selections", 1); //$NON-NLS-1$
 		AtkTextCB_get_selection = newCallback (AccessibleObject.class, "atkText_get_selection", 4); //$NON-NLS-1$
 		AtkTextCB_get_text = newCallback (AccessibleObject.class, "atkText_get_text", 3); //$NON-NLS-1$
@@ -501,6 +503,7 @@ class AccessibleFactory {
 		inter.remove_selection = AtkTextCB_remove_selection.getAddress ();
 		inter.set_selection = AtkTextCB_set_selection.getAddress ();
 		inter.get_caret_offset = AtkTextCB_get_caret_offset.getAddress ();
+		inter.set_caret_offset = AtkTextCB_set_caret_offset.getAddress ();
 		inter.get_character_at_offset = AtkTextCB_get_character_at_offset.getAddress ();
 		inter.get_character_count = AtkTextCB_get_character_count.getAddress ();
 		inter.get_n_selections = AtkTextCB_get_n_selections.getAddress ();
