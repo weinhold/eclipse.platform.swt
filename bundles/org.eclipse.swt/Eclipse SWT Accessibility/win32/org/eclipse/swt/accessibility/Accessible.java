@@ -1083,8 +1083,14 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void removeAccessibleRelation(int type, Accessible targets[]) {
-		//TODO: platform-specific? (we will manage the set on Windows)
+	public void removeAccessibleRelation(int type, Accessible target) {
+		Relation relation = (Relation)relations[type];
+		if (relation != null) {
+			relation.removeTarget(target);
+			if (!relation.hasTargets()) {
+				relations[type] = null;
+			}
+		}
 	}
 	
 	/**
@@ -2457,11 +2463,11 @@ public class Accessible {
 	
 	/* get_nRelations([out] pNRelations) */
 	int get_nRelations(int /*long*/ pNRelations) {
-		int relationCount = 0;
+		int count = 0;
 		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
-			if (relations[type] != null) relationCount++;
+			if (relations[type] != null) count++;
 		}
-		COM.MoveMemory(pNRelations, new int [] { relationCount }, 4);
+		COM.MoveMemory(pNRelations, new int [] { count }, 4);
 		return COM.S_OK;
 	}
 
@@ -2469,9 +2475,9 @@ public class Accessible {
 	int get_relation(int relationIndex, int /*long*/ ppRelation) {
 		int i = -1;
 		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
-			if (relations[type] != null) i++;
+			Relation relation = (Relation)relations[type];
+			if (relation != null) i++;
 			if (i == relationIndex) {
-				Relation relation = (Relation)relations[relationIndex];
 				relation.AddRef();
 				setPtrVARIANT(ppRelation, COM.VT_DISPATCH, relation.objIAccessibleRelation.getAddress());
 				return COM.S_OK;
@@ -2482,15 +2488,17 @@ public class Accessible {
 
 	/* get_relations([in] maxRelations, [out] ppRelations, [out] pNRelations) */
 	int get_relations(int maxRelations, int /*long*/ ppRelations, int /*long*/ pNRelations) {
-		int relationCount = relations.size();
-		if (maxRelations < relationCount) relationCount = maxRelations;
-		if (relationCount == 0) return COM.S_FALSE;
-		for (int i = 0; i < relationCount; i++) {
-			Relation relation = (Relation)relations.elementAt(i);
-			relation.AddRef();
-			setPtrVARIANT(ppRelations + i * VARIANT.sizeof, COM.VT_DISPATCH, relation.objIAccessibleRelation.getAddress());
+		int count = 0;
+		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
+			if (count == maxRelations) break;
+			Relation relation = (Relation)relations[type];
+			if (relation != null) {
+				relation.AddRef();
+				setPtrVARIANT(ppRelations + count * VARIANT.sizeof, COM.VT_DISPATCH, relation.objIAccessibleRelation.getAddress());
+				count++;
+			}
 		}
-		COM.MoveMemory(pNRelations, new int [] { relationCount }, 4);
+		COM.MoveMemory(pNRelations, new int [] { count }, 4);
 		return COM.S_OK;
 	}
 

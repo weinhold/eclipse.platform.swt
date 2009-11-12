@@ -104,15 +104,13 @@ class Relation {
 
 	/* get_relationType([out] pbstrRelationType) */
 	int get_relationType(int /*long*/ pbstrRelationType) {
-		String relationType = relationTypeString[type];
-		setString(pbstrRelationType, relationType);
+		setString(pbstrRelationType, relationTypeString[type]);
 		return COM.S_OK;
 	}
 
 	/* get_localizedRelationType([out] pbstrLocalizedRelationType) */
 	int get_localizedRelationType(int /*long*/ pbstrLocalizedRelationType) {
-		String localizedRelationType = localizedRelationTypeString[type]; // TODO: no.... set this at creation time
-		setString(pbstrLocalizedRelationType, localizedRelationType);
+		setString(pbstrLocalizedRelationType, localizedRelationTypeString[type]);
 		return COM.S_OK;
 	}
 
@@ -124,32 +122,23 @@ class Relation {
 
 	/* get_target([in] targetIndex, [out] ppTarget) */
 	int get_target(int targetIndex, int /*long*/ ppTarget) {
-		if (targetIndex < 0 || targetIndex > targets.length - 1) return COM.E_INVALIDARG;
+		if (targetIndex < 0 || targetIndex >= targets.length) return COM.E_INVALIDARG;
 		Accessible target = targets[targetIndex];
-		if (target != null) {
-			target.AddRef();
-			setPtrVARIANT(ppTarget, COM.VT_DISPATCH, target.objIAccessible.getAddress());
-		}
+		target.AddRef();
+		setPtrVARIANT(ppTarget, COM.VT_DISPATCH, target.objIAccessible.getAddress());
 		return COM.S_OK;
 	}
 
 	/* get_targets([in] maxTargets, [out] ppTargets, [out] pNTargets) */
 	int get_targets(int maxTargets, int /*long*/ ppTargets, int /*long*/ pNTargets) {
-		// TODO: Fix this
-//		AccessibleRelationEvent event = new AccessibleRelationEvent(this);
-//		event.maxTargets = maxTargets;
-//		for (int i = 0; i < accessibleRelationListeners.size(); i++) {
-//			AccessibleRelationListener listener = (AccessibleRelationListener) accessibleRelationListeners.elementAt(i);
-//			listener.getTargets(event);
-//		}
-//		Accessible accessible = event.targets;
-//		if (accessible != null) {
-//			accessible.AddRef();
-//			setPtrVARIANT(ppTargets, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
-//		}
-//		COM.MoveMemory(pNTargets, new int [] { event.targetCount }, 4);
+		int count = Math.min(targets.length, maxTargets);
+		for (int i = 0; i < count; i++) {
+			Accessible target = targets[i];
+			target.AddRef();
+			setPtrVARIANT(ppTargets + i * VARIANT.sizeof, COM.VT_DISPATCH, target.objIAccessible.getAddress());
+		}
+		COM.MoveMemory(pNTargets, new int [] { count }, 4);
 		return COM.S_OK;
-		// TODO: @retval S_FALSE if there is nothing to return, nTargets is set to 0
 	}
 
 	void setString(int psz, String string) {
@@ -170,5 +159,20 @@ class Relation {
 		System.arraycopy(targets, 0, newTargets, 0, targets.length);
 		newTargets[targets.length] = target;
 		targets = newTargets;
+	}
+
+	void removeTarget(Accessible target) {
+		Accessible[] newTargets = new Accessible[targets.length - 1];
+		int j = 0;
+		for (int i = 0; i < targets.length; i++) {
+			if (targets[i] != target) {
+				newTargets[j++] = targets[i];
+			}
+		}
+		targets = newTargets;
+	}
+
+	boolean hasTargets() {
+		return targets.length > 0;
 	}
 }
