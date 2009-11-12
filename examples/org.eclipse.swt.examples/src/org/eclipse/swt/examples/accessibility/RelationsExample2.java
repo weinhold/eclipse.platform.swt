@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.accessibility.*;
 
-public class SimpleRelationsExample2 {
+public class RelationsExample2 {
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);

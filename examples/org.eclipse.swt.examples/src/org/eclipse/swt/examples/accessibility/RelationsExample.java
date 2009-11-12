@@ -6,7 +6,7 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 
-public class SimpleRelationsExample {
+public class RelationsExample {
 	static final String canvasLabelText = "Fruit:";
 		
 	public static void main(String[] args) {
