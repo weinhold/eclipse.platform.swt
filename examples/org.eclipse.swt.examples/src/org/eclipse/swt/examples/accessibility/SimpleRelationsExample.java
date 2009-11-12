@@ -32,8 +32,8 @@ public class SimpleRelationsExample {
 			}
 		});
 		Accessible accList = list.getAccessible();
-		accCanvas.addAccessibleRelation(ACC.RELATION_LABEL_FOR, new Accessible [] {accList});
-		accList.addAccessibleRelation(ACC.RELATION_LABELLED_BY, new Accessible [] {accCanvas});
+		accCanvas.addAccessibleRelation(ACC.RELATION_LABEL_FOR, accList);
+		accList.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accCanvas);
 		
 		shell.pack();
 		shell.open();
