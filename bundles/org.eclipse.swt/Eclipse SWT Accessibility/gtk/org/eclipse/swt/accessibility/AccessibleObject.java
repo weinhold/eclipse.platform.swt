@@ -1414,6 +1414,18 @@ class AccessibleObject {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getCharacterBounds(event);
 				}
+				if (coords == ATK.ATK_XY_WINDOW) {
+					/* translate display -> control, for answering to the OS */ 
+					int /*long*/ gtkAccessibleHandle = ATK.GTK_ACCESSIBLE (object.handle);
+					GtkAccessible gtkAccessible = new GtkAccessible ();
+					ATK.memmove (gtkAccessible, gtkAccessibleHandle);
+					int /*long*/ topLevel = ATK.gtk_widget_get_toplevel (gtkAccessible.widget);
+					int /*long*/ window = OS.GTK_WIDGET_WINDOW (topLevel);
+					int[] topWindowX = new int [1], topWindowY = new int [1];
+					OS.gdk_window_get_origin (window, topWindowX, topWindowY);
+					event.x -= topWindowX [0];
+					event.y -= topWindowY [0];
+				}
 				OS.memmove (x, new int[]{event.x}, 4);
 				OS.memmove (y, new int[]{event.y}, 4);
 				OS.memmove (width, new int[]{event.width}, 4);
