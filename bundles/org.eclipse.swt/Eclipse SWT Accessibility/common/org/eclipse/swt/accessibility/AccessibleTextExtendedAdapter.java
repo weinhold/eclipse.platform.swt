@@ -58,7 +58,7 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * <li>[out] height - the height of the bounding box of the referenced character
 	 * </ul>
 	 */
-	public void getCharacterExtents(AccessibleTextExtendedEvent e) {};
+	public void getCharacterBounds(AccessibleTextExtendedEvent e) {};
 
 	/**
 	 * Returns the number of active non-contiguous selections.
@@ -73,7 +73,7 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * Returns the offset of the character under the specified point.
 	 * <p>
 	 * The same functionality could be achieved by using the bounding
-	 * boxes for each character as returned by getCharacterExtents.
+	 * boxes for each character as returned by getCharacterBounds.
 	 * The method getOffsetAtPoint, however, can be implemented more efficiently.
 	 * </p>
 	 * 
@@ -123,14 +123,14 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	public void getText(AccessibleTextExtendedEvent e) {};
 
 	/**
-	 * Returns a string - text portion before the given position.
+	 * Returns a substring before the given position.
 	 * 
-	 * Returns the substring of the specified string - text type that is located before the
+	 * Returns the substring of the specified text type that is located before the
 	 * given character and does not include it. The result of this method should be
 	 * same as a result for AccessibleTextExtended.textAtOffset with a suitably decreased
 	 * index value.
 	 * 
-	 * For example, if string - text type is TEXT_BOUNDARY_WORD, then the complete
+	 * For example, if text type is TEXT_BOUNDARY_WORD, then the complete
 	 * word that is closest to and located before offset is returned.
 	 * 
 	 * If the index is valid, but no suitable word (or other boundary type) is found, a
@@ -138,7 +138,7 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] offset
-	 * 		Index of the character for which to return the string - text part before it.  The index
+	 * 		Index of the character for which to return the text part before it.  The index
 	 * 		character will not be part of the returned string. The valid range is 0..getCharacterCount.
 	 * <li>[in] type - the boundary type of the text portion to return. One of
 	 * <li>[out] start - startOffset
@@ -274,7 +274,7 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * <li>[in] type - a scroll type indicating where the object should be placed on the screen
 	 * </ul>
 	 */
-	public void scrollSubstringTo(AccessibleTextExtendedEvent e) {};
+	public void scrollTextTo(AccessibleTextExtendedEvent e) {};
 
 	/**
 	 * Moves the top left of a substring to a specified location.
@@ -286,7 +286,7 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * <li>[in] y - the y coordinate of the destination point in display coordinates
 	 * </ul>
 	 */
-	public void scrollSubstringToPoint(AccessibleTextExtendedEvent e) {};
+	public void scrollTextToPoint(AccessibleTextExtendedEvent e) {};
 
 	/**
 	 * Returns any inserted text.
