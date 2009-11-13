@@ -270,7 +270,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void unselectColumn(AccessibleTableEvent e);
 
 	/**
-	 * Returns the type and extents describing how a table changed.
+	 * Returns the type and row/column indices describing how a table changed.
 	 * 
 	 * Provided for use by the IA2_EVENT_TABLE_MODEL_CHANGED event handler.
 	 * 
