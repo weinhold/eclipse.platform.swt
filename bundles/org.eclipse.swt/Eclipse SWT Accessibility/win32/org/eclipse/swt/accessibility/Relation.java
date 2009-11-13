@@ -125,7 +125,7 @@ class Relation {
 		if (targetIndex < 0 || targetIndex >= targets.length) return COM.E_INVALIDARG;
 		Accessible target = targets[targetIndex];
 		target.AddRef();
-		setPtrVARIANT(ppTarget, COM.VT_DISPATCH, target.objIAccessible.getAddress());
+		COM.MoveMemory(ppTarget, new int /*long*/[] { target.objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 
@@ -135,23 +135,10 @@ class Relation {
 		for (int i = 0; i < count; i++) {
 			Accessible target = targets[i];
 			target.AddRef();
-			setPtrVARIANT(ppTargets + i * VARIANT.sizeof, COM.VT_DISPATCH, target.objIAccessible.getAddress());
+			COM.MoveMemory(ppTargets + i * OS.PTR_SIZEOF, new int /*long*/[] { target.objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 		}
 		COM.MoveMemory(pNTargets, new int [] { count }, 4);
 		return COM.S_OK;
-	}
-
-	void setString(int psz, String string) {
-		char[] data = (string + "\0").toCharArray();
-		int /*long*/ ptr = COM.SysAllocString(data);
-		COM.MoveMemory(psz, new int /*long*/ [] { ptr }, OS.PTR_SIZEOF);
-	}
-
-	void setPtrVARIANT(int /*long*/ variant, short vt, int /*long*/ lVal) {
-		if (vt == COM.VT_DISPATCH || vt == COM.VT_UNKNOWN) {
-			COM.MoveMemory(variant, new short[] { vt }, 2);
-			COM.MoveMemory(variant + 8, new int /*long*/[] { lVal }, OS.PTR_SIZEOF);
-		}
 	}
 
 	void addTarget(Accessible target) {
@@ -174,5 +161,12 @@ class Relation {
 
 	boolean hasTargets() {
 		return targets.length > 0;
+	}
+
+	// setString copied from Accessible class
+	void setString(int psz, String string) {
+		char[] data = (string + "\0").toCharArray();
+		int /*long*/ ptr = COM.SysAllocString(data);
+		COM.MoveMemory(psz, new int /*long*/ [] { ptr }, OS.PTR_SIZEOF);
 	}
 }
