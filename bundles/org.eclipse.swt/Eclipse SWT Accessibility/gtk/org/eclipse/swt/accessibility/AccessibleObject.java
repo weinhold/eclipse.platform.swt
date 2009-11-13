@@ -932,7 +932,7 @@ class AccessibleObject {
 			cellEvent.count = (int)/*64*/parentResult;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableCellListener listener = (AccessibleTableCellListener) listeners.elementAt(i);
-				listener.getColumnExtent(cellEvent);
+				listener.getColumnSpan(cellEvent);
 			}
 			return cellEvent.count;
 		}
@@ -969,7 +969,7 @@ class AccessibleObject {
 			cellEvent.count = (int)/*64*/parentResult;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableCellListener listener = (AccessibleTableCellListener) listeners.elementAt(i);
-				listener.getRowExtent(cellEvent);
+				listener.getRowSpan(cellEvent);
 			}
 			return cellEvent.count;
 		}
@@ -1409,10 +1409,11 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.offset = (int)/*64*/offset;
+				event.start = (int)/*64*/offset;
+				event.end = (int)/*64*/offset;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getCharacterBounds(event);
+					listener.getTextBounds(event);
 				}
 				if (coords == ATK.ATK_XY_WINDOW) {
 					/* translate display -> control, for answering to the OS */ 
@@ -1875,9 +1876,10 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.offset = (int)/*64*/offset_value;
 				event.type = (int)/*64*/boundary_type;
+				event.count = 1;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextAfterOffset(event);
+					listener.getTextRange(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
@@ -2069,9 +2071,10 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.offset = (int)/*64*/offset_value;
 				event.type = (int)/*64*/boundary_type;
+				event.count = 0;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextAtOffset(event);
+					listener.getTextRange(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
@@ -2206,9 +2209,10 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.offset = (int)/*64*/offset_value;
 				event.type = (int)/*64*/boundary_type;
+				event.count = -1;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextBeforeOffset(event);
+					listener.getTextRange(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);

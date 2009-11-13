@@ -267,28 +267,4 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * </ul>
 	 */
 	public void unselectColumn(AccessibleTableEvent e) {};
-
-	/**
-	 * Returns the type and row/column indices describing how a table changed.
-	 * 
-	 * Provided for use by the IA2_EVENT_TABLE_MODEL_CHANGED event handler.
-	 * 
-	 * This data is only guaranteed to be valid while the thread notifying the event
-	 * continues. Once the handler has returned, the validity of the data depends on
-	 * how the server manages the life cycle of its objects. Also, note that the server
-	 * may have different life cycle management strategies for controls depending on
-	 * whether or not a control manages its children. Lists, trees, and tables can have
-	 * a large number of children and thus it's possible that the child objects for those
-	 * controls would only be created as needed. Servers should document their life cycle
-	 * strategy as this will be of interest to assistive technology or script engines
-	 * accessing data out of process or from other threads. Servers only need to save the
-	 * most recent row and column values associated with the change and a scope of the
-	 * entire application is adequate.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] modelChange
-	 * 		A struct of (type(insert, delete, update), firstRow, lastRow, firstColumn, lastColumn).
-	 * </ul>
-	 */
-	public void getModelChange(AccessibleTableEvent e) {};
 }

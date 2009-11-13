@@ -37,31 +37,6 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	public void addSelection(AccessibleTextExtendedEvent e);
 
 	/**
-	 * Returns the bounding box of the specified position.
-	 * <p>
-	 * Note: The virtual character after the last character of the represented text,
-	 * i.e. the one at offset getCharacterCount, is a special case. It represents the
-	 * current input position and will therefore typically be queried by AT more
-	 * often than other positions.  Because it does not represent an existing character
-	 * its bounding box is defined in relation to preceding characters.  It should be
-	 * roughly equivalent to the bounding box of some character when inserted at the
-	 * end of the text.  Its height typically being the maximal height of all the
-	 * characters in the text or the height of the preceding character, its width being
-	 * at least one pixel so that the bounding box is not degenerate.
-	 * </p>
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset - the offset of the character for which to return its bounding box.
-	 * 		The valid range is 0..getCharacterCount.
-	 * <li>[out] x - the X coordinate of the top left corner of the bounding box of the referenced character
-	 * <li>[out] y - the Y coordinate of the top left corner of the bounding box of the referenced character
-	 * <li>[out] width - the width of the bounding box of the referenced character
-	 * <li>[out] height - the height of the bounding box of the referenced character
-	 * </ul>
-	 */
-	public void getCharacterBounds(AccessibleTextExtendedEvent e);
-
-	/**
 	 * Returns the number of active non-contiguous selections.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -124,6 +99,35 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	public void getText(AccessibleTextExtendedEvent e);
 
 	/**
+	 * Returns the bounding box of the specified text range.
+	 * <p>
+	 * Note: The virtual character after the last character of the represented text,
+	 * i.e. the one at offset getCharacterCount, is a special case. It represents the
+	 * current input position and will therefore typically be queried by AT more
+	 * often than other positions.  Because it does not represent an existing character
+	 * its bounding box is defined in relation to preceding characters.  It should be
+	 * roughly equivalent to the bounding box of some character when inserted at the
+	 * end of the text.  Its height typically being the maximal height of all the
+	 * characters in the text or the height of the preceding character, its width being
+	 * at least one pixel so that the bounding box is not degenerate.
+	 * </p>
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] start - the offset of the first character of the substring to get the bounding box.
+	 * 		The valid range is 0..getCharacterCount.
+	 * <li>[in] end - one less than the offset of the last character of the substring to get the bounding box.
+	 * 		The valid range is 0..getCharacterCount.
+	 * <li>[out] x - the X coordinate of the top left corner of the bounding box of the referenced substring
+	 * <li>[out] y - the Y coordinate of the top left corner of the bounding box of the referenced substring
+	 * <li>[out] width - the width of the bounding box of the referenced substring
+	 * <li>[out] height - the height of the bounding box of the referenced substring
+	 * </ul>
+	 */
+	public void getTextBounds(AccessibleTextExtendedEvent e);
+
+	/**
+	 * TODO count determines if getting text before, after or at the offset
+	 *  
 	 * Returns a substring before the given position.
 	 * <p>
 	 * Returns the substring of the specified boundary type that is located before the
@@ -142,59 +146,14 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * 		The index character will not be part of the returned string.
 	 * 		The valid range is 0..getCharacterCount.
 	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
+	 * <li>[in,out] count - TODO
 	 * <li>[out] start - the 0 based offset of first character
 	 * <li>[out] end - the 0 based offset of one past the last character
 	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
 	 * 		no appropriate text portion is found, or if the type is invalid.
 	 * </ul>
 	 */
-	public void getTextBeforeOffset(AccessibleTextExtendedEvent e);
-
-	/**
-	 * Returns a substring after the given position.
-	 * <p>
-	 * Returns the substring of the specified boundary type that is located after the
-	 * given character and does not include it. The result of this method should be
-	 * same as a result for textAtOffset() with a suitably increased index value.
-	 * </p><p>
-	 * For example, if boundary type is TEXT_BOUNDARY_WORD, then the complete
-	 * word that is closest to and located after offset is returned.
-	 * </p><p>
-	 * If the index is valid, but no suitable word (or other boundary type) is found, a
-	 * NULL pointer is returned.
-	 * </p>
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset - the index of the character for which to return the text part before it.
-	 * 		The index character will not be part of the returned string.
-	 * 		The valid range is 0..getCharacterCount.
-	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
-	 * <li>[out] start - the 0 based offset of first character
-	 * <li>[out] end - the 0 based offset of one past the last character
-	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
-	 * 		no appropriate text portion is found, or if the type is invalid.
-	 * </ul>
-	 */
-	public void getTextAfterOffset(AccessibleTextExtendedEvent e);
-
-	/**
-	 * Returns the substring of the specified boundary type that spans the specified offset.
-	 * <p>
-	 * If the index is valid, but no suitable word (or other boundary type) is found, return null.
-	 * </p>
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset - the index of the character for which to return the text part spanning it.
-	 * 		The index character will not be part of the returned string.
-	 * 		The valid range is 0..getCharacterCount.
-	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
-	 * <li>[out] start - the 0 based offset of first character
-	 * <li>[out] end - the 0 based offset of one past the last character
-	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
-	 * 		no appropriate text portion is found, or if the type is invalid.
-	 * </ul>
-	 */
-	public void getTextAtOffset(AccessibleTextExtendedEvent e);
+	public void getTextRange(AccessibleTextExtendedEvent e);
 
 	/**
 	 * Deselects a range of text.

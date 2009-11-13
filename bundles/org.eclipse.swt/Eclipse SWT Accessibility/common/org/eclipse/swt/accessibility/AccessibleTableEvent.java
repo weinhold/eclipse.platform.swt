@@ -26,15 +26,10 @@ public class AccessibleTableEvent extends SWTEventObject {
 	public Accessible accessible;
 	public Accessible[] accessibles;
 	public String string;
-	public boolean isSelected;
 	public int column;
-	public int count;
-	public int firstColumn;
-	public int firstRow;
-	public int lastColumn;
-	public int lastRow;
 	public int row;
-	public int type;
+	public int count;
+	public boolean isSelected;
 	public int[] selected;
 
 	static final long serialVersionUID = 0L; // TODO: run serialver -show
@@ -62,12 +57,7 @@ public String toString () {
 		+ " isSelected=" + isSelected   //$NON-NLS-1$
 		+ " column=" + column   //$NON-NLS-1$
 		+ " count=" + count   //$NON-NLS-1$
-		+ " firstColumn=" + firstColumn   //$NON-NLS-1$
-		+ " firstRow=" + firstRow   //$NON-NLS-1$
-		+ " lastColumn=" + lastColumn   //$NON-NLS-1$
-		+ " lastRow=" + lastRow   //$NON-NLS-1$
 		+ " row=" + row   //$NON-NLS-1$
-		+ " type=" + type   //$NON-NLS-1$
 		+ " selected=" + selected   //$NON-NLS-1$
 		+ "}";  //$NON-NLS-1$
 }
