@@ -109,7 +109,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * offsets have the same value, an empty string is returned.
 	 * </p><p>
 	 * The whole text can be requested by passing the offsets zero and getCharacterCount,
-	 * or by calling AccessibleControlListener.getValue.
+	 * or by calling AccessibleControlListener.getValue().
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -125,82 +125,73 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 
 	/**
 	 * Returns a substring before the given position.
-	 * 
-	 * Returns the substring of the specified text type that is located before the
+	 * <p>
+	 * Returns the substring of the specified boundary type that is located before the
 	 * given character and does not include it. The result of this method should be
-	 * same as a result for AccessibleTextExtended.textAtOffset with a suitably decreased
-	 * index value.
-	 * 
-	 * For example, if text type is TEXT_BOUNDARY_WORD, then the complete
+	 * same as a result for textAtOffset() with a suitably decreased index value.
+	 * </p><p>
+	 * For example, if the boundary type is TEXT_BOUNDARY_WORD, then the complete
 	 * word that is closest to and located before offset is returned.
-	 * 
+	 * </p><p>
 	 * If the index is valid, but no suitable word (or other boundary type) is found, a
 	 * NULL pointer is returned.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset
-	 * 		Index of the character for which to return the text part before it.  The index
-	 * 		character will not be part of the returned string. The valid range is 0..getCharacterCount.
-	 * <li>[in] type - the boundary type of the text portion to return. One of
-	 * <li>[out] start - startOffset
-	 * 		0 based offset of first character.
-	 * <li>[out] end - endOffset
-	 * 		0 based offset of one past the last character.
-	 * <li>[out] string - text
-	 * 		Returns the requested string - text portion.  This portion may be empty or invalid when
-	 * 		no appropriate string - text portion is found or string - text type is invalid.
+	 * <li>[in] offset - the index of the character for which to return the text part before it.
+	 * 		The index character will not be part of the returned string.
+	 * 		The valid range is 0..getCharacterCount.
+	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
+	 * <li>[out] start - the 0 based offset of first character
+	 * <li>[out] end - the 0 based offset of one past the last character
+	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
+	 * 		no appropriate text portion is found, or if the type is invalid.
 	 * </ul>
 	 */
 	public void getTextBeforeOffset(AccessibleTextExtendedEvent e);
 
 	/**
-	 * Returns a string - text portion after the given position.
-	 * 
-	 * Returns the substring of the specified string - text type that is located after the
+	 * Returns a substring after the given position.
+	 * <p>
+	 * Returns the substring of the specified boundary type that is located after the
 	 * given character and does not include it. The result of this method should be
-	 * same as a result for AccessibleTextExtended::string - textAtOffset with a suitably increased
-	 * index value.
-	 * 
-	 * For example, if string - text type is TEXT_BOUNDARY_WORD, then the complete
+	 * same as a result for textAtOffset() with a suitably increased index value.
+	 * </p><p>
+	 * For example, if boundary type is TEXT_BOUNDARY_WORD, then the complete
 	 * word that is closest to and located after offset is returned.
-	 * 
-	 * If the index is valid, but no suitable word (or other string - text type) is found, a
+	 * </p><p>
+	 * If the index is valid, but no suitable word (or other boundary type) is found, a
 	 * NULL pointer is returned.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset
-	 * 		Index of the character for which to return the string - text part before it.  The index
-	 * 		character will not be part of the returned string. The valid range is 0..getCharacterCount.
-	 * <li>[in] type - boundaryType
-	 * 		The type of the string - text portion to return.  See ::IA2TextBoundaryType for the complete
-	 * 		list.
-	 * <li>[out] start - startOffset
-	 * 		0 based offset of first character.
-	 * <li>[out] end - endOffset
-	 * 		0 based offset of one past the last character.
-	 * <li>[out] string - text
-	 * 		Returns the requested string - text portion.  This portion may be empty or invalid when
-	 * 		no appropriate string - text portion is found or string - text type is invalid.
+	 * <li>[in] offset - the index of the character for which to return the text part before it.
+	 * 		The index character will not be part of the returned string.
+	 * 		The valid range is 0..getCharacterCount.
+	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
+	 * <li>[out] start - the 0 based offset of first character
+	 * <li>[out] end - the 0 based offset of one past the last character
+	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
+	 * 		no appropriate text portion is found, or if the type is invalid.
 	 * </ul>
 	 */
 	public void getTextAfterOffset(AccessibleTextExtendedEvent e);
 
 	/**
-	 * Returns the substring of the specified text type that spans the specified offset.
+	 * Returns the substring of the specified boundary type that spans the specified offset.
 	 * <p>
-	 * If the index is valid, but no suitable word (or other text type) is found, return null.
+	 * If the index is valid, but no suitable word (or other boundary type) is found, return null.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] offset
-	 * 		Index of the character for which to return the string - text part before it.  The index
-	 * 		character will not be part of the returned string. The valid range is 0..getCharacterCount.
-	 * <li>[in] type - boundaryType
-	 * 		The type of the string - text portion to return.  See ::IA2TextBoundaryType for the complete
-	 * 		list.
+	 * <li>[in] offset - the index of the character for which to return the text part spanning it.
+	 * 		The index character will not be part of the returned string.
+	 * 		The valid range is 0..getCharacterCount.
+	 * <li>[in] type - the boundary type of the text portion to return. One of TODO
 	 * <li>[out] start - the 0 based offset of first character
 	 * <li>[out] end - the 0 based offset of one past the last character
-	 * <li>[out] string - the requested substring, or null if no appropriate string is found
-	 * 		or if the text type is invalid.
+	 * <li>[out] string - the requested text portion.  This portion may be empty or invalid when
+	 * 		no appropriate text portion is found, or if the type is invalid.
 	 * </ul>
 	 */
 	public void getTextAtOffset(AccessibleTextExtendedEvent e);
@@ -209,8 +200,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * Deselects a range of text.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - selectionIndex
-	 * 		Index of selection to remove (0 based).
+	 * <li>[in] index - the index of selection to remove (0 based).
 	 * </ul>
 	 */
 	public void removeSelection(AccessibleTextExtendedEvent e);
@@ -218,23 +208,21 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	/**
 	 * Sets the position of the caret.
 	 * 
-	 * The caret position/index - offset is that of the character logically following it,
+	 * The caret position is that of the character logically following it,
 	 * e.g. to the right of it in a left to right language.
 	 * 
 	 * Setting the caret position may or may not alter the current selection.  A
 	 * change of the selection is notified to the accessibility event listeners with
 	 * an EVENT_TEXT_SELECTION_CHANGED event.
 	 * 
-	 * When the new caret position differs from the old one (which, of course, is the
-	 * standard case) this is notified to the accessibility event listeners with an
-	 * EVENT_TEXT_CARET_MOVED event.
+	 * When the new caret position differs from the old one, this is notified to the
+	 * accessibility event listeners with an EVENT_TEXT_CARET_MOVED event.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - offset
-	 * 		The new index of the caret.  This caret is actually placed to the left side of
-	 * 		the character with that index.  An index of 0 places the caret so that the next
-	 * 		insertion goes before the first character.  An index of AccessibleTextExtended::nCharacters
-	 * 		leads to insertion after the last character.
+	 * <li>[in] index - the new index of the caret.  This caret is actually placed to the left side
+	 * 		of the character with that index.  An index of 0 places the caret so that the next
+	 * 		insertion goes before the first character.  An index of getCharacterCount places
+	 * 		the caret so that the next insertion goes after the last character.
 	 * </ul>
 	 */
 	public void setCaretOffset(AccessibleTextExtendedEvent e);
@@ -243,12 +231,10 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * Changes the bounds of an existing selection.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - selectionIndex
-	 * 		Index of selection to change (0 based)
-	 * <li>[in] start - startOffset
-	 * 		New starting offset (0 based)
-	 * <li>[in] end - endOffset
-	 * 		New ending offset (0 based) - the offset of the character just past the last character of the selection.
+	 * <li>[in] index - the 0 based index of the selection to change
+	 * <li>[in] start - the new starting offset (0 based)
+	 * <li>[in] end - the new ending offset (0 based).
+	 * 		This is the offset of the character just past the last character of the selection.
 	 * </ul>
 	 */
 	public void setSelection(AccessibleTextExtendedEvent e);
@@ -288,57 +274,6 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * </ul>
 	 */
 	public void scrollTextToPoint(AccessibleTextExtendedEvent e);
-
-	/**
-	 * Returns any inserted text.
-	 * <p>
-	 * Provided for use by the EVENT_TEXT_INSERTED and EVENT_TEXT_UPDATED
-	 * event handlers.
-	 * </p><p>
-	 * This data is only guaranteed to be valid while the thread notifying the event
-	 * continues. Once the handler has returned, the validity of the data depends on
-	 * how the server manages the life cycle of its objects. Also, note that the server
-	 * may have different life cycle management strategies for controls depending on
-	 * whether or not a control manages its children. Lists, trees, and tables can have
-	 * a large number of children and thus it's possible that the child objects for those
-	 * controls would only be created as needed. Servers should document their life cycle
-	 * strategy as this will be of interest to assistive technology or script engines
-	 * accessing data out of process or from other threads. Servers only need to save the
-	 * last inserted block of text and a scope of the entire application is adequate.
-	 * </p>
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] string - the text that was just inserted
-	 * <li>[out] start - the start index of the text that was just inserted
-	 * <li>[out] end - the end index of the text that was just inserted
-	 * </ul>
-	 */
-	public void getNewText(AccessibleTextExtendedEvent e);
-
-	/**
-	 * Returns any removed text.
-	 * <p>
-	 * Provided for use by the IA2_EVENT_TEXT_REMOVED/UPDATED event handlers.
-	 * </p><p>
-	 * This data is only guaranteed to be valid while the thread notifying the event
-	 * continues. Once the handler has returned, the validity of the data depends on
-	 * how the server manages the life cycle of its objects. Also, note that the server
-	 * may have different life cycle management strategies for controls depending on
-	 * whether or not a control manages its children. Lists, trees, and tables can have
-	 * a large number of children and thus it's possible that the child objects for those
-	 * controls would only be created as needed. Servers should document their life cycle
-	 * strategy as this will be of interest to assistive technology or script engines
-	 * accessing data out of process or from other threads. Servers only need to save the
-	 * last removed block of text and a scope of the entire application is adequate.
-	 * </p>
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] string - the text that was just removed
-	 * <li>[out] start - the start index of the text that was just removed
-	 * <li>[out] end - the end index of the text that was just removed
-	 * </ul>
-	 */
-	public void getOldText(AccessibleTextExtendedEvent e);
 
 	/**
 	 * Returns the number of links and link groups contained within this hypertext
