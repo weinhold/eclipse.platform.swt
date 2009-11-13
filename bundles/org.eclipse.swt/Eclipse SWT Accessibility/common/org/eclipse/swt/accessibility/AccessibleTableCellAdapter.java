@@ -33,7 +33,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - the 1-based number of columns spanned by the specified cell
+	 * <li>[out] count - the 1 based number of columns spanned by the specified cell
 	 * </ul>
 	 */
 	public void getColumnSpan(AccessibleTableCellEvent e) {};
@@ -42,9 +42,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Returns the column headers as an array of cell accessibles.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles.
-	 * <li>[out] count - columnHeaderCellCount
-	 * 		The number of accessibles returned; the size of the returned array.
+	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] count - the number of accessibles in the returned array
 	 * </ul>
 	 */
 	public void getColumnHeaderCells(AccessibleTableCellEvent e) {};
@@ -53,9 +52,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Translates this cell accessible into the corresponding column index.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] index - columnIndex
-	 * 		Returns the 0 based column index of the cell of the specified cell or the index of
-	 * 		the first column if the cell spans multiple columns.
+	 * <li>[out] index - the 0 based column index of the specified cell,
+	 * 		or the index of the first column if the cell spans multiple columns
 	 * </ul>
 	 */
 	public void getColumnIndex(AccessibleTableCellEvent e) {};
@@ -68,7 +66,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - the 1-based number of rows spanned by the specified cell
+	 * <li>[out] count - the 1 based number of rows spanned by the specified cell
 	 * </ul>
 	 */
 	public void getRowSpan(AccessibleTableCellEvent e) {};
@@ -77,11 +75,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Returns the row headers as an array of cell accessibles.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - cellAccessibles
-	 * 		Pointer to an array of references to cell accessibles.  The array is allocated
-	 * 		by the server.  
-	 * <li>[out] count - rowHeaderCellCount
-	 * 		The number of accessibles returned; the size of the returned array.
+	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] count - the number of accessibles in the returned array
 	 * </ul>
 	 */
 	public void getRowHeaderCells(AccessibleTableCellEvent e) {};
@@ -90,8 +85,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Translates this cell accessible into the corresponding row index.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] index - the 0 based row index of the specified cell
-	 * or the index of the first row if the cell spans multiple rows
+	 * <li>[out] index - the 0 based row index of the specified cell,
+	 * 		or the index of the first row if the cell spans multiple rows
 	 * </ul>
 	 */
 	public void getRowIndex(AccessibleTableCellEvent e) {};
@@ -100,19 +95,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Returns a boolean value indicating whether this cell is selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] isSelected
-	 * 		Returns TRUE if the specified cell is selected and FALSE otherwise.
+	 * <li>[out] isSelected - true if the specified cell is selected and false otherwise
 	 * </ul>
 	 */
 	public void isSelected(AccessibleTableCellEvent e) {};
-
-	/**
-	 * Returns a reference to the accessbile of the containing accessible - table.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessible - table
-	 * 		Returns a reference to the IUnknown of the containing accessible - table.
-	 * </ul>
-	 */
-	public void getTable(AccessibleTableCellEvent e) {};
 }
