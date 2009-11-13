@@ -43,14 +43,8 @@ public class AccessibleTextExample {
 			public void getHyperlinkIndex(AccessibleTextExtendedEvent e) {
 				System.out.println("getHyperlinkIndex " + e);
 			}
-			public void getNewText(AccessibleTextExtendedEvent e) {
-				System.out.println("getNewText " + e);
-			}
 			public void getOffsetAtPoint(AccessibleTextExtendedEvent e) {
 				System.out.println("getOffsetAtPoint " + e);
-			}
-			public void getOldText(AccessibleTextExtendedEvent e) {
-				System.out.println("getOldText " + e);
 			}
 			public void getSelection(AccessibleTextExtendedEvent e) {
 				System.out.println("getSelection " + e);
