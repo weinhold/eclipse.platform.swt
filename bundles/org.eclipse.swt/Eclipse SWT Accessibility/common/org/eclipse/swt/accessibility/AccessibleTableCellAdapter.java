@@ -27,23 +27,22 @@ package org.eclipse.swt.accessibility;
 public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	/**
 	 * Returns the number of columns occupied by this cell accessible.
-	 * 
-	 * The result is greater than 1 if the specified cell spans multiple columns.
+	 * <p>
+	 * This is 1 if the specified cell is only in one column, or
+	 * more than 1 if the specified cell spans multiple columns.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - columnsSpannCount
-	 * 		Returns the 1 based column extent of the specified cell.
+	 * <li>[out] count - the 1-based number of columns spanned by the specified cell
 	 * </ul>
 	 */
-	public void getColumnExtent(AccessibleTableCellEvent e) {};
+	public void getColumnSpan(AccessibleTableCellEvent e) {};
 
 	/**
 	 * Returns the column headers as an array of cell accessibles.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - cellAccessibles
-	 * 		Pointer to an array of references to cell accessibles.  The array is allocated
-	 * 		by the server.  
+	 * <li>[out] accessibles - an array of cell accessibles.
 	 * <li>[out] count - columnHeaderCellCount
 	 * 		The number of accessibles returned; the size of the returned array.
 	 * </ul>
@@ -63,13 +62,16 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 
 	/**
 	 * Returns the number of rows occupied by this cell accessible.
+	 * <p>
+	 * This is 1 if the specified cell is only in one row, or
+	 * more than 1 if the specified cell spans multiple rows.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - rowsSpannCount
-	 * 		Returns the row extent of the specified cell.
+	 * <li>[out] count - the 1-based number of rows spanned by the specified cell
 	 * </ul>
 	 */
-	public void getRowExtent(AccessibleTableCellEvent e) {};
+	public void getRowSpan(AccessibleTableCellEvent e) {};
 
 	/**
 	 * Returns the row headers as an array of cell accessibles.
@@ -88,9 +90,8 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * Translates this cell accessible into the corresponding row index.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] index - rowIndex
-	 * 		Returns the 0 based row index of the specified cell or the index of
-	 * 		the first row if the cell spans multiple rows.
+	 * <li>[out] index - the 0 based row index of the specified cell
+	 * or the index of the first row if the cell spans multiple rows
 	 * </ul>
 	 */
 	public void getRowIndex(AccessibleTableCellEvent e) {};
@@ -104,27 +105,6 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * </ul>
 	 */
 	public void isSelected(AccessibleTableCellEvent e) {};
-
-	/**
-	 * Gets the row and column indexes and extents of this cell accessible
-	 * and whether or not it is selected.
-	 * 
-	 * This is a convenience function.  It is not mandatory to implement it.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] row
-	 * 		0 based row index.
-	 * <li>[out] column
-	 * 		0 based column index.
-	 * <li>[out] rowExtents
-	 * 		Number of cells spanned by this cell in this row.
-	 * <li>[out] columnExtents
-	 * 		Number of cells spanned by this cell in this column.
-	 * <li>[out] isSelected
-	 * 		Indicates if the specified cell is selected.
-	 * </ul>
-	 */
-	public void getRowColumnExtents(AccessibleTableCellEvent e) {};
 
 	/**
 	 * Returns a reference to the accessbile of the containing accessible - table.
