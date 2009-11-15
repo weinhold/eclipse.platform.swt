@@ -31,9 +31,6 @@ public class AccessibleTextExample {
 			public void getCharacterCount(AccessibleTextExtendedEvent e) {
 				System.out.println("getCharacterCount " + e);
 			}
-			public void getCharacterBounds(AccessibleTextExtendedEvent e) {
-				System.out.println("getCharacterBounds " + e);
-			}
 			public void getHyperlink(AccessibleTextExtendedEvent e) {
 				System.out.println("getHyperlink " + e);
 			}
@@ -58,14 +55,11 @@ public class AccessibleTextExample {
 			public void getText(AccessibleTextExtendedEvent e) {
 				System.out.println("getText " + e);
 			}
-			public void getTextAfterOffset(AccessibleTextExtendedEvent e) {
-				System.out.println("getTextAfterOffset " + e);
+			public void getTextBounds(AccessibleTextExtendedEvent e) {
+				System.out.println("getTextBounds " + e);
 			}
-			public void getTextAtOffset(AccessibleTextExtendedEvent e) {
-				System.out.println("getTextAtOffset " + e);
-			}
-			public void getTextBeforeOffset(AccessibleTextExtendedEvent e) {
-				System.out.println("getTextBeforeOffset " + e);
+			public void getTextRange(AccessibleTextExtendedEvent e) {
+				System.out.println("getTextRange " + e);
 			}
 			public void removeSelection(AccessibleTextExtendedEvent e) {
 				System.out.println("removeSelection " + e);
