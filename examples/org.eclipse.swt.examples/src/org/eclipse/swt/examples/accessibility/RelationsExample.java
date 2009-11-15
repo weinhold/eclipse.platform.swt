@@ -33,8 +33,8 @@ public class RelationsExample {
 			}
 		});
 		Accessible accList = list.getAccessible();
-		accCanvas.addAccessibleRelation(ACC.RELATION_LABEL_FOR, accList);
-		accList.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accCanvas);
+		accCanvas.addRelation(ACC.RELATION_LABEL_FOR, accList);
+		accList.addRelation(ACC.RELATION_LABELLED_BY, accCanvas);
 		
 		shell.pack();
 		shell.open();

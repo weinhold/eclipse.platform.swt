@@ -18,8 +18,8 @@ public class RelationsExample2 {
 		nameText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Accessible accNameLabel = nameLabel.getAccessible();
 		Accessible accNameText = nameText.getAccessible();
-		accNameLabel.addAccessibleRelation(ACC.RELATION_LABEL_FOR, accNameText);
-		accNameText.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accNameLabel);
+		accNameLabel.addRelation(ACC.RELATION_LABEL_FOR, accNameText);
+		accNameText.addRelation(ACC.RELATION_LABELLED_BY, accNameLabel);
 
 		Group addressGroup = new Group(shell, SWT.NONE);
 		addressGroup.setText("Address");
@@ -32,8 +32,8 @@ public class RelationsExample2 {
 		streetText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Accessible accStreetLabel = streetLabel.getAccessible();
 		Accessible accStreetText = streetText.getAccessible();
-		accStreetLabel.addAccessibleRelation(ACC.RELATION_LABEL_FOR, accStreetText);
-		accStreetText.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accStreetLabel);
+		accStreetLabel.addRelation(ACC.RELATION_LABEL_FOR, accStreetText);
+		accStreetText.addRelation(ACC.RELATION_LABELLED_BY, accStreetLabel);
 		
 		Label cityLabel = new Label(addressGroup, SWT.NONE);
 		cityLabel.setText("City:");
@@ -41,14 +41,14 @@ public class RelationsExample2 {
 		cityText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Accessible accCityLabel = cityLabel.getAccessible();
 		Accessible accCityText = cityText.getAccessible();
-		accCityLabel.addAccessibleRelation(ACC.RELATION_LABEL_FOR, accCityText);
-		accCityText.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accCityLabel);
+		accCityLabel.addRelation(ACC.RELATION_LABEL_FOR, accCityText);
+		accCityText.addRelation(ACC.RELATION_LABELLED_BY, accCityLabel);
 		
 		Accessible accAddressGroup = addressGroup.getAccessible();
-		accStreetText.addAccessibleRelation(ACC.RELATION_MEMBER_OF, accAddressGroup);
-		accStreetText.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accAddressGroup);
-		accCityText.addAccessibleRelation(ACC.RELATION_MEMBER_OF, accAddressGroup);
-		accCityText.addAccessibleRelation(ACC.RELATION_LABELLED_BY, accAddressGroup);
+		accStreetText.addRelation(ACC.RELATION_MEMBER_OF, accAddressGroup);
+		accStreetText.addRelation(ACC.RELATION_LABELLED_BY, accAddressGroup);
+		accCityText.addRelation(ACC.RELATION_MEMBER_OF, accAddressGroup);
+		accCityText.addRelation(ACC.RELATION_LABELLED_BY, accAddressGroup);
 		
 		shell.pack();
 		shell.open();
