@@ -178,9 +178,9 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * accessibility event listeners with an EVENT_TEXT_CARET_MOVED event.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - the new index of the caret.  This caret is actually placed to the left side
-	 * 		of the character with that index.  An index of 0 places the caret so that the next
-	 * 		insertion goes before the first character.  An index of getCharacterCount places
+	 * <li>[in] offset - the new offset of the caret.  This caret is actually placed to the left side
+	 * 		of the character with that offset.  An offset of 0 places the caret so that the next
+	 * 		insertion goes before the first character.  An offset of getCharacterCount places
 	 * 		the caret so that the next insertion goes after the last character.
 	 * </ul>
 	 */
