@@ -99,7 +99,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	public void getText(AccessibleTextExtendedEvent e);
 
 	/**
-	 * Returns the bounding box of the specified text range.
+	 * Returns the bounding box of the specified text range in display coordinates.
 	 * <p>
 	 * Note: The virtual character after the last character of the represented text,
 	 * i.e. the one at offset getCharacterCount, is a special case. It represents the
@@ -126,7 +126,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	public void getTextBounds(AccessibleTextExtendedEvent e);
 
 	/**
-	 * TODO count determines if getting text before, after or at the offset
+	 * TODO count determines if getting text before (count < 0), after (count > 0) or at (count == 0) the offset
 	 *  
 	 * Returns a substring before the given position.
 	 * <p>
