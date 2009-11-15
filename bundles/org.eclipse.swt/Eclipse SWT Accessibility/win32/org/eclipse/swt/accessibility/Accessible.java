@@ -712,7 +712,7 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void addAccessibleRelation(int type, Accessible target) {
+	public void addRelation(int type, Accessible target) {
 		if (relations[type] == null) {
 			relations[type] = new Relation(this, type);
 		}
@@ -1071,7 +1071,7 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void removeAccessibleRelation(int type, Accessible target) {
+	public void removeRelation(int type, Accessible target) {
 		Relation relation = (Relation)relations[type];
 		if (relation != null) {
 			relation.removeTarget(target);
@@ -3281,15 +3281,17 @@ public class Accessible {
 
 	/* get_modelChange([out] pModelChange) */
 	int get_modelChange(int /*long*/ pModelChange) {
-		AccessibleTableEvent event = new AccessibleTableEvent(this);
-		for (int i = 0; i < accessibleTableListeners.size(); i++) {
-			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.getModelChange(event);
-		}
-		// TODO: create modelChange struct to return from event data
-		//COM.MoveMemory(pModelChange, new int [] { event.modelChange }, 4);
-		return COM.S_OK;
-		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+		// TODO: implement this... return the most recent row and column values associated with the change
+//		AccessibleTableEvent event = new AccessibleTableEvent(this);
+//		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+//			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+//			listener.getModelChange(event);
+//		}
+//		// TODO: create modelChange struct to return from event data
+//		//COM.MoveMemory(pModelChange, new int [] { event.modelChange }, 4);
+//		return COM.S_OK;
+//		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
+		return COM.S_FALSE;
 	}
 
 	/* get_columnExtent([out] pNColumnsSpanned) */
@@ -3462,10 +3464,11 @@ public class Accessible {
 	/* get_characterExtents([in] offset, [in] coordType, [out] pX, [out] pY, [out] pWidth, [out] pHeight) */
 	int get_characterExtents(int offset, int coordType, int /*long*/ pX, int /*long*/ pY, int /*long*/ pWidth, int /*long*/ pHeight) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
-		event.index = offset;
+		event.start = offset;
+		event.end = offset;
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			listener.getCharacterBounds(event);
+			listener.getTextBounds(event);
 		}
 		COM.MoveMemory(pX, new int [] { event.x }, 4);
 		COM.MoveMemory(pY, new int [] { event.y }, 4);
@@ -3536,6 +3539,7 @@ public class Accessible {
 		event.type = boundaryType;
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+			// TODO: use getTextRange
 			listener.getTextBeforeOffset(event);
 		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
