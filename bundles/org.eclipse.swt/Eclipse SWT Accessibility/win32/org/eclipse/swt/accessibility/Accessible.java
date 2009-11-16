@@ -713,6 +713,7 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public void addRelation(int type, Accessible target) {
+		checkWidget();
 		if (relations[type] == null) {
 			relations[type] = new Relation(this, type);
 		}
@@ -1072,6 +1073,7 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public void removeRelation(int type, Accessible target) {
+		checkWidget();
 		Relation relation = (Relation)relations[type];
 		if (relation != null) {
 			relation.removeTarget(target);

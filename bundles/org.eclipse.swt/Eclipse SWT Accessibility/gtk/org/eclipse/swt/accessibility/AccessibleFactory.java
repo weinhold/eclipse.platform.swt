@@ -104,6 +104,7 @@ class AccessibleFactory {
 	
 	/* Text callbacks */
 	static final Callback AtkTextCB_get_character_extents;
+	static final Callback AtkTextCB_get_range_extents;
 	static final Callback AtkTextCB_get_run_attributes;
 	static final Callback AtkTextCB_get_offset_at_point;
 	static final Callback AtkTextCB_add_selection;
@@ -194,6 +195,7 @@ class AccessibleFactory {
 		AtkTableCB_remove_column_selection = newCallback (AccessibleObject.class, "atkTable_remove_column_selection", 2); //$NON-NLS-1$
 		AtkTableCB_remove_row_selection = newCallback (AccessibleObject.class, "atkTable_remove_row_selection", 2); //$NON-NLS-1$
 		AtkTextCB_get_character_extents = newCallback (AccessibleObject.class, "atkText_get_character_extents", 7); //$NON-NLS-1$
+		AtkTextCB_get_range_extents = newCallback (AccessibleObject.class, "atkText_get_range_extents", 5); //$NON-NLS-1$
 		AtkTextCB_get_run_attributes = newCallback (AccessibleObject.class, "atkText_get_run_attributes", 4); //$NON-NLS-1$
 		AtkTextCB_get_offset_at_point = newCallback (AccessibleObject.class, "atkText_get_offset_at_point", 4); //$NON-NLS-1$
 		AtkTextCB_add_selection = newCallback (AccessibleObject.class, "atkText_add_selection", 3); //$NON-NLS-1$
@@ -496,6 +498,7 @@ class AccessibleFactory {
 	static int /*long*/ initTextIfaceCB (int /*long*/ iface) {
 		AtkTextIface inter = new AtkTextIface ();
 		ATK.memmove (inter, iface);
+		inter.get_range_extents = AtkTextCB_get_range_extents.getAddress ();
 		inter.get_character_extents = AtkTextCB_get_character_extents.getAddress ();
 		inter.get_run_attributes= AtkTextCB_get_run_attributes.getAddress ();
 		inter.get_offset_at_point = AtkTextCB_get_offset_at_point.getAddress ();

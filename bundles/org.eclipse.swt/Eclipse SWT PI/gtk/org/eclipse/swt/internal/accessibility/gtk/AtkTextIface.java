@@ -56,4 +56,6 @@ public class AtkTextIface {
 	public int /*long*/ text_caret_moved;
 	/** @field cast=(void (*)()) */
 	public int /*long*/ text_selection_changed;
+	/** @field cast=(void (*)()) */
+	public int /*long*/ get_range_extents;
 }

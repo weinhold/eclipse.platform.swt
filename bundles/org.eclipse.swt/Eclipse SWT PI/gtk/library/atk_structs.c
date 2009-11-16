@@ -492,7 +492,7 @@ void setAtkTableIfaceFields(JNIEnv *env, jobject lpObject, AtkTableIface *lpStru
 typedef struct AtkTextIface_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_text, get_text_after_offset, get_text_at_offset, get_character_at_offset, get_text_before_offset, get_caret_offset, get_run_attributes, get_default_attributes, get_character_extents, get_character_count, get_offset_at_point, get_n_selections, get_selection, add_selection, remove_selection, set_selection, set_caret_offset, text_changed, text_caret_moved, text_selection_changed;
+	jfieldID get_text, get_text_after_offset, get_text_at_offset, get_character_at_offset, get_text_before_offset, get_caret_offset, get_run_attributes, get_default_attributes, get_character_extents, get_character_count, get_offset_at_point, get_n_selections, get_selection, add_selection, remove_selection, set_selection, set_caret_offset, text_changed, text_caret_moved, text_selection_changed, get_range_extents;
 } AtkTextIface_FID_CACHE;
 
 AtkTextIface_FID_CACHE AtkTextIfaceFc;
@@ -521,6 +521,7 @@ void cacheAtkTextIfaceFields(JNIEnv *env, jobject lpObject)
 	AtkTextIfaceFc.text_changed = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "text_changed", I_J);
 	AtkTextIfaceFc.text_caret_moved = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "text_caret_moved", I_J);
 	AtkTextIfaceFc.text_selection_changed = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "text_selection_changed", I_J);
+	AtkTextIfaceFc.get_range_extents = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "get_range_extents", I_J);
 	AtkTextIfaceFc.cached = 1;
 }
 
@@ -547,6 +548,7 @@ AtkTextIface *getAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface 
 	lpStruct->text_changed = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.text_changed);
 	lpStruct->text_caret_moved = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.text_caret_moved);
 	lpStruct->text_selection_changed = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.text_selection_changed);
+	lpStruct->get_range_extents = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.get_range_extents);
 	return lpStruct;
 }
 
@@ -573,6 +575,7 @@ void setAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_changed, (jintLong)lpStruct->text_changed);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_caret_moved, (jintLong)lpStruct->text_caret_moved);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_selection_changed, (jintLong)lpStruct->text_selection_changed);
+	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.get_range_extents, (jintLong)lpStruct->get_range_extents);
 }
 #endif
 

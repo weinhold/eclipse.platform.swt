@@ -68,6 +68,20 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkAction_do_action");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleActionListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleActionEvent event = new AccessibleActionEvent(accessible);
+				event.index = (int)/*64*/index;
+				for (int i = 0; i < length; i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) listeners.elementAt(i);
+					listener.doAction(event);
+				}
+				return 0;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
@@ -77,7 +91,6 @@ class AccessibleObject {
 				parentResult = ATK.call (actionIface.do_action, object.handle, index);
 			}
 		}
-		//TODO
 		return parentResult; 	
 	}
 
@@ -85,6 +98,19 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkAction_get_n_actions");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleActionListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleActionEvent event = new AccessibleActionEvent(accessible);
+				for (int i = 0; i < length; i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) listeners.elementAt(i);
+					listener.getActionCount(event);
+				}
+				return event.count;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
@@ -94,7 +120,6 @@ class AccessibleObject {
 				parentResult = ATK.call (actionIface.get_n_actions, object.handle);
 			}
 		}
-		//TODO
 		return parentResult; 	
 	}
 	
@@ -102,6 +127,25 @@ class AccessibleObject {
 		if (DEBUG) System.out.println ("-->atkAction_get_description");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleActionListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleActionEvent event = new AccessibleActionEvent(accessible);
+				event.index = (int)/*64*/index;
+				for (int i = 0; i < length; i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) listeners.elementAt(i);
+					listener.getDescription(event);
+				}
+				if (event.string == null) return 0;
+				if (descriptionPtr != -1) OS.g_free (descriptionPtr);
+				byte[] name = Converter.wcsToMbcs (null, event.string, true);
+				descriptionPtr = OS.g_malloc (name.length);
+				OS.memmove (descriptionPtr, name, name.length);
+				return descriptionPtr;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_ACTION_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_ACTION_GET_IFACE (object.handle));
@@ -111,7 +155,6 @@ class AccessibleObject {
 				parentResult = ATK.call (actionIface.get_description, object.handle, index);
 			}
 		}
-		//TODO
 		return parentResult; 	
 	}
 	
@@ -128,26 +171,49 @@ class AccessibleObject {
 				parentResult = ATK.call (actionIface.get_keybinding, object.handle, index);
 			}
 		}
-		AccessibleListener[] listeners = object.getAccessibleListeners ();
-		if (listeners.length == 0) return parentResult;
-
-		AccessibleEvent event = new AccessibleEvent (object.accessible);
-		event.childID = object.id;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.result = new String (Converter.mbcsToWcs (null, buffer));
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleActionListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleActionEvent event = new AccessibleActionEvent(accessible);
+				event.index = (int)/*64*/index;
+				for (int i = 0; i < length; i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) listeners.elementAt(i);
+					listener.getKeyBinding(event);
+				}
+				if (event.string != null) {
+					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
+					byte[] name = Converter.wcsToMbcs (null, event.string, true);
+					actionNamePtr = OS.g_malloc (name.length);
+					OS.memmove (actionNamePtr, name, name.length);
+					return actionNamePtr;
+				}
+			}
+			listeners = accessible.accessibleListeners;
+			length = listeners.size();
+			if (length > 0) {
+				AccessibleEvent event = new AccessibleEvent (accessible);
+				event.childID = object.id;
+				if (parentResult != 0) {
+					byte [] buffer = new byte [OS.strlen (parentResult)];
+					OS.memmove (buffer, parentResult, buffer.length);
+					event.result = new String (Converter.mbcsToWcs (null, buffer));
+				}
+				for (int i = 0; i < length; i++) {
+					AccessibleListener listener = (AccessibleListener) listeners.elementAt(i);
+					listener.getKeyboardShortcut (event);				
+				} 
+				if (event.result != null) {
+					if (keybindingPtr != -1) OS.g_free (keybindingPtr);
+					byte[] name = Converter.wcsToMbcs (null, event.result, true);
+					keybindingPtr = OS.g_malloc (name.length);
+					OS.memmove (keybindingPtr, name, name.length);
+					return keybindingPtr; 
+				}
+			}
 		}
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getKeyboardShortcut (event);	
-		} 
-		if (event.result == null) return parentResult;
-		if (keybindingPtr != -1) OS.g_free (keybindingPtr);
-		byte[] name = Converter.wcsToMbcs (null, event.result, true);
-		keybindingPtr = OS.g_malloc (name.length);
-		OS.memmove (keybindingPtr, name, name.length);
-		return keybindingPtr; 	
+		return parentResult;
 	}
 
 	static int /*long*/ atkAction_get_name (int /*long*/ atkObject, int /*long*/ index) {
@@ -163,26 +229,49 @@ class AccessibleObject {
 				parentResult = ATK.call (actionIface.get_name, object.handle, index);
 			}
 		}
-		AccessibleControlListener[] listeners = object.getControlListeners ();
-		if (listeners.length == 0) return parentResult;
-
-		AccessibleControlEvent event = new AccessibleControlEvent (object.accessible);
-		event.childID = object.id;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.result = new String (Converter.mbcsToWcs (null, buffer));
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleActionListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleActionEvent event = new AccessibleActionEvent(accessible);
+				event.index = (int)/*64*/index;
+				for (int i = 0; i < length; i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) listeners.elementAt(i);
+					listener.getName(event);
+				}
+				if (event.string != null) {
+					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
+					byte[] name = Converter.wcsToMbcs (null, event.string, true);
+					actionNamePtr = OS.g_malloc (name.length);
+					OS.memmove (actionNamePtr, name, name.length);
+					return actionNamePtr;
+				}
+			}
+			listeners = accessible.accessibleControlListeners;
+			length = listeners.size();
+			if (length > 0) {
+				AccessibleControlEvent event = new AccessibleControlEvent (accessible);
+				event.childID = object.id;
+				if (parentResult != 0) {
+					byte [] buffer = new byte [OS.strlen (parentResult)];
+					OS.memmove (buffer, parentResult, buffer.length);
+					event.result = new String (Converter.mbcsToWcs (null, buffer));
+				}
+				for (int i = 0; i < length; i++) {
+					AccessibleControlListener listener = (AccessibleControlListener) listeners.elementAt(i);
+					listener.getDefaultAction (event);				
+				} 
+				if (event.result != null) {
+					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
+					byte[] name = Converter.wcsToMbcs (null, event.result, true);
+					actionNamePtr = OS.g_malloc (name.length);
+					OS.memmove (actionNamePtr, name, name.length);
+					return actionNamePtr;
+				}
+			}
 		}
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getDefaultAction (event);				
-		} 
-		if (event.result == null) return parentResult;
-		if (actionNamePtr != -1) OS.g_free (actionNamePtr);
-		byte[] name = Converter.wcsToMbcs (null, event.result, true);
-		actionNamePtr = OS.g_malloc (name.length);
-		OS.memmove (actionNamePtr, name, name.length);
-		return actionNamePtr;
+		return parentResult;
 	}	
 
 	static int /*long*/ atkComponent_get_extents (int /*long*/ atkObject, int /*long*/ x, int /*long*/ y, int /*long*/ width, int /*long*/ height, int /*long*/ coord_type) {
@@ -2727,5 +2816,48 @@ class AccessibleObject {
 				}
 			}
 		}
+	}
+
+	static int /*long*/ atkText_get_range_extents (int /*long*/ atkObject, int /*long*/ start_offset, int /*long*/ end_offset, int /*long*/ coord_type, int /*long*/ rect) {
+		if (DEBUG) System.out.println ("-->atkText_get_range_extents");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				event.start = (int)/*64*/start_offset;
+				event.end = (int)/*64*/end_offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getTextBounds(event);
+				}
+				if (coord_type == ATK.ATK_XY_WINDOW) {
+					/* translate display -> control, for answering to the OS */ 
+					int /*long*/ gtkAccessibleHandle = ATK.GTK_ACCESSIBLE (object.handle);
+					GtkAccessible gtkAccessible = new GtkAccessible ();
+					ATK.memmove (gtkAccessible, gtkAccessibleHandle);
+					int /*long*/ topLevel = ATK.gtk_widget_get_toplevel (gtkAccessible.widget);
+					int /*long*/ window = OS.GTK_WIDGET_WINDOW (topLevel);
+					int[] topWindowX = new int [1], topWindowY = new int [1];
+					OS.gdk_window_get_origin (window, topWindowX, topWindowY);
+					event.x -= topWindowX [0];
+					event.y -= topWindowY [0];
+				}
+				OS.memmove (rect, new int[]{event.x, event.y, event.width, event.height}, 4 * 4);
+				return 0;
+			}
+		}
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_range_extents != 0) {
+				ATK.call (textIface.get_range_extents, object.handle, start_offset, end_offset, coord_type, rect);
+			}
+		}
+		return 0;
 	}
 }
