@@ -183,11 +183,11 @@ class AccessibleObject {
 					listener.getKeyBinding(event);
 				}
 				if (event.string != null) {
-					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
+					if (keybindingPtr != -1) OS.g_free (keybindingPtr);
 					byte[] name = Converter.wcsToMbcs (null, event.string, true);
-					actionNamePtr = OS.g_malloc (name.length);
-					OS.memmove (actionNamePtr, name, name.length);
-					return actionNamePtr;
+					keybindingPtr = OS.g_malloc (name.length);
+					OS.memmove (keybindingPtr, name, name.length);
+					return keybindingPtr; 
 				}
 			}
 			listeners = accessible.accessibleListeners;
