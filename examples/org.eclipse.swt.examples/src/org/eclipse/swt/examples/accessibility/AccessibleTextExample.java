@@ -13,7 +13,12 @@ public class AccessibleTextExample {
 		shell.setText("Accessible Text");
 		
 		Text text = new Text(shell, SWT.MULTI | SWT.BORDER);
-		text.setText("This is a multi\nline\ntext.");
+		text.setText("This is a\nmulti\nline\ntext.");
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Button button = new Button(shell, SWT.NONE);
+		button.setText("  OK  ");
+		button.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
 		
 		Accessible accessibleText = text.getAccessible();
 		accessibleText.addAccessibleListener(new AccessibleAdapter() {
