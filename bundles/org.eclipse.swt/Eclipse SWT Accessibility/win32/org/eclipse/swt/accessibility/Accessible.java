@@ -2980,11 +2980,13 @@ public class Accessible {
 	/* get_hyperlinkIndex([in] charIndex, [out] pHyperlinkIndex) */
 	int get_hyperlinkIndex(int charIndex, int /*long*/ pHyperlinkIndex) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
-		event.index = charIndex;
+		event.offset = charIndex;
+		event.index = -1;
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 			listener.getHyperlinkIndex(event);
 		}
+		if (event.index == -1) return COM.S_FALSE;
 		COM.MoveMemory(pHyperlinkIndex, new int [] { event.index }, 4);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is -1@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -3539,11 +3541,11 @@ public class Accessible {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
 		event.type = boundaryType;
-		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
-			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			// TODO: use getTextRange
-			listener.getTextBeforeOffset(event);
-		}
+		// TODO: need to implement - use getTextRange
+//		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+//			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+//			listener.getTextBeforeOffset(event);
+//		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
 		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
@@ -3557,10 +3559,11 @@ public class Accessible {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
 		event.type = boundaryType;
-		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
-			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			listener.getTextAfterOffset(event);
-		}
+		// TODO: need to implement - use getTextRange
+//		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+//			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+//			listener.getTextAfterOffset(event);
+//		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
 		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
@@ -3574,10 +3577,11 @@ public class Accessible {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
 		event.type = boundaryType;
-		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
-			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			listener.getTextAtOffset(event);
-		}
+		// TODO: need to implement - use getTextRange
+//		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+//			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+//			listener.getTextAtOffset(event);
+//		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
 		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
