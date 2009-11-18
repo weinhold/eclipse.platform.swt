@@ -90,15 +90,4 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * </ul>
 	 */
 	public void getName(AccessibleActionEvent e) {};
-
-	/**
-	 * Returns the localized name of the specified action.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] index - a 0 based index specifying which action's localized name to return
-	 * <li>[out] string - the localized name of the specified action,
-	 * 		or null if the index lies outside the valid range
-	 * </ul>
-	 */
-	public void getLocalizedName(AccessibleActionEvent e) {};
 }
