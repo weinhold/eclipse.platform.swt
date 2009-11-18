@@ -26,140 +26,117 @@ package org.eclipse.swt.accessibility;
  */
 public class AccessibleTableAdapter implements AccessibleTableListener {
 	/**
-	 * Returns the accessible object at the specified row and column in
-	 * the table.
+	 * Returns the caption for the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row - the 0 based row index for which to retrieve the accessible
-	 * <li>[in] column - the 0 based column index for which to retrieve the accessible
-	 * <li>[out] accessible - if both row and column index are valid then the corresponding
-	 * 		accessible cell object is returned.
+	 * <li>[out] accessible - the caption for the table,
+	 * 		or null if the table does not have a caption
+	 * </ul>
+	 */
+	public void getCaption(AccessibleTableEvent e) {}
+
+	/**
+	 * Returns the accessible object at the specified row and column in the table.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] row - the 0 based row index for which to retrieve the accessible cell
+	 * <li>[in] column - the 0 based column index for which to retrieve the accessible cell
+	 * <li>[out] accessible - the table cell at the specified row and column,
+	 * 		or null if the row or column index are not valid
 	 * </ul>
 	 */
 	public void getCellAt(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the caption for the table.
+	 * Returns the total number of columns in the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessible
-	 * 		If the table has a caption then a reference to it is returned, else a NULL
-	 * 		pointer is returned.
+	 * <li>[out] count - the number of columns in the table
 	 * </ul>
 	 */
-	public void getCaption(AccessibleTableEvent e) {};
+	public void getColumnCount(AccessibleTableEvent e) {}
 
 	/**
-	 * Returns the string - description text of the specified column in the table.
+	 * Returns the description text of the specified column in the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column
-	 * 		The 0 based index of the column for which to retrieve the string - description.
-	 * <li>[out] string - description
-	 * 		Returns the string - description text of the specified column in the table if such a
-	 * 		string - description exists.  Otherwise a NULL pointer is returned.
+	 * <li>[in] column - the 0 based index of the column for which to retrieve the description
+	 * <li>[out] string - the description text of the specified column in the table,
+	 * 		or null if the column does not have a description
 	 * </ul>
 	 */
 	public void getColumnDescription(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the total number of columns in table
+	 * Returns the total number of rows in the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - columnCount
-	 * 		Number of columns in table (including columns outside the current viewport)
-	 * </ul>
-	 */
-	public void getColumnCount(AccessibleTableEvent e) {};
-
-	/**
-	 * Returns the total number of rows in table
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - rowCount
-	 * 		Number of rows in table (including rows outside the current viewport)
+	 * <li>[out] count - the number of rows in the table
 	 * </ul>
 	 */
 	public void getRowCount(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the total number of selected cells
+	 * Returns the description text of the specified row in the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - cellCount
-	 * 		Number of cells currently selected
+	 * <li>[in] row - the 0 based index of the row for which to retrieve the description
+	 * <li>[out] string - the description text of the specified row in the table,
+	 * 		or null if the row does not have a description
+	 * </ul>
+	 */
+	public void getRowDescription(AccessibleTableEvent e) {}
+
+	/**
+	 * Returns the number of selected cells.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] count -  the number of cells currently selected
 	 * </ul>
 	 */
 	public void getSelectedCellCount(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the total number of selected columns
+	 * Returns the currently selected cells.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - columnCount
-	 * 		Number of columns currently selected
+	 * <li>[out] accessibles - array containing the selected accessible table cells
+	 * </ul>
+	 */
+	public void getSelectedCells(AccessibleTableEvent e) {}
+
+	/**
+	 * Returns the number of selected columns.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] count - the number of columns currently selected
 	 * </ul>
 	 */
 	public void getSelectedColumnCount(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the total number of selected rows
+	 * Returns the column indexes that are currently selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] count - rowCount
-	 * 		Number of rows currently selected
+	 * <li>[out] selected - an array of 0 based column indexes of selected columns
+	 * </ul>
+	 */
+	public void getSelectedColumns(AccessibleTableEvent e) {}
+
+	/**
+	 * Returns the number of selected rows.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] count - the number of rows currently selected
 	 * </ul>
 	 */
 	public void getSelectedRowCount(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns the string - description text of the specified row in the table.
+	 * Returns the row indexes that are currently selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row
-	 * 		The 0 based index of the row for which to retrieve the string - description.
-	 * <li>[out] string - description
-	 * 		Returns the string - description text of the specified row in the table if such a
-	 * 		string - description exists.  Otherwise a NULL pointer is returned.
-	 * </ul>
-	 */
-	public void getRowDescription(AccessibleTableEvent e) {};
-
-	/**
-	 * Returns a list of accessibles currently selected.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - cells
-	 * 		Pointer to an array of references to selected accessibles.  The array is
-	 * 		allocated by the server.  
-	 * <li>[out] count - selectedCellCount
-	 * 		The number of accessibles returned; the size of the returned array.
-	 * </ul>
-	 */
-	public void getSelectedCells(AccessibleTableEvent e) {};
-
-	/**
-	 * Returns a list of column indexes currently selected (0 based).
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] selected - selectedColumns
-	 * 		A pointer to an array of column indexes of selected columns (each index is
-	 * 		0 based).  The array is allocated by the server. 
-	 * <li>[out] count - columnCount
-	 * 		The number of column indexes returned; the size of the returned array.
-	 * </ul>
-	 */
-	public void getSelectedColumns(AccessibleTableEvent e) {};
-
-	/**
-	 * Returns a list of row indexes currently selected (0 based).
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] selected - selectedRows
-	 * 		An array of row indexes of selected rows (each index is 0 based), allocated
-	 * 		by the server. 
-	 * <li>[out] count - rowCount
-	 * 		The number of row indexes returned; the size of the returned array.
+	 * <li>[out] selected - an array of 0 based row indexes of selected rows
 	 * </ul>
 	 */
 	public void getSelectedRows(AccessibleTableEvent e) {};
@@ -168,10 +145,8 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * Returns the summary description of the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessible
-	 * 		Returns a reference to an implementation dependent accessible object
-	 * 		representing the table's summary or a NULL pointer if the table
-	 * 		does not support a summary.
+	 * <li>[out] accessible - the summary for the table,
+	 * 		or null if the table does not have a summary
 	 * </ul>
 	 */
 	public void getSummary(AccessibleTableEvent e) {};
@@ -181,90 +156,86 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * completely selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column
-	 * 		0 based index of the column for which to determine whether it is selected.
-	 * <li>[out] isSelected
-	 * 		Returns TRUE if the specified column is selected completely and FALSE otherwise.
+	 * <li>[in] column - 0 based index of the column for which to determine whether it is selected
+	 * <li>[out] isSelected - true if the specified column is selected completely, and false otherwise
 	 * </ul>
 	 */
 	public void isColumnSelected(AccessibleTableEvent e) {};
 
 	/**
-	 * Returns a boolean value indicating whether the specified row is completely
-	 * selected.
+	 * Returns a boolean value indicating whether the specified row is
+	 * completely selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row
-	 * 		0 based index of the row for which to determine whether it is selected.
-	 * <li>[out] isSelected
-	 * 		Returns TRUE if the specified row is selected completely and FALSE otherwise.
+	 * <li>[in] row - 0 based index of the row for which to determine whether it is selected
+	 * <li>[out] isSelected - true if the specified row is selected completely, and false otherwise
 	 * </ul>
 	 */
 	public void isRowSelected(AccessibleTableEvent e) {};
 
 	/**
-	 * Selects a row and unselects all previously selected rows.
-	 * 
+	 * Selects a column and unselects all previously selected columns.
+	 * <p>
 	 * The behavior should mimic that of the application, but for those applications
-	 * which do not have a means in the GUI to select a full row of cells the behavior
-	 * should be as follows:  First any selected rows in the table are unselected.  Then
-	 * the entire row of cells for the specified row is selected.  If any of the
-	 * cells in the selected row span additional rows, the cells in those rows
+	 * that do not have a means in the GUI to select a full column of cells, the behavior
+	 * should be as follows: First any selected columns in the table are unselected. Then
+	 * the entire column of cells for the specified column is selected. If any of the
+	 * cells in the selected column span additional columns, the cells in those columns
 	 * are also selected.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row
-	 * 		0 based index of the row to be selected.
+	 * <li>[in] column - 0 based index of the column to be selected
+	 * </ul>
+	 */
+	public void selectColumn(AccessibleTableEvent e) {}
+
+	/**
+	 * Selects a row and unselects all previously selected rows.
+	 * <p>
+	 * The behavior should mimic that of the application, but for those applications
+	 * that do not have a means in the GUI to select a full row of cells, the behavior
+	 * should be as follows:  First any selected rows in the table are unselected. Then
+	 * the entire row of cells for the specified row is selected. If any of the
+	 * cells in the selected row span additional rows, the cells in those rows
+	 * are also selected.
+	 * </p>
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] row - 0 based index of the row to be selected
 	 * </ul>
 	 */
 	public void selectRow(AccessibleTableEvent e) {};
 
 	/**
-	 * Selects a column and unselects all previously selected columns.
-	 * 
-	 * The behavior should mimic that of the application, but for those applications
-	 * which do not have a means in the GUI to select a full column of cells the behavior
-	 * should be as follows:  First any selected columns in the table are unselected.  Then
-	 * the entire column of cells for the specified column is selected.  If any of the
-	 * cells in the selected column span additional columns, the cells in those columns
-	 * are also selected.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column
-	 * 		0 based index of the column to be selected.
-	 * </ul>
-	 */
-	public void selectColumn(AccessibleTableEvent e) {};
-
-	/**
-	 * Unselects one row, leaving other selected rows selected (if any).
-	 * 
-	 * The behavior should mimic that of the application, but for those applications
-	 * which do not have a means in the GUI to unselect a full row of cells the
-	 * behavior should be as follows:  The entire row of cells for the specified
-	 * row is unselected.  If any of the cells in the selected row span additional
-	 * rows, the cells in those rows are also unselected.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row
-	 * 		0 based index of the row to be unselected.
-	 * </ul>
-	 */
-	public void unselectRow(AccessibleTableEvent e) {};
-
-	/**
 	 * Unselects one column, leaving other selected columns selected (if any).
-	 * 
+	 * <p>
 	 * The behavior should mimic that of the application, but for those applications
-	 * which do not have a means in the GUI to unselect a full column of cells the
+	 * that do not have a means in the GUI to unselect a full column of cells the
 	 * behavior should be as follows:  The entire column of cells for the specified
 	 * column is unselected.  If any of the cells in the selected column span additional
 	 * columns, the cells in those columns are also unselected.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column
-	 * 		0 based index of the column to be unselected.
+	 * <li>[in] column - 0 based index of the column to be unselected.
 	 * </ul>
 	 */
-	public void unselectColumn(AccessibleTableEvent e) {};
+	public void unselectColumn(AccessibleTableEvent e) {}
+
+	/**
+	 * Unselects one row, leaving other selected rows selected (if any).
+	 * <p>
+	 * The behavior should mimic that of the application, but for those applications
+	 * that do not have a means in the GUI to unselect a full row of cells the
+	 * behavior should be as follows:  The entire row of cells for the specified
+	 * row is unselected.  If any of the cells in the selected row span additional
+	 * rows, the cells in those rows are also unselected.
+	 * </p>
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] row - 0 based index of the row to be unselected
+	 * </ul>
+	 */
+	public void unselectRow(AccessibleTableEvent e) {};
 }
