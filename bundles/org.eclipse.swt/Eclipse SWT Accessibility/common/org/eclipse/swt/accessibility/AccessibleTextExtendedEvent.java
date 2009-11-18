@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.swt.accessibility;
 
+import org.eclipse.swt.graphics.*;
+
 /**
  * Instances of this class are sent as a result of accessibility clients
  * sending AccessibleTextExtended messages to an accessible object.
@@ -28,6 +30,8 @@ public class AccessibleTextExtendedEvent extends AccessibleTextEvent {
 	public int start, end;
 	public int type;
 	public int x, y, width, height;
+	public int [] ranges;
+	public Rectangle [] rectangles;
 
 	static final long serialVersionUID = 0L; // TODO: run serialver -show
 
@@ -61,6 +65,8 @@ public String toString () {
 		+ " y=" + y   //$NON-NLS-1$
 		+ " width=" + width   //$NON-NLS-1$
 		+ " height=" + height   //$NON-NLS-1$
+		+ " ranges=" + ranges   //$NON-NLS-1$
+		+ " rectangles=" + rectangles   //$NON-NLS-1$
 		+ "}";  //$NON-NLS-1$
 }
 }
