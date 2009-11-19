@@ -283,6 +283,13 @@ public class ACC {
 	public static final int SCROLL_TYPE_ANYWHERE = 6;
 
 	/**
+	 * Scroll the top left corner of the object or substring to the specified point.
+	 * 
+	 * @since 3.6
+	 */
+	public static final int SCROLL_TYPE_POINT = 7;
+
+	/**
 	 * Sent when an object is shown, for example for tool tips,
 	 * or child objects within a browser document.
 	 * 
