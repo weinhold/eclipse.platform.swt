@@ -1804,7 +1804,7 @@ class AccessibleObject {
 					range.content = OS.g_malloc (bytes.length);
 					OS.memmove (range.content, bytes, bytes.length);
 					event.string = null;
-					event.count = event.type = 0;
+					event.count = event.type = event.x = event.y = event.width = event.height = 0;
 					for (int i = 0; i < length; i++) {
 						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 						listener.getTextBounds(event);
