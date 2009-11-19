@@ -151,6 +151,30 @@ JNIEXPORT jint JNICALL ATK_NATIVE(AtkObjectFactory_1sizeof)
 }
 #endif
 
+#ifndef NO_AtkTextRange_1sizeof
+JNIEXPORT jint JNICALL ATK_NATIVE(AtkTextRange_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	ATK_NATIVE_ENTER(env, that, AtkTextRange_1sizeof_FUNC);
+	rc = (jint)AtkTextRange_sizeof();
+	ATK_NATIVE_EXIT(env, that, AtkTextRange_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_AtkTextRectangle_1sizeof
+JNIEXPORT jint JNICALL ATK_NATIVE(AtkTextRectangle_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	ATK_NATIVE_ENTER(env, that, AtkTextRectangle_1sizeof_FUNC);
+	rc = (jint)AtkTextRectangle_sizeof();
+	ATK_NATIVE_EXIT(env, that, AtkTextRectangle_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_GTK_1TYPE_1ACCESSIBLE
 JNIEXPORT jintLong JNICALL ATK_NATIVE(GTK_1TYPE_1ACCESSIBLE)
 	(JNIEnv *env, jclass that)
@@ -725,6 +749,54 @@ JNIEXPORT void JNICALL ATK_NATIVE(memmove__JLorg_eclipse_swt_internal_accessibil
 }
 #endif
 
+#if (!defined(NO_memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jint arg2)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jint arg2)
+#endif
+{
+	AtkTextRange _arg1, *lparg1=NULL;
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I_FUNC);
+#endif
+	if (arg1) if ((lparg1 = getAtkTextRangeFields(env, arg1, &_arg1)) == NULL) goto fail;
+	memmove((void *)arg0, (const void *)lparg1, (size_t)arg2);
+fail:
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jint arg2)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jint arg2)
+#endif
+{
+	AtkTextRectangle _arg1, *lparg1=NULL;
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I_FUNC);
+#endif
+	if (arg1) if ((lparg1 = getAtkTextRectangleFields(env, arg1, &_arg1)) == NULL) goto fail;
+	memmove((void *)arg0, (const void *)lparg1, (size_t)arg2);
+fail:
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I_FUNC);
+#endif
+}
+#endif
+
 #if (!defined(NO_memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL ATK_NATIVE(memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1)
@@ -910,6 +982,56 @@ JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibili
 	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2I_FUNC);
 #else
 	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2J_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2JI) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jint arg2)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2JI)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jint arg2)
+#endif
+{
+	AtkTextRange _arg0, *lparg0=NULL;
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2II_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2JI_FUNC);
+#endif
+	if (arg0) if ((lparg0 = getAtkTextRangeFields(env, arg0, &_arg0)) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setAtkTextRangeFields(env, arg0, lparg0);
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2II_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2JI_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2JI) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jint arg2)
+#else
+JNIEXPORT void JNICALL ATK_NATIVE(memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2JI)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jint arg2)
+#endif
+{
+	AtkTextRectangle _arg0, *lparg0=NULL;
+#ifndef JNI64
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2II_FUNC);
+#else
+	ATK_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2JI_FUNC);
+#endif
+	if (arg0) if ((lparg0 = getAtkTextRectangleFields(env, arg0, &_arg0)) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setAtkTextRectangleFields(env, arg0, lparg0);
+#ifndef JNI64
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2II_FUNC);
+#else
+	ATK_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2JI_FUNC);
 #endif
 }
 #endif

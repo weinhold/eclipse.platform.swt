@@ -120,6 +120,7 @@ class AccessibleFactory {
 	static final Callback AtkTextCB_get_text_before_offset;
 	static final Callback AtkTextCB_get_character_at_offset;
 	static final Callback AtkTextCB_get_character_count;
+	static final Callback AtkTextCB_get_bounded_ranges;
 	
 	/* Value callbacks */
 	static final Callback AtkValueCB_get_current_value;
@@ -211,6 +212,7 @@ class AccessibleFactory {
 		AtkTextCB_get_text_before_offset = newCallback (AccessibleObject.class, "atkText_get_text_before_offset", 5); //$NON-NLS-1$
 		AtkTextCB_get_character_at_offset = newCallback (AccessibleObject.class, "atkText_get_character_at_offset", 2); //$NON-NLS-1$
 		AtkTextCB_get_character_count = newCallback (AccessibleObject.class, "atkText_get_character_count", 1); //$NON-NLS-1$
+		AtkTextCB_get_bounded_ranges = newCallback (AccessibleObject.class, "atkText_get_bounded_ranges", 5); //$NON-NLS-1$
 		AtkValueCB_get_current_value = newCallback (AccessibleObject.class, "atkValue_get_current_value", 2); //$NON-NLS-1$
 		AtkValueCB_get_maximum_value = newCallback (AccessibleObject.class, "atkValue_get_maximum_value", 2); //$NON-NLS-1$
 		AtkValueCB_get_minimum_value = newCallback (AccessibleObject.class, "atkValue_get_minimum_value", 2); //$NON-NLS-1$
@@ -515,6 +517,7 @@ class AccessibleFactory {
 		inter.get_text_after_offset = AtkTextCB_get_text_after_offset.getAddress ();
 		inter.get_text_at_offset = AtkTextCB_get_text_at_offset.getAddress ();
 		inter.get_text_before_offset = AtkTextCB_get_text_before_offset.getAddress ();
+		inter.get_bounded_ranges = AtkTextCB_get_bounded_ranges.getAddress ();
 		ATK.memmove (iface, inter);
 		return 0;
 	}

@@ -91,6 +91,10 @@ public class ATK extends OS {
 	public static final int ATK_TEXT_BOUNDARY_SENTENCE_END = 4;
 	public static final int ATK_TEXT_BOUNDARY_LINE_START = 5;
 	public static final int ATK_TEXT_BOUNDARY_LINE_END = 6;
+	public static final int ATK_TEXT_CLIP_NONE = 0;
+	public static final int ATK_TEXT_CLIP_MIN = 1;
+	public static final int ATK_TEXT_CLIP_MAX = 2;
+	public static final int ATK_TEXT_CLIP_BOTH = 3;
 	public static final int ATK_XY_WINDOW = 1;
 	
 	/** Signals */
@@ -103,6 +107,8 @@ public class ATK extends OS {
 /** 64 bit */
 public static final native int AtkObjectFactory_sizeof ();
 public static final native int AtkObjectFactoryClass_sizeof ();
+public static final native int AtkTextRange_sizeof ();
+public static final native int AtkTextRectangle_sizeof ();
 	
 /** Natives */
 
@@ -418,4 +424,28 @@ public static final native void memmove (int /*long*/ dest, AtkSelectionIface sr
 public static final native void memmove (int /*long*/ dest, AtkTableIface src);
 public static final native void memmove (int /*long*/ dest, AtkTextIface src);
 public static final native void memmove (int /*long*/ dest, AtkValueIface src);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (int /*long*/ dest, AtkTextRectangle src, int size);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (AtkTextRectangle dest, int /*long*/ src, int size);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (int /*long*/ dest, AtkTextRange src, int size);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (AtkTextRange dest, int /*long*/ src, int size);
 }

@@ -111,6 +111,30 @@ void setAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct
 #define AtkTextIface_sizeof() 0
 #endif
 
+#ifndef NO_AtkTextRange
+void cacheAtkTextRangeFields(JNIEnv *env, jobject lpObject);
+AtkTextRange *getAtkTextRangeFields(JNIEnv *env, jobject lpObject, AtkTextRange *lpStruct);
+void setAtkTextRangeFields(JNIEnv *env, jobject lpObject, AtkTextRange *lpStruct);
+#define AtkTextRange_sizeof() sizeof(AtkTextRange)
+#else
+#define cacheAtkTextRangeFields(a,b)
+#define getAtkTextRangeFields(a,b,c) NULL
+#define setAtkTextRangeFields(a,b,c)
+#define AtkTextRange_sizeof() 0
+#endif
+
+#ifndef NO_AtkTextRectangle
+void cacheAtkTextRectangleFields(JNIEnv *env, jobject lpObject);
+AtkTextRectangle *getAtkTextRectangleFields(JNIEnv *env, jobject lpObject, AtkTextRectangle *lpStruct);
+void setAtkTextRectangleFields(JNIEnv *env, jobject lpObject, AtkTextRectangle *lpStruct);
+#define AtkTextRectangle_sizeof() sizeof(AtkTextRectangle)
+#else
+#define cacheAtkTextRectangleFields(a,b)
+#define getAtkTextRectangleFields(a,b,c) NULL
+#define setAtkTextRectangleFields(a,b,c)
+#define AtkTextRectangle_sizeof() 0
+#endif
+
 #ifndef NO_AtkValueIface
 void cacheAtkValueIfaceFields(JNIEnv *env, jobject lpObject);
 AtkValueIface *getAtkValueIfaceFields(JNIEnv *env, jobject lpObject, AtkValueIface *lpStruct);

@@ -58,4 +58,6 @@ public class AtkTextIface {
 	public int /*long*/ text_selection_changed;
 	/** @field cast=(void (*)()) */
 	public int /*long*/ get_range_extents;
+	/** @field cast=(AtkTextRange** (*)()) */
+	public int /*long*/ get_bounded_ranges;
 }

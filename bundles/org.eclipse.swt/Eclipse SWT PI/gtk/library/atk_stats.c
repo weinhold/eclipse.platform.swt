@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int ATK_nativeFunctionCount = 59;
-int ATK_nativeFunctionCallCount[59];
+int ATK_nativeFunctionCount = 65;
+int ATK_nativeFunctionCallCount[65];
 char * ATK_nativeFunctionNames[] = {
 	"ATK_1IS_1NO_1OP_1OBJECT_1FACTORY",
 	"ATK_1TYPE_1ACTION",
@@ -32,6 +32,8 @@ char * ATK_nativeFunctionNames[] = {
 	"ATK_1TYPE_1VALUE",
 	"AtkObjectFactoryClass_1sizeof",
 	"AtkObjectFactory_1sizeof",
+	"AtkTextRange_1sizeof",
+	"AtkTextRectangle_1sizeof",
 	"GTK_1TYPE_1ACCESSIBLE",
 	"_1ATK_1ACTION_1GET_1IFACE",
 	"_1ATK_1COMPONENT_1GET_1IFACE",
@@ -126,6 +128,16 @@ char * ATK_nativeFunctionNames[] = {
 	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2",
 #endif
 #ifndef JNI64
+	"memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I",
+#else
+	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2I",
+#endif
+#ifndef JNI64
+	"memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I",
+#else
+	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2I",
+#endif
+#ifndef JNI64
 	"memmove__ILorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2",
 #else
 	"memmove__JLorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2",
@@ -169,6 +181,16 @@ char * ATK_nativeFunctionNames[] = {
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2I",
 #else
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextIface_2J",
+#endif
+#ifndef JNI64
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2II",
+#else
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRange_2JI",
+#endif
+#ifndef JNI64
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2II",
+#else
+	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkTextRectangle_2JI",
 #endif
 #ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_accessibility_gtk_AtkValueIface_2I",

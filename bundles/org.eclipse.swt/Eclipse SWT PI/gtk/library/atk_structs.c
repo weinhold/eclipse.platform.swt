@@ -492,7 +492,7 @@ void setAtkTableIfaceFields(JNIEnv *env, jobject lpObject, AtkTableIface *lpStru
 typedef struct AtkTextIface_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_text, get_text_after_offset, get_text_at_offset, get_character_at_offset, get_text_before_offset, get_caret_offset, get_run_attributes, get_default_attributes, get_character_extents, get_character_count, get_offset_at_point, get_n_selections, get_selection, add_selection, remove_selection, set_selection, set_caret_offset, text_changed, text_caret_moved, text_selection_changed, get_range_extents;
+	jfieldID get_text, get_text_after_offset, get_text_at_offset, get_character_at_offset, get_text_before_offset, get_caret_offset, get_run_attributes, get_default_attributes, get_character_extents, get_character_count, get_offset_at_point, get_n_selections, get_selection, add_selection, remove_selection, set_selection, set_caret_offset, text_changed, text_caret_moved, text_selection_changed, get_range_extents, get_bounded_ranges;
 } AtkTextIface_FID_CACHE;
 
 AtkTextIface_FID_CACHE AtkTextIfaceFc;
@@ -522,6 +522,7 @@ void cacheAtkTextIfaceFields(JNIEnv *env, jobject lpObject)
 	AtkTextIfaceFc.text_caret_moved = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "text_caret_moved", I_J);
 	AtkTextIfaceFc.text_selection_changed = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "text_selection_changed", I_J);
 	AtkTextIfaceFc.get_range_extents = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "get_range_extents", I_J);
+	AtkTextIfaceFc.get_bounded_ranges = (*env)->GetFieldID(env, AtkTextIfaceFc.clazz, "get_bounded_ranges", I_J);
 	AtkTextIfaceFc.cached = 1;
 }
 
@@ -549,6 +550,7 @@ AtkTextIface *getAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface 
 	lpStruct->text_caret_moved = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.text_caret_moved);
 	lpStruct->text_selection_changed = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.text_selection_changed);
 	lpStruct->get_range_extents = (void (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.get_range_extents);
+	lpStruct->get_bounded_ranges = (AtkTextRange** (*)())(*env)->GetIntLongField(env, lpObject, AtkTextIfaceFc.get_bounded_ranges);
 	return lpStruct;
 }
 
@@ -576,6 +578,93 @@ void setAtkTextIfaceFields(JNIEnv *env, jobject lpObject, AtkTextIface *lpStruct
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_caret_moved, (jintLong)lpStruct->text_caret_moved);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.text_selection_changed, (jintLong)lpStruct->text_selection_changed);
 	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.get_range_extents, (jintLong)lpStruct->get_range_extents);
+	(*env)->SetIntLongField(env, lpObject, AtkTextIfaceFc.get_bounded_ranges, (jintLong)lpStruct->get_bounded_ranges);
+}
+#endif
+
+#ifndef NO_AtkTextRange
+typedef struct AtkTextRange_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID bounds, start_offset, end_offset, content;
+} AtkTextRange_FID_CACHE;
+
+AtkTextRange_FID_CACHE AtkTextRangeFc;
+
+void cacheAtkTextRangeFields(JNIEnv *env, jobject lpObject)
+{
+	if (AtkTextRangeFc.cached) return;
+	AtkTextRangeFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	AtkTextRangeFc.bounds = (*env)->GetFieldID(env, AtkTextRangeFc.clazz, "bounds", "Lorg/eclipse/swt/internal/accessibility/gtk/AtkTextRectangle;");
+	AtkTextRangeFc.start_offset = (*env)->GetFieldID(env, AtkTextRangeFc.clazz, "start_offset", "I");
+	AtkTextRangeFc.end_offset = (*env)->GetFieldID(env, AtkTextRangeFc.clazz, "end_offset", "I");
+	AtkTextRangeFc.content = (*env)->GetFieldID(env, AtkTextRangeFc.clazz, "content", I_J);
+	AtkTextRangeFc.cached = 1;
+}
+
+AtkTextRange *getAtkTextRangeFields(JNIEnv *env, jobject lpObject, AtkTextRange *lpStruct)
+{
+	if (!AtkTextRangeFc.cached) cacheAtkTextRangeFields(env, lpObject);
+	{
+	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, AtkTextRangeFc.bounds);
+	if (lpObject1 != NULL) getAtkTextRectangleFields(env, lpObject1, &lpStruct->bounds);
+	}
+	lpStruct->start_offset = (*env)->GetIntField(env, lpObject, AtkTextRangeFc.start_offset);
+	lpStruct->end_offset = (*env)->GetIntField(env, lpObject, AtkTextRangeFc.end_offset);
+	lpStruct->content = (gchar *)(*env)->GetIntLongField(env, lpObject, AtkTextRangeFc.content);
+	return lpStruct;
+}
+
+void setAtkTextRangeFields(JNIEnv *env, jobject lpObject, AtkTextRange *lpStruct)
+{
+	if (!AtkTextRangeFc.cached) cacheAtkTextRangeFields(env, lpObject);
+	{
+	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, AtkTextRangeFc.bounds);
+	if (lpObject1 != NULL) setAtkTextRectangleFields(env, lpObject1, &lpStruct->bounds);
+	}
+	(*env)->SetIntField(env, lpObject, AtkTextRangeFc.start_offset, (jint)lpStruct->start_offset);
+	(*env)->SetIntField(env, lpObject, AtkTextRangeFc.end_offset, (jint)lpStruct->end_offset);
+	(*env)->SetIntLongField(env, lpObject, AtkTextRangeFc.content, (jintLong)lpStruct->content);
+}
+#endif
+
+#ifndef NO_AtkTextRectangle
+typedef struct AtkTextRectangle_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID x, y, width, height;
+} AtkTextRectangle_FID_CACHE;
+
+AtkTextRectangle_FID_CACHE AtkTextRectangleFc;
+
+void cacheAtkTextRectangleFields(JNIEnv *env, jobject lpObject)
+{
+	if (AtkTextRectangleFc.cached) return;
+	AtkTextRectangleFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	AtkTextRectangleFc.x = (*env)->GetFieldID(env, AtkTextRectangleFc.clazz, "x", "I");
+	AtkTextRectangleFc.y = (*env)->GetFieldID(env, AtkTextRectangleFc.clazz, "y", "I");
+	AtkTextRectangleFc.width = (*env)->GetFieldID(env, AtkTextRectangleFc.clazz, "width", "I");
+	AtkTextRectangleFc.height = (*env)->GetFieldID(env, AtkTextRectangleFc.clazz, "height", "I");
+	AtkTextRectangleFc.cached = 1;
+}
+
+AtkTextRectangle *getAtkTextRectangleFields(JNIEnv *env, jobject lpObject, AtkTextRectangle *lpStruct)
+{
+	if (!AtkTextRectangleFc.cached) cacheAtkTextRectangleFields(env, lpObject);
+	lpStruct->x = (*env)->GetIntField(env, lpObject, AtkTextRectangleFc.x);
+	lpStruct->y = (*env)->GetIntField(env, lpObject, AtkTextRectangleFc.y);
+	lpStruct->width = (*env)->GetIntField(env, lpObject, AtkTextRectangleFc.width);
+	lpStruct->height = (*env)->GetIntField(env, lpObject, AtkTextRectangleFc.height);
+	return lpStruct;
+}
+
+void setAtkTextRectangleFields(JNIEnv *env, jobject lpObject, AtkTextRectangle *lpStruct)
+{
+	if (!AtkTextRectangleFc.cached) cacheAtkTextRectangleFields(env, lpObject);
+	(*env)->SetIntField(env, lpObject, AtkTextRectangleFc.x, (jint)lpStruct->x);
+	(*env)->SetIntField(env, lpObject, AtkTextRectangleFc.y, (jint)lpStruct->y);
+	(*env)->SetIntField(env, lpObject, AtkTextRectangleFc.width, (jint)lpStruct->width);
+	(*env)->SetIntField(env, lpObject, AtkTextRectangleFc.height, (jint)lpStruct->height);
 }
 #endif
 

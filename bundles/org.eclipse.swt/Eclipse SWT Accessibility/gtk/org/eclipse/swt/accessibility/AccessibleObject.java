@@ -1563,7 +1563,18 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.x = (int)/*64*/x;
 				event.y = (int)/*64*/y;
-				//TODO coord type
+				if (coords == ATK.ATK_XY_WINDOW) {
+					/* translate control -> display, for filling in event to be dispatched */
+					int /*long*/ gtkAccessibleHandle = ATK.GTK_ACCESSIBLE (object.handle);
+					GtkAccessible gtkAccessible = new GtkAccessible ();
+					ATK.memmove (gtkAccessible, gtkAccessibleHandle);
+					int /*long*/ topLevel = ATK.gtk_widget_get_toplevel (gtkAccessible.widget);
+					int /*long*/ window = OS.GTK_WIDGET_WINDOW (topLevel);				
+					int[] topWindowX = new int [1], topWindowY = new int [1];
+					OS.gdk_window_get_origin (window, topWindowX, topWindowY);
+					event.x += topWindowX [0];
+					event.y += topWindowY [0]; 
+				}
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getOffsetAtPoint(event);
@@ -1594,7 +1605,7 @@ class AccessibleObject {
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.start = (int)/*64*/start_offset;
-				event.end = (int)/*64*/end_offset;
+				event.end = (int)/*64*/(end_offset - 1);
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.addSelection(event);
@@ -1661,7 +1672,8 @@ class AccessibleObject {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.setCaretOffset(event);
 				}
-				return 0;
+				//TODO should listener say it did or not
+				return 1;
 			}
 		}
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
@@ -1687,7 +1699,7 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.index = (int)/*64*/selection_num;
 				event.start = (int)/*64*/start_offset;
-				event.end = (int)/*64*/end_offset;
+				event.end = (int)/*64*/(end_offset - 1);
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.setSelection(event);
@@ -1749,6 +1761,75 @@ class AccessibleObject {
 		return parentResult; 	
 	}
 	
+	static int /*long*/ atkText_get_bounded_ranges (int /*long*/ atkObject, int /*long*/ rect, int /*long*/ coord_type, int /*long*/ x_clip_type, int /*long*/ y_clip_type) {
+		if (DEBUG) System.out.println ("-->atkText_get_bounded_ranges");
+		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleTextExtendedListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
+				AtkTextRectangle atkRect = new AtkTextRectangle();
+				ATK.memmove (atkRect, rect, AtkTextRectangle.sizeof);
+				event.x = atkRect.x;
+				event.y = atkRect.y;
+				event.width = atkRect.width;
+				event.height = atkRect.height;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getRanges (event);
+				}
+				int [] ranges = event.ranges;
+				int size = ranges == null ? 1 : ranges.length / 2;
+				int /*long*/ result = OS.malloc(size * AtkTextRange.sizeof);
+				AtkTextRange range = new AtkTextRange();
+				for (int j = 0, end = (ranges != null ? ranges.length / 2 : 1); j < end; j++) {
+					if (ranges != null) {
+						int index = j * 2;
+						event.start = ranges[index];
+						event.end = ranges[index+1];
+					}
+					event.count = 0;
+					event.type = ACC.TEXT_BOUNDARY_ALL;
+					for (int i = 0; i < length; i++) {
+						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+						listener.getText(event);
+					}
+					String text = event.string != null ? event.string : "";
+					byte[] bytes = Converter.wcsToMbcs (null, text, true);
+					range.start_offset = event.start;
+					range.end_offset = event.end + 1;
+					range.content = OS.g_malloc (bytes.length);
+					OS.memmove (range.content, bytes, bytes.length);
+					event.string = null;
+					event.count = event.type = 0;
+					for (int i = 0; i < length; i++) {
+						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+						listener.getTextBounds(event);
+					}
+					range.bounds.x = event.x;
+					range.bounds.y = event.y;
+					range.bounds.width = event.width;
+					range.bounds.height = event.height;
+					ATK.memmove(result + j * AtkTextRange.sizeof, range, AtkTextRange.sizeof);
+				}
+				return result;
+			}
+		}
+		int /*long*/ parentResult = 0;
+		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
+			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
+			AtkTextIface textIface = new AtkTextIface ();
+			ATK.memmove (textIface, superType);
+			if (textIface.get_bounded_ranges != 0) {
+				parentResult = ATK.call (textIface.get_bounded_ranges, object.handle);
+			}
+		}
+		return parentResult;
+	}
+	
 	static int /*long*/ atkText_get_character_at_offset (int /*long*/ atkObject, int /*long*/ offset) {
 		if (DEBUG) System.out.println ("-->atkText_get_character_at_offset");
 		AccessibleObject object = getAccessibleObject (atkObject);
@@ -1759,8 +1840,8 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.start = (int)/*64*/offset;
-				event.end = event.start + 1;
+				event.start = event.end = (int)/*64*/offset;
+				event.type = ACC.TEXT_BOUNDARY_CHAR;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getText(event);
@@ -1879,17 +1960,26 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.index = (int)/*64*/selection_num;
 				event.start = parentStart[0];
-				event.end = parentEnd[0];
+				event.end = parentEnd[0] - 1;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getSelection (event);
 				}
 				parentStart [0] = event.start;
-				parentEnd [0] = event.end;
+				parentEnd [0] = event.end + 1;
 				OS.memmove (start_offset, parentStart, 4);
 				OS.memmove (end_offset, parentEnd, 4);
-				//TODO return the selected text, should we free parent result
-				return 0;
+				event.count = event.index = 0;
+				event.type = ACC.TEXT_BOUNDARY_ALL;
+				for (int i = 0; i < length; i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+					listener.getText(event);
+				}
+				String text = event.string != null ? event.string : "";
+				byte[] bytes = Converter.wcsToMbcs (null, text, true);
+				int /*long*/ result = OS.g_malloc (bytes.length);
+				OS.memmove (result, bytes, bytes.length);
+				return result;
 			}
 			if (selection_num == 0) {
 				listeners = accessible.accessibleTextListeners;
@@ -1923,11 +2013,14 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.start = (int)/*64*/start_offset;
-				event.end = (int)/*64*/end_offset;
-				for (int i = 0; i < length; i++) {
-					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getText(event);
+				if (event.start != event.end) {
+					event.start = (int)/*64*/start_offset;
+					event.end = (int)/*64*/(end_offset - 1);
+					event.type = ACC.TEXT_BOUNDARY_ALL;
+					for (int i = 0; i < length; i++) {
+						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
+						listener.getText(event);
+					}
 				}
 				String text = event.string != null ? event.string : "";
 				byte[] bytes = Converter.wcsToMbcs (null, text, true);
@@ -1963,12 +2056,12 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.offset = (int)/*64*/offset_value;
-				event.type = (int)/*64*/boundary_type;
+				event.start = event.end = (int)/*64*/offset_value;
 				event.count = 1;
+				event.type = (int)/*64*/boundary_type;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextRange(event);
+					listener.getText(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
@@ -2158,12 +2251,12 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.offset = (int)/*64*/offset_value;
-				event.type = (int)/*64*/boundary_type;
+				event.start = event.end = (int)/*64*/offset_value;
 				event.count = 0;
+				event.type = (int)/*64*/boundary_type;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextRange(event);
+					listener.getText(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
@@ -2296,12 +2389,12 @@ class AccessibleObject {
 			int length = listeners.size();
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
-				event.offset = (int)/*64*/offset_value;
-				event.type = (int)/*64*/boundary_type;
+				event.start = event.end = (int)/*64*/offset_value;
 				event.count = -1;
+				event.type = (int)/*64*/boundary_type;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
-					listener.getTextRange(event);
+					listener.getText(event);
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
@@ -2846,7 +2939,12 @@ class AccessibleObject {
 					event.x -= topWindowX [0];
 					event.y -= topWindowY [0];
 				}
-				OS.memmove (rect, new int[]{event.x, event.y, event.width, event.height}, 4 * 4);
+				AtkTextRectangle atkRect = new AtkTextRectangle();
+				atkRect.x = event.x;
+				atkRect.y = event.y;
+				atkRect.width = event.width;
+				atkRect.height = event.height;
+				ATK.memmove (rect, atkRect, AtkTextRectangle.sizeof);
 				return 0;
 			}
 		}
