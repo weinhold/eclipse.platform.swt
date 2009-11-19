@@ -67,19 +67,22 @@ public class AccessibleTextExample {
 				//TODO: maybe can emulate this with getTopIndex, getTopPixel, getLineHeight, getOrientation, etc.
 				System.out.println(" returning " + e);
 			}
+			public void getRanges(AccessibleTextExtendedEvent e) {
+				System.out.print("getRanges " + e);
+				//TODO: maybe can emulate this with getTopIndex, getTopPixel, getLineHeight, getOrientation, etc.
+				System.out.println(" returning " + e);
+			}
 			public void getSelection(AccessibleTextExtendedEvent e) {
 				System.out.print("getSelection " + e);
 				if (e.index == 0) {
 					Point sel = text.getSelection();
-					e.start = sel.x;
-					e.end = sel.y;
+					e.ranges = new int [] {sel.x, sel.y};
 				}
 				System.out.println(" returning " + e);
 			}
 			public void getSelectionCount(AccessibleTextExtendedEvent e) {
-				System.out.print("getSelectionCount " + e);
-				e.count = text.getSelectionCount() == 0 ? 0 : 1;
-				System.out.println(" returning " + e);
+				// TODO Auto-generated method stub
+				
 			}
 			public void getSelectionRange(AccessibleTextEvent e) {
 				System.out.print("getSelectionRange " + e);
@@ -90,16 +93,12 @@ public class AccessibleTextExample {
 			}
 			public void getText(AccessibleTextExtendedEvent e) {
 				System.out.print("getText " + e);
+				// TODO: need to implement this
 				e.string = text.getText(e.start, e.end);
 				System.out.println(" returning " + e);
 			}
 			public void getTextBounds(AccessibleTextExtendedEvent e) {
 				System.out.print("getTextBounds " + e);
-				//TODO: maybe can emulate this with getTopIndex, getTopPixel, getLineHeight, getOrientation, etc.
-				System.out.println(" returning " + e);
-			}
-			public void getTextRange(AccessibleTextExtendedEvent e) {
-				System.out.print("getTextRange " + e);
 				// TODO: Can probably emulate this
 				System.out.println(" returning " + e);
 			}
@@ -108,17 +107,12 @@ public class AccessibleTextExample {
 				if (e.index == 0) text.setSelection(text.getCaretPosition());
 				System.out.println(" returning " + e);
 			}
-			public void scrollTextTo(AccessibleTextExtendedEvent e) {
-				System.out.print("scrollTextTo " + e);
+			public void scrollText(AccessibleTextExtendedEvent e) {
+				System.out.print("scrollText " + e);
 				// TODO: try to implement this for other scroll types
 				if (e.type == ACC.SCROLL_TYPE_TOP_LEFT) {
 					text.setTopIndex(e.start);
 				}
-				System.out.println(" returning " + e);
-			}
-			public void scrollTextToPoint(AccessibleTextExtendedEvent e) {
-				System.out.print("scrollTextToPoint " + e);
-				// TODO: can maybe emulate...?
 				System.out.println(" returning " + e);
 			}
 			public void setCaretOffset(AccessibleTextExtendedEvent e) {
