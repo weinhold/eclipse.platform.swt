@@ -27,26 +27,27 @@ import org.eclipse.swt.internal.SWTEventListener;
  *
  * @since 3.6
  */
+// TODO: Before exposing this api, need to look at UIA IScrollProvider - it has more powerful scrolling capability
 public interface AccessibleScrollListener extends SWTEventListener {
 	/**
-	 * Makes an object visible on the screen.
+	 * Scrolls a specific part of an object according to the scroll type.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] type - scrollType
-	 * 		Defines where the object should be placed on the screen.
+	 * <li>[in] type - a scroll type indicating where the object should be placed
+	 * 		on the screen. One of:<ul>
+	 * 		<li>SCROLL_TYPE_TOP_LEFT
+	 * 		<li>SCROLL_TYPE_BOTTOM_RIGHT
+	 * 		<li>SCROLL_TYPE_TOP_EDGE
+	 * 		<li>SCROLL_TYPE_BOTTOM_EDGE
+	 * 		<li>SCROLL_TYPE_LEFT_EDGE
+	 * 		<li>SCROLL_TYPE_RIGHT_EDGE
+	 * 		<li>SCROLL_TYPE_ANYWHERE
+	 * 		<li>SCROLL_TYPE_POINT
+	 * 		</ul>
+	 * </ul>
+	 * <li>[optional in] x - for SCROLL_TYPE_POINT, the x coordinate of the destination point in display coordinates
+	 * <li>[optional in] y - for SCROLL_TYPE_POINT, the y coordinate of the destination point in display coordinates
 	 * </ul>
 	 */
-	public void scrollTo(AccessibleScrollEvent e);
-
-	/**
-	 * Moves the top left of an object to a specified location.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] x
-	 * 		Defines the x coordinate.
-	 * <li>[in] y
-	 * 		Defines the y coordinate.
-	 * </ul>
-	 */
-	public void scrollToPoint(AccessibleScrollEvent e);
+	public void scroll(AccessibleScrollEvent e);
 }
