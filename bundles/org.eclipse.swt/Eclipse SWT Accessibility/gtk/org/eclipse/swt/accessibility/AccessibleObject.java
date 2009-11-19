@@ -2058,7 +2058,15 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.start = event.end = (int)/*64*/offset_value;
 				event.count = 1;
-				event.type = (int)/*64*/boundary_type;
+				switch ((int)/*64*/boundary_type) {
+					case ATK.ATK_TEXT_BOUNDARY_CHAR: event.type = ACC.TEXT_BOUNDARY_CHAR; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_START: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_END: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_START: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_END: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_START: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_END: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+				}
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getText(event);
@@ -2253,7 +2261,15 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.start = event.end = (int)/*64*/offset_value;
 				event.count = 0;
-				event.type = (int)/*64*/boundary_type;
+				switch ((int)/*64*/boundary_type) {
+					case ATK.ATK_TEXT_BOUNDARY_CHAR: event.type = ACC.TEXT_BOUNDARY_CHAR; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_START: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_END: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_START: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_END: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_START: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_END: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+				}
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getText(event);
@@ -2391,7 +2407,15 @@ class AccessibleObject {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.start = event.end = (int)/*64*/offset_value;
 				event.count = -1;
-				event.type = (int)/*64*/boundary_type;
+				switch ((int)/*64*/boundary_type) {
+					case ATK.ATK_TEXT_BOUNDARY_CHAR: event.type = ACC.TEXT_BOUNDARY_CHAR; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_START: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_WORD_END: event.type = ACC.TEXT_BOUNDARY_WORD; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_START: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_SENTENCE_END: event.type = ACC.TEXT_BOUNDARY_SENTENCE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_START: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+					case ATK.ATK_TEXT_BOUNDARY_LINE_END: event.type = ACC.TEXT_BOUNDARY_LINE; break; 
+				}
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getText(event);
