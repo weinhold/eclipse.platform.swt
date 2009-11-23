@@ -68,8 +68,8 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * you should expose its mnemonic(s), and if it cannot receive keyboard
 	 * focus, then you should expose its accelerator(s).
 	 * </p><p>
-	 * There is no need to implement this method for single action controls
-	 * since that would be redundant with AccessibleListener.getKeyboardShortcut.
+	 * There is no need to implement this method for single action, single key binding
+	 * controls since that would be redundant with AccessibleListener.getKeyboardShortcut.
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -82,6 +82,10 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 
 	/**
 	 * Returns the non-localized name of the specified action.
+	 * <p>
+	 * There is no need to implement this method for single action controls
+	 * since that would be redundant with AccessibleControlListener.getDefaultAction.
+	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's non-localized name to return
