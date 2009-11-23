@@ -2503,7 +2503,7 @@ public class Accessible {
 		event.type = scrollType;
 		for (int i = 0; i < accessibleScrollListeners.size(); i++) {
 			AccessibleScrollListener listener = (AccessibleScrollListener) accessibleScrollListeners.elementAt(i);
-			listener.scrollTo(event);
+			listener.scroll(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
@@ -2512,11 +2512,12 @@ public class Accessible {
 	/* scrollToPoint([in] coordinateType, [in] x, [in] y) */
 	int scrollToPoint(int coordinateType, int x, int y) {
 		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
+		event.type = ACC.SCROLL_TYPE_POINT;
 		event.x = x;
 		event.y = y;
 		for (int i = 0; i < accessibleScrollListeners.size(); i++) {
 			AccessibleScrollListener listener = (AccessibleScrollListener) accessibleScrollListeners.elementAt(i);
-			listener.scrollToPoint(event);
+			listener.scroll(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
@@ -2601,7 +2602,7 @@ public class Accessible {
 
 	/* get_indexInParent([out] pIndexInParent) */
 	int get_indexInParent(int /*long*/ pIndexInParent) {
-		// TODO: look up index in AccessibleControl.getChildren
+		// TODO: look up index in *parent's* AccessibleControl.getChildren
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		event.childID = ACC.CHILDID_SELF;
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
@@ -2610,7 +2611,6 @@ public class Accessible {
 		}
 		Object [] children = event.children;
 		int indexInParent = 0;
-		// TODO: look up index in AccessibleControl.getChildren
 		COM.MoveMemory(pIndexInParent, new int [] { indexInParent }, 4);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if no parent, [out] value is -1
@@ -2708,16 +2708,7 @@ public class Accessible {
 
 	/* get_localizedName([in] actionIndex, [out] pbstrLocalizedName) */
 	int get_localizedName(int actionIndex, int /*long*/ pbstrLocalizedName) {
-		AccessibleActionEvent event = new AccessibleActionEvent(this);
-		event.index = actionIndex;
-		for (int i = 0; i < accessibleActionListeners.size(); i++) {
-			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
-			listener.getLocalizedName(event);
-		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrLocalizedName, event.string);
-		return COM.S_OK;
-		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
+		return COM.S_FALSE;
 	}
 
 	/* get_appName([out] pbstrName) */
@@ -3647,7 +3638,7 @@ public class Accessible {
 		event.type = scrollType;
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			listener.scrollTextTo(event);
+			listener.scrollText(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
@@ -3656,13 +3647,14 @@ public class Accessible {
 	/* scrollSubstringToPoint([in] startIndex, [in] endIndex, [in] coordinateType, [in] x, [in] y) */
 	int scrollSubstringToPoint(int startIndex, int endIndex, int coordinateType, int x, int y) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+		event.type = ACC.SCROLL_TYPE_POINT;
 		event.start = startIndex;
 		event.end = endIndex;
 		event.x = x;
 		event.y = y;
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-			listener.scrollTextToPoint(event);
+			listener.scrollText(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the object is already at the specified location.@retval E_INVALIDARG if bad [in] passed
