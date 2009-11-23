@@ -1657,10 +1657,14 @@ public class Accessible {
 	
 	/* accDoDefaultAction([in] varChild) */
 	int accDoDefaultAction(int /*long*/ varChild) {
-		// TODO: Need to support this. Just do the same as for IA2 default doAction
+		if (accessibleActionListeners.size() > 0) {
+			VARIANT v = getVARIANT(varChild);
+			if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
+			if (v.lVal == COM.CHILDID_SELF) return doAction(0);
+		}
 		int code = COM.DISP_E_MEMBERNOTFOUND;
 		if (iaccessible != null) {
-			/* Currently, we don't expose this as API. Forward to the proxy. */
+			/* If there were no action listeners, forward to the proxy. */
 			code = iaccessible.accDoDefaultAction(varChild);
 			if (code == COM.E_INVALIDARG) code = COM.DISP_E_MEMBERNOTFOUND; // proxy doesn't know about app childID
 		}
@@ -1841,6 +1845,9 @@ public class Accessible {
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
 			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
 			listener.getDefaultAction(event);
+		}
+		if ((event.result == null || event.result.length() == 0) && v.lVal == COM.CHILDID_SELF) {
+			code = get_name(0, pszDefaultAction);
 		}
 		if (event.result == null) return code;
 		if (event.result.length() == 0) return COM.S_FALSE;
@@ -2659,7 +2666,6 @@ public class Accessible {
 			listener.doAction(event);
 		}
 		return COM.S_OK;
-		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
 	/* get_description([in] actionIndex, [out] pbstrDescription) */
@@ -2670,10 +2676,9 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getDescription(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.string == null || event.string.length() == 0) return COM.S_FALSE;
 		setString(pbstrDescription, event.string);
 		return COM.S_OK;
-		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
 	/* get_keyBinding([in] actionIndex, [in] nMaxBindings, [out] ppbstrKeyBindings, [out] pNBindings) */
