@@ -12,6 +12,9 @@ package org.eclipse.swt.accessibility;
 
 
 import java.util.*;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.accessibility.gtk.*;
 import org.eclipse.swt.internal.gtk.*;
@@ -140,10 +143,7 @@ class AccessibleObject {
 				}
 				if (event.string == null) return 0;
 				if (descriptionPtr != -1) OS.g_free (descriptionPtr);
-				byte[] name = Converter.wcsToMbcs (null, event.string, true);
-				descriptionPtr = OS.g_malloc (name.length);
-				OS.memmove (descriptionPtr, name, name.length);
-				return descriptionPtr;
+				return descriptionPtr = getStringPtr (event.string);
 			}
 		}
 		int /*long*/ parentResult = 0;
@@ -184,10 +184,7 @@ class AccessibleObject {
 				}
 				if (event.string != null) {
 					if (keybindingPtr != -1) OS.g_free (keybindingPtr);
-					byte[] name = Converter.wcsToMbcs (null, event.string, true);
-					keybindingPtr = OS.g_malloc (name.length);
-					OS.memmove (keybindingPtr, name, name.length);
-					return keybindingPtr; 
+					return keybindingPtr = getStringPtr (event.string); 
 				}
 			}
 			listeners = accessible.accessibleListeners;
@@ -195,21 +192,14 @@ class AccessibleObject {
 			if (length > 0) {
 				AccessibleEvent event = new AccessibleEvent (accessible);
 				event.childID = object.id;
-				if (parentResult != 0) {
-					byte [] buffer = new byte [OS.strlen (parentResult)];
-					OS.memmove (buffer, parentResult, buffer.length);
-					event.result = new String (Converter.mbcsToWcs (null, buffer));
-				}
+				if (parentResult != 0) event.result = getString (parentResult);
 				for (int i = 0; i < length; i++) {
 					AccessibleListener listener = (AccessibleListener) listeners.elementAt(i);
 					listener.getKeyboardShortcut (event);				
 				} 
 				if (event.result != null) {
 					if (keybindingPtr != -1) OS.g_free (keybindingPtr);
-					byte[] name = Converter.wcsToMbcs (null, event.result, true);
-					keybindingPtr = OS.g_malloc (name.length);
-					OS.memmove (keybindingPtr, name, name.length);
-					return keybindingPtr; 
+					return keybindingPtr = getStringPtr (event.result); 
 				}
 			}
 		}
@@ -242,32 +232,24 @@ class AccessibleObject {
 				}
 				if (event.string != null) {
 					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
-					byte[] name = Converter.wcsToMbcs (null, event.string, true);
-					actionNamePtr = OS.g_malloc (name.length);
-					OS.memmove (actionNamePtr, name, name.length);
-					return actionNamePtr;
+					return actionNamePtr = getStringPtr (event.string);
 				}
 			}
-			listeners = accessible.accessibleControlListeners;
-			length = listeners.size();
-			if (length > 0) {
-				AccessibleControlEvent event = new AccessibleControlEvent (accessible);
-				event.childID = object.id;
-				if (parentResult != 0) {
-					byte [] buffer = new byte [OS.strlen (parentResult)];
-					OS.memmove (buffer, parentResult, buffer.length);
-					event.result = new String (Converter.mbcsToWcs (null, buffer));
-				}
-				for (int i = 0; i < length; i++) {
-					AccessibleControlListener listener = (AccessibleControlListener) listeners.elementAt(i);
-					listener.getDefaultAction (event);				
-				} 
-				if (event.result != null) {
-					if (actionNamePtr != -1) OS.g_free (actionNamePtr);
-					byte[] name = Converter.wcsToMbcs (null, event.result, true);
-					actionNamePtr = OS.g_malloc (name.length);
-					OS.memmove (actionNamePtr, name, name.length);
-					return actionNamePtr;
+			if (index == 0) {
+				listeners = accessible.accessibleControlListeners;
+				length = listeners.size();
+				if (length > 0) {
+					AccessibleControlEvent event = new AccessibleControlEvent (accessible);
+					event.childID = object.id;
+					if (parentResult != 0) event.result = getString (parentResult);
+					for (int i = 0; i < length; i++) {
+						AccessibleControlListener listener = (AccessibleControlListener) listeners.elementAt(i);
+						listener.getDefaultAction (event);				
+					} 
+					if (event.result != null) {
+						if (actionNamePtr != -1) OS.g_free (actionNamePtr);
+						return actionNamePtr = getStringPtr (event.result);
+					}
 				}
 			}
 		}
@@ -538,6 +520,7 @@ class AccessibleObject {
 			if (length > 0) {
 				AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(accessible);
 				event.offset = (int)/*int*/char_index;
+				event.index = -1;
 				for (int i = 0; i < length; i++) {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getHyperlinkIndex(event);
@@ -573,21 +556,13 @@ class AccessibleObject {
 			
 		AccessibleEvent event = new AccessibleEvent (object.accessible);
 		event.childID = object.id;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.result = new String (Converter.mbcsToWcs (null, buffer));
-		}
+		if (parentResult != 0) event.result = getString (parentResult);
 		for (int i = 0; i < listeners.length; i++) {
 			listeners [i].getDescription (event);
 		} 
 		if (event.result == null) return parentResult;
 		if (descriptionPtr != -1) OS.g_free (descriptionPtr);
-		byte[] name = Converter.wcsToMbcs (null, event.result, true);
-		descriptionPtr = OS.g_malloc (name.length);
-		OS.memmove (descriptionPtr, name, name.length);
-		return descriptionPtr; 
+		return descriptionPtr = getStringPtr (event.result); 
 	}
 
 	static int /*long*/ atkObject_get_name (int /*long*/ atkObject) {
@@ -606,21 +581,13 @@ class AccessibleObject {
 		
 		AccessibleEvent event = new AccessibleEvent (object.accessible);
 		event.childID = object.id;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.result = new String (Converter.mbcsToWcs (null, buffer));
-		}
+		if (parentResult != 0) event.result = getString (parentResult);
 		for (int i = 0; i < listeners.length; i++) {
 			listeners [i].getName (event);				
 		} 
 		if (event.result == null) return parentResult;
 		if (namePtr != -1) OS.g_free (namePtr);
-		byte[] name = Converter.wcsToMbcs (null, event.result, true);
-		namePtr = OS.g_malloc (name.length);
-		OS.memmove (namePtr, name, name.length);
-		return namePtr; 
+		return namePtr = getStringPtr (event.result); 
 	}	
 
 	static int /*long*/ atkObject_get_n_children (int /*long*/ atkObject) {
@@ -1141,22 +1108,14 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleTableListeners;
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.column = (int)/*64*/column;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.string = new String (Converter.mbcsToWcs (null, buffer));
-		}
+		if (parentResult != 0) event.string = getString (parentResult);
 		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getColumnDescription(event);
 		}
 		if (event.string == null) return parentResult;
 		if (descriptionPtr != -1) OS.g_free (descriptionPtr);
-		byte[] name = Converter.wcsToMbcs (null, event.string, true);
-		descriptionPtr = OS.g_malloc (name.length);
-		OS.memmove (descriptionPtr, name, name.length);
-		return descriptionPtr;
+		return descriptionPtr = getStringPtr (event.string);
 	}
 	
 	static int /*long*/ atkTable_get_column_header (int /*long*/ atkObject, int /*long*/ column) {
@@ -1194,22 +1153,14 @@ class AccessibleObject {
 		Vector listeners = accessible.accessibleTableListeners;
 		AccessibleTableEvent event = new AccessibleTableEvent(accessible);
 		event.row = (int)/*64*/row;
-		if (parentResult != 0) {
-			int length = OS.strlen (parentResult);
-			byte [] buffer = new byte [length];
-			OS.memmove (buffer, parentResult, length);
-			event.string = new String (Converter.mbcsToWcs (null, buffer));
-		}
+		if (parentResult != 0) event.string = getString (parentResult);
 		for (int i = 0, length = listeners.size(); i < length; i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
 			listener.getRowDescription(event);
 		}
 		if (event.string == null) return parentResult;
 		if (descriptionPtr != -1) OS.g_free (descriptionPtr);
-		byte[] name = Converter.wcsToMbcs (null, event.string, true);
-		descriptionPtr = OS.g_malloc (name.length);
-		OS.memmove (descriptionPtr, name, name.length);
-		return descriptionPtr;
+		return descriptionPtr = getStringPtr (event.string);
 	}
 
 	static int /*long*/ atkTable_get_row_header (int /*long*/ atkObject, int /*long*/ row) {
@@ -1534,10 +1485,128 @@ class AccessibleObject {
 		return 0;
 	}
 	
+	static String getString (int /*long*/ strPtr) {
+		int length = OS.strlen (strPtr);
+		byte [] buffer = new byte [length];
+		OS.memmove (buffer, strPtr, length);
+		return new String (Converter.mbcsToWcs (null, buffer));
+	}
+	
+	static int /*long*/ getStringPtr (String str) {
+		byte [] buffer = Converter.wcsToMbcs(null, str != null ? str : "", true); 
+		int /*long*/ ptr = OS.g_malloc(buffer.length);
+		OS.memmove(ptr, buffer, buffer.length);
+		return ptr;
+	}
+	
 	static int /*long*/ atkText_get_run_attributes (int /*long*/ atkObject, int /*long*/ offset, int /*long*/ start_offset, int /*long*/ end_offset) {
 		if (DEBUG) System.out.println ("-->atkText_get_run_attributes");
 		AccessibleObject object = getAccessibleObject (atkObject);
 		if (object == null) return 0;
+		Accessible accessible = object.accessible;
+		if (accessible != null) {
+			Vector listeners = accessible.accessibleAttributeListeners;
+			int length = listeners.size();
+			if (length > 0) {
+				AccessibleTextAttributeEvent event = new AccessibleTextAttributeEvent(accessible);
+				event.offset = (int)/*64*/offset;
+				for (int i = 0; i < length; i++) {
+					AccessibleAttributeListener listener = (AccessibleAttributeListener) listeners.elementAt(i);
+					listener.getTextAttributes(event);
+				}
+				OS.memmove (start_offset, new int []{event.start}, 4);
+				OS.memmove (end_offset, new int []{event.end + 1}, 4);
+				TextStyle style = event.textStyle;
+				if (style == null) return 0;
+				int /*long*/ result = 0;
+				AtkAttribute attr = new AtkAttribute();
+				if (style.rise != 0) {
+					int /*long*/ attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_RISE));
+					attr.value = getStringPtr (String.valueOf(style.rise));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				if (style.underline) {
+					int /*long*/ attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_UNDERLINE));
+					String str = "none";
+					switch (style.underlineStyle) {
+						case SWT.UNDERLINE_DOUBLE: str = "double"; break;
+						case SWT.UNDERLINE_SINGLE: str = "single"; break;
+						case SWT.UNDERLINE_ERROR: str = "error"; break;
+						case SWT.UNDERLINE_SQUIGGLE: str = "squiggle"; break;
+					}
+					attr.value = getStringPtr (str);
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				if (style.strikeout) {
+					int /*long*/ attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_STRIKETHROUGH));
+					attr.value = getStringPtr ("1");
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				Font font = style.font;
+				if (font != null && !font.isDisposed()) {
+					//TODO language and direction
+					int /*long*/ attrPtr;
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_FAMILY_NAME));
+					attr.value = ATK.g_strdup (OS.pango_font_description_get_family (font.handle));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+					
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_SIZE));
+					attr.value = getStringPtr (String.valueOf (OS.pango_font_description_get_size(font.handle) / OS.PANGO_SCALE));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+					
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_STYLE));
+					attr.value = ATK.g_strdup (ATK.atk_text_attribute_get_value(ATK.ATK_TEXT_ATTR_STYLE, OS.pango_font_description_get_style(font.handle)));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+					
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_VARIANT));
+					attr.value = ATK.g_strdup (ATK.atk_text_attribute_get_value(ATK.ATK_TEXT_ATTR_VARIANT, OS.pango_font_description_get_variant(font.handle)));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+					
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_STRETCH));
+					attr.value = ATK.g_strdup (ATK.atk_text_attribute_get_value(ATK.ATK_TEXT_ATTR_STRETCH, OS.pango_font_description_get_stretch(font.handle)));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+					
+					attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_WEIGHT));
+					attr.value = getStringPtr (String.valueOf (OS.pango_font_description_get_weight(font.handle)));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				Color color = style.foreground;
+				if (color != null && !color.isDisposed()) {
+					int /*long*/ attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_FG_COLOR));
+					attr.value = getStringPtr ((color.handle.red & 0xFFFF) + "," + (color.handle.blue & 0xFFFF) + "," + (color.handle.blue & 0xFFFF));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				color = style.background;
+				if (color != null && !color.isDisposed()) {
+					int /*long*/ attrPtr = OS.g_malloc(AtkAttribute.sizeof);
+					attr.name = ATK.g_strdup (ATK.atk_text_attribute_get_name(ATK.ATK_TEXT_ATTR_BG_COLOR));
+					attr.value = getStringPtr ((color.handle.red & 0xFFFF) + "," + (color.handle.blue & 0xFFFF) + "," + (color.handle.blue & 0xFFFF));
+					ATK.memmove(attrPtr, attr, AtkAttribute.sizeof);
+					result = OS.g_list_append(result, attrPtr);
+				}
+				return result;
+			}
+		}
 		int /*long*/ parentResult = 0;
 		if (ATK.g_type_is_a (object.parentType, ATK_TEXT_TYPE)) {
 			int /*long*/ superType = ATK.g_type_interface_peek_parent (ATK.ATK_TEXT_GET_IFACE (object.handle));
@@ -1547,7 +1616,6 @@ class AccessibleObject {
 				parentResult = ATK.call (textIface.get_run_attributes, object.handle, offset, start_offset, end_offset);
 			}
 		}
-		//TODO
 		return parentResult;
 	}
 
@@ -1797,12 +1865,9 @@ class AccessibleObject {
 						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 						listener.getText(event);
 					}
-					String text = event.string != null ? event.string : "";
-					byte[] bytes = Converter.wcsToMbcs (null, text, true);
 					range.start_offset = event.start;
 					range.end_offset = event.end + 1;
-					range.content = OS.g_malloc (bytes.length);
-					OS.memmove (range.content, bytes, bytes.length);
+					range.content = getStringPtr (event.string);
 					event.string = null;
 					event.count = event.type = event.x = event.y = event.width = event.height = 0;
 					for (int i = 0; i < length; i++) {
@@ -1975,11 +2040,7 @@ class AccessibleObject {
 					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) listeners.elementAt(i);
 					listener.getText(event);
 				}
-				String text = event.string != null ? event.string : "";
-				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				int /*long*/ result = OS.g_malloc (bytes.length);
-				OS.memmove (result, bytes, bytes.length);
-				return result;
+				return getStringPtr (event.string);
 			}
 			if (selection_num == 0) {
 				listeners = accessible.accessibleTextListeners;
@@ -2022,11 +2083,7 @@ class AccessibleObject {
 						listener.getText(event);
 					}
 				}
-				String text = event.string != null ? event.string : "";
-				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				int /*long*/ result = OS.g_malloc (bytes.length);
-				OS.memmove (result, bytes, bytes.length);
-				return result;
+				return getStringPtr (event.string);
 			}
 		}
 		String text = object.getText ();
@@ -2038,10 +2095,7 @@ class AccessibleObject {
 			}
 			start_offset = Math.min (start_offset, end_offset);
 			text = text.substring ((int)/*64*/start_offset, (int)/*64*/end_offset);
-			byte[] bytes = Converter.wcsToMbcs (null, text, true);
-			int /*long*/ result = OS.g_malloc (bytes.length);
-			OS.memmove (result, bytes, bytes.length);
-			return result;
+			return getStringPtr (text);
 		}
 		return 0;
 	}
@@ -2073,11 +2127,7 @@ class AccessibleObject {
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
-				String text = event.string != null ? event.string : "";
-				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				int /*long*/ result = OS.g_malloc (bytes.length);
-				OS.memmove (result, bytes, bytes.length);
-				return result;
+				return getStringPtr (event.string);
 			}
 		}
 		int offset = (int)/*64*/offset_value;
@@ -2241,10 +2291,7 @@ class AccessibleObject {
 			OS.memmove (start_offset, new int[] {startBounds}, 4);
 			OS.memmove (end_offset, new int[] {endBounds}, 4);
 			text = text.substring (startBounds, endBounds);
-			byte[] bytes = Converter.wcsToMbcs (null, text, true);
-			int /*long*/ result = OS.g_malloc (bytes.length);
-			OS.memmove (result, bytes, bytes.length);
-			return result;
+			return getStringPtr (text);
 		} 
 		return 0;
 	}
@@ -2276,11 +2323,7 @@ class AccessibleObject {
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
-				String text = event.string != null ? event.string : "";
-				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				int /*long*/ result = OS.g_malloc (bytes.length);
-				OS.memmove (result, bytes, bytes.length);
-				return result;
+				return getStringPtr (event.string);
 			}
 		}
 		int offset = (int)/*64*/offset_value;
@@ -2387,10 +2430,7 @@ class AccessibleObject {
 			OS.memmove (start_offset, new int[] {startBounds}, 4);
 			OS.memmove (end_offset, new int[] {endBounds}, 4);
 			text = text.substring (startBounds, endBounds);
-			byte[] bytes = Converter.wcsToMbcs (null, text, true);
-			int /*long*/ result = OS.g_malloc (bytes.length);
-			OS.memmove (result, bytes, bytes.length);
-			return result;
+			return getStringPtr (text);
 		} 
 		return 0;
 	}
@@ -2422,11 +2462,7 @@ class AccessibleObject {
 				}
 				OS.memmove (start_offset, new int[] {event.start}, 4);
 				OS.memmove (end_offset, new int[] {event.end}, 4);
-				String text = event.string != null ? event.string : "";
-				byte[] bytes = Converter.wcsToMbcs (null, text, true);
-				int /*long*/ result = OS.g_malloc (bytes.length);
-				OS.memmove (result, bytes, bytes.length);
-				return result;
+				return getStringPtr (event.string);
 			}
 		}
 		int offset = (int)/*64*/offset_value;
@@ -2538,10 +2574,7 @@ class AccessibleObject {
 			OS.memmove (start_offset, new int[] {startBounds}, 4);
 			OS.memmove (end_offset, new int[] {endBounds}, 4);
 			text = text.substring (startBounds, endBounds);
-			byte[] bytes = Converter.wcsToMbcs (null, text, true);
-			int /*long*/ result = OS.g_malloc (bytes.length);
-			OS.memmove (result, bytes, bytes.length);
-			return result;
+			return getStringPtr (text);
 		} 
 		return 0;
 	}
@@ -2730,10 +2763,7 @@ class AccessibleObject {
 			if (characterCount > 0 && textIface.get_text != 0) {
 				parentResult = ATK.call (textIface.get_text, handle, 0, characterCount);
 				if (parentResult != 0) {
-					int length = OS.strlen (parentResult);
-					byte [] buffer = new byte [length];
-					OS.memmove (buffer, parentResult, length);
-					parentText = new String (Converter.mbcsToWcs (null, buffer));
+					parentText = getString (parentResult);
 					OS.g_free(parentResult);
 				}
 			}

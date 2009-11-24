@@ -95,6 +95,33 @@ public class ATK extends OS {
 	public static final int ATK_TEXT_CLIP_MIN = 1;
 	public static final int ATK_TEXT_CLIP_MAX = 2;
 	public static final int ATK_TEXT_CLIP_BOTH = 3;
+	public static final int ATK_TEXT_ATTR_LEFT_MARGIN = 1;
+	public static final int ATK_TEXT_ATTR_RIGHT_MARGIN = 2;
+	public static final int ATK_TEXT_ATTR_INDENT = 3;
+	public static final int ATK_TEXT_ATTR_INVISIBLE = 4;
+	public static final int ATK_TEXT_ATTR_EDITABLE = 5;
+	public static final int ATK_TEXT_ATTR_PIXELS_ABOVE_LINES = 6;
+	public static final int ATK_TEXT_ATTR_PIXELS_BELOW_LINES = 7;
+	public static final int ATK_TEXT_ATTR_PIXELS_INSIDE_WRAP = 8;
+	public static final int ATK_TEXT_ATTR_BG_FULL_HEIGHT = 9;
+	public static final int ATK_TEXT_ATTR_RISE = 10;
+	public static final int ATK_TEXT_ATTR_UNDERLINE = 11;
+	public static final int ATK_TEXT_ATTR_STRIKETHROUGH = 12;
+	public static final int ATK_TEXT_ATTR_SIZE = 13;
+	public static final int ATK_TEXT_ATTR_SCALE = 14;
+	public static final int ATK_TEXT_ATTR_WEIGHT = 15;
+	public static final int ATK_TEXT_ATTR_LANGUAGE = 16;
+	public static final int ATK_TEXT_ATTR_FAMILY_NAME = 17;
+	public static final int ATK_TEXT_ATTR_BG_COLOR = 18;
+	public static final int ATK_TEXT_ATTR_FG_COLOR = 19;
+	public static final int ATK_TEXT_ATTR_BG_STIPPLE = 20;
+	public static final int ATK_TEXT_ATTR_FG_STIPPLE = 21;
+	public static final int ATK_TEXT_ATTR_WRAP_MODE = 22;
+	public static final int ATK__TEXT_ATTR_DIRECTION = 23;
+	public static final int ATK_TEXT_ATTR_JUSTIFICATION = 24;
+	public static final int ATK_TEXT_ATTR_STRETCH = 25;
+	public static final int ATK_TEXT_ATTR_VARIANT = 26;
+	public static final int ATK_TEXT_ATTR_STYLE = 27;
 	public static final int ATK_XY_WINDOW = 1;
 	
 	/** Signals */
@@ -107,6 +134,7 @@ public class ATK extends OS {
 /** 64 bit */
 public static final native int AtkObjectFactory_sizeof ();
 public static final native int AtkObjectFactoryClass_sizeof ();
+public static final native int AtkAttribute_sizeof ();
 public static final native int AtkTextRange_sizeof ();
 public static final native int AtkTextRectangle_sizeof ();
 	
@@ -351,6 +379,24 @@ public static final int /*long*/ atk_state_set_new () {
 		lock.unlock();
 	}
 }
+public static final native int /*long*/ _atk_text_attribute_get_name (int attr);
+public static final int /*long*/ atk_text_attribute_get_name (int attr) {
+	lock.lock();
+	try {
+		return _atk_text_attribute_get_name(attr);
+	} finally {
+		lock.unlock();
+	}
+}
+public static final native int /*long*/ _atk_text_attribute_get_value (int attr, int index);
+public static final int /*long*/ atk_text_attribute_get_value (int attr, int index) {
+	lock.lock();
+	try {
+		return _atk_text_attribute_get_value(attr, index);
+	} finally {
+		lock.unlock();
+	}
+}
 public static final native int /*long*/ _call (int /*long*/ function, int /*long*/ arg0);
 public static final int /*long*/ call (int /*long*/ function, int /*long*/ arg0) {
 	lock.lock();
@@ -405,6 +451,7 @@ public static final int /*long*/ call (int /*long*/ function, int /*long*/ arg0,
 		lock.unlock();
 	}
 }
+public static final native int /*long*/ g_strdup (int /*long*/ str);
 public static final native void memmove (AtkActionIface dest, int /*long*/ src);
 public static final native void memmove (AtkComponentIface dest, int /*long*/ src);
 public static final native void memmove (AtkHypertextIface dest, int /*long*/ src);
@@ -448,4 +495,16 @@ public static final native void memmove (int /*long*/ dest, AtkTextRange src, in
  * @param size cast=(size_t)
  */
 public static final native void memmove (AtkTextRange dest, int /*long*/ src, int size);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (int /*long*/ dest, AtkAttribute src, int size);
+/**
+ * @param dest cast=(void *)
+ * @param src cast=(const void *),flags=no_out
+ * @param size cast=(size_t)
+ */
+public static final native void memmove (AtkAttribute dest, int /*long*/ src, int size);
 }

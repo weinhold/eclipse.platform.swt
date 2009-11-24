@@ -13718,6 +13718,26 @@ public static final int pango_font_description_get_size(int /*long*/ desc) {
 	}
 }
 /** @param desc cast=(PangoFontDescription *) */
+public static final native int _pango_font_description_get_stretch(int /*long*/ desc);
+public static final int pango_font_description_get_stretch(int /*long*/ desc) {
+	lock.lock();
+	try {
+		return _pango_font_description_get_stretch(desc);
+	} finally {
+		lock.unlock();
+	}
+}
+/** @param desc cast=(PangoFontDescription *) */
+public static final native int _pango_font_description_get_variant(int /*long*/ desc);
+public static final int pango_font_description_get_variant(int /*long*/ desc) {
+	lock.lock();
+	try {
+		return _pango_font_description_get_variant(desc);
+	} finally {
+		lock.unlock();
+	}
+}
+/** @param desc cast=(PangoFontDescription *) */
 public static final native int _pango_font_description_get_style(int /*long*/ desc);
 public static final int pango_font_description_get_style(int /*long*/ desc) {
 	lock.lock();

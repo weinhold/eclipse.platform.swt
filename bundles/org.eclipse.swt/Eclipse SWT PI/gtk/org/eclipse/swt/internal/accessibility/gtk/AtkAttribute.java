@@ -15,13 +15,9 @@
 package org.eclipse.swt.internal.accessibility.gtk;
 
 
-public class AtkTextRange {
-	public AtkTextRectangle bounds = new AtkTextRectangle();
-	public int start_offset;
-	public int end_offset;
-	/** @field cast=(gchar *) */
-	public int /*long*/ content;
-	public static final int sizeof = ATK.AtkTextRange_sizeof ();
-
+public class AtkAttribute {
+	public int /*long*/ name;
+	public int /*long*/ value;
+	public static final int sizeof = ATK.AtkAttribute_sizeof ();
 }
 

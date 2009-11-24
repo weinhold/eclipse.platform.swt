@@ -16381,6 +16381,18 @@ JNIEXPORT jint JNICALL OS_NATIVE(_1pango_1font_1description_1get_1size)
 }
 #endif
 
+#ifndef NO__1pango_1font_1description_1get_1stretch
+JNIEXPORT jint JNICALL OS_NATIVE(_1pango_1font_1description_1get_1stretch)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, _1pango_1font_1description_1get_1stretch_FUNC);
+	rc = (jint)pango_font_description_get_stretch((PangoFontDescription *)arg0);
+	OS_NATIVE_EXIT(env, that, _1pango_1font_1description_1get_1stretch_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO__1pango_1font_1description_1get_1style
 JNIEXPORT jint JNICALL OS_NATIVE(_1pango_1font_1description_1get_1style)
 	(JNIEnv *env, jclass that, jintLong arg0)
@@ -16389,6 +16401,18 @@ JNIEXPORT jint JNICALL OS_NATIVE(_1pango_1font_1description_1get_1style)
 	OS_NATIVE_ENTER(env, that, _1pango_1font_1description_1get_1style_FUNC);
 	rc = (jint)pango_font_description_get_style((PangoFontDescription *)arg0);
 	OS_NATIVE_EXIT(env, that, _1pango_1font_1description_1get_1style_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO__1pango_1font_1description_1get_1variant
+JNIEXPORT jint JNICALL OS_NATIVE(_1pango_1font_1description_1get_1variant)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, _1pango_1font_1description_1get_1variant_FUNC);
+	rc = (jint)pango_font_description_get_variant((PangoFontDescription *)arg0);
+	OS_NATIVE_EXIT(env, that, _1pango_1font_1description_1get_1variant_FUNC);
 	return rc;
 }
 #endif

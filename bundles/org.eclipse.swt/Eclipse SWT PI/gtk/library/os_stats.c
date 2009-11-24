@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1313;
-int OS_nativeFunctionCallCount[1313];
+int OS_nativeFunctionCount = 1315;
+int OS_nativeFunctionCallCount[1315];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -1337,7 +1337,9 @@ char * OS_nativeFunctionNames[] = {
 	"_1pango_1font_1description_1from_1string",
 	"_1pango_1font_1description_1get_1family",
 	"_1pango_1font_1description_1get_1size",
+	"_1pango_1font_1description_1get_1stretch",
 	"_1pango_1font_1description_1get_1style",
+	"_1pango_1font_1description_1get_1variant",
 	"_1pango_1font_1description_1get_1weight",
 	"_1pango_1font_1description_1new",
 	"_1pango_1font_1description_1set_1family",

@@ -62,6 +62,40 @@ void setAtkActionIfaceFields(JNIEnv *env, jobject lpObject, AtkActionIface *lpSt
 }
 #endif
 
+#ifndef NO_AtkAttribute
+typedef struct AtkAttribute_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID name, value;
+} AtkAttribute_FID_CACHE;
+
+AtkAttribute_FID_CACHE AtkAttributeFc;
+
+void cacheAtkAttributeFields(JNIEnv *env, jobject lpObject)
+{
+	if (AtkAttributeFc.cached) return;
+	AtkAttributeFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	AtkAttributeFc.name = (*env)->GetFieldID(env, AtkAttributeFc.clazz, "name", I_J);
+	AtkAttributeFc.value = (*env)->GetFieldID(env, AtkAttributeFc.clazz, "value", I_J);
+	AtkAttributeFc.cached = 1;
+}
+
+AtkAttribute *getAtkAttributeFields(JNIEnv *env, jobject lpObject, AtkAttribute *lpStruct)
+{
+	if (!AtkAttributeFc.cached) cacheAtkAttributeFields(env, lpObject);
+	lpStruct->name = (*env)->GetIntLongField(env, lpObject, AtkAttributeFc.name);
+	lpStruct->value = (*env)->GetIntLongField(env, lpObject, AtkAttributeFc.value);
+	return lpStruct;
+}
+
+void setAtkAttributeFields(JNIEnv *env, jobject lpObject, AtkAttribute *lpStruct)
+{
+	if (!AtkAttributeFc.cached) cacheAtkAttributeFields(env, lpObject);
+	(*env)->SetIntLongField(env, lpObject, AtkAttributeFc.name, (jintLong)lpStruct->name);
+	(*env)->SetIntLongField(env, lpObject, AtkAttributeFc.value, (jintLong)lpStruct->value);
+}
+#endif
+
 #ifndef NO_AtkComponentIface
 typedef struct AtkComponentIface_FID_CACHE {
 	int cached;

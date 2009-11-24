@@ -27,6 +27,18 @@ void setAtkActionIfaceFields(JNIEnv *env, jobject lpObject, AtkActionIface *lpSt
 #define AtkActionIface_sizeof() 0
 #endif
 
+#ifndef NO_AtkAttribute
+void cacheAtkAttributeFields(JNIEnv *env, jobject lpObject);
+AtkAttribute *getAtkAttributeFields(JNIEnv *env, jobject lpObject, AtkAttribute *lpStruct);
+void setAtkAttributeFields(JNIEnv *env, jobject lpObject, AtkAttribute *lpStruct);
+#define AtkAttribute_sizeof() sizeof(AtkAttribute)
+#else
+#define cacheAtkAttributeFields(a,b)
+#define getAtkAttributeFields(a,b,c) NULL
+#define setAtkAttributeFields(a,b,c)
+#define AtkAttribute_sizeof() 0
+#endif
+
 #ifndef NO_AtkComponentIface
 void cacheAtkComponentIfaceFields(JNIEnv *env, jobject lpObject);
 AtkComponentIface *getAtkComponentIfaceFields(JNIEnv *env, jobject lpObject, AtkComponentIface *lpStruct);
