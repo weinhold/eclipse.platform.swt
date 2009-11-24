@@ -26,7 +26,7 @@ public class AccessibleTextAttributeEvent extends SWTEventObject {
 
 	public int offset;
 	public int start, end;
-	TextStyle textStyle;
+	public TextStyle textStyle;
 
 	static final long serialVersionUID = 0L; // TODO: run serialver -show
 
