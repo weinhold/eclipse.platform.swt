@@ -24,7 +24,6 @@ import org.eclipse.swt.internal.*;
 public class AccessibleActionEvent extends SWTEventObject {
 
 	public String string;
-	public String[] keyBindings;
 	public int count;
 	public int index;
 
@@ -48,7 +47,6 @@ public AccessibleActionEvent(Object source) {
 public String toString () {
 	return "AccessibleActionEvent {"
 		+ "string=" + string   //$NON-NLS-1$
-		+ " keyBindings=" + keyBindings   //$NON-NLS-1$
 		+ " count=" + count   //$NON-NLS-1$
 		+ " index=" + index   //$NON-NLS-1$
 		+ "}";  //$NON-NLS-1$
