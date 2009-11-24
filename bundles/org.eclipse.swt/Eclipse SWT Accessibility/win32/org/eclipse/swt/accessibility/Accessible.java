@@ -2689,12 +2689,24 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getKeyBinding(event);
 		}
-		if (event.keyBindings == null || event.keyBindings.length == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		// TODO: Need to return all of the bindings, not just the first
-		setString(ppbstrKeyBindings, event.keyBindings[0]);
-		COM.MoveMemory(pNBindings, new int [] { event.count }, 4);
+		String keyBindings = event.string;
+		if (keyBindings == null) return COM.S_FALSE;
+		int length = keyBindings.length();
+		if (length == 0) return COM.S_FALSE;
+		int i = 0, count = 0;
+		while (i < length) {
+			if (count == nMaxBindings) break;
+			int j = keyBindings.indexOf(';', i);
+			if (j == -1) j = length;
+			String keyBinding = keyBindings.substring(i, j);
+			if (keyBinding.length() > 0) {
+				setString(ppbstrKeyBindings + count * OS.PTR_SIZEOF, keyBinding);
+				count++;
+			}
+			i = j + 1;
+		}
+		COM.MoveMemory(pNBindings, new int [] { count }, 4);
 		return COM.S_OK;
-		// TODO: @retval S_FALSE if there are no relations, [out] values are NULL and 0 respectively@retval E_INVALIDARG if bad [in] passed, [out] values are NULL and 0 respectively
 	}
 
 	/* get_name([in] actionIndex, [out] pbstrName) */
