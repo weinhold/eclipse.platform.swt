@@ -66,21 +66,14 @@ public interface AccessibleActionListener extends SWTEventListener {
 	 * Returns a string representing one or more key bindings, if there
 	 * are any, associated with the specified action.
 	 * <p>
-	 * The key bindings in the returned string are delimited by semicolons.
-	 * </p><p>
-	 * A key binding can describe either a mnemonic, or an accelerator. As a
-	 * general rule, if the control or child can receive keyboard focus, then
-	 * you should expose its mnemonic(s), and if it cannot receive keyboard
-	 * focus, then you should expose its accelerator(s).
-	 * </p><p>
-	 * There is no need to implement this method for single action, single key binding
-	 * controls since that would be redundant with AccessibleListener.getKeyboardShortcut.
+	 * The returned string is of the following form: mnemonic;accelerator
+	 * for example: "C;CTRL+C" for the Copy item in a typical Edit menu.
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's key bindings to return
-	 * <li>[out] string - a semicolon-delimited string of localized keyboard shortcuts
-	 * 		(example: "ALT+N;CTRL+N"), or null if the index lies outside the valid range
+	 * <li>[out] string - a semicolon-delimited string of localized key bindings
+	 * 		(example: "C;CTRL+C"), or null if the index lies outside the valid range
 	 * </ul>
 	 */
 	public void getKeyBinding(AccessibleActionEvent e);
