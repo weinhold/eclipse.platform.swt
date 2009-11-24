@@ -60,9 +60,11 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	public void getDescription(AccessibleActionEvent e) {};
 
 	/**
-	 * Returns an array of strings describing one or more key bindings, if there
+	 * Returns a string representing one or more key bindings, if there
 	 * are any, associated with the specified action.
 	 * <p>
+	 * The key bindings in the returned string are delimited by semicolons.
+	 * </p><p>
 	 * A key binding can describe either a mnemonic, or an accelerator. As a
 	 * general rule, if the control or child can receive keyboard focus, then
 	 * you should expose its mnemonic(s), and if it cannot receive keyboard
@@ -74,8 +76,8 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's key bindings to return
-	 * <li>[out] keyBindings - an array of localized keyboard shortcut strings (example: "ALT+N"),
-	 * 		one for each key binding, or null if the index lies outside the valid range
+	 * <li>[out] string - a semicolon-delimited string of localized keyboard shortcut strings
+	 * 		(example: "ALT+N;CTRL+N"), or null if the index lies outside the valid range
 	 * </ul>
 	 */
 	public void getKeyBinding(AccessibleActionEvent e) {};
