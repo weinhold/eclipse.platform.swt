@@ -79,7 +79,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's key bindings to return
-	 * <li>[out] string - a semicolon-delimited string of localized keyboard shortcut strings
+	 * <li>[out] string - a semicolon-delimited string of localized keyboard shortcuts
 	 * 		(example: "ALT+N;CTRL+N"), or null if the index lies outside the valid range
 	 * </ul>
 	 */
