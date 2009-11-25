@@ -43,17 +43,17 @@ public class AccessibleActionExample {
 				e.count = 1;
 			}
 			public void getName(AccessibleActionEvent e) {
-				e.string = "Press";
+				e.result = "Press";
 			}
 			public void getDescription(AccessibleActionEvent e) {
-				e.string = "Press custom button";
+				e.result = "Press custom button";
 			}
 			public void doAction(AccessibleActionEvent e) {
 				System.out.println("Performing action " + e.index + " for " + customButton);
 				customButtonAction();
 			}
 			public void getKeyBinding(AccessibleActionEvent e) {
-				e.string = "P;CTRL+P";
+				e.result = "P;CTRL+P";
 			}
 		});
 

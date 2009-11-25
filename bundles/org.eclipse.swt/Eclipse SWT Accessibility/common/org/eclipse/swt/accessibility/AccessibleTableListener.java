@@ -64,7 +64,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] column - the 0 based index of the column for which to retrieve the description
-	 * <li>[out] string - the description text of the specified column in the table,
+	 * <li>[out] result - the description text of the specified column in the table,
 	 * 		or null if the column does not have a description
 	 * </ul>
 	 */
@@ -84,7 +84,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] row - the 0 based index of the row for which to retrieve the description
-	 * <li>[out] string - the description text of the specified row in the table,
+	 * <li>[out] result - the description text of the specified row in the table,
 	 * 		or null if the row does not have a description
 	 * </ul>
 	 */

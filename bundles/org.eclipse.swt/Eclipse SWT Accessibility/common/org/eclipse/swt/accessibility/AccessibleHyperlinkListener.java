@@ -34,7 +34,7 @@ public interface AccessibleHyperlinkListener extends SWTEventListener {
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index identifying the anchor if this object
 	 * 		has more than one link, as in the case of an image map
-	 * <li>[out] string - the returned anchor
+	 * <li>[out] result - the returned anchor
 	 * <li>[optional out] accessible - the returned anchor.
 	 * 		Note: The returned anchor can either be a string or an accessible.
 	 * 		For example, for a text link this could be the substring of the containing string
@@ -50,7 +50,7 @@ public interface AccessibleHyperlinkListener extends SWTEventListener {
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index identifying the anchor if this object
 	 * 		has more than one link, as in the case of an image map
-	 * <li>[out] string - the returned target
+	 * <li>[out] result - the returned target
 	 * <li>[optional out] accessible - the returned target.
 	 * 		Note: The returned target can either be a string or an accessible.
 	 * 		For example, this could be a string URI, or the accessible for the target

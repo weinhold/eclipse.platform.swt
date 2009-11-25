@@ -56,7 +56,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's description to return
-	 * <li>[out] string - a localized string describing the specified action,
+	 * <li>[out] result - a localized string describing the specified action,
 	 * 		or null if the index lies outside the valid range
 	 * </ul>
 	 */
@@ -72,7 +72,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's key bindings to return
-	 * <li>[out] string - a semicolon-delimited string of localized key bindings
+	 * <li>[out] result - a semicolon-delimited string of localized key bindings
 	 * 		(example: "C;CTRL+C"), or null if the index lies outside the valid range
 	 * </ul>
 	 */
@@ -87,7 +87,7 @@ public interface AccessibleActionListener extends SWTEventListener {
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] index - a 0 based index specifying which action's non-localized name to return
-	 * <li>[out] string - the name of the specified action,
+	 * <li>[out] result - the name of the specified action,
 	 * 		or null if the index lies outside the valid range
 	 * </ul>
 	 */

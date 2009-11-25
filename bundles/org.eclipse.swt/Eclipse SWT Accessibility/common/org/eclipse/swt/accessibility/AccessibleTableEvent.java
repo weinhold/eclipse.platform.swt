@@ -25,7 +25,13 @@ public class AccessibleTableEvent extends SWTEventObject {
 
 	public Accessible accessible;
 	public Accessible[] accessibles;
-	public String string;
+	
+	/**
+	 * The value of this field must be set in the accessible table listener method
+	 * before returning. What to set it to depends on the listener method called.
+	 */
+	public String result;
+	
 	public int column;
 	public int row;
 	public int count;
@@ -53,7 +59,7 @@ public String toString () {
 	return "AccessibleTableEvent {"
 		+ "accessible=" + accessible   //$NON-NLS-1$
 		+ " accessibles=" + accessibles   //$NON-NLS-1$
-		+ " string=" + string   //$NON-NLS-1$
+		+ " string=" + result   //$NON-NLS-1$
 		+ " isSelected=" + isSelected   //$NON-NLS-1$
 		+ " column=" + column   //$NON-NLS-1$
 		+ " count=" + count   //$NON-NLS-1$

@@ -24,7 +24,13 @@ import org.eclipse.swt.graphics.*;
 public class AccessibleTextExtendedEvent extends AccessibleTextEvent {
 
 	public Accessible accessible;
-	public String string;
+
+	/**
+	 * The value of this field must be set in the accessible table listener method
+	 * before returning. What to set it to depends on the listener method called.
+	 */
+	public String result;
+	
 	public int count;
 	public int index;
 	public int start, end;
@@ -53,7 +59,7 @@ public AccessibleTextExtendedEvent(Object source) {
 public String toString () {
 	return "AccessibleTextExtendedEvent {"
 		+ "accessible=" + accessible   //$NON-NLS-1$
-		+ " string=" + string   //$NON-NLS-1$
+		+ " string=" + result   //$NON-NLS-1$
 		+ " count=" + count   //$NON-NLS-1$
 		+ " index=" + index   //$NON-NLS-1$
 		+ " offset=" + offset   //$NON-NLS-1$

@@ -173,7 +173,7 @@ public interface AccessibleTextExtendedListener extends AccessibleTextListener {
 	 * 		<li>in: look count units before the offset if count < 0, or after if count > 0. Look at the offset if count == 0.
 	 * 		<li>out: the actual number of boundary type units that were moved. This may be fewer than the input count.
 	 * 		</ul>
-	 * <li>[out] string - the requested text portion.  This portion may be empty or null when
+	 * <li>[out] result - the requested text portion.  This portion may be empty or null when
 	 * 		no appropriate text portion is found, or if the type is invalid.
 	 * </ul>
 	 */

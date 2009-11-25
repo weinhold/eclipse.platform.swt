@@ -24,7 +24,13 @@ import org.eclipse.swt.internal.*;
 public class AccessibleHyperlinkEvent extends SWTEventObject {
 
 	public Accessible accessible;
-	public String string;
+
+	/**
+	 * The value of this field must be set in the accessible table listener method
+	 * before returning. What to set it to depends on the listener method called.
+	 */
+	public String result;
+
 	public int index;
 
 	static final long serialVersionUID = 0L; // TODO: run serialver -show
@@ -47,7 +53,7 @@ public AccessibleHyperlinkEvent(Object source) {
 public String toString () {
 	return "AccessibleHyperlinkEvent {"
 		+ "accessible=" + accessible   //$NON-NLS-1$
-		+ " string=" + string   //$NON-NLS-1$
+		+ " string=" + result   //$NON-NLS-1$
 		+ " index=" + index   //$NON-NLS-1$
 		+ "}";  //$NON-NLS-1$
 }

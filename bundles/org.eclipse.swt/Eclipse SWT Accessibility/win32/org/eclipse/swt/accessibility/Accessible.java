@@ -2676,8 +2676,8 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getDescription(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE;
-		setString(pbstrDescription, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE;
+		setString(pbstrDescription, event.result);
 		return COM.S_OK;
 	}
 
@@ -2689,7 +2689,7 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getKeyBinding(event);
 		}
-		String keyBindings = event.string;
+		String keyBindings = event.result;
 		if (keyBindings == null) return COM.S_FALSE;
 		int length = keyBindings.length();
 		if (length == 0) return COM.S_FALSE;
@@ -2717,8 +2717,8 @@ public class Accessible {
 			AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
 			listener.getName(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrName, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrName, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
@@ -2909,7 +2909,7 @@ public class Accessible {
 			AccessibleHyperlinkListener listener = (AccessibleHyperlinkListener) accessibleHyperlinkListeners.elementAt(i);
 			listener.getAnchor(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
 		// TODO: pAnchor is a VARIANT that can be either a bstr (event.string) or a dispatch (event.accessible)
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
@@ -3082,8 +3082,8 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getColumnDescription(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrDescription, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
@@ -3151,8 +3151,8 @@ public class Accessible {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getRowDescription(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrDescription, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrDescription, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
@@ -3538,8 +3538,8 @@ public class Accessible {
 			AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 			listener.getText(event);
 		}
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrText, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.result);
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
@@ -3556,8 +3556,8 @@ public class Accessible {
 //		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrText, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
@@ -3574,8 +3574,8 @@ public class Accessible {
 //		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrText, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
@@ -3592,8 +3592,8 @@ public class Accessible {
 //		}
 		COM.MoveMemory(pStartOffset, new int [] { event.start }, 4);
 		COM.MoveMemory(pEndOffset, new int [] { event.end }, 4);
-		if (event.string == null || event.string.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
-		setString(pbstrText, event.string);
+		if (event.result == null || event.result.length() == 0) return COM.S_FALSE; // TODO: is S_FALSE ok here?
+		setString(pbstrText, event.result);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}

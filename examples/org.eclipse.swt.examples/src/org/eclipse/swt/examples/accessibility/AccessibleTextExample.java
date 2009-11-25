@@ -94,7 +94,7 @@ public class AccessibleTextExample {
 			public void getText(AccessibleTextExtendedEvent e) {
 				System.out.print("getText " + e);
 				// TODO: need to implement this
-				e.string = text.getText(e.start, e.end);
+				e.result = text.getText(e.start, e.end);
 				System.out.println(" returning " + e);
 			}
 			public void getTextBounds(AccessibleTextExtendedEvent e) {
