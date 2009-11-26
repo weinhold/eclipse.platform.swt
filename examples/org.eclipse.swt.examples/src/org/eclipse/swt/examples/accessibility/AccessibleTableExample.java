@@ -16,8 +16,8 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.accessibility.*;
 
 /**
- * This example shows how to use an AccessibleTableListener to provide
- * additional information to an AT.
+ * This example shows how to use AccessibleTableListener and
+ * AccessibleTableCellListener to provide information to an AT.
  * See CTable, CTableColumn, and CTableItem for details.
  */
 public class AccessibleTableExample {

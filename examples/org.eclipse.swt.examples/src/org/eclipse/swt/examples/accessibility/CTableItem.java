@@ -11,7 +11,7 @@
 package org.eclipse.swt.examples.accessibility;
 
 import org.eclipse.swt.*;
-import org.eclipse.swt.accessibility.Accessible;
+import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
 
@@ -405,11 +405,37 @@ void dispose (boolean notifyParent) {
 	accessibles = null;
 	parent = null;
 }
-Accessible getAccessible(Accessible accParent, int columnIndex) {
+Accessible getAccessible(final Accessible accessibleTable, final int columnIndex) {
 	int validColumnCount = Math.max (1, parent.columns.length);
 	if (!(0 <= columnIndex && columnIndex < validColumnCount)) return null;
 	if (accessibles [columnIndex] == null) {
-		accessibles [columnIndex] = new Accessible(accParent);
+		Accessible accessible = new Accessible(accessibleTable);
+		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+			public void getColumnHeaderCells(AccessibleTableCellEvent e) {
+				CTableColumn column = parent.columns [columnIndex];
+				e.accessibles = new Accessible[] {column.getAccessible (accessibleTable, index)};
+				e.count = 1;
+			}
+			public void getColumnIndex(AccessibleTableCellEvent e) {
+				e.index = columnIndex;
+			}
+			public void getColumnSpan(AccessibleTableCellEvent e) {
+				e.count = 1; /* CTable cells only occupy one column. */
+			}
+			public void getRowHeaderCells(AccessibleTableCellEvent e) {
+				 /* CTable does not support row headers. */
+			}
+			public void getRowIndex(AccessibleTableCellEvent e) {
+				e.index = index;
+			}
+			public void getRowSpan(AccessibleTableCellEvent e) {
+				e.count = 1; /* CTable cells only occupy one row. */
+			}
+			public void isSelected(AccessibleTableCellEvent e) {
+				e.isSelected = CTableItem.this.isSelected();
+			}
+		});
+		accessibles [columnIndex] = accessible;
 	}
 	return accessibles [columnIndex];
 }
