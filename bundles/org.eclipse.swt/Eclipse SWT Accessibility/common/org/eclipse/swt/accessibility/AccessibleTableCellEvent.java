@@ -23,11 +23,8 @@ import org.eclipse.swt.internal.*;
  */
 public class AccessibleTableCellEvent extends SWTEventObject {
 
-	public Accessible accessible;
 	public Accessible[] accessibles;
 	public boolean isSelected;
-	public int row;
-	public int column;
 	public int count;
 	public int index;
 
@@ -50,13 +47,10 @@ public AccessibleTableCellEvent(Object source) {
  */
 public String toString () {
 	return "AccessibleTableCellEvent {"
-		+ "accessible=" + accessible   //$NON-NLS-1$
 		+ " accessibles=" + accessibles   //$NON-NLS-1$
 		+ " isSelected=" + isSelected   //$NON-NLS-1$
-		+ " column=" + column   //$NON-NLS-1$
 		+ " count=" + count   //$NON-NLS-1$
 		+ " index=" + index   //$NON-NLS-1$
-		+ " row=" + row   //$NON-NLS-1$
 		+ "}";  //$NON-NLS-1$
 }
 }
