@@ -721,6 +721,21 @@ public class Accessible {
 	}
 	
 	/**
+	 * Disposes of the operating system resources associated with
+	 * the receiver.
+	 * <p>
+	 * This method should be called when an accessible that was created
+	 * with the public constructor is no longer needed.
+	 * It is not necessary to call this for instances of Accessible that
+	 * were retrieved with Control#getAccessible.
+	 * </p>
+	 */
+	public void dispose () {
+		if (control != null) return;
+		Release();
+	}
+
+	/**
 	 * Returns the control for this Accessible object. 
 	 *
 	 * @return the receiver's control
