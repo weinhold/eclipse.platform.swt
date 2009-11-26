@@ -1715,6 +1715,44 @@ public int indexOf (CTableItem item) {
 
 void initAccessibility () {
 	final Accessible accessibleTable = getAccessible();
+	accessibleTable.addAccessibleControlListener(new AccessibleControlAdapter() {
+		public void getChild(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getChildAtPoint(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getChildCount(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getChildren(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getDefaultAction(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getFocus(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getLocation(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getRole(AccessibleControlEvent e) {
+			if (e.childID == ACC.CHILDID_SELF) {
+				e.detail = ACC.ROLE_TABLE;
+			}
+			// TODO: need to map childID to child accessible. Need an ID for each cell...
+		}
+		public void getSelection(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getState(AccessibleControlEvent e) {
+			// TODO
+		}
+		public void getValue(AccessibleControlEvent e) {
+			// TODO
+		}
+	});
 	accessibleTable.addAccessibleTableListener(new AccessibleTableAdapter() {
 		public void getCaption(AccessibleTableEvent e) {
 			e.result = "This is the Custom Table's Caption"; //TODO: maybe the "app" should do this one???
@@ -1730,64 +1768,65 @@ void initAccessibility () {
 			e.count = columns.length;
 		}
 		public void getColumnDescription(AccessibleTableEvent e) {
-			//TODO: header? or is that the 'getName' of the column?
+			/* CTable does not support column descriptions. */
+			// TODO: What is a description? How does it differ from name?
 		}
 		public void getRowCount(AccessibleTableEvent e) {
 			e.count = itemsCount;
 		}
 		public void getRowDescription(AccessibleTableEvent e) {
-			//TODO
+			/* CTable does not support row descriptions. */
+			// TODO: What is a description? How does it differ from name?
 		}
 		public void getSelectedCellCount(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedCellCount(e);
+			e.count = selectedItems.length * columns.length;
 		}
 		public void getSelectedCells(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedCells(e);
+			Accessible[] accessibles = new Accessible[selectedItems.length * columns.length];
+			for (int r = 0; r < selectedItems.length; r++) {
+				CTableItem row = selectedItems [r];
+				for (int c = 0; c < columns.length; c++)
+					accessibles[r] = row.getAccessible (accessibleTable, c);
+			}
+			e.accessibles = accessibles;
 		}
 		public void getSelectedColumnCount(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedColumnCount(e);
+			e.count = 0; /* CTable does not support column selection. */
 		}
 		public void getSelectedColumns(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedColumns(e);
+			/* CTable does not support column selection. */
 		}
 		public void getSelectedRowCount(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedRowCount(e);
+			e.count = selectedItems.length;
 		}
 		public void getSelectedRows(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.getSelectedRows(e);
+			int[] selectedIndices = new int[selectedItems.length];
+			for (int i = 0; i < selectedItems.length; i++) {
+				selectedIndices[i] = selectedItems [i].index;
+			}
+			e.selected = selectedIndices;
 		}
 		public void getSummary(AccessibleTableEvent e) {
 			e.result = "This is the Custom Table's Summary"; //TODO: maybe the "app" should do this one???
 		}
 		public void isColumnSelected(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.isColumnSelected(e);
+			e.isSelected = false; /* CTable does not support column selection. */
 		}
 		public void isRowSelected(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.isRowSelected(e);
+			e.isSelected = isSelected(e.row);
 		}
 		public void selectColumn(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.selectColumn(e);
+			/* CTable does not support column selection. */
 		}
 		public void selectRow(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.selectRow(e);
+			// TODO: add to selection (as in ATK), or deselect all and select only this row (as in IA2 comment)?
+			setSelection(e.row); // current implementation is to deselect/select
 		}
 		public void unselectColumn(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.unselectColumn(e);
+			/* CTable does not support column selection. */
 		}
 		public void unselectRow(AccessibleTableEvent e) {
-			// TODO Auto-generated method stub
-			super.unselectRow(e);
+			deselect(e.row);
 		}
 	});	
 }

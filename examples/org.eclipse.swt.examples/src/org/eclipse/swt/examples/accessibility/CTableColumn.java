@@ -11,7 +11,7 @@
 package org.eclipse.swt.examples.accessibility;
  
 import org.eclipse.swt.*;
-import org.eclipse.swt.accessibility.Accessible;
+import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
@@ -42,6 +42,7 @@ public class CTableColumn extends Item {
 	boolean moveable, resizable = true;
 	int sort = SWT.NONE;
 	String toolTipText;
+	Accessible accessible;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -282,6 +283,10 @@ public void dispose () {
 void dispose (boolean notifyParent) {
 	super.dispose ();	/* super is intentional here */
 	if (notifyParent) parent.destroyItem (this);
+	if (accessible != null) {
+		accessible.dispose();
+		accessible = null;
+	}
 	parent = null;
 }
 /**
@@ -768,5 +773,40 @@ void updateWidth (GC gc) {
 			parent.header.redraw (getX () + padding, 0, width - padding, parent.getHeaderHeight (), false);
 		}
 	}
+}
+/* Returns the accessible for the column header. */
+Accessible getAccessible(Accessible accessibleTable) {
+	if (accessible == null) {
+		accessible = new Accessible(accessibleTable);
+		accessible.addAccessibleListener(new AccessibleAdapter() {
+			public void getName(AccessibleEvent e) {
+				e.result = getText();
+			}
+		});
+		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+			public void getColumnHeaderCells(AccessibleTableCellEvent e) {
+				/* Column header does not have a header. */
+			}
+			public void getColumnIndex(AccessibleTableCellEvent e) {
+				e.index = getIndex();
+			}
+			public void getColumnSpan(AccessibleTableCellEvent e) {
+				e.count = 1; /* CTable cells only occupy one column. */
+			}
+			public void getRowHeaderCells(AccessibleTableCellEvent e) {
+				 /* CTable does not support row headers. */
+			}
+			public void getRowIndex(AccessibleTableCellEvent e) {
+				e.index = 0;
+			}
+			public void getRowSpan(AccessibleTableCellEvent e) {
+				e.count = 1; /* CTable cells only occupy one row. */
+			}
+			public void isSelected(AccessibleTableCellEvent e) {
+				e.isSelected = false;  /* CTable columns cannot be selected (only rows can be selected). */
+			}
+		});
+	}
+	return accessible;
 }
 }

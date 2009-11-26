@@ -255,7 +255,7 @@ void clear () {
 	images = null;
 	foreground = background = null;
 	displayTexts = null;
-	accessibles = null;
+	disposeAccessibles();
 	cellForegrounds = cellBackgrounds = null;
 	font = null;
 	cellFonts = null;
@@ -402,18 +402,35 @@ void dispose (boolean notifyParent) {
 	images = null;
 	texts = displayTexts = null;
 	textWidths = fontHeights = null;
-	accessibles = null;
+	disposeAccessibles();
 	parent = null;
 }
+void disposeAccessibles() {
+	if (accessibles != null) {
+		for (int i = 0; i < accessibles.length; i++) {
+			if (accessibles[i] != null) {
+				accessibles[i].dispose();
+			}
+		}
+		accessibles = null;
+	}
+}
+/* Returns the accessible for the specified column. */
 Accessible getAccessible(final Accessible accessibleTable, final int columnIndex) {
 	int validColumnCount = Math.max (1, parent.columns.length);
 	if (!(0 <= columnIndex && columnIndex < validColumnCount)) return null;
 	if (accessibles [columnIndex] == null) {
 		Accessible accessible = new Accessible(accessibleTable);
+		accessible.addAccessibleListener(new AccessibleAdapter() {
+			public void getName(AccessibleEvent e) {
+				e.result = getText(columnIndex);
+			}
+		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
 			public void getColumnHeaderCells(AccessibleTableCellEvent e) {
+				 /* CTable cells only occupy one column. */
 				CTableColumn column = parent.columns [columnIndex];
-				e.accessibles = new Accessible[] {column.getAccessible (accessibleTable, index)};
+				e.accessibles = new Accessible[] {column.getAccessible (accessibleTable)};
 				e.count = 1;
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
