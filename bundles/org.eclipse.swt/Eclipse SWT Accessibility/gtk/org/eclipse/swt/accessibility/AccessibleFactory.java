@@ -386,13 +386,13 @@ class AccessibleFactory {
 			int /*long*/ definition = OS.g_malloc (GTypeInfo.sizeof); 
 			OS.memmove (definition, typeInfo, GTypeInfo.sizeof);
 			type = OS.g_type_register_static (parentType, nameBytes, definition, 0);
-			OS.g_type_add_interface_static (type, AccessibleObject.ATK_COMPONENT_TYPE, ComponentIfaceDefinition);
-			if (action) OS.g_type_add_interface_static (type, AccessibleObject.ATK_ACTION_TYPE, ActionIfaceDefinition);
-			if (hypertext) OS.g_type_add_interface_static (type, AccessibleObject.ATK_HYPERTEXT_TYPE, HypertextIfaceDefinition);
-			if (selection) OS.g_type_add_interface_static (type, AccessibleObject.ATK_SELECTION_TYPE, SelectionIfaceDefinition);
-			if (table) OS.g_type_add_interface_static (type, AccessibleObject.ATK_TABLE_TYPE, TableIfaceDefinition);
-			if (text) OS.g_type_add_interface_static (type, AccessibleObject.ATK_TEXT_TYPE, TextIfaceDefinition);
-			if (value) OS.g_type_add_interface_static (type, AccessibleObject.ATK_VALUE_TYPE, ValueIfaceDefinition);
+			OS.g_type_add_interface_static (type, ATK.ATK_TYPE_COMPONENT(), ComponentIfaceDefinition);
+			if (action) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_ACTION(), ActionIfaceDefinition);
+			if (hypertext) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_HYPERTEXT(), HypertextIfaceDefinition);
+			if (selection) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_SELECTION(), SelectionIfaceDefinition);
+			if (table) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_TABLE(), TableIfaceDefinition);
+			if (text) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_TEXT(), TextIfaceDefinition);
+			if (value) OS.g_type_add_interface_static (type, ATK.ATK_TYPE_VALUE(), ValueIfaceDefinition);
 		}
 		return type;
 	}
