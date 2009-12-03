@@ -452,22 +452,8 @@ public class Accessible {
 		if (control.isDisposed ()) SWT.error (SWT.ERROR_WIDGET_DISPOSED);
 	}
 
-	AccessibleListener[] getAccessibleListeners () {
-		if (accessibleListeners == null) return null;
-		AccessibleListener[] result = new AccessibleListener [accessibleListeners.size ()];
-		accessibleListeners.copyInto (result);
-		return result;
-	}
-
 	int /*long*/ getControlHandle () {
 		return control.handle;
-	}
-
-	AccessibleControlListener[] getControlListeners () {
-		if (accessibleControlListeners == null) return null;
-		AccessibleControlListener[] result = new AccessibleControlListener [accessibleControlListeners.size ()];
-		accessibleControlListeners.copyInto (result);
-		return result;
 	}
 
 	/**

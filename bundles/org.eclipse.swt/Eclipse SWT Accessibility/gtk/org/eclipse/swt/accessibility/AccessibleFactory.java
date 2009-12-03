@@ -316,9 +316,10 @@ class AccessibleFactory {
 	static int /*long*/ getType (String widgetTypeName, Accessible accessible, int /*long*/ parentType, int childId) {
 		AccessibleControlEvent event = new AccessibleControlEvent (accessible);
 		event.childID = childId;
-		AccessibleControlListener[] listeners = accessible.getControlListeners ();
-		for (int i = 0; i < listeners.length; i++) {
-			listeners [i].getRole (event);
+		Vector listeners = accessible.accessibleControlListeners;
+		for (int i = 0, length = listeners.size(); i < length; i++) {
+			AccessibleControlListener listener = (AccessibleControlListener)listeners.elementAt (i);
+			listener.getRole (event);
 		}
 		boolean action = false, hypertext = false, selection = false, table = false, text = false, value = false;
 		if (event.detail != 0) {	/* a role was specified */
