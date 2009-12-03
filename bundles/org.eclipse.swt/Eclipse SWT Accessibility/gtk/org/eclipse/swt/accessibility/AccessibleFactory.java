@@ -302,7 +302,7 @@ class AccessibleFactory {
 		int /*long*/ parentType = getParentType (widgetType);
 		if (parentType == 0) parentType = DefaultParentType;
 		int /*long*/ type = getType (getTypeName(widgetType), accessible, parentType, ACC.CHILDID_SELF);
-		AccessibleObject object = new AccessibleObject (type, widget, accessible, parentType, false);
+		AccessibleObject object = new AccessibleObject (type, widget, accessible, false);
 		accessible.accessibleObject = object;
 		accessible.addRelations ();
 		return object.handle;
@@ -310,7 +310,7 @@ class AccessibleFactory {
 	
 	static AccessibleObject createChildAccessible (Accessible accessible, int childIndex) {
 		int /*long*/ childType = getType (CHILD_TYPENAME, accessible, DefaultParentType, childIndex);
-		return new AccessibleObject(childType, 0, accessible, DefaultParentType, true);
+		return new AccessibleObject(childType, 0, accessible, true);
 	}
 
 	static int /*long*/ getType (String widgetTypeName, Accessible accessible, int /*long*/ parentType, int childId) {
