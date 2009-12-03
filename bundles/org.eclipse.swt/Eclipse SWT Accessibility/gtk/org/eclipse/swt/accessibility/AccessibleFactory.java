@@ -20,7 +20,6 @@ import org.eclipse.swt.*;
 class AccessibleFactory {
 	static final Hashtable Accessibles = new Hashtable (9);
 	static final Hashtable Factories = new Hashtable (9);	
-	static final int /*long*/ DefaultParentType = ATK.GTK_TYPE_ACCESSIBLE(); //$NON-NLS-1$
 	static final String SWT_TYPE_PREFIX = "SWTAccessible"; //$NON-NLS-1$
 	static final String CHILD_TYPENAME = "Child"; //$NON-NLS-1$
 	static final String FACTORY_TYPENAME = "SWTFactory"; //$NON-NLS-1$
@@ -300,7 +299,7 @@ class AccessibleFactory {
 		}
 		int /*long*/ widgetType = OS.G_OBJECT_TYPE (widget);
 		int /*long*/ parentType = getParentType (widgetType);
-		if (parentType == 0) parentType = DefaultParentType;
+		if (parentType == 0) parentType = ATK.GTK_TYPE_ACCESSIBLE();
 		int /*long*/ type = getType (getTypeName(widgetType), accessible, parentType, ACC.CHILDID_SELF);
 		AccessibleObject object = new AccessibleObject (type, widget, accessible, false);
 		accessible.accessibleObject = object;
@@ -309,7 +308,7 @@ class AccessibleFactory {
 	}
 	
 	static AccessibleObject createChildAccessible (Accessible accessible, int childIndex) {
-		int /*long*/ childType = getType (CHILD_TYPENAME, accessible, DefaultParentType, childIndex);
+		int /*long*/ childType = getType (CHILD_TYPENAME, accessible, ATK.GTK_TYPE_ACCESSIBLE(), childIndex);
 		return new AccessibleObject(childType, 0, accessible, true);
 	}
 
