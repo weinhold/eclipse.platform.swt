@@ -36,7 +36,7 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * <li>[out] count - the number of actions, or zero if there are no actions
 	 * </ul>
 	 */
-	public void getActionCount(AccessibleActionEvent e) {};
+	public void getActionCount(AccessibleActionEvent e) {}
 
 	/**
 	 * Performs the specified action on the object.
@@ -46,7 +46,7 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * 		If the index lies outside the valid range no action is performed.
 	 * </ul>
 	 */
-	public void doAction(AccessibleActionEvent e) {};
+	public void doAction(AccessibleActionEvent e) {}
 
 	/**
 	 * Returns a description of the specified action.
@@ -57,7 +57,7 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * 		or null if the index lies outside the valid range
 	 * </ul>
 	 */
-	public void getDescription(AccessibleActionEvent e) {};
+	public void getDescription(AccessibleActionEvent e) {}
 
 	/**
 	 * Returns a string representing one or more key bindings, if there
@@ -73,7 +73,7 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * 		(example: "C;CTRL+C"), or null if the index lies outside the valid range
 	 * </ul>
 	 */
-	public void getKeyBinding(AccessibleActionEvent e) {};
+	public void getKeyBinding(AccessibleActionEvent e) {}
 
 	/**
 	 * Returns the non-localized name of the specified action.
@@ -88,5 +88,5 @@ public class AccessibleActionAdapter implements AccessibleActionListener {
 	 * 		or null if the index lies outside the valid range
 	 * </ul>
 	 */
-	public void getName(AccessibleActionEvent e) {};
+	public void getName(AccessibleActionEvent e) {}
 }

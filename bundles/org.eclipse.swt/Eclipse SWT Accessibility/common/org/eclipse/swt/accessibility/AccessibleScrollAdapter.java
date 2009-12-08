@@ -45,5 +45,5 @@ public class AccessibleScrollAdapter implements AccessibleScrollListener {
 	 * <li>[optional in] y - for SCROLL_TYPE_POINT, the y coordinate of the destination point in display coordinates
 	 * </ul>
 	 */
-	public void scroll(AccessibleScrollEvent e) {};
+	public void scroll(AccessibleScrollEvent e) {}
 }

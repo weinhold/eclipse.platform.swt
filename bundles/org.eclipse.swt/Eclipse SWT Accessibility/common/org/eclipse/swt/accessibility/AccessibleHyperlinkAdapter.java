@@ -39,7 +39,7 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	 * 		the accessible for the image.
 	 * </ul>
 	 */
-	public void getAnchor(AccessibleHyperlinkEvent e) {};
+	public void getAnchor(AccessibleHyperlinkEvent e) {}
 
 	/**
 	 * Returns the target of the link at the specified index.
@@ -54,7 +54,7 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	 * 		object to be activated when the link is activated.
 	 * </ul>
 	 */
-	public void getAnchorTarget(AccessibleHyperlinkEvent e) {};
+	public void getAnchorTarget(AccessibleHyperlinkEvent e) {}
 
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink starts.
@@ -67,7 +67,7 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	 * <li>[out] index
 	 * </ul>
 	 */
-	public void getStartIndex(AccessibleHyperlinkEvent e) {};
+	public void getStartIndex(AccessibleHyperlinkEvent e) {}
 
 	/**
 	 * Returns the 0 based character offset at which the textual representation of the hyperlink ends.
@@ -80,5 +80,5 @@ public class AccessibleHyperlinkAdapter implements AccessibleHyperlinkListener {
 	 * <li>[out] index
 	 * </ul>
 	 */
-	public void getEndIndex(AccessibleHyperlinkEvent e) {};
+	public void getEndIndex(AccessibleHyperlinkEvent e) {}
 }

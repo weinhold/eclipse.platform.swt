@@ -40,7 +40,7 @@ public class AccessibleAttributeAdapter implements AccessibleAttributeListener {
 	 * <li>[out] indent the indent in pixels
 	 * </ul>
 	 */
-	public void getAttributes(AccessibleAttributeEvent e) {};
+	public void getAttributes(AccessibleAttributeEvent e) {}
 
 	/**
 	 * Returns text attributes specific to this Accessible object.
@@ -54,5 +54,5 @@ public class AccessibleAttributeAdapter implements AccessibleAttributeListener {
 	 * <li>[out] textStyle the TextStyle of the character range
 	 * </ul>
 	 */
-	public void getTextAttributes(AccessibleTextAttributeEvent e) {};
+	public void getTextAttributes(AccessibleTextAttributeEvent e) {}
 }

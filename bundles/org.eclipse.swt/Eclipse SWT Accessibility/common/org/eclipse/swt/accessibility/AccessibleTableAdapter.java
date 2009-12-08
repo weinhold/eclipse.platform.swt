@@ -32,7 +32,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] column - 0 based index of the column to be unselected.
 	 * </ul>
 	 */
-	public void deselectColumn(AccessibleTableEvent e) {};
+	public void deselectColumn(AccessibleTableEvent e) {}
 
 	/**
 	 * Deselects one row, leaving other selected rows selected (if any).
@@ -41,7 +41,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] row - 0 based index of the row to be unselected
 	 * </ul>
 	 */
-	public void deselectRow(AccessibleTableEvent e) {};
+	public void deselectRow(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the caption for the table.
@@ -63,7 +63,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * 		or null if the row or column index are not valid
 	 * </ul>
 	 */
-	public void getCellAt(AccessibleTableEvent e) {};
+	public void getCellAt(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the total number of columns in the table.
@@ -83,7 +83,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * 		or null if the column does not have a description
 	 * </ul>
 	 */
-	public void getColumnDescription(AccessibleTableEvent e) {};
+	public void getColumnDescription(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the column headers as an array of cell accessibles.
@@ -92,7 +92,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getColumnHeaders(AccessibleTableCellEvent e) {};
+	public void getColumnHeaders(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns the total number of rows in the table.
@@ -101,7 +101,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] count - the number of rows in the table
 	 * </ul>
 	 */
-	public void getRowCount(AccessibleTableEvent e) {};
+	public void getRowCount(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the description text of the specified row in the table.
@@ -121,7 +121,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getRowHeaders(AccessibleTableCellEvent e) {};
+	public void getRowHeaders(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns the number of selected cells.
@@ -130,7 +130,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] count -  the number of cells currently selected
 	 * </ul>
 	 */
-	public void getSelectedCellCount(AccessibleTableEvent e) {};
+	public void getSelectedCellCount(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the currently selected cells.
@@ -139,7 +139,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessibles - array containing the selected accessible table cells
 	 * </ul>
 	 */
-	public void getSelectedCells(AccessibleTableEvent e) {};
+	public void getSelectedCells(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the number of selected columns.
@@ -148,7 +148,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] count - the number of columns currently selected
 	 * </ul>
 	 */
-	public void getSelectedColumnCount(AccessibleTableEvent e) {};
+	public void getSelectedColumnCount(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the column indexes that are currently selected.
@@ -157,7 +157,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] selected - an array of 0 based column indexes of selected columns
 	 * </ul>
 	 */
-	public void getSelectedColumns(AccessibleTableEvent e) {};
+	public void getSelectedColumns(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the number of selected rows.
@@ -166,7 +166,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] count - the number of rows currently selected
 	 * </ul>
 	 */
-	public void getSelectedRowCount(AccessibleTableEvent e) {};
+	public void getSelectedRowCount(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the row indexes that are currently selected.
@@ -175,7 +175,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] selected - an array of 0 based row indexes of selected rows
 	 * </ul>
 	 */
-	public void getSelectedRows(AccessibleTableEvent e) {};
+	public void getSelectedRows(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the summary description of the table.
@@ -185,7 +185,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * 		or null if the table does not have a summary
 	 * </ul>
 	 */
-	public void getSummary(AccessibleTableEvent e) {};
+	public void getSummary(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the accessible for the table containing this cell.
@@ -194,7 +194,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessible - the accessible for the containing table
 	 * </ul>
 	 */
-	public void getTable(AccessibleTableEvent e) {};
+	public void getTable(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns a boolean value indicating whether the specified column is
@@ -205,7 +205,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] isSelected - true if the specified column is selected completely, and false otherwise
 	 * </ul>
 	 */
-	public void isColumnSelected(AccessibleTableEvent e) {};
+	public void isColumnSelected(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns a boolean value indicating whether the specified row is
@@ -216,7 +216,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] isSelected - true if the specified row is selected completely, and false otherwise
 	 * </ul>
 	 */
-	public void isRowSelected(AccessibleTableEvent e) {};
+	public void isRowSelected(AccessibleTableEvent e) {}
 
 	/**
 	 * Selects a column.
@@ -234,7 +234,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] row - 0 based index of the row to be selected
 	 * </ul>
 	 */
-	public void selectRow(AccessibleTableEvent e) {};
+	public void selectRow(AccessibleTableEvent e) {}
 
 	/**
 	 * Selects a column and deselects all previously selected columns.
@@ -252,5 +252,5 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] row - 0 based index of the row to be selected
 	 * </ul>
 	 */
-	public void setSelectedRows(AccessibleTableEvent e) {};
+	public void setSelectedRows(AccessibleTableEvent e) {}
 }

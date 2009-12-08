@@ -36,7 +36,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * <li>[out] count - the 1 based number of columns spanned by the specified cell
 	 * </ul>
 	 */
-	public void getColumnSpan(AccessibleTableCellEvent e) {};
+	public void getColumnSpan(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns the column headers as an array of cell accessibles.
@@ -46,7 +46,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getColumnHeaders(AccessibleTableCellEvent e) {};
+	public void getColumnHeaders(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Translates this cell accessible into the corresponding column index.
@@ -56,7 +56,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * 		or the index of the first column if the cell spans multiple columns
 	 * </ul>
 	 */
-	public void getColumnIndex(AccessibleTableCellEvent e) {};
+	public void getColumnIndex(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns the number of rows occupied by this cell accessible.
@@ -69,7 +69,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * <li>[out] count - the 1 based number of rows spanned by the specified cell
 	 * </ul>
 	 */
-	public void getRowSpan(AccessibleTableCellEvent e) {};
+	public void getRowSpan(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns the row headers as an array of cell accessibles.
@@ -79,7 +79,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getRowHeaders(AccessibleTableCellEvent e) {};
+	public void getRowHeaders(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Translates this cell accessible into the corresponding row index.
@@ -89,7 +89,7 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * 		or the index of the first row if the cell spans multiple rows
 	 * </ul>
 	 */
-	public void getRowIndex(AccessibleTableCellEvent e) {};
+	public void getRowIndex(AccessibleTableCellEvent e) {}
 
 	/**
 	 * Returns a boolean value indicating whether this cell is selected.
@@ -98,5 +98,5 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	 * <li>[out] isSelected - true if the specified cell is selected and false otherwise
 	 * </ul>
 	 */
-	public void isSelected(AccessibleTableCellEvent e) {};
+	public void isSelected(AccessibleTableCellEvent e) {}
 }

@@ -32,7 +32,7 @@ public class AccessibleValueAdapter implements AccessibleValueListener {
 	 * <li>[out] value - the number that is the current value of this object
 	 * </ul>
 	 */
-	public void getCurrentValue(AccessibleValueEvent e) {};
+	public void getCurrentValue(AccessibleValueEvent e) {}
 
 	/**
 	 * Sets the value of this object to the given number.
@@ -46,7 +46,7 @@ public class AccessibleValueAdapter implements AccessibleValueListener {
 	 * <li>[in] value - the number that will be the new value of this object
 	 * </ul>
 	 */
-	public void setCurrentValue(AccessibleValueEvent e) {};
+	public void setCurrentValue(AccessibleValueEvent e) {}
 
 	/**
 	 * Returns the maximum value that can be represented by this object.
@@ -56,7 +56,7 @@ public class AccessibleValueAdapter implements AccessibleValueListener {
 	 * 		If this object has no upper bound then null is returned.
 	 * </ul>
 	 */
-	public void getMaximumValue(AccessibleValueEvent e) {};
+	public void getMaximumValue(AccessibleValueEvent e) {}
 
 	/**
 	 * Returns the minimum value that can be represented by this object.
@@ -66,5 +66,5 @@ public class AccessibleValueAdapter implements AccessibleValueListener {
 	 * 		If this object has no lower bound then null is returned.
 	 * </ul>
 	 */
-	public void getMinimumValue(AccessibleValueEvent e) {};
+	public void getMinimumValue(AccessibleValueEvent e) {}
 }
