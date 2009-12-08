@@ -40,13 +40,13 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 
 	/**
 	 * Returns the column headers as an array of cell accessibles.
+	 * TODO: doc that this is a more efficient way to get headers of a cell than TableListener.getRow/ColHeaders
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[out] accessibles - an array of cell accessibles
-	 * <li>[out] count - the number of accessibles in the returned array
 	 * </ul>
 	 */
-	public void getColumnHeaderCells(AccessibleTableCellEvent e) {};
+	public void getColumnHeaders(AccessibleTableCellEvent e) {};
 
 	/**
 	 * Translates this cell accessible into the corresponding column index.
@@ -73,13 +73,13 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 
 	/**
 	 * Returns the row headers as an array of cell accessibles.
+	 * TODO: doc that this is a more efficient way to get headers of a cell than TableListener.getRow/ColHeaders
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[out] accessibles - an array of cell accessibles
-	 * <li>[out] count - the number of accessibles in the returned array
 	 * </ul>
 	 */
-	public void getRowHeaderCells(AccessibleTableCellEvent e) {};
+	public void getRowHeaders(AccessibleTableCellEvent e) {};
 
 	/**
 	 * Translates this cell accessible into the corresponding row index.

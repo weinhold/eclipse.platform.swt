@@ -29,6 +29,24 @@ import org.eclipse.swt.internal.SWTEventListener;
  */
 public interface AccessibleTableListener extends SWTEventListener {
 	/**
+	 * Deselects one column, leaving other selected columns selected (if any).
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] column - 0 based index of the column to be unselected.
+	 * </ul>
+	 */
+	public void deselectColumn(AccessibleTableEvent e);
+
+	/**
+	 * Deselects one row, leaving other selected rows selected (if any).
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] row - 0 based index of the row to be unselected
+	 * </ul>
+	 */
+	public void deselectRow(AccessibleTableEvent e);
+
+	/**
 	 * Returns the caption for the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -71,6 +89,15 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void getColumnDescription(AccessibleTableEvent e);
 
 	/**
+	 * Returns the column headers as an array of cell accessibles.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of cell accessibles
+	 * </ul>
+	 */
+	public void getColumnHeaders(AccessibleTableCellEvent e);
+
+	/**
 	 * Returns the total number of rows in the table.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
@@ -89,6 +116,15 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * </ul>
 	 */
 	public void getRowDescription(AccessibleTableEvent e);
+
+	/**
+	 * Returns the row headers as an array of cell accessibles.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of cell accessibles
+	 * </ul>
+	 */
+	public void getRowHeaders(AccessibleTableCellEvent e);
 
 	/**
 	 * Returns the number of selected cells.
@@ -155,6 +191,15 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void getSummary(AccessibleTableEvent e);
 
 	/**
+	 * Returns the accessible for the table containing this cell.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessible - the accessible for the containing table
+	 * </ul>
+	 */
+	public void getTable(AccessibleTableEvent e);
+
+	/**
 	 * Returns a boolean value indicating whether the specified column is
 	 * completely selected.
 	 * 
@@ -177,15 +222,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void isRowSelected(AccessibleTableEvent e);
 
 	/**
-	 * Selects a column and unselects all previously selected columns.
-	 * <p>
-	 * The behavior should mimic that of the application, but for those applications
-	 * that do not have a means in the GUI to select a full column of cells, the behavior
-	 * should be as follows: First any selected columns in the table are unselected. Then
-	 * the entire column of cells for the specified column is selected. If any of the
-	 * cells in the selected column span additional columns, the cells in those columns
-	 * are also selected.
-	 * </p>
+	 * Selects a column.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] column - 0 based index of the column to be selected
@@ -194,15 +231,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void selectColumn(AccessibleTableEvent e);
 
 	/**
-	 * Selects a row and unselects all previously selected rows.
-	 * <p>
-	 * The behavior should mimic that of the application, but for those applications
-	 * that do not have a means in the GUI to select a full row of cells, the behavior
-	 * should be as follows:  First any selected rows in the table are unselected. Then
-	 * the entire row of cells for the specified row is selected. If any of the
-	 * cells in the selected row span additional rows, the cells in those rows
-	 * are also selected.
-	 * </p>
+	 * Selects a row.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] row - 0 based index of the row to be selected
@@ -211,34 +240,20 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void selectRow(AccessibleTableEvent e);
 
 	/**
-	 * Unselects one column, leaving other selected columns selected (if any).
-	 * <p>
-	 * The behavior should mimic that of the application, but for those applications
-	 * that do not have a means in the GUI to unselect a full column of cells the
-	 * behavior should be as follows:  The entire column of cells for the specified
-	 * column is unselected.  If any of the cells in the selected column span additional
-	 * columns, the cells in those columns are also unselected.
-	 * </p>
+	 * Selects a column and deselects all previously selected columns.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] column - 0 based index of the column to be unselected.
+	 * <li>[in] column - 0 based index of the column to be selected
 	 * </ul>
 	 */
-	public void unselectColumn(AccessibleTableEvent e);
+	public void setSelectedColumns(AccessibleTableEvent e);
 
 	/**
-	 * Unselects one row, leaving other selected rows selected (if any).
-	 * <p>
-	 * The behavior should mimic that of the application, but for those applications
-	 * that do not have a means in the GUI to unselect a full row of cells the
-	 * behavior should be as follows:  The entire row of cells for the specified
-	 * row is unselected.  If any of the cells in the selected row span additional
-	 * rows, the cells in those rows are also unselected.
-	 * </p>
+	 * Selects a row and deselects all previously selected rows.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] row - 0 based index of the row to be unselected
+	 * <li>[in] row - 0 based index of the row to be selected
 	 * </ul>
 	 */
-	public void unselectRow(AccessibleTableEvent e);
+	public void setSelectedRows(AccessibleTableEvent e);
 }
