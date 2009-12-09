@@ -243,7 +243,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] column - 0 based index of the column to be selected
 	 * </ul>
 	 */
-	public void setSelectedColumns(AccessibleTableEvent e) {}
+	public void setSelectedColumn(AccessibleTableEvent e) {}
 
 	/**
 	 * Selects a row and deselects all previously selected rows.
@@ -252,5 +252,5 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[in] row - 0 based index of the row to be selected
 	 * </ul>
 	 */
-	public void setSelectedRows(AccessibleTableEvent e) {}
+	public void setSelectedRow(AccessibleTableEvent e) {}
 }
