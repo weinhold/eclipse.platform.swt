@@ -205,6 +205,21 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	public void getTextBounds(AccessibleTextExtendedEvent e) {}
 
 	/**
+	 * Returns the visible text range(s).
+	 * <p>
+	 * Partially visible characters are included in the returned ranges.
+	 * </p>
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] start - the 0 based offset of the first character of the visible substring
+	 * <li>[out] end - the 0 based offset of the last character of the visible substring
+	 * <li>[optional out] ranges - an array of pairs specifying the start and end offsets of each range,
+	 * 		if the visible text range is clipped
+	 * </ul>
+	 */
+	public void getVisibleRanges(AccessibleTextExtendedEvent e) {}
+
+	/**
 	 * Deselects a range of text.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
