@@ -70,6 +70,7 @@ public class Accessible {
 		OS.NSAccessibilityStringForRangeParameterizedAttribute,
 		OS.NSAccessibilityRangeForLineParameterizedAttribute,
 		OS.NSAccessibilityLineForIndexParameterizedAttribute,
+		OS.NSAccessibilityBoundsForRangeParameterizedAttribute,
 	};
 	
 
@@ -643,6 +644,7 @@ public class Accessible {
 		if (attribute.isEqualToString(OS.NSAccessibilityStringForRangeParameterizedAttribute)) return getStringForRangeAttribute(parameter, childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityRangeForLineParameterizedAttribute)) return getRangeForLineParameterizedAttribute(parameter, childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityLineForIndexParameterizedAttribute)) return getLineForIndexParameterizedAttribute(parameter, childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityBoundsForRangeParameterizedAttribute)) return getBoundsForRangeParameterizedAttribute(parameter, childID);
 		return null;
 	}
 
@@ -719,13 +721,12 @@ public class Accessible {
 
 		NSMutableArray returnValue = NSMutableArray.arrayWithCapacity(4);
 
-		if (accessibleTextListeners.size() > 0) {
+		if (accessibleTextListeners.size() > 0 || accessibleTextExtendedListeners.size() > 0) {
 			for (int i = 0; i < baseParameterizedAttributes.length; i++) {
 				if (!returnValue.containsObject(baseParameterizedAttributes[i])) {
 					returnValue.addObject(baseParameterizedAttributes[i]);
 				}
 			}
-
 		}
 
 		if (childID == ACC.CHILDID_SELF) {
@@ -794,6 +795,32 @@ public class Accessible {
 		}
 		
 		children.clear();
+	}
+	
+	id getBoundsForRangeParameterizedAttribute(id parameter, int childID) {
+		id returnValue = null;
+		NSValue parameterObject = new NSValue(parameter.id);
+		NSRange range = parameterObject.rangeValue();
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event  = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
+			event.start = (int)/*64*/range.location;
+			event.end = (int)/*64*/(range.location + range.length - 1);
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getTextBounds(event);
+			}
+			NSRect rect = new NSRect();
+			rect.x = event.x;
+			rect.y = event.y;
+			rect.width = event.width;
+			rect.height = event.height;
+			returnValue = NSValue.valueWithRect(rect);
+		} else {
+			//FIXME???
+			//how to implement with old listener
+		}
+		return returnValue;
 	}
 	
 	id getExpandedAttribute(int childID) {
@@ -1281,6 +1308,7 @@ public class Accessible {
 		int charNumber = charNumberObj.intValue();
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.start = charNumber;
 			event.count = Integer.MIN_VALUE;
 			event.type = ACC.TEXT_BOUNDARY_LINE;
@@ -1307,6 +1335,7 @@ public class Accessible {
 		id returnValue = null;
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 				listener.getCharacterCount(event);
@@ -1335,6 +1364,7 @@ public class Accessible {
 		int lineNumber = lineNumberObj.intValue();
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.count = lineNumber;
 			event.type = ACC.TEXT_BOUNDARY_LINE;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
@@ -1367,6 +1397,7 @@ public class Accessible {
 		id returnValue = NSString.string();
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.index = 0;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
@@ -1415,6 +1446,7 @@ public class Accessible {
 		id returnValue = null;
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.index = 0;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
@@ -1451,6 +1483,7 @@ public class Accessible {
 		NSRange range = parameterObject.rangeValue();
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.start = (int) /*64*/ range.location;
 			event.end = (int) /*64*/ (range.location + range.length - 1);
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
@@ -1480,6 +1513,7 @@ public class Accessible {
 		NSMutableArray returnValue = null;
 		if (accessibleTextExtendedListeners.size() > 0) {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 				listener.getSelectionCount(event);
@@ -1530,6 +1564,7 @@ public class Accessible {
 				listener.getLocation(controlEvent);
 			}
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
 			event.x = controlEvent.x;
 			event.y = controlEvent.y;
 			event.width = controlEvent.width;
