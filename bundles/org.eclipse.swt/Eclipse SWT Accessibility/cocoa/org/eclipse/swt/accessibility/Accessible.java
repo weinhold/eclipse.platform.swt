@@ -69,6 +69,7 @@ public class Accessible {
 	static NSString[] baseParameterizedAttributes = {
 		OS.NSAccessibilityStringForRangeParameterizedAttribute,
 		OS.NSAccessibilityRangeForLineParameterizedAttribute,
+		OS.NSAccessibilityLineForIndexParameterizedAttribute,
 	};
 	
 
@@ -441,7 +442,7 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void addAccessibleRelation(int type, Accessible target) {
+	public void addRelation(int type, Accessible target) {
 		//TODO: platform-specific? (we will manage the set on Windows)
 	}
 	
@@ -528,7 +529,7 @@ public class Accessible {
 			}
 		}
 		
-		if (accessibleTextListeners.size() > 0) {
+		if (accessibleTextListeners.size() > 0 || accessibleTextExtendedListeners.size() > 0) {
 			for (int i = 0; i < baseTextAttributes.length; i++) {
 				if (!returnValue.containsObject(baseTextAttributes[i])) {
 					returnValue.addObject(baseTextAttributes[i]);
@@ -640,7 +641,8 @@ public class Accessible {
 	
 	public id internal_accessibilityAttributeValue_forParameter(NSString attribute, id parameter, int childID) {
 		if (attribute.isEqualToString(OS.NSAccessibilityStringForRangeParameterizedAttribute)) return getStringForRangeAttribute(parameter, childID);
-		if (attribute.isEqualToString(OS.NSAccessibilityRangeForLineParameterizedAttribute)) return getRangeForLineParameterizedAttribute(parameter, childID);		
+		if (attribute.isEqualToString(OS.NSAccessibilityRangeForLineParameterizedAttribute)) return getRangeForLineParameterizedAttribute(parameter, childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityLineForIndexParameterizedAttribute)) return getLineForIndexParameterizedAttribute(parameter, childID);
 		return null;
 	}
 
@@ -1234,60 +1236,128 @@ public class Accessible {
 	
 	id getInsertionPointLineNumberAttribute (int childID) {
 		id returnValue = null;
-		AccessibleControlEvent controlEvent = new AccessibleControlEvent(this);
-		controlEvent.childID = childID;
-		controlEvent.result = null;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getValue(controlEvent);
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event  = new AccessibleTextExtendedEvent(this);
+			event.childID = childID;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getCaretOffset(event);
+			}
+			int caretOffset = event.offset;
+			event.start = caretOffset;
+			event.count = Integer.MIN_VALUE;
+			event.type = ACC.TEXT_BOUNDARY_LINE;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getText(event);
+			}
+			returnValue = NSNumber.numberWithInt(Math.max(0, -event.count));
+		} else {
+			AccessibleControlEvent controlEvent = new AccessibleControlEvent(this);
+			controlEvent.childID = childID;
+			controlEvent.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(controlEvent);
+			}
+			AccessibleTextEvent textEvent = new AccessibleTextEvent(this);
+			textEvent.childID = childID;
+			textEvent.offset = -1;
+			for (int i = 0; i < accessibleTextListeners.size(); i++) {
+				AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
+				listener.getCaretOffset(textEvent);
+			}
+			if (controlEvent.result != null && textEvent.offset != -1) {
+				int lineNumber = lineNumberForOffset (controlEvent.result, textEvent.offset);
+				returnValue = NSNumber.numberWithInt(lineNumber);
+			}
 		}
-		AccessibleTextEvent textEvent = new AccessibleTextEvent(this);
-		textEvent.childID = childID;
-		textEvent.offset = -1;
-		for (int i = 0; i < accessibleTextListeners.size(); i++) {
-			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
-			listener.getCaretOffset(textEvent);
-		}
-		if (controlEvent.result != null && textEvent.offset != -1) {
-			int lineNumber = lineNumberForOffset (controlEvent.result, textEvent.offset);
-			returnValue = NSNumber.numberWithInt(lineNumber);
+		return returnValue;
+	}
+	
+	id getLineForIndexParameterizedAttribute (id parameter, int childID) {
+		id returnValue = null;
+		NSNumber charNumberObj = new NSNumber(parameter.id);		
+		int charNumber = charNumberObj.intValue();
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.start = charNumber;
+			event.count = Integer.MIN_VALUE;
+			event.type = ACC.TEXT_BOUNDARY_LINE;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getText(event);
+			}
+			returnValue = NSNumber.numberWithInt(Math.max(0, -event.count));
+		} else {
+			AccessibleControlEvent controlEvent = new AccessibleControlEvent(this);
+			controlEvent.childID = childID;
+			controlEvent.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(controlEvent);
+			}
+			String text = controlEvent.result;
+			returnValue = NSNumber.numberWithInt(lineNumberForOffset(text, charNumber));
 		}
 		return returnValue;
 	}
 	
 	id getNumberOfCharactersAttribute (int childID) {
 		id returnValue = null;
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.result = null;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getValue(event);
-		}
-		String appValue = event.result;
-		if (appValue != null) {
-			returnValue = NSNumber.numberWithInt(appValue.length());
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getCharacterCount(event);
+			}
+			returnValue = NSNumber.numberWithInt(event.count);
+		} else {
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(event);
+			}
+			String appValue = event.result;
+			if (appValue != null) {
+				returnValue = NSNumber.numberWithInt(appValue.length());
+			}
 		}
 		return returnValue;
 	}
 	
 	id getRangeForLineParameterizedAttribute (id parameter, int childID) {
 		id returnValue = null;
-
 		// The parameter is an NSNumber with the line number.
 		NSNumber lineNumberObj = new NSNumber(parameter.id);		
 		int lineNumber = lineNumberObj.intValue();
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.result = null;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getValue(event);
-		}
-		if (event.result != null) {
-			NSRange range = rangeForLineNumber (lineNumber, event.result);
-			if (range.location != -1) {
-				returnValue = NSValue.valueWithRange(range);
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.count = lineNumber;
+			event.type = ACC.TEXT_BOUNDARY_LINE;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getText(event);
+			}
+			NSRange range = new NSRange();
+			range.location = event.start;
+			range.length = event.end - event.start + 1;
+			returnValue = NSValue.valueWithRange(range);
+		} else {
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(event);
+			}
+			if (event.result != null) {
+				NSRange range = rangeForLineNumber (lineNumber, event.result);
+				if (range.location != -1) {
+					returnValue = NSValue.valueWithRange(range);
+				}
 			}
 		}
 		return returnValue;
@@ -1295,27 +1365,47 @@ public class Accessible {
 	
 	id getSelectedTextAttribute (int childID) {
 		id returnValue = NSString.string();
-		AccessibleTextEvent event = new AccessibleTextEvent(this);
-		event.childID = childID;
-		event.offset = -1;
-		event.length = -1;
-		for (int i = 0; i < accessibleTextListeners.size(); i++) {
-			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
-			listener.getSelectionRange(event);
-		}
-		int offset = event.offset;
-		int length = event.length;
-		if (offset != -1 && length != -1 && length != 0) {  // TODO: do we need the && length != 0 ?
-			AccessibleControlEvent event2 = new AccessibleControlEvent(this);
-			event2.childID = event.childID;
-			event2.result = null;
-			for (int i = 0; i < accessibleControlListeners.size(); i++) {
-				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-				listener.getValue(event2);
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.index = 0;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getSelection(event);
 			}
-			String appValue = event2.result;
-			if (appValue != null) {
-				returnValue = NSString.stringWith(appValue.substring(offset, offset + length));
+			int start = event.start;
+			int end = event.end;
+			if (start != end) {
+				event.type = ACC.TEXT_BOUNDARY_ALL;
+				for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+					AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+					listener.getText(event);
+				}
+			}
+			String text = event.result;
+			if (text != null) returnValue = NSString.stringWith(text);
+		} else {
+			AccessibleTextEvent event = new AccessibleTextEvent(this);
+			event.childID = childID;
+			event.offset = -1;
+			event.length = -1;
+			for (int i = 0; i < accessibleTextListeners.size(); i++) {
+				AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
+				listener.getSelectionRange(event);
+			}
+			int offset = event.offset;
+			int length = event.length;
+			if (offset != -1 && length != -1 && length != 0) {  // TODO: do we need the && length != 0 ?
+				AccessibleControlEvent event2 = new AccessibleControlEvent(this);
+				event2.childID = event.childID;
+				event2.result = null;
+				for (int i = 0; i < accessibleControlListeners.size(); i++) {
+					AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+					listener.getValue(event2);
+				}
+				String appValue = event2.result;
+				if (appValue != null) {
+					returnValue = NSString.stringWith(appValue.substring(offset, offset + length));
+				}
 			}
 		}
 		return returnValue;
@@ -1323,19 +1413,32 @@ public class Accessible {
 	
 	id getSelectedTextRangeAttribute (int childID) {
 		id returnValue = null;
-		AccessibleTextEvent event = new AccessibleTextEvent(this);
-		event.childID = childID;
-		event.offset = -1;
-		event.length = 0;
-		for (int i = 0; i < accessibleTextListeners.size(); i++) {
-			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
-			listener.getSelectionRange(event);
-		}
-		if (event.offset != -1) {
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.index = 0;
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getSelection(event);
+			}
 			NSRange range = new NSRange();
-			range.location = event.offset;
-			range.length = event.length;
+			range.location = event.start;
+			range.length = event.end - event.start + 1;
 			returnValue = NSValue.valueWithRange(range);
+		} else {
+			AccessibleTextEvent event = new AccessibleTextEvent(this);
+			event.childID = childID;
+			event.offset = -1;
+			event.length = 0;
+			for (int i = 0; i < accessibleTextListeners.size(); i++) {
+				AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
+				listener.getSelectionRange(event);
+			}
+			if (event.offset != -1) {
+				NSRange range = new NSRange();
+				range.location = event.offset;
+				range.length = event.length;
+				returnValue = NSValue.valueWithRange(range);
+			}
 		}
 		return returnValue;
 	}
@@ -1345,63 +1448,123 @@ public class Accessible {
 		
 		// Parameter is an NSRange wrapped in an NSValue. 
 		NSValue parameterObject = new NSValue(parameter.id);
-		NSRange range = parameterObject.rangeValue();		
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.result = null;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getValue(event);
-		}
-		String appValue = event.result;
-
-		if (appValue != null) {
-			returnValue = NSString.stringWith(appValue.substring((int)/*64*/range.location, (int)/*64*/(range.location + range.length)));
+		NSRange range = parameterObject.rangeValue();
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.start = (int) /*64*/ range.location;
+			event.end = (int) /*64*/ (range.location + range.length - 1);
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getText(event);
+			}
+			if (event.result != null) returnValue = NSString.stringWith(event.result);
+		} else {
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(event);
+			}
+			String appValue = event.result;
+	
+			if (appValue != null) {
+				returnValue = NSString.stringWith(appValue.substring((int)/*64*/range.location, (int)/*64*/(range.location + range.length)));
+			}
 		}
 
 		return returnValue;
 	}
 	
 	id getSelectedTextRangesAttribute (int childID) {
-		NSMutableArray returnValue = null; 
-		AccessibleTextEvent event = new AccessibleTextEvent(this);
-		event.childID = childID;
-		event.offset = -1;
-		event.length = 0;
-		
-		for (int i = 0; i < accessibleTextListeners.size(); i++) {
-			AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
-			listener.getSelectionRange(event);
+		NSMutableArray returnValue = null;
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getSelectionCount(event);
+			}
+			if (event.count > 0) {
+				returnValue = NSMutableArray.arrayWithCapacity(event.count);
+				for (int i = 0; i < event.count; i++) {
+					event.index = i;
+					for (int j = 0; j < accessibleTextExtendedListeners.size(); j++) {
+						AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(j);
+						listener.getSelection(event);
+					}				
+					NSRange range = new NSRange();
+					range.location = event.start;
+					range.length = event.end - event.start + 1;
+					returnValue.addObject(NSValue.valueWithRange(range));
+				}
+			}
+		} else {
+			AccessibleTextEvent event = new AccessibleTextEvent(this);
+			event.childID = childID;
+			event.offset = -1;
+			event.length = 0;
+
+			for (int i = 0; i < accessibleTextListeners.size(); i++) {
+				AccessibleTextListener listener = (AccessibleTextListener) accessibleTextListeners.elementAt(i);
+				listener.getSelectionRange(event);
+			}
+
+			if (event.offset != -1) {
+				returnValue = NSMutableArray.arrayWithCapacity(1);
+				NSRange range = new NSRange();
+				range.location = event.offset;
+				range.length = event.length;
+				returnValue.addObject(NSValue.valueWithRange(range));
+			}
 		}
-		
-		if (event.offset != -1) {
-			returnValue = NSMutableArray.arrayWithCapacity(1);
-			NSRange range = new NSRange();
-			range.location = event.offset;
-			range.length = event.length;
-			returnValue.addObject(NSValue.valueWithRange(range));
-		}
-		
 		return returnValue;
 	}
 	
 	id getVisibleCharacterRangeAttribute (int childID) {
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.result = null;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getValue(event);
-		}
-		
 		NSRange range = new NSRange();
-
-		if (event.result != null) {
-			range.location = 0;
-			range.length = event.result.length();
+		if (accessibleTextExtendedListeners.size() > 0) {
+			AccessibleControlEvent controlEvent = new AccessibleControlEvent(this);
+			controlEvent.childID = childID;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getLocation(controlEvent);
+			}
+			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
+			event.x = controlEvent.x;
+			event.y = controlEvent.y;
+			event.width = controlEvent.width;
+			event.height = controlEvent.height;
+			for (int i=0; i<accessibleTextExtendedListeners.size(); i++) {
+				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
+				listener.getRanges(event);
+			}
+			if (event.ranges != null) {
+				int[] ranges = event.ranges;
+				int start = 0, end = 0;
+				for (int i = 0; i < ranges.length; i++) {
+					start = Math.max(0, Math.min(start, ranges[i++]));
+					end = Math.max(end, ranges[i]);
+				}
+				range.location = start;
+				range.length = end - start;
+			} else {
+				range.location = event.start;
+				range.length = event.end;
+			}
 		} else {
-			return null;
-//			range.location = range.length = 0;
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.result = null;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getValue(event);
+			}
+			if (event.result != null) {
+				range.location = 0;
+				range.length = event.result.length();
+			} else {
+				return null;
+			}
 		}
 
 		return NSValue.valueWithRange(range);
@@ -1752,7 +1915,7 @@ public class Accessible {
 	 * 
 	 * @since 3.6
 	 */
-	public void removeAccessibleRelation(int type, Accessible target) {
+	public void removeRelation(int type, Accessible target) {
 		//TODO: platform-specific? (we will manage the set on Windows)
 	}
 	
