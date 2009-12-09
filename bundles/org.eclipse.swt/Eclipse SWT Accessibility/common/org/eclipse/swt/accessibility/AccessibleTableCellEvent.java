@@ -23,6 +23,7 @@ import org.eclipse.swt.internal.*;
  */
 public class AccessibleTableCellEvent extends SWTEventObject {
 
+	public Accessible accessible;
 	public Accessible[] accessibles;
 	public boolean isSelected;
 	public int count;

@@ -92,6 +92,15 @@ public class AccessibleTableCellAdapter implements AccessibleTableCellListener {
 	public void getRowIndex(AccessibleTableCellEvent e) {}
 
 	/**
+	 * Returns the accessible for the table containing this cell.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessible - the accessible for the containing table
+	 * </ul>
+	 */
+	public void getTable(AccessibleTableCellEvent e) {}
+
+	/**
 	 * Returns a boolean value indicating whether this cell is selected.
 	 * 
 	 * @param e an event object containing the following fields:<ul>

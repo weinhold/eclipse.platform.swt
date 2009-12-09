@@ -92,7 +92,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getColumnHeaders(AccessibleTableCellEvent e) {}
+	public void getColumnHeaders(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the total number of rows in the table.
@@ -121,7 +121,7 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * <li>[out] accessibles - an array of cell accessibles
 	 * </ul>
 	 */
-	public void getRowHeaders(AccessibleTableCellEvent e) {}
+	public void getRowHeaders(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns the number of selected cells.
@@ -186,15 +186,6 @@ public class AccessibleTableAdapter implements AccessibleTableListener {
 	 * </ul>
 	 */
 	public void getSummary(AccessibleTableEvent e) {}
-
-	/**
-	 * Returns the accessible for the table containing this cell.
-	 * 
-	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessible - the accessible for the containing table
-	 * </ul>
-	 */
-	public void getTable(AccessibleTableEvent e) {}
 
 	/**
 	 * Returns a boolean value indicating whether the specified column is
