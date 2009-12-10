@@ -108,8 +108,9 @@ public class AccessibleTextExtendedListenerExample {
 						e.start = start;
 						e.end = start;
 						break;
-					case ACC.TEXT_BOUNDARY_LINE:		
-						e.offset = Math.min(e.offset, text.length());
+					case ACC.TEXT_BOUNDARY_LINE:
+						int offset = e.count <= 0 ? e.start : e.end;
+						offset = Math.min(offset, text.length());
 						int lineCount = 0;
 						int index = 0;
 						while(index != -1) {
