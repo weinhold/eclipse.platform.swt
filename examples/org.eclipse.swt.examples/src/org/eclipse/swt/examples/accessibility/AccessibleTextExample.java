@@ -91,8 +91,7 @@ public class AccessibleTextExample {
 				System.out.println(" returning " + e);
 			}
 			public void getSelectionCount(AccessibleTextExtendedEvent e) {
-				// TODO Auto-generated method stub
-				
+				e.count = text.getSelectionCount();
 			}
 			public void getSelectionRange(AccessibleTextEvent e) {
 				System.out.print("getSelectionRange " + e);
@@ -136,6 +135,9 @@ public class AccessibleTextExample {
 					text.setSelection(e.start, e.end);
 				}
 				System.out.println(" returning " + e);
+			}
+			public void getVisibleRanges(AccessibleTextExtendedEvent e) {
+				// TODO 
 			}
 		});
 
