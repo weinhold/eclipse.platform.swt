@@ -1573,19 +1573,8 @@ public class Accessible {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 				listener.getRanges(event);
 			}
-			if (event.ranges != null) {
-				int[] ranges = event.ranges;
-				int start = 0, end = 0;
-				for (int i = 0; i < ranges.length; i++) {
-					start = Math.max(0, Math.min(start, ranges[i++]));
-					end = Math.max(end, ranges[i]);
-				}
-				range.location = start;
-				range.length = end - start;
-			} else {
-				range.location = event.start;
-				range.length = event.end;
-			}
+			range.location = event.start;
+			range.length = event.end;
 		} else {
 			AccessibleControlEvent event = new AccessibleControlEvent(this);
 			event.childID = childID;
