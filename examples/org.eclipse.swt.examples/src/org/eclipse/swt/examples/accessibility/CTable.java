@@ -219,6 +219,8 @@ public CTable (Composite parent, int style) {
 		vBar.setVisible (false);
 		vBar.addListener (SWT.Selection, listener);
 	}
+	
+	initAccessibility ();
 }
 /**
  * Adds the listener to the collection of listeners who will
@@ -1714,48 +1716,149 @@ public int indexOf (CTableItem item) {
 }
 
 void initAccessibility () {
+	// TODO: does this all work if CTable is virtual?
 	final Accessible accessibleTable = getAccessible();
+	accessibleTable.addAccessibleListener(new AccessibleAdapter() {
+		public void getName(AccessibleEvent e) {
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			int childID = e.childID;
+			if (0 <= childID && childID < itemsCount * columnCount) {
+				int rowIndex = childID / columnCount;
+				int columnIndex = childID - rowIndex * columnCount;
+				e.result = items[rowIndex].getText(columnIndex);
+			}
+		}
+		public void getHelp(AccessibleEvent e) {
+			// TODO: maybe return tooltipText?
+		}
+		public void getKeyboardShortcut(AccessibleEvent e) {
+			// TODO: maybe if there's a preceding label, get the mnemonic?
+		}
+	});
 	accessibleTable.addAccessibleControlListener(new AccessibleControlAdapter() {
 		public void getChild(AccessibleControlEvent e) {
-			// TODO
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			int childID = e.childID;
+			if (0 <= childID && childID < itemsCount * columnCount) {
+				int rowIndex = childID / columnCount;
+				int columnIndex = childID - rowIndex * columnCount;
+				e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+			}
 		}
 		public void getChildAtPoint(AccessibleControlEvent e) {
-			// TODO
+			Point point = toControl(e.x, e.y);
+			int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
+			if (0 <= rowIndex && rowIndex < itemsCount) {
+				if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
+					int columnIndex = computeColumnIntersect (point.x, 0);
+					if (columnIndex != -1) {
+						int columnCount = columns.length > 0 ? columns.length : 1;
+						e.childID = rowIndex * columnCount + columnIndex;
+						e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+					}
+				}
+			}
 		}
 		public void getChildCount(AccessibleControlEvent e) {
-			// TODO
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			e.detail = itemsCount * columnCount;
 		}
 		public void getChildren(AccessibleControlEvent e) {
-			// TODO
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			int childIdCount = itemsCount * columnCount;
+			Object[] children = new Object[childIdCount];
+			for (int i = 0; i < childIdCount; i++) {
+				children[i] = new Integer(i);
+			}
+			e.children = children;
 		}
 		public void getDefaultAction(AccessibleControlEvent e) {
 			// TODO
 		}
 		public void getFocus(AccessibleControlEvent e) {
-			// TODO
+			e.childID = isFocusControl() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
 		}
 		public void getLocation(AccessibleControlEvent e) {
-			// TODO
+			Rectangle location = null;
+			Point pt = null;
+			int childID = e.childID;
+			if (childID == ACC.CHILDID_SELF) {
+				location = getBounds();
+				pt = getParent().toDisplay(location.x, location.y);
+			} else {
+				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (0 <= childID && childID < itemsCount * columnCount) {
+					int rowIndex = childID / columnCount;
+					int columnIndex = childID - rowIndex * columnCount;
+					location = items[rowIndex].getBounds(columnIndex);
+					pt = toDisplay(location.x, location.y);
+				}
+			}
+			if (location != null && pt != null) {
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = location.width;
+				e.height = location.height;
+			}
 		}
 		public void getRole(AccessibleControlEvent e) {
-			if (e.childID == ACC.CHILDID_SELF) {
+			int childID = e.childID;
+			if (childID == ACC.CHILDID_SELF) {
 				e.detail = ACC.ROLE_TABLE;
+			} else {
+				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (0 <= childID && childID < itemsCount * columnCount) {
+					e.detail = ACC.ROLE_TABLECELL;
+				}
 			}
-			// TODO: need to map childID to child accessible. Need an ID for each cell...
 		}
 		public void getSelection(AccessibleControlEvent e) {
-			// TODO
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			int [] selectionIndices = getSelectionIndices();
+			Object[] selectedChildren = new Object[selectionIndices.length * columnCount];
+			for (int rowIndex = 0; rowIndex < selectionIndices.length; rowIndex++) {
+				for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+					selectedChildren[rowIndex + columnIndex] = new Integer(rowIndex * columnCount + columnIndex);
+				}
+			}
+			e.children = selectedChildren;
 		}
 		public void getState(AccessibleControlEvent e) {
-			// TODO
+			int state = 0;
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			int childID = e.childID;
+			if (childID == ACC.CHILDID_SELF) {
+				state = ACC.STATE_NORMAL;
+			} else if (0 <= childID && childID < itemsCount * columnCount) {
+				state = ACC.STATE_SELECTABLE;
+				if (isFocusControl()) {
+					state |= ACC.STATE_FOCUSABLE;
+				}
+				int rowIndex = childID / columnCount;
+				if (items[rowIndex].isSelected()) { // CTable does not support cell selection (only row selection)
+					state |= ACC.STATE_SELECTED;
+					if (isFocusControl()) {
+						state |= ACC.STATE_FOCUSED;
+					}
+				}
+			}
+			e.detail = state;
 		}
 		public void getValue(AccessibleControlEvent e) {
-			// TODO
+			// TODO: Do table cells have a value? Does the table itself have a value?
+			e.result = "This is the Custom Table's Test Value for childID = " + e.childID;
 		}
 	});
 	accessibleTable.addAccessibleTableListener(new AccessibleTableAdapter() {
+		public void deselectColumn(AccessibleTableEvent e) {
+			/* CTable does not support column selection. */
+		}
+		public void deselectRow(AccessibleTableEvent e) {
+			deselect(e.row);
+		}
 		public void getCaption(AccessibleTableEvent e) {
-			e.result = "This is the Custom Table's Caption"; //TODO: maybe the "app" should do this one???
+			// TODO: What is a caption? How does it differ from name? Should app supply?
+			e.result = "This is the Custom Table's Test Caption";
 		}
 		public void getCellAt(AccessibleTableEvent e) {
 			int index = e.row;
@@ -1765,27 +1868,46 @@ void initAccessibility () {
 			}
 		}
 		public void getColumnCount(AccessibleTableEvent e) {
-			e.count = columns.length;
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			e.count = columnCount;
 		}
 		public void getColumnDescription(AccessibleTableEvent e) {
-			/* CTable does not support column descriptions. */
-			// TODO: What is a description? How does it differ from name?
+			// TODO: What is a description? How does it differ from name? Should app supply?
+			e.result = "This is the Custom Table's Test Description for column " + e.column;
+		}
+		public void getColumnHeaders(AccessibleTableEvent e) {
+			if (columns.length == 0) {
+				/* The CTable is being used as a list, and there are no headers. */
+				e.accessibles = null;
+			} else {
+				Accessible[] accessibles = new Accessible[columns.length];
+				for (int i = 0; i < columns.length; i++) {
+					CTableColumn column = columns [i];
+					accessibles[i] = column.getAccessible (accessibleTable);
+				}
+				e.accessibles = accessibles;
+			}
 		}
 		public void getRowCount(AccessibleTableEvent e) {
 			e.count = itemsCount;
 		}
 		public void getRowDescription(AccessibleTableEvent e) {
-			/* CTable does not support row descriptions. */
-			// TODO: What is a description? How does it differ from name?
+			// TODO: What is a description? How does it differ from name? Should app supply?
+			e.result = "This is the Custom Table's Test Description for row " + e.row;
+		}
+		public void getRowHeaders(AccessibleTableEvent e) {
+			/* CTable does not support row headers. */
 		}
 		public void getSelectedCellCount(AccessibleTableEvent e) {
-			e.count = selectedItems.length * columns.length;
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			e.count = selectedItems.length * columnCount;
 		}
 		public void getSelectedCells(AccessibleTableEvent e) {
-			Accessible[] accessibles = new Accessible[selectedItems.length * columns.length];
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			Accessible[] accessibles = new Accessible[selectedItems.length * columnCount];
 			for (int r = 0; r < selectedItems.length; r++) {
 				CTableItem row = selectedItems [r];
-				for (int c = 0; c < columns.length; c++)
+				for (int c = 0; c < columnCount; c++)
 					accessibles[r] = row.getAccessible (accessibleTable, c);
 			}
 			e.accessibles = accessibles;
@@ -1819,14 +1941,13 @@ void initAccessibility () {
 			/* CTable does not support column selection. */
 		}
 		public void selectRow(AccessibleTableEvent e) {
-			// TODO: add to selection (as in ATK), or deselect all and select only this row (as in IA2 comment)?
-			setSelection(e.row); // current implementation is to deselect/select
+			select(e.row);
 		}
-		public void unselectColumn(AccessibleTableEvent e) {
+		public void setSelectedColumn(AccessibleTableEvent e) {
 			/* CTable does not support column selection. */
 		}
-		public void unselectRow(AccessibleTableEvent e) {
-			deselect(e.row);
+		public void setSelectedRow(AccessibleTableEvent e) {
+			setSelection(e.row);
 		}
 	});	
 }

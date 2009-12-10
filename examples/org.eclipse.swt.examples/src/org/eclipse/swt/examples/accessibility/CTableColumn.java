@@ -775,7 +775,7 @@ void updateWidth (GC gc) {
 	}
 }
 /* Returns the accessible for the column header. */
-Accessible getAccessible(Accessible accessibleTable) {
+Accessible getAccessible(final Accessible accessibleTable) {
 	if (accessible == null) {
 		accessible = new Accessible(accessibleTable);
 		accessible.addAccessibleListener(new AccessibleAdapter() {
@@ -784,7 +784,7 @@ Accessible getAccessible(Accessible accessibleTable) {
 			}
 		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
-			public void getColumnHeaderCells(AccessibleTableCellEvent e) {
+			public void getColumnHeaders(AccessibleTableCellEvent e) {
 				/* Column header does not have a header. */
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
@@ -793,7 +793,7 @@ Accessible getAccessible(Accessible accessibleTable) {
 			public void getColumnSpan(AccessibleTableCellEvent e) {
 				e.count = 1; /* CTable cells only occupy one column. */
 			}
-			public void getRowHeaderCells(AccessibleTableCellEvent e) {
+			public void getRowHeaders(AccessibleTableCellEvent e) {
 				 /* CTable does not support row headers. */
 			}
 			public void getRowIndex(AccessibleTableCellEvent e) {
@@ -801,6 +801,9 @@ Accessible getAccessible(Accessible accessibleTable) {
 			}
 			public void getRowSpan(AccessibleTableCellEvent e) {
 				e.count = 1; /* CTable cells only occupy one row. */
+			}
+			public void getTable(AccessibleTableCellEvent e) {
+				e.accessible = accessibleTable;
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
 				e.isSelected = false;  /* CTable columns cannot be selected (only rows can be selected). */

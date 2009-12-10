@@ -415,38 +415,45 @@ void disposeAccessibles() {
 		accessibles = null;
 	}
 }
-/* Returns the accessible for the specified column. */
+/* Returns the cell accessible for the specified column index in the receiver. */
 Accessible getAccessible(final Accessible accessibleTable, final int columnIndex) {
-	int validColumnCount = Math.max (1, parent.columns.length);
-	if (!(0 <= columnIndex && columnIndex < validColumnCount)) return null;
 	if (accessibles [columnIndex] == null) {
 		Accessible accessible = new Accessible(accessibleTable);
 		accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				e.result = getText(columnIndex);
+				if (e.childID == ACC.CHILDID_SELF) e.result = getText(columnIndex);
 			}
 		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
-			public void getColumnHeaderCells(AccessibleTableCellEvent e) {
-				 /* CTable cells only occupy one column. */
-				CTableColumn column = parent.columns [columnIndex];
-				e.accessibles = new Accessible[] {column.getAccessible (accessibleTable)};
-				e.count = 1;
+			public void getColumnHeaders(AccessibleTableCellEvent e) {
+				if (parent.columns.length == 0) {
+					/* The CTable is being used as a list, and there are no headers. */
+					e.accessibles = null;
+				} else {
+					/* CTable cells only occupy one column. */
+					CTableColumn column = parent.columns [columnIndex];
+					e.accessibles = new Accessible[] {column.getAccessible (accessibleTable)};
+				}
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
 				e.index = columnIndex;
 			}
 			public void getColumnSpan(AccessibleTableCellEvent e) {
-				e.count = 1; /* CTable cells only occupy one column. */
+				/* CTable cells only occupy one column. */
+				e.count = 1;
 			}
-			public void getRowHeaderCells(AccessibleTableCellEvent e) {
+			public void getRowHeaders(AccessibleTableCellEvent e) {
 				 /* CTable does not support row headers. */
 			}
 			public void getRowIndex(AccessibleTableCellEvent e) {
 				e.index = index;
 			}
 			public void getRowSpan(AccessibleTableCellEvent e) {
-				e.count = 1; /* CTable cells only occupy one row. */
+				/* CTable cells only occupy one row. */
+				e.count = 1;
+			}
+			public void getTable(AccessibleTableCellEvent e) {
+				e.accessible = accessibleTable;
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
 				e.isSelected = CTableItem.this.isSelected();
