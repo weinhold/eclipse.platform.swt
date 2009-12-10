@@ -108,8 +108,8 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * <li>[in] y - the Y coordinate of the top left corner of the bounding box
 	 * <li>[in] width - the width of the bounding box
 	 * <li>[in] height - the height of the bounding box
-	 * <li>[out] start - the 0 based offset of the first character of the substring in the bounding box
-	 * <li>[out] end - the 0 based offset of the last character of the substring in the bounding box
+	 * <li>[typical out] start - the 0 based offset of the first character of the substring in the bounding box
+	 * <li>[typical out] end - the 0 based offset of the last character of the substring in the bounding box
 	 * <li>[optional out] ranges - an array of pairs specifying the start and end offsets of each range,
 	 * 		if the text range is clipped
 	 * </ul>
@@ -140,25 +140,25 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * Returns a substring and its range for the given range, count and boundary type.
 	 * <p>
 	 * Returns the substring of the specified boundary type that is located count
-	 * positions from the given character offset. Also returns the start and end
+	 * positions from the given character range. Also returns the start and end
 	 * offsets of the returned substring.
 	 * </p><p>
 	 * For example, if the boundary type is TEXT_BOUNDARY_WORD, then the complete
-	 * word that is located count words from the specified substring is returned.
+	 * word that is located count words from the specified range is returned.
 	 * If count is negative, then return the word that is count words before start.
 	 * If count is positive, then return the word that is count words after end.
-	 * If count is zero, start and end are the same, so return the word at this offset.
+	 * If count is zero, start and end are the same, so return the word at start.
 	 * </p><p>
-	 * The whole text can be requested by passing the offsets 0 and getCharacterCount,
+	 * The whole text can be requested by passing start == 0 and end == getCharacterCount,
 	 * TEXT_BOUNDARY_ALL, and 0 for count. Alternatively the whole text can be requested
 	 * by calling AccessibleControlListener.getValue().
 	 * </p><p>
-	 * If the offsets are valid, but no suitable word (or other boundary type) is found,
-	 * the returned string is null and the returned range is degenerate.
+	 * If start and end are valid, but no suitable word (or other boundary type) is found,
+	 * the returned string is null and the returned range is degenerate (start == end).
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[in] type - the boundary type of the text portion to return. One of:<ul>
+	 * <li>[in] type - the boundary type of the substring to return. One of:<ul>
 	 * 		<li> TEXT_BOUNDARY_CHAR
 	 * 		<li> TEXT_BOUNDARY_WORD
 	 * 		<li> TEXT_BOUNDARY_SENTENCE
@@ -169,11 +169,11 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * <li>[in,out] start - the 0 based offset of first character of the substring
 	 * <li>[in,out] end - the 0 based offset of last character of the substring
 	 * <li>[in,out] count - the number of boundary type units to move to find the substring to return.<ul>
-	 * 		<li>in: look count units before the offset if count < 0, or after if count > 0. Look at the offset if count == 0.
+	 * 		<li>in: look count units before start if count < 0, or after end if count > 0. Look at start if count == 0.
 	 * 		<li>out: the actual number of boundary type units that were moved. This may be fewer than the input count.
 	 * 		</ul>
-	 * <li>[out] result - the requested text portion.  This portion may be empty or null when
-	 * 		no appropriate text portion is found, or if the type is invalid.
+	 * <li>[out] result - the requested substring.  This may be empty or null
+	 * 		when no appropriate substring is found, or if the type is invalid.
 	 * </ul>
 	 */
 	public void getText(AccessibleTextExtendedEvent e) {}
@@ -195,10 +195,10 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] start - the 0 based offset of the first character of the substring for which to get the bounding box
 	 * <li>[in] end - the 0 based offset of the last character of the substring for which to get the bounding box
-	 * <li>[out] x - the X coordinate of the top left corner of the bounding box of the referenced substring
-	 * <li>[out] y - the Y coordinate of the top left corner of the bounding box of the referenced substring
-	 * <li>[out] width - the width of the bounding box of the referenced substring
-	 * <li>[out] height - the height of the bounding box of the referenced substring
+	 * <li>[typical out] x - the X coordinate of the top left corner of the bounding box of the referenced substring
+	 * <li>[typical out] y - the Y coordinate of the top left corner of the bounding box of the referenced substring
+	 * <li>[typical out] width - the width of the bounding box of the referenced substring
+	 * <li>[typical out] height - the height of the bounding box of the referenced substring
 	 * <li>[optional out] rectangles - a set of disjoint bounding rectangles, if the substring is clipped
 	 * </ul>
 	 */
@@ -211,8 +211,8 @@ public class AccessibleTextExtendedAdapter extends AccessibleTextAdapter impleme
 	 * </p>
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] start - the 0 based offset of the first character of the visible substring
-	 * <li>[out] end - the 0 based offset of the last character of the visible substring
+	 * <li>[typical out] start - the 0 based offset of the first character of the visible substring
+	 * <li>[typical out] end - the 0 based offset of the last character of the visible substring
 	 * <li>[optional out] ranges - an array of pairs specifying the start and end offsets of each range,
 	 * 		if the visible text range is clipped
 	 * </ul>
