@@ -45,8 +45,8 @@ public class Accessible {
 	int refCount = 0, enumIndex = 0;
 	COMObject objIAccessible, objIEnumVARIANT, objIServiceProvider, objIAccessible2, objIAccessibleAction,
 		objIAccessibleApplication, objIAccessibleComponent, objIAccessibleEditableText, objIAccessibleHyperlink,
-		objIAccessibleHypertext, objIAccessibleImage, /*objIAccessibleRelation,*/ objIAccessibleTable2,
-		objIAccessibleTableCell, objIAccessibleText, objIAccessibleValue;
+		objIAccessibleHypertext, objIAccessibleImage, objIAccessibleTable2, objIAccessibleTableCell,
+		objIAccessibleText, objIAccessibleValue; /* objIAccessibleRelation is defined in Relation class */
 	IAccessible iaccessible;
 	Vector accessibleListeners = new Vector();
 	Vector accessibleControlListeners = new Vector();
@@ -67,21 +67,32 @@ public class Accessible {
 	/**
 	 * Constructs a new instance of this class given its parent.
 	 * 
-	 * @param parent the Accessible parent
+	 * @param parent the Accessible parent, which must not be null
+	 * 
+	 * @exception IllegalArgumentException <ul>
+	 *    <li>ERROR_NULL_ARGUMENT - if the parent is null</li>
+	 * </ul>
 	 * 
 	 * @see Control#getAccessible
 	 * 
 	 * @since 3.6
 	 */
 	public Accessible(Accessible parent) {
-		this.parent = parent;
-		//TODO: (platform-specific?) code to add this accessible to the parent's children
+		this.parent = checkNull(parent);
+		this.control = parent.control;
+		
+		// TODO: (platform-specific?) code to add this accessible to the parent's children
 	}
 
 	/**
 	 * @since 3.5
 	 */
 	protected Accessible() {
+	}
+
+	static Accessible checkNull (Accessible parent) {
+		if (parent == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+		return parent;
 	}
 
 	Accessible(Control control) {
@@ -97,7 +108,11 @@ public class Accessible {
 		if (ppvObject[0] == 0) return;
 		if (result != COM.S_OK) OLE.error(OLE.ERROR_CANNOT_CREATE_OBJECT, result);
 		iaccessible = new IAccessible(ppvObject[0]);
+		createIAccessible();
+		AddRef();
+	}
 
+	void createIAccessible() {
 		objIAccessible = new COMObject(new int[] {2,0,0,1,3,5,8,1,1,2,2,2,2,2,2,2,3,2,1,1,2,2,5,3,3,1,2,2}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessible, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -128,8 +143,8 @@ public class Accessible {
 			public int /*long*/ method26(int /*long*/[] args) {return put_accName(args[0], args[1]);}
 			public int /*long*/ method27(int /*long*/[] args) {return put_accValue(args[0], args[1]);}
 		};
-
-		/* If the callback takes a struct parameter (for example, a variant),
+	
+		/* If the callback takes a struct parameter (for example, a VARIANT),
 		 * then create a custom callback that dereferences the struct and
 		 * passes a pointer to the original callback.
 		 */
@@ -155,26 +170,9 @@ public class Accessible {
 		funcs[26] = COM.put_accName_CALLBACK(funcs[26]);
 		funcs[27] = COM.put_accValue_CALLBACK(funcs[27]);
 		COM.MoveMemory(pVtable[0], funcs, OS.PTR_SIZEOF * funcs.length);
+	}
 
-		objIEnumVARIANT = new COMObject(new int[] {2,0,0,3,1,0,1}) {
-			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIEnumVARIANT, args[0], args[1]);}
-			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
-			public int /*long*/ method2(int /*long*/[] args) {return Release();}
-			public int /*long*/ method3(int /*long*/[] args) {return Next((int)/*64*/args[0], args[1], args[2]);}
-			public int /*long*/ method4(int /*long*/[] args) {return Skip((int)/*64*/args[0]);}
-			public int /*long*/ method5(int /*long*/[] args) {return Reset();}
-			public int /*long*/ method6(int /*long*/[] args) {return Clone(args[0]);}
-		};
-		AddRef();
-		
-		objIServiceProvider = new COMObject(new int[] {2,0,0,3}) {
-		    public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIServiceProvider, args[0], args[1]);}
-		    public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
-		    public int /*long*/ method2(int /*long*/[] args) {return Release();}        
-		    public int /*long*/ method3(int /*long*/[] args) {return QueryService(args[0], args[1], args[2]);}
-		};
-
-		// TODO: For now, create all of the COMObjects in the constructor. Later, should only create for certain roles, or if listeners are added
+	void createIAccessible2() {
 		objIAccessible2 = new COMObject(new int[] {2,0,0,/*IA>>*/1,3,5,8,1,1,2,2,2,2,2,2,2,3,2,1,1,2,2,5,3,3,1,2,2,/*<<IA*/1,2,3,1,1,3,3,1,1,1,1,3,3,1,1,1,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessible2, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -199,7 +197,9 @@ public class Accessible {
 			public int /*long*/ method44(int /*long*/[] args) {return get_locale(args[0]);}
 			public int /*long*/ method45(int /*long*/[] args) {return get_attributes(args[0]);}
 		};
+	}
 
+	void createIAccessibleAction() {
 		objIAccessibleAction = new COMObject(new int[] {2,0,0,1,1,2,4,2,2}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleAction, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -211,7 +211,9 @@ public class Accessible {
 			public int /*long*/ method7(int /*long*/[] args) {return get_name((int)/*64*/args[0], args[1]);}
 			public int /*long*/ method8(int /*long*/[] args) {return get_localizedName((int)/*64*/args[0], args[1]);}
 		};
+	}
 
+	void createIAccessibleApplication() {
 		objIAccessibleApplication = new COMObject(new int[] {2,0,0,1,1,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleApplication, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -221,7 +223,9 @@ public class Accessible {
 			public int /*long*/ method5(int /*long*/[] args) {return get_toolkitName(args[0]);}
 			public int /*long*/ method6(int /*long*/[] args) {return get_toolkitVersion(args[0]);}
 		};
+	}
 
+	void createIAccessibleComponent() {
 		objIAccessibleComponent = new COMObject(new int[] {2,0,0,2,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleComponent, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -230,7 +234,9 @@ public class Accessible {
 			public int /*long*/ method4(int /*long*/[] args) {return get_foreground(args[0]);}
 			public int /*long*/ method5(int /*long*/[] args) {return get_background(args[0]);}
 		};
+	}
 
+	void createIAccessibleEditableText() {
 		objIAccessibleEditableText = new COMObject(new int[] {2,0,0,2,2,2,2,1,3,3}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleEditableText, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -243,7 +249,9 @@ public class Accessible {
 			public int /*long*/ method8(int /*long*/[] args) {return replaceText((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
 			public int /*long*/ method9(int /*long*/[] args) {return setAttributes((int)/*64*/args[0], (int)/*64*/args[1], args[2]);}
 		};
+	}
 
+	void createIAccessibleHyperlink() {
 		objIAccessibleHyperlink = new COMObject(new int[] {2,0,0,/*IAA>>*/2,0,0,1,1,2,4,2,2,/*<<IAA*/2,2,1,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleHyperlink, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -262,7 +270,9 @@ public class Accessible {
 			public int /*long*/ method12(int /*long*/[] args) {return get_endIndex(args[0]);}
 			public int /*long*/ method13(int /*long*/[] args) {return get_valid(args[0]);}
 		};
+	}
 
+	void createIAccessibleHypertext() {
 		objIAccessibleHypertext = new COMObject(new int[] {2,0,0,/*IAT>>*/2,4,1,6,1,4,3,3,5,5,5,1,1,3,1,3,5,1,1,/*<<IAT*/1,2,2}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleHypertext, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -292,7 +302,9 @@ public class Accessible {
 			public int /*long*/ method23(int /*long*/[] args) {return get_hyperlink((int)/*64*/args[0], args[1]);}
 			public int /*long*/ method24(int /*long*/[] args) {return get_hyperlinkIndex((int)/*64*/args[0], args[1]);}
 		};
+	}
 
+	void createIAccessibleImage() {
 		objIAccessibleImage = new COMObject(new int[] {2,0,0,1,3,2}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleImage, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -301,7 +313,9 @@ public class Accessible {
 			public int /*long*/ method4(int /*long*/[] args) {return get_imagePosition(args[0], args[1], args[2]);}
 			public int /*long*/ method5(int /*long*/[] args) {return get_imageSize(args[0], args[1]);}
 		};
+	}
 
+	void createIAccessibleTable2() {
 		objIAccessibleTable2 = new COMObject(new int[] {2,0,0,3,1,2,1,1,1,1,1,2,2,2,2,1,2,2,1,1,1,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleTable2, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -327,7 +341,9 @@ public class Accessible {
 			public int /*long*/ method21(int /*long*/[] args) {return unselectColumn((int)/*64*/args[0]);}
 			public int /*long*/ method22(int /*long*/[] args) {return get_modelChange(args[0]);}
 		};
+	}
 
+	void createIAccessibleTableCell() {
 		objIAccessibleTableCell = new COMObject(new int[] {2,0,0,1,2,1,1,2,1,1,5,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleTableCell, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -342,7 +358,9 @@ public class Accessible {
 			public int /*long*/ method10(int /*long*/[] args) {return get_rowColumnExtents(args[0], args[1], args[2], args[3], args[4]);}
 			public int /*long*/ method11(int /*long*/[] args) {return get_table(args[0]);}
 		};
+	}
 
+	void createIAccessibleText() {
 		objIAccessibleText = new COMObject(new int[] {2,0,0,2,4,1,6,1,4,3,3,5,5,5,1,1,3,1,3,5,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleText, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -367,7 +385,9 @@ public class Accessible {
 			public int /*long*/ method20(int /*long*/[] args) {return get_newText(args[0]);}
 			public int /*long*/ method21(int /*long*/[] args) {return get_oldText(args[0]);}
 		};
+	}
 
+	void createIAccessibleValue() {
 		objIAccessibleValue = new COMObject(new int[] {2,0,0,1,1,1,1}) {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessibleValue, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
@@ -378,15 +398,36 @@ public class Accessible {
 			public int /*long*/ method6(int /*long*/[] args) {return get_minimumValue(args[0]);}
 		};
 		/* Dereference VARIANT struct parameters. */
-		ppVtable = objIAccessibleValue.ppVtable;
-		pVtable = new int /*long*/[1];
+		int /*long*/ ppVtable = objIAccessibleValue.ppVtable;
+		int /*long*/[] pVtable = new int /*long*/[1];
 		COM.MoveMemory(pVtable, ppVtable, OS.PTR_SIZEOF);
-		funcs = new int /*long*/[7];
+		int /*long*/[] funcs = new int /*long*/[7];
 		COM.MoveMemory(funcs, pVtable[0], OS.PTR_SIZEOF * funcs.length);
 		funcs[4] = COM.CALLBACK_setCurrentValue(funcs[4]);
 		COM.MoveMemory(pVtable[0], funcs, OS.PTR_SIZEOF * funcs.length);
 	}
-	
+
+	void createIEnumVARIANT() {
+		objIEnumVARIANT = new COMObject(new int[] {2,0,0,3,1,0,1}) {
+			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIEnumVARIANT, args[0], args[1]);}
+			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+			public int /*long*/ method2(int /*long*/[] args) {return Release();}
+			public int /*long*/ method3(int /*long*/[] args) {return Next((int)/*64*/args[0], args[1], args[2]);}
+			public int /*long*/ method4(int /*long*/[] args) {return Skip((int)/*64*/args[0]);}
+			public int /*long*/ method5(int /*long*/[] args) {return Reset();}
+			public int /*long*/ method6(int /*long*/[] args) {return Clone(args[0]);}
+		};
+	}
+
+	void createIServiceProvider() {
+		objIServiceProvider = new COMObject(new int[] {2,0,0,3}) {
+		    public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIServiceProvider, args[0], args[1]);}
+		    public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
+		    public int /*long*/ method2(int /*long*/[] args) {return Release();}        
+		    public int /*long*/ method3(int /*long*/[] args) {return QueryService(args[0], args[1], args[2]);}
+		};
+	}
+
 	/**
 	 * Invokes platform specific functionality to allocate a new accessible object.
 	 * <p>
@@ -725,14 +766,22 @@ public class Accessible {
 	 * the receiver.
 	 * <p>
 	 * This method should be called when an accessible that was created
-	 * with the public constructor is no longer needed.
-	 * It is not necessary to call this for instances of Accessible that
-	 * were retrieved with Control#getAccessible.
+	 * with the public constructor <code>Accessible(Accessible parent)</code>
+	 * is no longer needed. It is not necessary to call this for instances of
+	 * Accessible that were retrieved with <code>Control.getAccessible()</code>.
 	 * </p>
+	 * 
+	 * @since 3.6
 	 */
 	public void dispose () {
-		if (control != null) return;
+		if (parent == null) return;
 		Release();
+	}
+
+	int getAddress() {
+		/* The address of an Accessible is the address of its IAccessible COMObject. */
+		if (objIAccessible == null) createIAccessible();
+		return objIAccessible.getAddress();
 	}
 
 	/**
@@ -744,7 +793,7 @@ public class Accessible {
 	public Control getControl() {
 		return control;
 	}
-
+	
 	/**
 	 * Invokes platform specific functionality to dispose an accessible object.
 	 * <p>
@@ -774,7 +823,7 @@ public class Accessible {
 	 * </p>
 	 */
 	public int /*long*/ internal_WM_GETOBJECT (int /*long*/ wParam, int /*long*/ lParam) {
-		if (objIAccessible == null) return 0;
+		if (objIAccessible == null) {System.out.println("should only be null here if the Accessible or the Control was disposed");return 0;}
 		if ((int)/*64*/lParam == COM.OBJID_CLIENT) {
 			/* LresultFromObject([in] riid, [in] wParam, [in] pAcc)
 			 * The argument pAcc is owned by the caller so reference count does not
@@ -1225,12 +1274,14 @@ public class Accessible {
 		}
 
 		if (COM.IsEqualGUID(guid, COM.IIDIDispatch) || COM.IsEqualGUID(guid, COM.IIDIAccessible)) {
+			if (objIAccessible == null) createIAccessible();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 
 		if (COM.IsEqualGUID(guid, COM.IIDIEnumVARIANT)) {
+			if (objIEnumVARIANT == null) createIEnumVARIANT();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIEnumVARIANT.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			enumIndex = 0;
@@ -1238,6 +1289,7 @@ public class Accessible {
 		}
 		
 		if (COM.IsEqualGUID(guid, COM.IIDIServiceProvider)) {
+			if (objIServiceProvider == null) createIServiceProvider();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIServiceProvider.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
@@ -1343,13 +1395,14 @@ public class Accessible {
 
 		if (COM.IsEqualGUID(service, COM.IIDIAccessible)) {
 			if (COM.IsEqualGUID(guid, COM.IIDIUnknown) || COM.IsEqualGUID(guid, COM.IIDIDispatch) | COM.IsEqualGUID(guid, COM.IIDIAccessible)) {
+				if (objIAccessible == null) createIAccessible();
 				COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible.getAddress() }, OS.PTR_SIZEOF);
 				AddRef();
 				return COM.S_OK;
 			}
 			
-			/* TODO: The following 2 lines shouldn't work, according to the spec,
-			 * but this is what AccProbe and UnoInspect use... so need to support it for now.
+			/* NOTE: The following 2 lines shouldn't work, according to the IA2 specification,
+			 * but this is what AccProbe and UnoInspect use, so we need to support it for testing.
 			 */
 			int code = queryAccessible2Interfaces(guid, ppvObject);
 			if (code == COM.S_OK) return code;
@@ -1377,79 +1430,94 @@ public class Accessible {
 	}
 
 	int queryAccessible2Interfaces(GUID guid, int ppvObject) {
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessible2)) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessible2)
+				&& (accessibleControlListeners.size() > 0 || accessibleScrollListeners.size() > 0 || accessibleAttributeListeners.size() > 0)) {
+			if (objIAccessible2 == null) createIAccessible2();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessible2.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleAction) && accessibleActionListeners.size() > 0) {
+			if (objIAccessibleAction == null) createIAccessibleAction();
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleAction.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			return COM.S_OK;
+		}
+		
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleApplication)) {
+			if (objIAccessibleApplication == null) createIAccessibleApplication();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleApplication.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleComponent)) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleComponent) && accessibleControlListeners.size() > 0) {
+			if (objIAccessibleComponent == null) createIAccessibleComponent();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleComponent.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleEditableText)/*&&accessibleEditableTextListeners.size() !=0*/) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleEditableText.getAddress() }, OS.PTR_SIZEOF);
+		// TODO: We are not providing the EditableText interface at this time
+//		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleEditableText)/*&& accessibleEditableTextListeners.size() > 0*/) {
+//			if (objIAccessibleEditableText == null) createIAccessibleEditableText();
+//			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleEditableText.getAddress() }, OS.PTR_SIZEOF);
+//			AddRef();
+//			return COM.S_OK;
+//		}
+		
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleHyperlink) && accessibleHyperlinkListeners.size() > 0) {
+			if (objIAccessibleHyperlink == null) createIAccessibleHyperlink();
+			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHyperlink.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleHypertext)/*&&accessibleHypertextListeners.size() !=0*/) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleHypertext) && accessibleTextExtendedListeners.size() > 0) {
+			if (objIAccessibleHypertext == null) createIAccessibleHypertext();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHypertext.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleImage)/*&&accessibleImageListeners.size() !=0*/) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleImage)
+				&& (accessibleListeners.size() > 0 || accessibleControlListeners.size() > 0)) {
+			if (objIAccessibleImage == null) createIAccessibleImage();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleImage.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTable) /*&& accessibleTableListeners.size() != 0*/) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTable2) && accessibleTableListeners.size() > 0) {
+			if (objIAccessibleTable2 == null) createIAccessibleTable2();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTable2.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTableCell) /*&& accessibleTableListeners.size() != 0*/) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleTableCell) && accessibleTableCellListeners.size() > 0) {
+			if (objIAccessibleTableCell == null) createIAccessibleTableCell();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleTableCell.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleText)/*&&accessibleExtendedTextListeners.size() !=0*/) {
+		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleText)
+				&& (accessibleTextListeners.size() > 0 || accessibleTextExtendedListeners.size() > 0 || accessibleAttributeListeners.size() > 0)) {
+			if (objIAccessibleText == null) createIAccessibleText();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleText.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
 		
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleValue) && accessibleValueListeners.size() > 0) {
+			if (objIAccessibleValue == null) createIAccessibleValue();
 			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleValue.getAddress() }, OS.PTR_SIZEOF);
 			AddRef();
 			return COM.S_OK;
 		}
-		
-		/* TODO: Should Action and Hyperlink be handled in separate objects (like Relation)?
-		 * These interfaces have a many-to-one relationship with Accessible2 objects? */
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleAction) /*&& accessibleActionListeners.size() != 0*/) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleAction.getAddress() }, OS.PTR_SIZEOF);
-			AddRef();
-			return COM.S_OK;
-		}
-		
-		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleHyperlink) /*&& accessibleHyperlinkListeners.size() != 0*/) {
-			COM.MoveMemory(ppvObject, new int /*long*/[] { objIAccessibleHyperlink.getAddress() }, OS.PTR_SIZEOF);
-			AddRef();
-			return COM.S_OK;
-		}
+
 		return COM.E_NOINTERFACE;
 	}
 	
@@ -1799,7 +1867,7 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			COM.MoveMemory(ppdispChild, new int /*long*/[] { accessible.objIAccessible.getAddress() }, OS.PTR_SIZEOF);
+			COM.MoveMemory(ppdispChild, new int /*long*/[] { accessible.getAddress() }, OS.PTR_SIZEOF);
 			return COM.S_OK;
 		}
 		return code;
@@ -1969,7 +2037,7 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, accessible.getAddress());
 			return COM.S_OK;
 		}
 		int childID = event.childID;
@@ -1979,7 +2047,7 @@ public class Accessible {
 		}
 		if (childID == ACC.CHILDID_SELF) {
 			AddRef();
-			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, objIAccessible.getAddress());
+			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, getAddress());
 			return COM.S_OK;
 		}
 		setIntVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
@@ -2183,7 +2251,7 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(pvarChildren, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(pvarChildren, COM.VT_DISPATCH, accessible.getAddress());
 			return COM.S_OK;
 		}
 		int childID = event.childID;
@@ -2193,12 +2261,12 @@ public class Accessible {
 		}
 		if (childID == ACC.CHILDID_MULTIPLE) {
 			AddRef();
-			setPtrVARIANT(pvarChildren, COM.VT_UNKNOWN, objIAccessible.getAddress());
+			setPtrVARIANT(pvarChildren, COM.VT_UNKNOWN, getAddress());
 			return COM.S_OK;
 		}
 		if (childID == ACC.CHILDID_SELF) {
 			AddRef();
-			setPtrVARIANT(pvarChildren, COM.VT_DISPATCH, objIAccessible.getAddress());
+			setPtrVARIANT(pvarChildren, COM.VT_DISPATCH, getAddress());
 			return COM.S_OK;
 		}
 		setIntVARIANT(pvarChildren, COM.VT_I4, childIDToOs(childID));
@@ -2327,7 +2395,7 @@ public class Accessible {
 	 * (unless the caller passed in NULL for that parameter).
 	 */
 	 
-	/* Next([in] celt, [out] rgvar, [in, out] pceltFetched)
+	/* IEnumVARIANT::Next([in] celt, [out] rgvar, [in, out] pceltFetched)
 	 * Ownership of rgvar transfers from callee to caller so reference count on rgvar 
 	 * must be incremented before returning.  The caller is responsible for releasing rgvar.
 	 */
@@ -2384,7 +2452,7 @@ public class Accessible {
 				} else {
 					Accessible accessible = (Accessible) nextItem;
 					accessible.AddRef();
-					setPtrVARIANT(rgvar + i * VARIANT.sizeof, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+					setPtrVARIANT(rgvar + i * VARIANT.sizeof, COM.VT_DISPATCH, accessible.getAddress());
 				}
 			}
 			if (pceltFetched != 0)
@@ -2397,7 +2465,7 @@ public class Accessible {
 		return COM.S_FALSE;
 	}
 	
-	/* Skip over the specified number of elements in the enumeration sequence. */
+	/* IEnumVARIANT::Skip([in] celt) over the specified number of elements in the enumeration sequence. */
 	int Skip(int celt) {
 		/* If there are no listeners, query the proxy
 		 * for its IEnumVariant, and tell it to Skip.
@@ -2421,7 +2489,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
-	/* Reset the enumeration sequence to the beginning. */
+	/* IEnumVARIANT::Reset() the enumeration sequence to the beginning. */
 	int Reset() {
 		/* If there are no listeners, query the proxy
 		 * for its IEnumVariant, and tell it to Reset.
@@ -2440,7 +2508,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* Clone([out] ppEnum)
+	/* IEnumVARIANT::Clone([out] ppEnum)
 	 * Ownership of ppEnum transfers from callee to caller so reference count on ppEnum 
 	 * must be incremented before returning.  The caller is responsible for releasing ppEnum.
 	 */
@@ -2466,7 +2534,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 	
-	/* get_nRelations([out] pNRelations) */
+	/* IAccessible2::get_nRelations([out] pNRelations) */
 	int get_nRelations(int /*long*/ pNRelations) {
 		int count = 0;
 		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
@@ -2476,7 +2544,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_relation([in] relationIndex, [out] ppRelation) */
+	/* IAccessible2::get_relation([in] relationIndex, [out] ppRelation) */
 	int get_relation(int relationIndex, int /*long*/ ppRelation) {
 		int i = -1;
 		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
@@ -2491,7 +2559,7 @@ public class Accessible {
 		return COM.E_INVALIDARG;
 	}
 
-	/* get_relations([in] maxRelations, [out] ppRelations, [out] pNRelations) */
+	/* IAccessible2::get_relations([in] maxRelations, [out] ppRelations, [out] pNRelations) */
 	int get_relations(int maxRelations, int /*long*/ ppRelations, int /*long*/ pNRelations) {
 		int count = 0;
 		for (int type = 0; type < MAX_RELATION_TYPES; type++) {
@@ -2507,7 +2575,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_role([out] pRole) */
+	/* IAccessible2::get_role([out] pRole) */
 	int get_role(int /*long*/ pRole) {
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		event.childID = ACC.CHILDID_SELF;
@@ -2519,7 +2587,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* scrollTo([in] scrollType) */
+	/* IAccessible2::scrollTo([in] scrollType) */
 	int scrollTo(int scrollType) {
 		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
 		event.type = scrollType;
@@ -2531,7 +2599,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* scrollToPoint([in] coordinateType, [in] x, [in] y) */
+	/* IAccessible2::scrollToPoint([in] coordinateType, [in] x, [in] y) */
 	int scrollToPoint(int coordinateType, int x, int y) {
 		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
 		event.type = ACC.SCROLL_TYPE_POINT;
@@ -2545,7 +2613,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_groupPosition([out] pGroupLevel, [out] pSimilarItemsInGroup, [out] pPositionInGroup) */
+	/* IAccessible2::get_groupPosition([out] pGroupLevel, [out] pSimilarItemsInGroup, [out] pPositionInGroup) */
 	int get_groupPosition(int /*long*/ pGroupLevel, int /*long*/ pSimilarItemsInGroup, int /*long*/ pPositionInGroup) {
 		// TODO: handle where possible - maybe add AccessibleGroup later
 //		COM.MoveMemory(pGroupLevel, new int [] { groupLevel }, 4);
@@ -2555,7 +2623,7 @@ public class Accessible {
 		// TODO: @retval S_OK if at least one value is valid@retval S_FALSE if no values are valid
 	}
 
-	/* get_states([out] pStates) */
+	/* IAccessible2::get_states([out] pStates) */
 	int get_states(int /*long*/ pStates) {
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		event.childID = ACC.CHILDID_SELF;
@@ -2567,7 +2635,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_extendedRole([out] pbstrExtendedRole) */
+	/* IAccessible2::get_extendedRole([out] pbstrExtendedRole) */
 	int get_extendedRole(int /*long*/ pbstrExtendedRole) {
 		// TODO: this feature is not supported.
 		setString(pbstrExtendedRole, null);
@@ -2575,7 +2643,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_localizedExtendedRole([out] pbstrLocalizedExtendedRole) */
+	/* IAccessible2::get_localizedExtendedRole([out] pbstrLocalizedExtendedRole) */
 	int get_localizedExtendedRole(int /*long*/ pbstrLocalizedExtendedRole) {
 		// TODO: this feature is not supported.
 		setString(pbstrLocalizedExtendedRole, null);
@@ -2583,14 +2651,14 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_nExtendedStates([out] pNExtendedStates) */
+	/* IAccessible2::get_nExtendedStates([out] pNExtendedStates) */
 	int get_nExtendedStates(int /*long*/ pNExtendedStates) {
 		// TODO: this feature is not supported.
 		COM.MoveMemory(pNExtendedStates, new int [] { 0 }, 4);
 		return COM.DISP_E_MEMBERNOTFOUND;
 	}
 
-	/* get_extendedStates([in] maxExtendedStates, [out] ppbstrExtendedStates, [out] pNExtendedStates) */
+	/* IAccessible2::get_extendedStates([in] maxExtendedStates, [out] ppbstrExtendedStates, [out] pNExtendedStates) */
 	int get_extendedStates(int maxExtendedStates, int /*long*/ ppbstrExtendedStates, int /*long*/ pNExtendedStates) {
 		// TODO: this feature is not supported.
 		setString(ppbstrExtendedStates, null);
@@ -2599,7 +2667,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there are no states, [out] values are NULL and 0 respectively
 	}
 
-	/* get_localizedExtendedStates([in] maxLocalizedExtendedStates, [out] ppbstrLocalizedExtendedStates, [out] pNLocalizedExtendedStates) */
+	/* IAccessible2::get_localizedExtendedStates([in] maxLocalizedExtendedStates, [out] ppbstrLocalizedExtendedStates, [out] pNLocalizedExtendedStates) */
 	int get_localizedExtendedStates(int maxLocalizedExtendedStates, int /*long*/ ppbstrLocalizedExtendedStates, int /*long*/ pNLocalizedExtendedStates) {
 		// TODO: this feature is not supported.
 		setString(ppbstrLocalizedExtendedStates, null);
@@ -2608,21 +2676,21 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there are no states, [out] values are NULL and 0 respectively
 	}
 
-	/* get_uniqueID([out] pUniqueID) */
+	/* IAccessible2::get_uniqueID([out] pUniqueID) */
 	int get_uniqueID(int /*long*/ pUniqueID) {
 		// TODO: just return a hash on the Accessible or something
 		//COM.MoveMemory(pUniqueID, new int [] { uniqueID }, 4);
 		return COM.S_OK;
 	}
 
-	/* get_windowHandle([out] pWindowHandle) */
+	/* IAccessible2::get_windowHandle([out] pWindowHandle) */
 	int get_windowHandle(int /*long*/ pWindowHandle) {
 		// TODO: platform-specific - return HWND on Windows
 		//COM.MoveMemory(pWindowHandle, new int /*long*/ [] { windowHandle }, OS.PTR_SIZEOF);
 		return COM.S_OK;
 	}
 
-	/* get_indexInParent([out] pIndexInParent) */
+	/* IAccessible2::get_indexInParent([out] pIndexInParent) */
 	int get_indexInParent(int /*long*/ pIndexInParent) {
 		// TODO: look up index in *parent's* AccessibleControl.getChildren
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -2638,7 +2706,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if no parent, [out] value is -1
 	}
 
-	/* get_locale([out] pLocale) */
+	/* IAccessible2::get_locale([out] pLocale) */
 	int get_locale(int /*long*/ pLocale) {
 		// TODO: just return current locale - maybe add later in AccessibleLocale
 		// Note: need to return an IA2Locale struct: String language, String country, String variant
@@ -2646,7 +2714,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_attributes([out] pbstrAttributes) */
+	/* IAccessible2::get_attributes([out] pbstrAttributes) */
 	int get_attributes(int /*long*/ pbstrAttributes) {
 		AccessibleAttributeEvent event = new AccessibleAttributeEvent(this);
 		for (int i = 0; i < accessibleAttributeListeners.size(); i++) {
@@ -2661,7 +2729,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE returned if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_nActions([out] pNActions) */
+	/* IAccessibleAction::get_nActions([out] pNActions) */
 	int get_nActions(int /*long*/ pNActions) {
 		AccessibleActionEvent event = new AccessibleActionEvent(this);
 		for (int i = 0; i < accessibleActionListeners.size(); i++) {
@@ -2672,7 +2740,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* doAction([in] actionIndex) */
+	/* IAccessibleAction::doAction([in] actionIndex) */
 	int doAction(int actionIndex) {
 		AccessibleActionEvent event = new AccessibleActionEvent(this);
 		event.index = actionIndex;
@@ -2683,7 +2751,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_description([in] actionIndex, [out] pbstrDescription) */
+	/* IAccessibleAction::get_description([in] actionIndex, [out] pbstrDescription) */
 	int get_description(int actionIndex, int /*long*/ pbstrDescription) {
 		AccessibleActionEvent event = new AccessibleActionEvent(this);
 		event.index = actionIndex;
@@ -2696,7 +2764,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_keyBinding([in] actionIndex, [in] nMaxBindings, [out] ppbstrKeyBindings, [out] pNBindings) */
+	/* IAccessibleAction::get_keyBinding([in] actionIndex, [in] nMaxBindings, [out] ppbstrKeyBindings, [out] pNBindings) */
 	int get_keyBinding(int actionIndex, int nMaxBindings, int /*long*/ ppbstrKeyBindings, int /*long*/ pNBindings) {
 		AccessibleActionEvent event = new AccessibleActionEvent(this);
 		event.index = actionIndex;
@@ -2724,7 +2792,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_name([in] actionIndex, [out] pbstrName) */
+	/* IAccessibleAction::get_name([in] actionIndex, [out] pbstrName) */
 	int get_name(int actionIndex, int /*long*/ pbstrName) {
 		AccessibleActionEvent event = new AccessibleActionEvent(this);
 		event.index = actionIndex;
@@ -2738,12 +2806,12 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_localizedName([in] actionIndex, [out] pbstrLocalizedName) */
+	/* IAccessibleAction::get_localizedName([in] actionIndex, [out] pbstrLocalizedName) */
 	int get_localizedName(int actionIndex, int /*long*/ pbstrLocalizedName) {
 		return COM.S_FALSE;
 	}
 
-	/* get_appName([out] pbstrName) */
+	/* IAccessibleApplication::get_appName([out] pbstrName) */
 	int get_appName(int /*long*/ pbstrName) {
 		// TODO: use Display.getAppName (version?) new API in Display
 		String appName = "";
@@ -2753,7 +2821,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_appVersion([out] pbstrVersion) */
+	/* IAccessibleApplication::get_appVersion([out] pbstrVersion) */
 	int get_appVersion(int /*long*/ pbstrVersion) {
 		// TODO: use Display.getAppName (version?) new API in Display
 		String appVersion = "";
@@ -2763,7 +2831,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_toolkitName([out] pbstrName) */
+	/* IAccessibleApplication::get_toolkitName([out] pbstrName) */
 	int get_toolkitName(int /*long*/ pbstrName) {
 		// TODO: use SWT for toolkit name and version
 		String toolkitName = "SWT";
@@ -2773,7 +2841,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_toolkitVersion([out] pbstrVersion) */
+	/* IAccessibleApplication::get_toolkitVersion([out] pbstrVersion) */
 	int get_toolkitVersion(int /*long*/ pbstrVersion) {
 		// TODO: use SWT for toolkit name and version
 		String toolkitVersion = "" + SWT.getVersion();
@@ -2783,7 +2851,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_locationInParent([out] pX, [out] pY) */
+	/* IAccessibleComponent::get_locationInParent([out] pX, [out] pY) */
 	int get_locationInParent(int /*long*/ pX, int /*long*/ pY) {
 		// TODO: support transparently (hard for fake parents - screen vs. parent coords)
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -2796,21 +2864,21 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_foreground([out] pForeground) */
+	/* IAccessibleComponent::get_foreground([out] pForeground) */
 	int get_foreground(int /*long*/ pForeground) {
 		// TODO: Do not support foreground for children (support transparently for controls)
 		//COM.MoveMemory(pForeground, new int [] { control.getForegroundPixel() }, 4);
 		return COM.S_OK;
 	}
 
-	/* get_background([out] pBackground) */
+	/* IAccessibleComponent::get_background([out] pBackground) */
 	int get_background(int /*long*/ pBackground) {
 		// TODO: Do not support background for children (support transparently for controls)
 		//COM.MoveMemory(pBackground, new int [] { control.getBackgroundPixel() }, 4);
 		return COM.S_OK;
 	}
 
-	/* copyText([in] startOffset, [in] endOffset) */
+	/* IAccessibleEditableText::copyText([in] startOffset, [in] endOffset) */
 	int copyText(int startOffset, int endOffset) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2825,7 +2893,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* deleteText([in] startOffset, [in] endOffset) */
+	/* IAccessibleEditableText::deleteText([in] startOffset, [in] endOffset) */
 	int deleteText(int startOffset, int endOffset) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2840,7 +2908,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* insertText([in] offset, [in] pbstrText) */
+	/* IAccessibleEditableText::insertText([in] offset, [in] pbstrText) */
 	int insertText(int offset, int /*long*/ pbstrText) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2855,7 +2923,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* cutText([in] startOffset, [in] endOffset) */
+	/* IAccessibleEditableText::cutText([in] startOffset, [in] endOffset) */
 	int cutText(int startOffset, int endOffset) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2870,7 +2938,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* pasteText([in] offset) */
+	/* IAccessibleEditableText::pasteText([in] offset) */
 	int pasteText(int offset) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2884,7 +2952,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* replaceText([in] startOffset, [in] endOffset, [in] pbstrText) */
+	/* IAccessibleEditableText::replaceText([in] startOffset, [in] endOffset, [in] pbstrText) */
 	int replaceText(int startOffset, int endOffset, int /*long*/ pbstrText) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2900,7 +2968,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* setAttributes([in] startOffset, [in] endOffset, [in] pbstrAttributes) */
+	/* IAccessibleEditableText::setAttributes([in] startOffset, [in] endOffset, [in] pbstrAttributes) */
 	int setAttributes(int startOffset, int endOffset, int /*long*/ pbstrAttributes) {
 		// TODO: Do not provide at this time
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -2916,7 +2984,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_anchor([in] index, [out] pAnchor) */
+	/* IAccessibleHyperlink::get_anchor([in] index, [out] pAnchor) */
 	int get_anchor(int index, int /*long*/ pAnchor) {
 		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
 		event.index = index;
@@ -2930,7 +2998,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_anchorTarget([in] index, [out] pAnchorTarget) */
+	/* IAccessibleHyperlink::get_anchorTarget([in] index, [out] pAnchorTarget) */
 	int get_anchorTarget(int index, int /*long*/ pAnchorTarget) {
 		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
 		event.index = index;
@@ -2943,7 +3011,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_startIndex([out] pIndex) */
+	/* IAccessibleHyperlink::get_startIndex([out] pIndex) */
 	int get_startIndex(int /*long*/ pIndex) {
 		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
 		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
@@ -2954,7 +3022,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_endIndex([out] pIndex) */
+	/* IAccessibleHyperlink::get_endIndex([out] pIndex) */
 	int get_endIndex(int /*long*/ pIndex) {
 		AccessibleHyperlinkEvent event = new AccessibleHyperlinkEvent(this);
 		for (int i = 0; i < accessibleHyperlinkListeners.size(); i++) {
@@ -2965,14 +3033,14 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_valid([out] pValid) */
+	/* IAccessibleHyperlink::get_valid([out] pValid) */
 	int get_valid(int /*long*/ pValid) {
-		// TODO: deprecated
-		return COM.S_OK;
+		// TODO: deprecated - should we return S_FALSE or E_NOTIMPL?
+		return COM.E_NOTIMPL;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is FALSE
 	}
 
-	/* get_nHyperlinks([out] pHyperlinkCount) */
+	/* IAccessibleHypertext::get_nHyperlinks([out] pHyperlinkCount) */
 	int get_nHyperlinks(int /*long*/ pHyperlinkCount) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
@@ -2983,7 +3051,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_hyperlink([in] index, [out] ppHyperlink) */
+	/* IAccessibleHypertext::get_hyperlink([in] index, [out] ppHyperlink) */
 	int get_hyperlink(int index, int /*long*/ ppHyperlink) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.index = index;
@@ -2994,13 +3062,13 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppHyperlink, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppHyperlink, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_hyperlinkIndex([in] charIndex, [out] pHyperlinkIndex) */
+	/* IAccessibleHypertext::get_hyperlinkIndex([in] charIndex, [out] pHyperlinkIndex) */
 	int get_hyperlinkIndex(int charIndex, int /*long*/ pHyperlinkIndex) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = charIndex;
@@ -3015,7 +3083,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is -1@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_description([out] pbstrDescription) */
+	/* IAccessibleImage::get_description([out] pbstrDescription) */
 	int get_description(int /*long*/ pbstrDescription) {
 		// TODO: Does it make sense to just reuse description?
 		AccessibleEvent event = new AccessibleEvent(this);
@@ -3029,7 +3097,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_imagePosition([in] coordinateType, [out] pX, [out] pY) */
+	/* IAccessibleImage::get_imagePosition([in] coordinateType, [out] pX, [out] pY) */
 	int get_imagePosition(int coordinateType, int /*long*/ pX, int /*long*/ pY) {
 		// TODO: does it make sense to just reuse getLocation?
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
@@ -3043,7 +3111,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_imageSize([out] pHeight, [out] pWidth) */
+	/* IAccessibleImage::get_imageSize([out] pHeight, [out] pWidth) */
 	int get_imageSize(int /*long*/ pHeight, int /*long*/ pWidth) {
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
@@ -3055,7 +3123,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_cellAt([in] row, [in] column, [out] ppCell) */
+	/* IAccessibleTable2::get_cellAt([in] row, [in] column, [out] ppCell) */
 	int get_cellAt(int row, int column, int /*long*/ ppCell) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.row = row;
@@ -3067,13 +3135,13 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppCell, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppCell, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_caption([out] ppAccessible) */
+	/* IAccessibleTable2::get_caption([out] ppAccessible) */
 	int get_caption(int /*long*/ ppAccessible) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3083,13 +3151,13 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_columnDescription([in] column, [out] pbstrDescription) */
+	/* IAccessibleTable2::get_columnDescription([in] column, [out] pbstrDescription) */
 	int get_columnDescription(int column, int /*long*/ pbstrDescription) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.column = column;
@@ -3103,7 +3171,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_nColumns([out] pColumnCount) */
+	/* IAccessibleTable2::get_nColumns([out] pColumnCount) */
 	int get_nColumns(int /*long*/ pColumnCount) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3114,7 +3182,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_nRows([out] pRowCount) */
+	/* IAccessibleTable2::get_nRows([out] pRowCount) */
 	int get_nRows(int /*long*/ pRowCount) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3125,7 +3193,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_nSelectedCells([out] pCellCount) */
+	/* IAccessibleTable2::get_nSelectedCells([out] pCellCount) */
 	int get_nSelectedCells(int /*long*/ pCellCount) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3136,7 +3204,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_nSelectedColumns([out] pColumnCount) */
+	/* IAccessibleTable2::get_nSelectedColumns([out] pColumnCount) */
 	int get_nSelectedColumns(int /*long*/ pColumnCount) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3147,7 +3215,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_nSelectedRows([out] pRowCount) */
+	/* IAccessibleTable2::get_nSelectedRows([out] pRowCount) */
 	int get_nSelectedRows(int /*long*/ pRowCount) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3158,7 +3226,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_rowDescription([in] row, [out] pbstrDescription) */
+	/* IAccessibleTable2::get_rowDescription([in] row, [out] pbstrDescription) */
 	int get_rowDescription(int row, int /*long*/ pbstrDescription) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.row = row;
@@ -3172,7 +3240,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL@retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_selectedCells([out] ppCells, [out] pNSelectedCells) */
+	/* IAccessibleTable2::get_selectedCells([out] ppCells, [out] pNSelectedCells) */
 	int get_selectedCells(int /*long*/ ppCells, int /*long*/ pNSelectedCells) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3184,14 +3252,14 @@ public class Accessible {
 		Accessible accessible = event.accessibles[0];
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppCells, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppCells, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		COM.MoveMemory(pNSelectedCells, new int [] { event.count }, 4);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
 	}
 
-	/* get_selectedColumns([out] ppSelectedColumns, [out] pNColumns) */
+	/* IAccessibleTable2::get_selectedColumns([out] ppSelectedColumns, [out] pNColumns) */
 	int get_selectedColumns(int /*long*/ ppSelectedColumns, int /*long*/ pNColumns) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3206,7 +3274,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there are none, [out] values are NULL and 0 respectively
 	}
 
-	/* get_selectedRows([out] ppSelectedRows, [out] pNRows) */
+	/* IAccessibleTable2::get_selectedRows([out] ppSelectedRows, [out] pNRows) */
 	int get_selectedRows(int /*long*/ ppSelectedRows, int /*long*/ pNRows) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3220,7 +3288,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_summary([out] ppAccessible) */
+	/* IAccessibleTable2::get_summary([out] ppAccessible) */
 	int get_summary(int /*long*/ ppAccessible) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
@@ -3230,11 +3298,11 @@ public class Accessible {
 		Accessible accessible = event.accessible;
 		if (accessible == null) return COM.S_FALSE;
 		accessible.AddRef();
-		setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+		setPtrVARIANT(ppAccessible, COM.VT_DISPATCH, accessible.getAddress());
 		return COM.S_OK;
 	}
 
-	/* get_isColumnSelected([in] column, [out] pIsSelected) */
+	/* IAccessibleTable2::get_isColumnSelected([in] column, [out] pIsSelected) */
 	int get_isColumnSelected(int column, int /*long*/ pIsSelected) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.column = column;
@@ -3246,7 +3314,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
 	}
 
-	/* get_isRowSelected([in] row, [out] pIsSelected) */
+	/* IAccessibleTable2::get_isRowSelected([in] row, [out] pIsSelected) */
 	int get_isRowSelected(int row, int /*long*/ pIsSelected) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.row = row;
@@ -3258,55 +3326,55 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is FALSE
 	}
 
-	/* selectRow([in] row) */
+	/* IAccessibleTable2::selectRow([in] row) */
 	int selectRow(int row) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.row = row;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.selectRow(event);
+			listener.setSelectedRow(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* selectColumn([in] column) */
+	/* IAccessibleTable2::selectColumn([in] column) */
 	int selectColumn(int column) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.column = column;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.selectColumn(event);
+			listener.setSelectedColumn(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* unselectRow([in] row) */
+	/* IAccessibleTable2::unselectRow([in] row) */
 	int unselectRow(int row) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.row = row;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.unselectRow(event);
+			listener.deselectRow(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* unselectColumn([in] column) */
+	/* IAccessibleTable2::unselectColumn([in] column) */
 	int unselectColumn(int column) {
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		event.column = column;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.unselectColumn(event);
+			listener.deselectColumn(event);
 		}
 		return COM.S_OK;
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_modelChange([out] pModelChange) */
+	/* IAccessibleTable2::get_modelChange([out] pModelChange) */
 	int get_modelChange(int /*long*/ pModelChange) {
 		// TODO: implement this... return the most recent row and column values associated with the change
 //		AccessibleTableEvent event = new AccessibleTableEvent(this);
@@ -3321,7 +3389,7 @@ public class Accessible {
 		return COM.S_FALSE;
 	}
 
-	/* get_columnExtent([out] pNColumnsSpanned) */
+	/* IAccessibleTableCell::get_columnExtent([out] pNColumnsSpanned) */
 	int get_columnExtent(int /*long*/ pNColumnsSpanned) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
@@ -3332,25 +3400,25 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_columnHeaderCells([out] ppCellAccessibles, [out] pNColumnHeaderCells) */
+	/* IAccessibleTableCell::get_columnHeaderCells([out] ppCellAccessibles, [out] pNColumnHeaderCells) */
 	int get_columnHeaderCells(int /*long*/ ppCellAccessibles, int /*long*/ pNColumnHeaderCells) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
 			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
-			listener.getColumnHeaderCells(event);
+			listener.getColumnHeaders(event);
 		}
 		// TODO: Handle array, not just first element
 		Accessible accessible = event.accessibles[0];
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		COM.MoveMemory(pNColumnHeaderCells, new int [] { event.count }, 4);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
 	}
 
-	/* get_columnIndex([out] pColumnIndex) */
+	/* IAccessibleTableCell::get_columnIndex([out] pColumnIndex) */
 	int get_columnIndex(int /*long*/ pColumnIndex) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
@@ -3361,7 +3429,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_rowExtent([out] pNRowsSpanned) */
+	/* IAccessibleTableCell::get_rowExtent([out] pNRowsSpanned) */
 	int get_rowExtent(int /*long*/ pNRowsSpanned) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
@@ -3372,25 +3440,25 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_rowHeaderCells([out] ppCellAccessibles, [out] pNRowHeaderCells) */
+	/* IAccessibleTableCell::get_rowHeaderCells([out] ppCellAccessibles, [out] pNRowHeaderCells) */
 	int get_rowHeaderCells(int /*long*/ ppCellAccessibles, int /*long*/ pNRowHeaderCells) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
 			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
-			listener.getRowHeaderCells(event);
+			listener.getRowHeaders(event);
 		}
 		// TODO: Handle array, not just first element
 		Accessible accessible = event.accessibles[0];
 		if (accessible != null) {
 			accessible.AddRef();
-			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
+			setPtrVARIANT(ppCellAccessibles, COM.VT_DISPATCH, accessible.getAddress());
 		}
 		COM.MoveMemory(pNRowHeaderCells, new int [] { event.count }, 4);
 		return COM.S_OK;
 		// TODO: @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
 	}
 
-	/* get_rowIndex([out] pRowIndex) */
+	/* IAccessibleTableCell::get_rowIndex([out] pRowIndex) */
 	int get_rowIndex(int /*long*/ pRowIndex) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
@@ -3401,7 +3469,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_isSelected([out] pIsSelected) */
+	/* IAccessibleTableCell::get_isSelected([out] pIsSelected) */
 	int get_isSelected(int /*long*/ pIsSelected) {
 		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
 		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
@@ -3411,7 +3479,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_rowColumnExtents([out] pRow, [out] pColumn, [out] pRowExtents, [out] pColumnExtents, [out] pIsSelected) */
+	/* IAccessibleTableCell::get_rowColumnExtents([out] pRow, [out] pColumn, [out] pRowExtents, [out] pColumnExtents, [out] pIsSelected) */
 	int get_rowColumnExtents(int /*long*/ pRow, int /*long*/ pColumn, int /*long*/ pRowExtents, int /*long*/ pColumnExtents, int /*long*/ pIsSelected) {
 		// TODO: should we implement this? It is just a convenience function.
 		return COM.DISP_E_MEMBERNOTFOUND;
@@ -3427,24 +3495,22 @@ public class Accessible {
 //		return COM.S_OK;
 	}
 
-	/* get_table([out] ppTable) */
+	/* IAccessibleTableCell::get_table([out] ppTable) */
 	int get_table(int /*long*/ ppTable) {
-		// TODO: Try to implement this by calling getParent
-		return COM.DISP_E_MEMBERNOTFOUND;
-//		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
-//		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
-//			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
-//			listener.getTable(event);
-//		}
-//		Accessible accessible = event.accessible;
-//		if (accessible != null) {
-//			accessible.AddRef();
-//			setPtrVARIANT(ppTable, COM.VT_DISPATCH, accessible.objIAccessible.getAddress());
-//		}
-//		return COM.S_OK;
+		AccessibleTableCellEvent event = new AccessibleTableCellEvent(this);
+		for (int i = 0; i < accessibleTableCellListeners.size(); i++) {
+			AccessibleTableCellListener listener = (AccessibleTableCellListener) accessibleTableCellListeners.elementAt(i);
+			listener.getTable(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(ppTable, COM.VT_DISPATCH, accessible.getAddress());
+		}
+		return COM.S_OK;
 	}
 
-	/* addSelection([in] startOffset, [in] endOffset) */
+	/* IAccessibleText::addSelection([in] startOffset, [in] endOffset) */
 	int addSelection(int startOffset, int endOffset) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.start = startOffset;
@@ -3457,7 +3523,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_attributes([in] offset, [out] pStartOffset, [out] pEndOffset, [out] pbstrTextAttributes) */
+	/* IAccessibleText::get_attributes([in] offset, [out] pStartOffset, [out] pEndOffset, [out] pbstrTextAttributes) */
 	int get_attributes(int offset, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrTextAttributes) {
 		AccessibleTextAttributeEvent event = new AccessibleTextAttributeEvent(this);
 		event.offset = offset;
@@ -3475,7 +3541,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] values are 0s and NULL respectively@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
 
-	/* get_caretOffset([out] pOffset) */
+	/* IAccessibleText::get_caretOffset([out] pOffset) */
 	int get_caretOffset(int /*long*/ pOffset) {
 		// TODO: already in old API (in super interface)
 		AccessibleTextEvent event = new AccessibleTextEvent(this);
@@ -3488,7 +3554,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if the caret is not currently active on this object, i.e. the
 	}
 
-	/* get_characterExtents([in] offset, [in] coordType, [out] pX, [out] pY, [out] pWidth, [out] pHeight) */
+	/* IAccessibleText::get_characterExtents([in] offset, [in] coordType, [out] pX, [out] pY, [out] pWidth, [out] pHeight) */
 	int get_characterExtents(int offset, int coordType, int /*long*/ pX, int /*long*/ pY, int /*long*/ pWidth, int /*long*/ pHeight) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.start = offset;
@@ -3505,7 +3571,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] values are 0s
 	}
 
-	/* get_nSelections([out] pNSelections) */
+	/* IAccessibleText::get_nSelections([out] pNSelections) */
 	int get_nSelections(int /*long*/ pNSelections) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
@@ -3516,7 +3582,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_offsetAtPoint([in] x, [in] y, [in] coordType, [out] pOffset) */
+	/* IAccessibleText::get_offsetAtPoint([in] x, [in] y, [in] coordType, [out] pOffset) */
 	int get_offsetAtPoint(int x, int y, int coordType, int /*long*/ pOffset) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.x = x;
@@ -3530,7 +3596,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is 0
 	}
 
-	/* get_selection([in] selectionIndex, [out] pStartOffset, [out] pEndOffset) */
+	/* IAccessibleText::get_selection([in] selectionIndex, [out] pStartOffset, [out] pEndOffset) */
 	int get_selection(int selectionIndex, int /*long*/ pStartOffset, int /*long*/ pEndOffset) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.index = selectionIndex;
@@ -3544,7 +3610,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] values are 0s@retval E_INVALIDARG if bad [in] passed, [out] values are 0s
 	}
 
-	/* get_text([in] startOffset, [in] endOffset, [out] pbstrText) */
+	/* IAccessibleText::get_text([in] startOffset, [in] endOffset, [out] pbstrText) */
 	int get_text(int startOffset, int endOffset, int /*long*/ pbstrText) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.start = startOffset;
@@ -3559,7 +3625,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed, [out] value is NULL
 	}
 
-	/* get_textBeforeOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	/* IAccessibleText::get_textBeforeOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
 	int get_textBeforeOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
@@ -3577,7 +3643,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
 
-	/* get_textAfterOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	/* IAccessibleText::get_textAfterOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
 	int get_textAfterOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
@@ -3595,7 +3661,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
 
-	/* get_textAtOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
+	/* IAccessibleText::get_textAtOffset([in] offset, [in] boundaryType, [out] pStartOffset, [out] pEndOffset, [out] pbstrText) */
 	int get_textAtOffset(int offset, int boundaryType, int /*long*/ pStartOffset, int /*long*/ pEndOffset, int /*long*/ pbstrText) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.offset = offset;
@@ -3613,7 +3679,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if the requested boundary type is not implemented, such as@retval E_INVALIDARG if bad [in] passed, [out] values are 0s and NULL respectively
 	}
 
-	/* removeSelection([in] selectionIndex) */
+	/* IAccessibleText::removeSelection([in] selectionIndex) */
 	int removeSelection(int selectionIndex) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.index = selectionIndex;
@@ -3625,7 +3691,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* setCaretOffset([in] offset) */
+	/* IAccessibleText::setCaretOffset([in] offset) */
 	int setCaretOffset(int offset) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.index = offset;
@@ -3637,7 +3703,7 @@ public class Accessible {
 		// TODO: @retval E_FAIL if the caret cannot be set@retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* setSelection([in] selectionIndex, [in] startOffset, [in] endOffset) */
+	/* IAccessibleText::setSelection([in] selectionIndex, [in] startOffset, [in] endOffset) */
 	int setSelection(int selectionIndex, int startOffset, int endOffset) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.index = selectionIndex;
@@ -3651,7 +3717,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_nCharacters([out] pNCharacters) */
+	/* IAccessibleText::get_nCharacters([out] pNCharacters) */
 	int get_nCharacters(int /*long*/ pNCharacters) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
@@ -3662,7 +3728,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* scrollSubstringTo([in] startIndex, [in] endIndex, [in] scrollType) */
+	/* IAccessibleText::scrollSubstringTo([in] startIndex, [in] endIndex, [in] scrollType) */
 	int scrollSubstringTo(int startIndex, int endIndex, int scrollType) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.start = startIndex;
@@ -3676,7 +3742,7 @@ public class Accessible {
 		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* scrollSubstringToPoint([in] startIndex, [in] endIndex, [in] coordinateType, [in] x, [in] y) */
+	/* IAccessibleText::scrollSubstringToPoint([in] startIndex, [in] endIndex, [in] coordinateType, [in] x, [in] y) */
 	int scrollSubstringToPoint(int startIndex, int endIndex, int coordinateType, int x, int y) {
 		AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 		event.type = ACC.SCROLL_TYPE_POINT;
@@ -3692,7 +3758,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if the object is already at the specified location.@retval E_INVALIDARG if bad [in] passed
 	}
 
-	/* get_newText([out] pNewText) */
+	/* IAccessibleText::get_newText([out] pNewText) */
 	int get_newText(int /*long*/ pNewText) {
 		// TODO: Try to implement this without providing API
 		return COM.S_FALSE;
@@ -3707,7 +3773,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_oldText([out] pOldText) */
+	/* IAccessibleText::get_oldText([out] pOldText) */
 	int get_oldText(int /*long*/ pOldText) {
 		// TODO: Try to implement this without providing API
 		return COM.S_FALSE;
@@ -3722,7 +3788,7 @@ public class Accessible {
 		// TODO: @retval S_FALSE if there is nothing to return, [out] value is NULL
 	}
 
-	/* get_currentValue([out] pCurrentValue) */
+	/* IAccessibleValue::get_currentValue([out] pCurrentValue) */
 	int get_currentValue(int /*long*/ pCurrentValue) {
 		AccessibleValueEvent event = new AccessibleValueEvent(this);
 		for (int i = 0; i < accessibleValueListeners.size(); i++) {
@@ -3734,7 +3800,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* setCurrentValue([in] value) */
+	/* IAccessibleValue::setCurrentValue([in] value) */
 	int setCurrentValue(int /*long*/ value) {
 		AccessibleValueEvent event = new AccessibleValueEvent(this);
 		event.value = getNumberVARIANT(value);
@@ -3745,7 +3811,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_maximumValue([out] pMaximumValue) */
+	/* IAccessibleValue::get_maximumValue([out] pMaximumValue) */
 	int get_maximumValue(int /*long*/ pMaximumValue) {
 		AccessibleValueEvent event = new AccessibleValueEvent(this);
 		for (int i = 0; i < accessibleValueListeners.size(); i++) {
@@ -3757,7 +3823,7 @@ public class Accessible {
 		return COM.S_OK;
 	}
 
-	/* get_minimumValue([out] pMinimumValue) */
+	/* IAccessibleValue::get_minimumValue([out] pMinimumValue) */
 	int get_minimumValue(int /*long*/ pMinimumValue) {
 		AccessibleValueEvent event = new AccessibleValueEvent(this);
 		for (int i = 0; i < accessibleValueListeners.size(); i++) {
@@ -3959,7 +4025,7 @@ public class Accessible {
 		int /*long*/ ptr = COM.SysAllocString(data);
 		COM.MoveMemory(psz, new int /*long*/ [] { ptr }, OS.PTR_SIZEOF);
 	}
-
+	
 	/* checkWidget was copied from Widget, and rewritten to work in this package */
 	void checkWidget () {
 		if (!isValidThread ()) SWT.error (SWT.ERROR_THREAD_INVALID_ACCESS);
