@@ -46,7 +46,7 @@ public interface AccessibleTableCellListener extends SWTEventListener {
 	 * TODO: doc that this is a more efficient way to get headers of a cell than TableListener.getRow/ColHeaders
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no column headers
 	 * </ul>
 	 */
 	public void getColumnHeaders(AccessibleTableCellEvent e);
@@ -79,7 +79,7 @@ public interface AccessibleTableCellListener extends SWTEventListener {
 	 * TODO: doc that this is a more efficient way to get headers of a cell than TableListener.getRow/ColHeaders
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no row headers
 	 * </ul>
 	 */
 	public void getRowHeaders(AccessibleTableCellEvent e);

@@ -92,7 +92,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * Returns the column headers as an array of cell accessibles.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no column headers
 	 * </ul>
 	 */
 	public void getColumnHeaders(AccessibleTableEvent e);
@@ -121,7 +121,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * Returns the row headers as an array of cell accessibles.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles
+	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no row headers
 	 * </ul>
 	 */
 	public void getRowHeaders(AccessibleTableEvent e);
