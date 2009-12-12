@@ -90,13 +90,13 @@ public class ACC {
 	/** @since 3.6 */
 	public static final int ROLE_ANIMATION = 0x36;
 	/** @since 3.6 */
-	public static final int ROLE_CANVAS = 0;
+	public static final int ROLE_CANVAS = 0x401;
 	/** @since 3.6 */
 	public static final int ROLE_DOCUMENT = 0x0f;
 	/** @since 3.6 */
 	public static final int ROLE_GROUP = 0x14;
 	/** @since 3.6 */
-	public static final int ROLE_HEADING = 0;
+	public static final int ROLE_HEADING = 0x414;
 	/** @since 3.6 */
 	public static final int ROLE_GRAPHIC = 0x28;
 	/** @since 3.6 */
