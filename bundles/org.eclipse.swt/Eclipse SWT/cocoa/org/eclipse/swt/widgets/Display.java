@@ -2007,7 +2007,8 @@ void addAccessibilityMethods(int /*long*/ cls, int /*long*/ proc2, int /*long*/ 
 	OS.class_addMethod(cls, OS.sel_accessibilityHitTest_, accessibilityHitTestProc, "@:{NSPoint}");
 	OS.class_addMethod(cls, OS.sel_accessibilityAttributeValue_forParameter_, proc4, "@:@@");	
 	OS.class_addMethod(cls, OS.sel_accessibilityPerformAction_, proc3, "@:@");	
-	OS.class_addMethod(cls, OS.sel_accessibilityActionDescription_, proc3, "@:@");	
+	OS.class_addMethod(cls, OS.sel_accessibilityActionDescription_, proc3, "@:@");
+	OS.class_addMethod(cls, OS.sel_accessibleHandle, proc2, "@:");
 }
 
 int /*long*/ registerCellSubclass(int /*long*/ cellClass, int size, int align, byte[] types) {
@@ -4666,6 +4667,8 @@ static int /*long*/ windowProc(int /*long*/ id, int /*long*/ sel) {
 		return widget.image(id, sel);
 	} else if (sel == OS.sel_shouldDrawInsertionPoint) {
 		return widget.shouldDrawInsertionPoint(id, sel) ? 1 : 0;
+	} else if (sel == OS.sel_accessibleHandle) {
+		return widget.accessibleHandle();
 	}
 	return 0;
 }

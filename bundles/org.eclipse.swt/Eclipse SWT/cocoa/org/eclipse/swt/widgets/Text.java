@@ -164,6 +164,14 @@ public Text (Composite parent, int style) {
 	}
 }
 
+int /*long*/ accessibleHandle() {
+	if ((style & SWT.SINGLE) != 0) {
+		return ((NSTextField)view).cell().id;
+	} else {
+		return view.id;
+	}
+};
+
 /**
  * Adds the listener to the collection of listeners who will
  * be notified when the receiver's text is modified, by sending

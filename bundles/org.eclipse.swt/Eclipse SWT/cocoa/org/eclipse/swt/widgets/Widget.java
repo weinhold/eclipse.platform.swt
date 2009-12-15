@@ -129,6 +129,10 @@ public Widget (Widget parent, int style) {
 	display = parent.display;
 }
 
+int /*long*/ accessibleHandle() {
+	return 0;
+}
+
 int /*long*/ accessibilityActionDescription(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0) {
 	return callSuperObject(id, sel, arg0);
 }

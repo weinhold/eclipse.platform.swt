@@ -43,6 +43,8 @@ import org.eclipse.swt.widgets.*;
  */
 public class Accessible {
 
+	static final int MAX_RELATION_TYPES = 15;
+
 	static NSString[] baseAttributes = { 
 		OS.NSAccessibilityRoleAttribute,
 		OS.NSAccessibilityRoleDescriptionAttribute,
@@ -53,7 +55,10 @@ public class Accessible {
 		OS.NSAccessibilityPositionAttribute,
 		OS.NSAccessibilitySizeAttribute,
 		OS.NSAccessibilityWindowAttribute,
-		OS.NSAccessibilityTopLevelUIElementAttribute
+		OS.NSAccessibilityTopLevelUIElementAttribute,
+		OS.NSAccessibilityLinkedUIElementsAttribute,
+		OS.NSAccessibilityServesAsTitleForUIElementsAttribute,
+		OS.NSAccessibilityTitleUIElementAttribute,
 	};
 
 	static NSString[] baseTextAttributes = {
@@ -89,6 +94,7 @@ public class Accessible {
 	Vector accessibleValueListeners = new Vector();
 	Vector accessibleScrollListeners = new Vector();
 	Vector accessibleAttributeListeners = new Vector();
+	Relation relations[] = new Relation[MAX_RELATION_TYPES];
 	Accessible parent;
 	Control control;
 
@@ -105,6 +111,7 @@ public class Accessible {
 	 */
 	public Accessible(Accessible parent) {
 		this.parent = parent;
+		this.control = parent.control;
 		//TODO: (platform-specific?) code to add this accessible to the parent's children
 	}
 
@@ -444,7 +451,11 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public void addRelation(int type, Accessible target) {
-		//TODO: platform-specific? (we will manage the set on Windows)
+		checkWidget();
+		if (relations[type] == null) {
+			relations[type] = new Relation(this, type);
+		}
+		relations[type].addTarget(target);
 	}
 	
 	public id internal_accessibilityActionDescription(NSString action, int childID) {
@@ -635,7 +646,9 @@ public class Accessible {
 		if (attribute.isEqualToString(OS.NSAccessibilityInsertionPointLineNumberAttribute)) return getInsertionPointLineNumberAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilitySelectedTextRangesAttribute)) return getSelectedTextRangesAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityVisibleCharacterRangeAttribute)) return getVisibleCharacterRangeAttribute(childID);
-		
+		if (attribute.isEqualToString(OS.NSAccessibilityLinkedUIElementsAttribute)) return getLinkedUIElementsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityServesAsTitleForUIElementsAttribute)) return getServesAsTitleForUIElementsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityTitleUIElementAttribute)) return getTitleUIElementAttribute(childID);
 		// If this object don't know how to get the value it's up to the control itself to return an attribute value.
 		return null;
 	}
@@ -935,6 +948,16 @@ public class Accessible {
 			
 			if (event.result != null)
 				returnValue = NSString.stringWith(event.result);
+		}
+		return returnValue;
+	}
+	
+	id getTitleUIElementAttribute(int childID) {
+		System.out.println(control);
+		id returnValue = null;
+		Relation relation = relations[ACC.RELATION_LABELLED_BY]; 
+		if (relation != null) {
+			returnValue = relation.getTitleUIElement();
 		}
 		return returnValue;
 	}
@@ -1331,6 +1354,14 @@ public class Accessible {
 		return returnValue;
 	}
 	
+	id getLinkedUIElementsAttribute(int childID) {
+		System.out.println("Linked: " + control);
+		id returnValue = null;
+		Relation relation = relations[ACC.RELATION_MEMBER_OF];
+		if (relation != null) returnValue = relation.getLinkedUIElements();
+		return returnValue;
+	}
+	
 	id getNumberOfCharactersAttribute (int childID) {
 		id returnValue = null;
 		if (accessibleTextExtendedListeners.size() > 0) {
@@ -1472,6 +1503,13 @@ public class Accessible {
 				returnValue = NSValue.valueWithRange(range);
 			}
 		}
+		return returnValue;
+	}
+	
+	id getServesAsTitleForUIElementsAttribute(int childID) {
+		id returnValue = null;
+		Relation relation = relations[ACC.RELATION_LABEL_FOR];
+		if (relation != null) returnValue = relation.getServesAsTitleForUIElements();
 		return returnValue;
 	}
 	
@@ -2125,6 +2163,28 @@ public class Accessible {
 			case ACC.ROLE_PROGRESSBAR: nsReturnValue = OS.NSAccessibilityProgressIndicatorRole; break;
 			case ACC.ROLE_SLIDER: nsReturnValue = OS.NSAccessibilitySliderRole; break;
 			case ACC.ROLE_LINK: nsReturnValue = OS.NSAccessibilityLinkRole; break;
+			
+			case ACC.ROLE_CANVAS: nsReturnValue = OS.NSAccessibilityLayoutAreaRole; break;
+			case ACC.ROLE_GRAPHIC: nsReturnValue = OS.NSAccessibilityImageRole; break;
+			case ACC.ROLE_COLOR_CHOOSER: nsReturnValue = OS.NSAccessibilityColorWellRole; break;
+		
+			//CLIENT_AREA uses NSAccessibilityGroupRole already
+			case ACC.ROLE_GROUP: nsReturnValue = OS.NSAccessibilityGroupRole; break;  
+			//SPLIT_BUTTON uses NSAccessibilityMenuButtonRole already
+			case ACC.ROLE_CHECK_MENU_ITEM: nsReturnValue = OS.NSAccessibilityMenuButtonRole; break;
+			case ACC.ROLE_RADIO_MENU_ITEM: nsReturnValue = OS.NSAccessibilityMenuButtonRole; break;
+			//don't know the right answer for these:
+			case ACC.ROLE_ALERT: 
+			case ACC.ROLE_ANIMATION: 
+			case ACC.ROLE_DOCUMENT:
+			case ACC.ROLE_HEADING: 
+			case ACC.ROLE_SPINBUTTON:
+			case ACC.ROLE_STATUSBAR:
+			case ACC.ROLE_CLOCK:
+			case ACC.ROLE_DATE_EDITOR:
+			case ACC.ROLE_FILE_CHOOSER:
+			case ACC.ROLE_FONT_CHOOSER:
+				nsReturnValue = OS.NSAccessibilityUnknownRole;
 		}
 
 		return nsReturnValue.getString();
@@ -2162,6 +2222,12 @@ public class Accessible {
 		if (osRole.isEqualToString(OS.NSAccessibilityProgressIndicatorRole)) return ACC.ROLE_PROGRESSBAR;
 		if (osRole.isEqualToString(OS.NSAccessibilitySliderRole)) return ACC.ROLE_SLIDER;
 		if (osRole.isEqualToString(OS.NSAccessibilityLinkRole)) return ACC.ROLE_LINK;
+		if (osRole.isEqualToString(OS.NSAccessibilityLayoutAreaRole)) return ACC.ROLE_CANVAS;
+		if (osRole.isEqualToString(OS.NSAccessibilityGroupRole)) return ACC.ROLE_GROUP;
+		if (osRole.isEqualToString(OS.NSAccessibilityImageRole)) return ACC.ROLE_GRAPHIC;
+		if (osRole.isEqualToString(OS.NSAccessibilityMenuButtonRole)) return ACC.ROLE_CHECK_MENU_ITEM;
+		if (osRole.isEqualToString(OS.NSAccessibilityMenuButtonRole)) return ACC.ROLE_RADIO_MENU_ITEM;
+		if (osRole.isEqualToString(OS.NSAccessibilityColorWellRole)) return ACC.ROLE_COLOR_CHOOSER;
 		return ACC.ROLE_CLIENT_AREA;
 	}
 	

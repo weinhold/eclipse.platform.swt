@@ -120,6 +120,10 @@ boolean acceptsFirstMouse (int /*long*/ id, int /*long*/ sel, int /*long*/ theEv
 	return super.acceptsFirstMouse (id, sel, theEvent);
 }
 
+int /*long*/ accessibleHandle() {
+	return view.id;
+}
+
 int /*long*/ accessibilityActionNames(int /*long*/ id, int /*long*/ sel) {
 	if (accessible != null) {
 		NSArray returnValue = accessible.internal_accessibilityActionNames(ACC.CHILDID_SELF);
