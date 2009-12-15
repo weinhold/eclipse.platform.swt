@@ -70,6 +70,8 @@ public class OS extends C {
 	public static final int /*long*/ class_WebPanelAuthenticationHandler = OS.objc_getClass("WebPanelAuthenticationHandler");
 	public static final int /*long*/ sel_sharedHandler = sel_registerName("sharedHandler");
 	public static final int /*long*/ sel_startAuthentication = sel_registerName("startAuthentication:window:");
+	
+	public static final int /*long*/ sel_accessibleHandle = sel_registerName("accessibleHandle");
 
 	/* These are not generated in order to avoid creating static methods on all classes */
 	public static final int /*long*/ sel_isSelectorExcludedFromWebScript_ = sel_registerName("isSelectorExcludedFromWebScript:");
@@ -2082,6 +2084,9 @@ public static final int NSUTF8StringEncoding = 4;
 
 /** Globals */
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilityBoundsForRangeParameterizedAttribute();
+public static final NSString NSAccessibilityBoundsForRangeParameterizedAttribute = new NSString(NSAccessibilityBoundsForRangeParameterizedAttribute());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilityButtonRole();
 public static final NSString NSAccessibilityButtonRole = new NSString(NSAccessibilityButtonRole());
 /** @method flags=const */
@@ -2090,6 +2095,9 @@ public static final NSString NSAccessibilityCheckBoxRole = new NSString(NSAccess
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityChildrenAttribute();
 public static final NSString NSAccessibilityChildrenAttribute = new NSString(NSAccessibilityChildrenAttribute());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityColorWellRole();
+public static final NSString NSAccessibilityColorWellRole = new NSString(NSAccessibilityColorWellRole());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityColumnRole();
 public static final NSString NSAccessibilityColumnRole = new NSString(NSAccessibilityColumnRole());
@@ -2162,6 +2170,9 @@ public static final NSString NSAccessibilityLinkRole = new NSString(NSAccessibil
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityLinkTextAttribute();
 public static final NSString NSAccessibilityLinkTextAttribute = new NSString(NSAccessibilityLinkTextAttribute());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityLinkedUIElementsAttribute();
+public static final NSString NSAccessibilityLinkedUIElementsAttribute = new NSString(NSAccessibilityLinkedUIElementsAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityListRole();
 public static final NSString NSAccessibilityListRole = new NSString(NSAccessibilityListRole());

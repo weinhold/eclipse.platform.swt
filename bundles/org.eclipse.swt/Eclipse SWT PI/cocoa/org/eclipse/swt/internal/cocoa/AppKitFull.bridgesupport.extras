@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF8"?>
 <signatures swt_gen="mixed">
+	<constant name="NSAccessibilityBoundsForRangeParameterizedAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityButtonRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityCheckBoxRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityChildrenAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityColorWellRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityColumnRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityComboBoxRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityConfirmAction" swt_gen="true"></constant>
@@ -27,6 +29,7 @@
 	<constant name="NSAccessibilityLineForIndexParameterizedAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityLinkRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityLinkTextAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityLinkedUIElementsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityListRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityMaxValueAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityMenuBarRole" swt_gen="true"></constant>

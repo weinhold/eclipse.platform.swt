@@ -2164,7 +2164,8 @@ public class Accessible {
 			case ACC.ROLE_SLIDER: nsReturnValue = OS.NSAccessibilitySliderRole; break;
 			case ACC.ROLE_LINK: nsReturnValue = OS.NSAccessibilityLinkRole; break;
 			
-			case ACC.ROLE_CANVAS: nsReturnValue = OS.NSAccessibilityLayoutAreaRole; break;
+			//10.6 only -> case ACC.ROLE_CANVAS: nsReturnValue = OS.NSAccessibilityLayoutAreaRole; break;
+			case ACC.ROLE_CANVAS: nsReturnValue = OS.NSAccessibilityGroupRole; break;
 			case ACC.ROLE_GRAPHIC: nsReturnValue = OS.NSAccessibilityImageRole; break;
 			case ACC.ROLE_COLOR_CHOOSER: nsReturnValue = OS.NSAccessibilityColorWellRole; break;
 		
@@ -2222,7 +2223,7 @@ public class Accessible {
 		if (osRole.isEqualToString(OS.NSAccessibilityProgressIndicatorRole)) return ACC.ROLE_PROGRESSBAR;
 		if (osRole.isEqualToString(OS.NSAccessibilitySliderRole)) return ACC.ROLE_SLIDER;
 		if (osRole.isEqualToString(OS.NSAccessibilityLinkRole)) return ACC.ROLE_LINK;
-		if (osRole.isEqualToString(OS.NSAccessibilityLayoutAreaRole)) return ACC.ROLE_CANVAS;
+		if (osRole.isEqualToString(OS.NSAccessibilityGroupRole)) return ACC.ROLE_CANVAS;
 		if (osRole.isEqualToString(OS.NSAccessibilityGroupRole)) return ACC.ROLE_GROUP;
 		if (osRole.isEqualToString(OS.NSAccessibilityImageRole)) return ACC.ROLE_GRAPHIC;
 		if (osRole.isEqualToString(OS.NSAccessibilityMenuButtonRole)) return ACC.ROLE_CHECK_MENU_ITEM;

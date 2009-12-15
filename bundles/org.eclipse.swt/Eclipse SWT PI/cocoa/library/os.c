@@ -2358,6 +2358,18 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityActionDescription)
 }
 #endif
 
+#ifndef NO_NSAccessibilityBoundsForRangeParameterizedAttribute
+JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityBoundsForRangeParameterizedAttribute)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	OS_NATIVE_ENTER(env, that, NSAccessibilityBoundsForRangeParameterizedAttribute_FUNC);
+	rc = (jintLong)NSAccessibilityBoundsForRangeParameterizedAttribute;
+	OS_NATIVE_EXIT(env, that, NSAccessibilityBoundsForRangeParameterizedAttribute_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_NSAccessibilityButtonRole
 JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityButtonRole)
 	(JNIEnv *env, jclass that)
@@ -2390,6 +2402,18 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityChildrenAttribute)
 	OS_NATIVE_ENTER(env, that, NSAccessibilityChildrenAttribute_FUNC);
 	rc = (jintLong)NSAccessibilityChildrenAttribute;
 	OS_NATIVE_EXIT(env, that, NSAccessibilityChildrenAttribute_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_NSAccessibilityColorWellRole
+JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityColorWellRole)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	OS_NATIVE_ENTER(env, that, NSAccessibilityColorWellRole_FUNC);
+	rc = (jintLong)NSAccessibilityColorWellRole;
+	OS_NATIVE_EXIT(env, that, NSAccessibilityColorWellRole_FUNC);
 	return rc;
 }
 #endif
@@ -2678,6 +2702,18 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityLinkTextAttribute)
 	OS_NATIVE_ENTER(env, that, NSAccessibilityLinkTextAttribute_FUNC);
 	rc = (jintLong)NSAccessibilityLinkTextAttribute;
 	OS_NATIVE_EXIT(env, that, NSAccessibilityLinkTextAttribute_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_NSAccessibilityLinkedUIElementsAttribute
+JNIEXPORT jintLong JNICALL OS_NATIVE(NSAccessibilityLinkedUIElementsAttribute)
+	(JNIEnv *env, jclass that)
+{
+	jintLong rc = 0;
+	OS_NATIVE_ENTER(env, that, NSAccessibilityLinkedUIElementsAttribute_FUNC);
+	rc = (jintLong)NSAccessibilityLinkedUIElementsAttribute;
+	OS_NATIVE_EXIT(env, that, NSAccessibilityLinkedUIElementsAttribute_FUNC);
 	return rc;
 }
 #endif
