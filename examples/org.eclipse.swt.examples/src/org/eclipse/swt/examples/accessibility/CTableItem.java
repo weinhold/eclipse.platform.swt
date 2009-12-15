@@ -130,9 +130,9 @@ CTableItem (CTable parent, int style, int index, boolean notifyParent) {
 	this.index = index;
 	this.display = parent.getDisplay ();
 	int columnCount = parent.columns.length;
+	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
-		accessibles = new Accessible [columnCount];
 		if (columnCount > 1) {
 			texts = new String [columnCount];
 			textWidths = new int [columnCount];
@@ -194,17 +194,6 @@ void addColumn (CTableColumn column) {
 	}
 	displayTexts = newDisplayTexts;
 
-	/*
-	 * The length of accessibles always matches the parent's column count, unless this
-	 * count is zero, in which case accessibles is null.  
-	 */
-	Accessible[] newAccessibles = new Accessible [columnCount];
-	if (columnCount > 1) {
-		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-		System.arraycopy (accessibles, index, newAccessibles, index + 1, columnCount - index - 1);
-	}
-	accessibles = newAccessibles;
-
 	if (cellBackgrounds != null) {
 		Color[] newCellBackgrounds = new Color [columnCount];
 		System.arraycopy (cellBackgrounds, 0, newCellBackgrounds, 0, index);
@@ -227,6 +216,13 @@ void addColumn (CTableColumn column) {
 		System.arraycopy (fontHeights, 0, newFontHeights, 0, index);
 		System.arraycopy (fontHeights, index, newFontHeights, index + 1, columnCount - index - 1);
 		fontHeights = newFontHeights;
+	}
+
+	if (columnCount > accessibles.length) {
+		Accessible[] newAccessibles = new Accessible [columnCount];
+		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (accessibles, index, newAccessibles, index + 1, columnCount - index - 1);
+		accessibles = newAccessibles;
 	}
 
 	if (index == 0 && columnCount > 1) {
@@ -255,7 +251,6 @@ void clear () {
 	images = null;
 	foreground = background = null;
 	displayTexts = null;
-	disposeAccessibles();
 	cellForegrounds = cellBackgrounds = null;
 	font = null;
 	cellFonts = null;
@@ -264,9 +259,10 @@ void clear () {
 	super.setImage (null);
 
 	int columnCount = parent.columns.length;
+	disposeAccessibles();
+	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
-		accessibles = new Accessible [columnCount];
 		if (columnCount > 1) {
 			texts = new String [columnCount];
 			textWidths = new int [columnCount];
@@ -1469,7 +1465,6 @@ void removeColumn (CTableColumn column, int index) {
 		/* reverts to normal table when last column disposed */
 		cellBackgrounds = cellForegrounds = null;
 		displayTexts = null;
-		accessibles = null;
 		cellFonts = null;
 		fontHeights = null;
 		GC gc = new GC (parent);
@@ -1498,10 +1493,12 @@ void removeColumn (CTableColumn column, int index) {
 	System.arraycopy (displayTexts, index + 1, newDisplayTexts, index, columnCount - index);
 	displayTexts = newDisplayTexts;
 
-	Accessible[] newAccessibles = new Accessible [columnCount];
-	System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-	System.arraycopy (accessibles, index + 1, newAccessibles, index, columnCount - index);
-	accessibles = newAccessibles;
+	if (columnCount > 1) {
+		Accessible[] newAccessibles = new Accessible [columnCount];
+		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (accessibles, index + 1, newAccessibles, index, columnCount - index);
+		accessibles = newAccessibles;
+	}
 
 	if (cellBackgrounds != null) {
 		Color[] newCellBackgrounds = new Color [columnCount];

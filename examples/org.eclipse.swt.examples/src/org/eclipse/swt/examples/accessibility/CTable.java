@@ -1750,7 +1750,7 @@ void initAccessibility () {
 			int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
 			if (0 <= rowIndex && rowIndex < itemsCount) {
 				if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
-					int columnIndex = computeColumnIntersect (point.x, 0);
+					int columnIndex = columns.length > 0 ? computeColumnIntersect (point.x, 0) : 0;
 					if (columnIndex != -1) {
 						int columnCount = columns.length > 0 ? columns.length : 1;
 						e.childID = rowIndex * columnCount + columnIndex;
