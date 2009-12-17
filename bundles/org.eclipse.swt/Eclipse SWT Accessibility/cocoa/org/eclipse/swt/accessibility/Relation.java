@@ -12,9 +12,6 @@ package org.eclipse.swt.accessibility;
 
 import org.eclipse.swt.internal.cocoa.NSMutableArray;
 import org.eclipse.swt.internal.cocoa.NSObject;
-import org.eclipse.swt.internal.cocoa.NSPoint;
-import org.eclipse.swt.internal.cocoa.NSRect;
-import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.internal.cocoa.NSView;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.internal.cocoa.id;
@@ -55,8 +52,7 @@ public class Relation {
 			NSView view = target.control.view;
 			int /*long*/ handle = OS.objc_msgSend(view.id, OS.sel_accessibleHandle);
 			result = new id(handle);
-			String string = new NSString(OS.objc_msgSend(result.id, OS.sel_className)).getString();
-			System.out.println(string);
+//			String string = new NSString(OS.objc_msgSend(result.id, OS.sel_className)).getString();
 //			NSRect bounds = view.frame();
 //			NSPoint point = new NSPoint();
 //			point.x = bounds.width/2 + bounds.x;
@@ -66,7 +62,7 @@ public class Relation {
 //			result = view;
 //			result = view; //focusView()???
 			//result = accessibleElement.accessibilityAttributeValue(OS.NSAccessibilityTitleUIElementAttribute, null);
-			System.out.println(accessible.control + " title UI element is: " + target.control);
+//			System.out.println(accessible.control + " title UI element is: " + target.control);
 		}
 		return result;
 	}
@@ -77,7 +73,6 @@ public class Relation {
 			Accessible target = targets[i];			
 			NSObject accessibleElement = target.control.view;
 			result.addObject(accessibleElement);
-			System.out.println(accessible.control + " serves as title for: " + target.control);
 		}
 		return result;
 	}
@@ -88,7 +83,6 @@ public class Relation {
 			Accessible target = targets[i];			
 			NSObject accessibleElement = target.control.view;
 			result.addObject(accessibleElement);
-			System.out.println(accessible.control + " linked to: " + target.control);
 		}
 		return result;
 	}
