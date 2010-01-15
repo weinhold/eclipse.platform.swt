@@ -1716,48 +1716,37 @@ public int indexOf (CTableItem item) {
 }
 
 void initAccessibility () {
-	/* Child IDs are assigned as follows:
-	 * - column header ids (if any) are numbered from 0 to columnCount - 1
-	 * - cell ids are numbered in row-major order starting from columnCount
-	 */
 	// TODO: does this all work if CTable is virtual?
 	final Accessible accessibleTable = getAccessible();
 	accessibleTable.addAccessibleListener(new AccessibleAdapter() {
 		public void getName(AccessibleEvent e) {
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // table
-				// TODO: Could check if a label precedes the CTable in the z-order
-			} else if (0 <= childID && childID < columns.length) { // header cell
-				CTableColumn column = columns [childID];
-				e.result = column.getText();
-				System.out.println("table getName for header childID " + childID + " = " + e.result);
-			} else { // item cell
-				int columnCount = columns.length > 0 ? columns.length : 1;
-				if (columns.length > 0) childID -= columnCount;
-				if (0 <= childID && childID < itemsCount * columnCount) {
-					int rowIndex = childID / columnCount;
-					int columnIndex = childID - rowIndex * columnCount;
-					e.result = items[rowIndex].getText(columnIndex);
-					System.out.println("table getName for cell childID " + childID + " = " + e.result);
+			/* CTables take their name from the preceding Label, if any. */
+			Control[] siblings = getParent().getChildren();
+			for (int i = 0; i < siblings.length; i++) {
+				if (i != 0 && siblings[i] == CTable.this) {
+					Control control = siblings[i-1];
+					if (control instanceof Label) {
+						e.result = ((Label) control).getText();
+					}
 				}
 			}
 		}
 		public void getHelp(AccessibleEvent e) {
-			// TODO: if e.childID is SELF, return tooltipText?
-		}
-		public void getKeyboardShortcut(AccessibleEvent e) {
-			// TODO: if e.childID is SELF and there's a preceding label, get the mnemonic?
-		}
-		public void getDescription(AccessibleEvent e) {
-			// TODO: ? 
+			/* A CTable's toolTip text (if any) can be used as its help text. */
+			e.result = getToolTipText();
 		}
 	});
 	accessibleTable.addAccessibleControlListener(new AccessibleControlAdapter() {
+		/* Child IDs are assigned as follows:
+		 * - column header ids (if any) are numbered from 0 to columnCount - 1
+		 * - cell ids are numbered in row-major order (starting from columnCount if there are columns)
+		 * Accessibles are returned in getChild.
+		 */
 		public void getChild(AccessibleControlEvent e) {
 			int childID = e.childID;
 			if (childID == ACC.CHILDID_SELF) { // table
 				e.accessible = accessibleTable;
-			} else if (0 <= childID && childID < columns.length) { // header cell
+			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
 				CTableColumn column = columns [childID];
 				e.accessible = column.getAccessible(accessibleTable);
 			} else { // item cell
@@ -1772,10 +1761,9 @@ void initAccessibility () {
 		}
 		public void getChildAtPoint(AccessibleControlEvent e) {
 			Point point = toControl(e.x, e.y);
-			if (point.y < getHeaderHeight ()) { // header cell
+			if (columns.length > 0 && point.y < getHeaderHeight ()) { // header cell
 				int columnIndex = computeColumnIntersect (point.x, 0);
 				if (columnIndex != -1) {
-					e.childID = columnIndex;
 					CTableColumn column = columns [columnIndex];
 					e.accessible = column.getAccessible (accessibleTable);
 				}
@@ -1785,8 +1773,6 @@ void initAccessibility () {
 					int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
 					if (0 <= rowIndex && rowIndex < itemsCount) {
 						if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
-							int columnCount = columns.length > 0 ? columns.length : 1;
-							e.childID = columns.length + rowIndex * columnCount + columnIndex;
 							e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
 						}
 					}
@@ -1794,19 +1780,15 @@ void initAccessibility () {
 			}
 		}
 		public void getChildCount(AccessibleControlEvent e) {
-			int columnCount = columns.length > 0 ? columns.length : 1;
-			e.detail = columns.length + itemsCount * columnCount;
+			e.detail = columns.length > 0 ? columns.length + itemsCount * columns.length : itemsCount;
 		}
 		public void getChildren(AccessibleControlEvent e) {
-			int childIdCount = columns.length > 0 ? columns.length * (itemsCount + 1) : itemsCount;
+			int childIdCount = columns.length > 0 ? columns.length + itemsCount * columns.length : itemsCount;
 			Object[] children = new Object[childIdCount];
 			for (int i = 0; i < childIdCount; i++) {
 				children[i] = new Integer(i);
 			}
 			e.children = children;
-		}
-		public void getDefaultAction(AccessibleControlEvent e) {
-			// TODO
 		}
 		public void getFocus(AccessibleControlEvent e) {
 			e.childID = isFocusControl() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
@@ -1815,11 +1797,16 @@ void initAccessibility () {
 			Rectangle location = null;
 			Point pt = null;
 			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) {
+			if (childID == ACC.CHILDID_SELF) { // table
 				location = getBounds();
 				pt = getParent().toDisplay(location.x, location.y);
-			} else {
+			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
+				CTableColumn column = columns [childID];
+				location = new Rectangle (column.getX (), 0, column.getWidth(), getHeaderHeight());
+				pt = toDisplay(location.x, location.y);
+			} else { // item cell
 				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (columns.length > 0) childID -= columnCount;
 				if (0 <= childID && childID < itemsCount * columnCount) {
 					int rowIndex = childID / columnCount;
 					int columnIndex = childID - rowIndex * columnCount;
@@ -1835,51 +1822,50 @@ void initAccessibility () {
 			}
 		}
 		public void getRole(AccessibleControlEvent e) {
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) {
-				e.detail = ACC.ROLE_TABLE;
-			} else {
-				int columnCount = columns.length > 0 ? columns.length : 1;
-				if (0 <= childID && childID < itemsCount * columnCount) {
-					e.detail = ACC.ROLE_TABLECELL;
-				}
-			}
+			e.detail = e.childID == ACC.CHILDID_SELF ? ACC.ROLE_TABLE : ACC.ROLE_TABLECELL;
 		}
 		public void getSelection(AccessibleControlEvent e) {
 			int columnCount = columns.length > 0 ? columns.length : 1;
 			int [] selectionIndices = getSelectionIndices();
 			Object[] selectedChildren = new Object[selectionIndices.length * columnCount];
-			for (int rowIndex = 0; rowIndex < selectionIndices.length; rowIndex++) {
-				for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-					selectedChildren[rowIndex + columnIndex] = new Integer(rowIndex * columnCount + columnIndex);
+			for (int i = 0; i < selectionIndices.length; i++) {
+				int row = selectionIndices[i];
+				for (int col = 0; col < columnCount; col++) {
+					selectedChildren[i] = new Integer(row * columnCount + col);
 				}
 			}
 			e.children = selectedChildren;
 		}
 		public void getState(AccessibleControlEvent e) {
-			int state = 0;
-			int columnCount = columns.length > 0 ? columns.length : 1;
+			int state = ACC.STATE_NORMAL;
 			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) {
-				state = ACC.STATE_NORMAL;
-			} else if (0 <= childID && childID < itemsCount * columnCount) {
-				state = ACC.STATE_SELECTABLE;
+			if (childID == ACC.CHILDID_SELF) { // table
+				state |= ACC.STATE_FOCUSABLE;
 				if (isFocusControl()) {
-					state |= ACC.STATE_FOCUSABLE;
+					state |= ACC.STATE_FOCUSED;
 				}
-				int rowIndex = childID / columnCount;
-				if (items[rowIndex].isSelected()) { // CTable does not support cell selection (only row selection)
-					state |= ACC.STATE_SELECTED;
+			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
+				/* CTable does not support header cell focus or selection. */
+				state |= ACC.STATE_SIZEABLE;
+			} else { // item cell
+				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (columns.length > 0) childID -= columnCount;
+				if (0 <= childID && childID < itemsCount * columnCount) {
+					/* CTable does not support cell selection (only row selection). */
+					int rowIndex = childID / columnCount;
+					state |= ACC.STATE_SELECTABLE;
 					if (isFocusControl()) {
-						state |= ACC.STATE_FOCUSED;
+						state |= ACC.STATE_FOCUSABLE;
+					}
+					if (items[rowIndex].isSelected()) {
+						state |= ACC.STATE_SELECTED;
+						if (isFocusControl()) {
+							state |= ACC.STATE_FOCUSED;
+						}
 					}
 				}
 			}
 			e.detail = state;
-		}
-		public void getValue(AccessibleControlEvent e) {
-			// TODO: Do table cells have a value? Does the table itself have a value?
-			e.result = "This is the Custom Table's Test Value for childID = " + e.childID;
 		}
 	});
 	accessibleTable.addAccessibleTableListener(new AccessibleTableAdapter() {
@@ -1962,7 +1948,8 @@ void initAccessibility () {
 			e.selected = selectedIndices;
 		}
 		public void getSummary(AccessibleTableEvent e) {
-			e.result = "This is the Custom Table's Summary"; //TODO: maybe the "app" should do this one???
+			// TODO: What is a summary? How does it differ from name? Should app supply?
+			e.result = "This is the Custom Table's Summary";
 		}
 		public void isColumnSelected(AccessibleTableEvent e) {
 			e.isSelected = false; /* CTable does not support column selection. */
@@ -1982,7 +1969,38 @@ void initAccessibility () {
 		public void setSelectedRow(AccessibleTableEvent e) {
 			setSelection(e.row);
 		}
-	});	
+	});
+	
+//	final Accessible accessibleTableHeader = header.getAccessible();
+//	accessibleTableHeader.addAccessibleListener(new AccessibleAdapter() {
+//		public void getName(AccessibleEvent e) {
+//			CTableColumn column = columns [e.childID];
+//			e.result = column.getText();
+//		}
+//	});
+//	accessibleTableHeader.addAccessibleControlListener(new AccessibleControlAdapter() {
+//		public void getChildAtPoint(AccessibleControlEvent e) {
+//			Point point = toControl(e.x, e.y);
+//			int columnIndex = computeColumnIntersect (point.x, 0);
+//			if (columnIndex != -1) {
+//				CTableColumn column = columns [columnIndex];
+//				e.accessible = column.getAccessible (accessibleTable);
+//			}
+//		}
+//		public void getChildCount(AccessibleControlEvent e) {
+//			e.detail = columns.length;
+//		}
+//		public void getChildren(AccessibleControlEvent e) {
+//			Object[] children = new Object[columns.length];
+//			for (int i = 0; i < columns.length; i++) {
+//				children[i] = new Integer(i);
+//			}
+//			e.children = children;
+//		}
+//		public void getRole(AccessibleControlEvent e) {
+//			e.detail = ACC.ROLE_TABLECELL;
+//		}
+//	});
 }
 
 static void initImages (final Display display) {
