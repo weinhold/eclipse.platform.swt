@@ -13,6 +13,7 @@ package org.eclipse.swt.accessibility;
 import java.util.Vector;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.ole.win32.*;
 import org.eclipse.swt.internal.ole.win32.*;
@@ -62,6 +63,7 @@ public class Accessible {
 	Relation relations[] = new Relation[MAX_RELATION_TYPES];
 	Object[] variants;
 	Accessible parent;
+	Vector children = new Vector();
 	Control control;
 
 	/**
@@ -80,12 +82,14 @@ public class Accessible {
 	public Accessible(Accessible parent) {
 		this.parent = checkNull(parent);
 		this.control = parent.control;
-		
-		// TODO: (platform-specific?) code to add this accessible to the parent's children
+		parent.children.addElement(this);
+		// TODO: Should we use the proxy for lightweight children (for defaults only)?
+		//this.iaccessible = parent.iaccessible; // use the same proxy for default values
 	}
 
 	/**
 	 * @since 3.5
+	 * @deprecated
 	 */
 	protected Accessible() {
 	}
@@ -177,7 +181,7 @@ public class Accessible {
 			public int /*long*/ method0(int /*long*/[] args) {return QueryInterface(objIAccessible2, args[0], args[1]);}
 			public int /*long*/ method1(int /*long*/[] args) {return AddRef();}
 			public int /*long*/ method2(int /*long*/[] args) {return Release();}
-			// TODO: Add IAccessible methods here? AT's are not supposed to be relying on the IA inheritance...
+			// We will not add the IAccessible methods here because AT's should not rely on IA inheritance
 			public int /*long*/ method28(int /*long*/[] args) {return get_nRelations(args[0]);}
 			public int /*long*/ method29(int /*long*/[] args) {return get_relation((int)/*64*/args[0], args[1]);}
 			public int /*long*/ method30(int /*long*/[] args) {return get_relations((int)/*64*/args[0], args[1], args[2]);}
@@ -748,7 +752,7 @@ public class Accessible {
 	 * Adds a relation with the specified type and target
 	 * to the receiver's set of relations.
 	 * 
-	 * @param type a constant beginning with RELATION_* indicating the type of relation
+	 * @param type an <code>ACC</code> constant beginning with RELATION_* indicating the type of relation
 	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
@@ -763,12 +767,16 @@ public class Accessible {
 	
 	/**
 	 * Disposes of the operating system resources associated with
-	 * the receiver.
+	 * the receiver, and removes the receiver from its parent's
+	 * list of children.
 	 * <p>
 	 * This method should be called when an accessible that was created
 	 * with the public constructor <code>Accessible(Accessible parent)</code>
-	 * is no longer needed. It is not necessary to call this for instances of
-	 * Accessible that were retrieved with <code>Control.getAccessible()</code>.
+	 * is no longer needed. You do not need to call this when the receiver's
+	 * control is disposed, because all <code>Accessible</code> instances
+	 * associated with a control are released when the control is disposed.
+	 * It is also not necessary to call this for instances of <code>Accessible</code>
+	 * that were retrieved with <code>Control.getAccessible()</code>.
 	 * </p>
 	 * 
 	 * @since 3.6
@@ -776,6 +784,8 @@ public class Accessible {
 	public void dispose () {
 		if (parent == null) return;
 		Release();
+		parent.children.removeElement(this);
+		parent = null;
 	}
 
 	int getAddress() {
@@ -810,6 +820,10 @@ public class Accessible {
 		}
 		iaccessible = null;
 		Release();
+		for (int i = 0; i < children.size(); i++) {
+			Accessible child = (Accessible) children.elementAt(i);
+			child.dispose();
+		}
 	}
 	
 	/**
@@ -823,7 +837,7 @@ public class Accessible {
 	 * </p>
 	 */
 	public int /*long*/ internal_WM_GETOBJECT (int /*long*/ wParam, int /*long*/ lParam) {
-		if (objIAccessible == null) {System.out.println("should only be null here if the Accessible or the Control was disposed");return 0;}
+		if (objIAccessible == null) return 0;
 		if ((int)/*64*/lParam == COM.OBJID_CLIENT) {
 			/* LresultFromObject([in] riid, [in] wParam, [in] pAcc)
 			 * The argument pAcc is owned by the caller so reference count does not
@@ -1131,7 +1145,7 @@ public class Accessible {
 	 * Removes the relation with the specified type and target
 	 * from the receiver's set of relations.
 	 * 
-	 * @param type a constant beginning with RELATION_* indicating the type of relation
+	 * @param type an <code>ACC</code> constant beginning with RELATION_* indicating the type of relation
 	 * @param target the accessible that is the target for this relation
 	 * 
 	 * @since 3.6
@@ -1142,6 +1156,7 @@ public class Accessible {
 		if (relation != null) {
 			relation.removeTarget(target);
 			if (!relation.hasTargets()) {
+				relations[type].Release();
 				relations[type] = null;
 			}
 		}
@@ -1151,7 +1166,7 @@ public class Accessible {
 	 * Sends a message to accessible clients indicating that something
 	 * has changed within a custom control.
 	 *
-	 * @param event a constant beginning with EVENT_* indicating the message to send
+	 * @param event an <code>ACC</code> constant beginning with EVENT_* indicating the message to send
 	 * @param childID an identifier specifying a child of the control or the control itself
 	 * 
 	 * @exception SWTException <ul>
@@ -1163,7 +1178,7 @@ public class Accessible {
 	 */
 	public void sendEvent(int event, int childID) {
 		checkWidget();
-		//TODO: send platform-specific event (i.e. WinEvent with EVENT_OBJECT_* or IA2_EVENT_* on Win, Signal on ATK, Notification on Mac)
+		COM.NotifyWinEvent (event, control.handle, COM.OBJID_CLIENT, childID);
 	}
 
 	/**
@@ -1256,8 +1271,6 @@ public class Accessible {
 		// not an MSAA event
 	}
 	
-    // TODO: QueryInterface and QueryService to be verified & rewritten - see IA2 mailing list for discussion - for now, just always answer everything <grin>
-
 	/* QueryInterface([in] iid, [out] ppvObject)
 	 * Ownership of ppvObject transfers from callee to caller so reference count on ppvObject 
 	 * must be incremented before returning.  Caller is responsible for releasing ppvObject.
@@ -1265,7 +1278,6 @@ public class Accessible {
 	int QueryInterface(COMObject comObject, int /*long*/ iid, int /*long*/ ppvObject) {
 		GUID guid = new GUID();
 		COM.MoveMemory(guid, iid, GUID.sizeof);
-		//System.out.println("QueryInterface GUID=" + guidString(guid));
 
 		if (COM.IsEqualGUID(guid, COM.IIDIUnknown)) {
 			COM.MoveMemory(ppvObject, new int /*long*/[] { comObject.getAddress() }, OS.PTR_SIZEOF);
@@ -1380,7 +1392,11 @@ public class Accessible {
 				objIAccessibleValue.dispose();
 			objIAccessibleValue = null;
 
-			// TODO: dispose relations
+			for (int i = 0; i < relations.length; i++) {
+				if (relations[i] != null) relations[i].Release();
+			}
+			// TODO: also remove all relations for which 'this' is a target??
+			// (if so, need to make relations array static so all Accessibles can see it).
 		}
 		return refCount;
 	}
@@ -1391,7 +1407,6 @@ public class Accessible {
 		COM.MoveMemory(service, guidService, GUID.sizeof);
 		GUID guid = new GUID();
 		COM.MoveMemory(guid, riid, GUID.sizeof);
-//		System.out.println("QueryService serviceID=" + guidString(service) + " GUID=" + guidString(guid));
 
 		if (COM.IsEqualGUID(service, COM.IIDIAccessible)) {
 			if (COM.IsEqualGUID(guid, COM.IIDIUnknown) || COM.IsEqualGUID(guid, COM.IIDIDispatch) | COM.IsEqualGUID(guid, COM.IIDIAccessible)) {
@@ -1775,6 +1790,12 @@ public class Accessible {
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
 			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
 			listener.getChildAtPoint(event);
+		}
+		Accessible accessible = event.accessible;
+		if (accessible != null) {
+			accessible.AddRef();
+			setPtrVARIANT(pvarChild, COM.VT_DISPATCH, accessible.getAddress());
+			return COM.S_OK;
 		}
 		int childID = event.childID;
 		if (childID == ACC.CHILDID_NONE) return COM.S_FALSE;
@@ -2180,7 +2201,12 @@ public class Accessible {
 	 * must be incremented before returning.  The caller is responsible for releasing ppdispParent.
 	 */
 	int get_accParent(int /*long*/ ppdispParent) {
-		// TODO: Need to support this now. Either return parent from proxy, or accessible's parent if no proxy.
+		// TODO: Do we need getParent API? Returning 'parent', or proxy's parent should be ok?
+//		if (parent != null) {
+//			parent.AddRef();
+//			setPtrVARIANT(ppdispParent, COM.VT_DISPATCH, parent.getAddress());
+//			return COM.S_OK;
+//		}
 		int code = COM.DISP_E_MEMBERNOTFOUND;
 		if (iaccessible != null) {
 			/* Currently, we don't expose this as API. Forward to the proxy. */
@@ -2260,6 +2286,7 @@ public class Accessible {
 			return COM.S_FALSE;
 		}
 		if (childID == ACC.CHILDID_MULTIPLE) {
+			// TODO: return an enumeration for event.children
 			AddRef();
 			setPtrVARIANT(pvarChildren, COM.VT_UNKNOWN, getAddress());
 			return COM.S_OK;
@@ -2699,7 +2726,7 @@ public class Accessible {
 			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
 			listener.getChildren(event);
 		}
-		Object [] children = event.children;
+		Object [] siblings = event.children;
 		int indexInParent = 0;
 		COM.MoveMemory(pIndexInParent, new int [] { indexInParent }, 4);
 		return COM.S_OK;
