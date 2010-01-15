@@ -1716,56 +1716,89 @@ public int indexOf (CTableItem item) {
 }
 
 void initAccessibility () {
+	/* Child IDs are assigned as follows:
+	 * - column header ids (if any) are numbered from 0 to columnCount - 1
+	 * - cell ids are numbered in row-major order starting from columnCount
+	 */
 	// TODO: does this all work if CTable is virtual?
 	final Accessible accessibleTable = getAccessible();
 	accessibleTable.addAccessibleListener(new AccessibleAdapter() {
 		public void getName(AccessibleEvent e) {
-			int columnCount = columns.length > 0 ? columns.length : 1;
 			int childID = e.childID;
-			if (0 <= childID && childID < itemsCount * columnCount) {
-				int rowIndex = childID / columnCount;
-				int columnIndex = childID - rowIndex * columnCount;
-				e.result = items[rowIndex].getText(columnIndex);
+			if (childID == ACC.CHILDID_SELF) { // table
+				// TODO: Could check if a label precedes the CTable in the z-order
+			} else if (0 <= childID && childID < columns.length) { // header cell
+				CTableColumn column = columns [childID];
+				e.result = column.getText();
+				System.out.println("table getName for header childID " + childID + " = " + e.result);
+			} else { // item cell
+				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (columns.length > 0) childID -= columnCount;
+				if (0 <= childID && childID < itemsCount * columnCount) {
+					int rowIndex = childID / columnCount;
+					int columnIndex = childID - rowIndex * columnCount;
+					e.result = items[rowIndex].getText(columnIndex);
+					System.out.println("table getName for cell childID " + childID + " = " + e.result);
+				}
 			}
 		}
 		public void getHelp(AccessibleEvent e) {
-			// TODO: maybe return tooltipText?
+			// TODO: if e.childID is SELF, return tooltipText?
 		}
 		public void getKeyboardShortcut(AccessibleEvent e) {
-			// TODO: maybe if there's a preceding label, get the mnemonic?
+			// TODO: if e.childID is SELF and there's a preceding label, get the mnemonic?
+		}
+		public void getDescription(AccessibleEvent e) {
+			// TODO: ? 
 		}
 	});
 	accessibleTable.addAccessibleControlListener(new AccessibleControlAdapter() {
 		public void getChild(AccessibleControlEvent e) {
-			int columnCount = columns.length > 0 ? columns.length : 1;
 			int childID = e.childID;
-			if (0 <= childID && childID < itemsCount * columnCount) {
-				int rowIndex = childID / columnCount;
-				int columnIndex = childID - rowIndex * columnCount;
-				e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+			if (childID == ACC.CHILDID_SELF) { // table
+				e.accessible = accessibleTable;
+			} else if (0 <= childID && childID < columns.length) { // header cell
+				CTableColumn column = columns [childID];
+				e.accessible = column.getAccessible(accessibleTable);
+			} else { // item cell
+				int columnCount = columns.length > 0 ? columns.length : 1;
+				if (columns.length > 0) childID -= columnCount;
+				if (0 <= childID && childID < itemsCount * columnCount) {
+					int rowIndex = childID / columnCount;
+					int columnIndex = childID - rowIndex * columnCount;
+					e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+				}
 			}
 		}
 		public void getChildAtPoint(AccessibleControlEvent e) {
 			Point point = toControl(e.x, e.y);
-			int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
-			if (0 <= rowIndex && rowIndex < itemsCount) {
-				if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
-					int columnIndex = columns.length > 0 ? computeColumnIntersect (point.x, 0) : 0;
-					if (columnIndex != -1) {
-						int columnCount = columns.length > 0 ? columns.length : 1;
-						e.childID = rowIndex * columnCount + columnIndex;
-						e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+			if (point.y < getHeaderHeight ()) { // header cell
+				int columnIndex = computeColumnIntersect (point.x, 0);
+				if (columnIndex != -1) {
+					e.childID = columnIndex;
+					CTableColumn column = columns [columnIndex];
+					e.accessible = column.getAccessible (accessibleTable);
+				}
+			} else { // item cell
+				int columnIndex = columns.length > 0 ? computeColumnIntersect (point.x, 0) : 0;
+				if (columnIndex != -1) {
+					int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
+					if (0 <= rowIndex && rowIndex < itemsCount) {
+						if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
+							int columnCount = columns.length > 0 ? columns.length : 1;
+							e.childID = columns.length + rowIndex * columnCount + columnIndex;
+							e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
+						}
 					}
 				}
 			}
 		}
 		public void getChildCount(AccessibleControlEvent e) {
 			int columnCount = columns.length > 0 ? columns.length : 1;
-			e.detail = itemsCount * columnCount;
+			e.detail = columns.length + itemsCount * columnCount;
 		}
 		public void getChildren(AccessibleControlEvent e) {
-			int columnCount = columns.length > 0 ? columns.length : 1;
-			int childIdCount = itemsCount * columnCount;
+			int childIdCount = columns.length > 0 ? columns.length * (itemsCount + 1) : itemsCount;
 			Object[] children = new Object[childIdCount];
 			for (int i = 0; i < childIdCount; i++) {
 				children[i] = new Integer(i);

@@ -417,7 +417,24 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 		Accessible accessible = new Accessible(accessibleTable);
 		accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				if (e.childID == ACC.CHILDID_SELF) e.result = getText(columnIndex);
+				e.result = getText(columnIndex);
+				System.out.println("tableItem getName = " + e.result);
+			}
+		});
+		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = 0;
+			}
+			public void getLocation(AccessibleControlEvent e) {
+				Rectangle location = getBounds(columnIndex);
+				Point pt = parent.toDisplay(location.x, location.y);
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = location.width;
+				e.height = location.height;
+			}
+			public void getRole(AccessibleControlEvent e) {
+				e.detail = ACC.ROLE_TABLECELL;
 			}
 		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {

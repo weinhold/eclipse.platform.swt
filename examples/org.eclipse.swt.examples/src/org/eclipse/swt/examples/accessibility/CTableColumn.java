@@ -781,6 +781,23 @@ Accessible getAccessible(final Accessible accessibleTable) {
 		accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
 				e.result = getText();
+				System.out.println("tableColumn getName = " + e.result);
+			}
+		});
+		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = 0;
+			}
+			public void getLocation(AccessibleControlEvent e) {
+				Point pt = parent.getLocation();
+				pt = parent.toDisplay(pt.x, pt.y);
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = width;
+				e.height = parent.getHeaderHeight ();
+			}
+			public void getRole(AccessibleControlEvent e) {
+				e.detail = ACC.ROLE_TABLECELL;
 			}
 		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {

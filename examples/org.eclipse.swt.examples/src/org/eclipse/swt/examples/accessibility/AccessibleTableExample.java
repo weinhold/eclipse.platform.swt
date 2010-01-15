@@ -51,7 +51,7 @@ public class AccessibleTableExample {
 			column.setText("Col " + col);
 			column.setWidth(50);
 		}
-		for (int row = 0; row < 3; row++) {
+		for (int row = 0; row < 4; row++) {
 			CTableItem item = new CTableItem(table1, SWT.NONE);
 			item.setText(new String [] {"C0R" + row, "C1R" + row, "C2R" + row});
 		}
@@ -60,6 +60,11 @@ public class AccessibleTableExample {
 		final Accessible label1Accessible = label1.getAccessible();
 		label1Accessible.addRelation(ACC.RELATION_LABEL_FOR, table1Accessible);
 		table1Accessible.addRelation(ACC.RELATION_LABELLED_BY, label1Accessible);
+		table1Accessible.addAccessibleListener(new AccessibleAdapter() {
+			public void getName(AccessibleEvent e) {
+				e.result = "Custom Table with column headers";
+			}
+		});
 		
 		Label label2 = new Label(shell, SWT.NONE);
 		label2.setText("Custom Table used as a list");
@@ -81,6 +86,11 @@ public class AccessibleTableExample {
 		final Accessible label2Accessible = label2.getAccessible();
 		label2Accessible.addRelation(ACC.RELATION_LABEL_FOR, table2Accessible);
 		table2Accessible.addRelation(ACC.RELATION_LABELLED_BY, label2Accessible);
+		table2Accessible.addAccessibleListener(new AccessibleAdapter() {
+			public void getName(AccessibleEvent e) {
+				e.result = "Custom Table used as a list";
+			}
+		});
 		
 		shell.pack();
 		shell.open();
