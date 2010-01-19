@@ -20,10 +20,16 @@ import org.eclipse.swt.internal.SWTEventListener;
  * this interface it can be added to an accessible using the
  * <code>addAccessibleTableListener</code> method and removed using
  * the <code>removeAccessibleTableListener</code> method.
+ * </p><p>
+ * Many methods in this listener return cell accessible objects
+ * (accessible objects with role cell). These accessible objects
+ * should implement <code>AccessibleTableCellListener</code>.
  * </p>
  *
  * @see AccessibleTableAdapter
  * @see AccessibleTableEvent
+ * @see AccessibleTableCellListener
+ * @see AccessibleTableCellEvent
  *
  * @since 3.6
  */
@@ -62,11 +68,22 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * @param e an event object containing the following fields:<ul>
 	 * <li>[in] row - the 0 based row index for which to retrieve the accessible cell
 	 * <li>[in] column - the 0 based column index for which to retrieve the accessible cell
-	 * <li>[out] accessible - the table cell at the specified row and column,
+	 * <li>[out] accessible - the table cell at the specified row and column index,
 	 * 		or null if the row or column index are not valid
 	 * </ul>
 	 */
-	public void getCellAt(AccessibleTableEvent e);
+	public void getCell(AccessibleTableEvent e);
+
+	/**
+	 * Returns the accessible object for the specified column in the table.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] column - the 0 based column index for which to retrieve the accessible column
+	 * <li>[out] accessible - the table column at the specified column index,
+	 * 		or null if the column index is not valid
+	 * </ul>
+	 */
+	public void getColumn(AccessibleTableEvent e);
 
 	/**
 	 * Returns the total number of columns in the table.
@@ -89,13 +106,35 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void getColumnDescription(AccessibleTableEvent e);
 
 	/**
-	 * Returns the column headers as an array of cell accessibles.
+	 * Returns the column headers as an array of accessible objects.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no column headers
+	 * <li>[out] accessibles - an array of accessible objects with role cell,
+	 * 	or null if there are no column headers
 	 * </ul>
 	 */
 	public void getColumnHeaders(AccessibleTableEvent e);
+
+	/**
+	 * Returns the columns as an array of accessible objects.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of accessible objects with column role,
+	 * 		or null if there are no columns
+	 * </ul>
+	 */
+	public void getColumns(AccessibleTableEvent e);
+
+	/**
+	 * Returns the accessible object for the specified row in the table.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[in] row - the 0 based row index for which to retrieve the accessible row
+	 * <li>[out] accessible - the table row at the specified row index,
+	 * 		or null if the row index is not valid
+	 * </ul>
+	 */
+	public void getRow(AccessibleTableEvent e);
 
 	/**
 	 * Returns the total number of rows in the table.
@@ -118,13 +157,24 @@ public interface AccessibleTableListener extends SWTEventListener {
 	public void getRowDescription(AccessibleTableEvent e);
 
 	/**
-	 * Returns the row headers as an array of cell accessibles.
+	 * Returns the row headers as an array of accessible objects.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - an array of cell accessibles, or null if there are no row headers
+	 * <li>[out] accessibles - an array of accessible objects with cell role,
+	 * 		or null if there are no row headers
 	 * </ul>
 	 */
 	public void getRowHeaders(AccessibleTableEvent e);
+
+	/**
+	 * Returns the rows as an array of accessible objects.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of accessible objects with row role,
+	 * 		or null if there are no rows
+	 * </ul>
+	 */
+	public void getRows(AccessibleTableEvent e);
 
 	/**
 	 * Returns the number of selected cells.
@@ -139,7 +189,7 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * Returns the currently selected cells.
 	 * 
 	 * @param e an event object containing the following fields:<ul>
-	 * <li>[out] accessibles - array containing the selected accessible table cells
+	 * <li>[out] accessibles - array containing the selected accessible cells
 	 * </ul>
 	 */
 	public void getSelectedCells(AccessibleTableEvent e);
@@ -189,6 +239,26 @@ public interface AccessibleTableListener extends SWTEventListener {
 	 * </ul>
 	 */
 	public void getSummary(AccessibleTableEvent e);
+
+	/**
+	 * Returns the visible columns as an array of accessible objects.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of accessible objects with column role,
+	 * 		or null if there are no columns
+	 * </ul>
+	 */
+	public void getVisibleColumns(AccessibleTableEvent e);
+
+	/**
+	 * Returns the visible rows as an array of accessible objects.
+	 * 
+	 * @param e an event object containing the following fields:<ul>
+	 * <li>[out] accessibles - an array of accessible objects with row role,
+	 * 		or null if there are no rows
+	 * </ul>
+	 */
+	public void getVisibleRows(AccessibleTableEvent e);
 
 	/**
 	 * Returns a boolean value indicating whether the specified column is
