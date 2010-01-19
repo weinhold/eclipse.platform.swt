@@ -785,6 +785,16 @@ Accessible getAccessible(final Accessible accessibleTable) {
 			}
 		});
 		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				Point point = parent.toControl(e.x, e.y);
+				int x = getX();
+				if (x <= point.x && point.x <= x + getWidth()) {
+					e.childID = ACC.CHILDID_SELF;
+					e.accessible = accessible;
+				} else {
+					e.childID = ACC.CHILDID_NONE;
+				}
+			}
 			public void getChildCount(AccessibleControlEvent e) {
 				e.detail = 0;
 			}

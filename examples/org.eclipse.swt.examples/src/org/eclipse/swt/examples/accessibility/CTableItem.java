@@ -422,6 +422,10 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 			}
 		});
 		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				e.childID = ACC.CHILDID_SELF;
+				e.accessible = accessibles [columnIndex];
+			}
 			public void getChildCount(AccessibleControlEvent e) {
 				e.detail = 0;
 			}
