@@ -37,7 +37,8 @@ public class ACC {
 	public static final int STATE_OFFSCREEN = 0x10000;
 	public static final int STATE_SIZEABLE = 0x20000;
 	public static final int STATE_LINKED = 0x400000;
-//	public static final int STATE_UNAVAILABLE = 0x1;
+	/** @since 3.6 */
+	public static final int STATE_ENABLED = 0x1; // Note: map to STATE_SYSTEM_UNAVAILABLE
 //	public static final int STATE_DEFAULT = 0x100;
 //	public static final int STATE_FLOATING = 0x1000;
 //	public static final int STATE_MARQUEED = 0x2000;
@@ -92,13 +93,17 @@ public class ACC {
 	/** @since 3.6 */
 	public static final int ROLE_CANVAS = 0x401;
 	/** @since 3.6 */
+	public static final int ROLE_COLUMN = 0x1b;
+	/** @since 3.6 */
 	public static final int ROLE_DOCUMENT = 0x0f;
+	/** @since 3.6 */
+	public static final int ROLE_GRAPHIC = 0x28;
 	/** @since 3.6 */
 	public static final int ROLE_GROUP = 0x14;
 	/** @since 3.6 */
 	public static final int ROLE_HEADING = 0x414;
 	/** @since 3.6 */
-	public static final int ROLE_GRAPHIC = 0x28;
+	public static final int ROLE_ROW = 0x1c;
 	/** @since 3.6 */
 	public static final int ROLE_SPINBUTTON = 0x34;
 	/** @since 3.6 */
