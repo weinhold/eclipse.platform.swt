@@ -13,7 +13,6 @@ package org.eclipse.swt.accessibility;
 import java.util.Vector;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.ole.win32.*;
 import org.eclipse.swt.internal.ole.win32.*;
@@ -84,7 +83,7 @@ public class Accessible {
 		this.control = parent.control;
 		parent.children.addElement(this);
 		// TODO: Should we use the proxy for lightweight children (for defaults only)?
-		//this.iaccessible = parent.iaccessible; // use the same proxy for default values
+		this.iaccessible = parent.iaccessible; // use the same proxy for default values?
 	}
 
 	/**
@@ -508,7 +507,7 @@ public class Accessible {
 	 * be notified when an accessible client asks for custom text control
 	 * specific information. The listener is notified by sending it
 	 * one of the messages defined in the <code>AccessibleTextListener</code>
-	 * interface.
+	 * and <code>AccessibleTextExtendedListener</code> interfaces.
 	 *
 	 * @param listener the listener that should be notified when the receiver
 	 * is asked for custom text control specific information
@@ -522,6 +521,7 @@ public class Accessible {
 	 * </ul>
 	 *
 	 * @see AccessibleTextListener
+	 * @see AccessibleTextExtendedListener
 	 * @see #removeAccessibleTextListener
 	 * 
 	 * @since 3.0
@@ -529,7 +529,11 @@ public class Accessible {
 	public void addAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextListeners.addElement (listener);		
+		if (listener instanceof AccessibleTextExtendedListener) {
+			accessibleTextExtendedListeners.addElement (listener);		
+		} else {
+			accessibleTextListeners.addElement (listener);
+		}
 	}
 	
 	/**
@@ -638,33 +642,6 @@ public class Accessible {
 		checkWidget();
 		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		accessibleTableCellListeners.addElement(listener);
-	}
-
-	/**
-	 * Adds the listener to the collection of listeners that will be
-	 * notified when an accessible client asks for any of the properties
-	 * defined in the <code>AccessibleTextExtended</code> interface.
-	 *
-	 * @param listener the listener that should be notified when the receiver
-	 * is asked for <code>AccessibleTextExtended</code> interface properties
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleTextExtendedListener
-	 * @see #removeAccessibleTextExtendedListener
-	 * 
-	 * @since 3.6
-	 */
-	public void addAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
-		checkWidget();
-		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextExtendedListeners.addElement(listener);
 	}
 
 	/**
@@ -915,6 +892,7 @@ public class Accessible {
 	 * </ul>
 	 *
 	 * @see AccessibleTextListener
+	 * @see AccessibleTextExtendedListener
 	 * @see #addAccessibleTextListener
 	 * 
 	 * @since 3.0
@@ -922,7 +900,11 @@ public class Accessible {
 	public void removeAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextListeners.removeElement (listener);
+		if (listener instanceof AccessibleTextExtendedListener) {
+			accessibleTextExtendedListeners.removeElement (listener);
+		} else {
+			accessibleTextListeners.removeElement (listener);
+		}
 	}
 
 	/**
@@ -1031,33 +1013,6 @@ public class Accessible {
 		checkWidget();
 		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		accessibleTableCellListeners.removeElement(listener);
-	}
-
-	/**
-	 * Removes the listener from the collection of listeners that will be
-	 * notified when an accessible client asks for any of the properties
-	 * defined in the <code>AccessibleTextExtended</code> interface.
-	 *
-	 * @param listener the listener that should no longer be notified when the receiver
-	 * is asked for <code>AccessibleTextExtended</code> interface properties
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleTextExtendedListener
-	 * @see #addAccessibleTextExtendedListener
-	 * 
-	 * @since 3.6
-	 */
-	public void removeAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
-		checkWidget();
-		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextExtendedListeners.removeElement(listener);
 	}
 
 	/**
@@ -1177,6 +1132,26 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public void sendEvent(int event, int childID) {
+		checkWidget();
+		COM.NotifyWinEvent (event, control.handle, COM.OBJID_CLIENT, childID);
+	}
+
+	/**
+	 * Sends a message with event-specific data to accessible clients
+	 * indicating that something has changed within a custom control.
+	 *
+	 * @param event an <code>ACC</code> constant beginning with EVENT_* indicating the message to send
+	 * @param childID an identifier specifying a child of the control or the control itself
+	 * @param eventData an object containing event-specific data
+	 * 
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 * 
+	 * @since 3.6
+	 */
+	public void sendEvent(int event, int childID, Object eventData) {
 		checkWidget();
 		COM.NotifyWinEvent (event, control.handle, COM.OBJID_CLIENT, childID);
 	}
@@ -1772,6 +1747,7 @@ public class Accessible {
 	/* accHitTest([in] xLeft, [in] yTop, [out] pvarChild) */
 	int accHitTest(int xLeft, int yTop, int /*long*/ pvarChild) {
 		int osChild = ACC.CHILDID_NONE;
+		int /*long*/ osChildObject = 0;
 		if (iaccessible != null) {
 			/* Get the default child at point (left, top) from the OS. */
 			int code = iaccessible.accHitTest(xLeft, yTop, pvarChild);
@@ -1779,12 +1755,17 @@ public class Accessible {
 			if (code == COM.S_OK) {
 				VARIANT v = getVARIANT(pvarChild);
 				if (v.vt == COM.VT_I4) osChild = osToChildID(v.lVal);
-				// TODO: Should also handle v.vt == COM.VT_DISPATCH
+				else if (v.vt == COM.VT_DISPATCH) {
+					osChildObject = v.lVal;
+					System.out.println("accHitTest: proxy returned an object with this address: " + osChildObject);
+				}
 			}
 		}
 
 		AccessibleControlEvent event = new AccessibleControlEvent(this);
+		// TODO: Should also look up Accessible for osChildObject
 		event.childID = osChild;
+		//event.accessible = Accessible for osChildObject;
 		event.x = xLeft;
 		event.y = yTop;
 		for (int i = 0; i < accessibleControlListeners.size(); i++) {
@@ -1798,7 +1779,11 @@ public class Accessible {
 			return COM.S_OK;
 		}
 		int childID = event.childID;
-		if (childID == ACC.CHILDID_NONE) return COM.S_FALSE;
+		if (childID == ACC.CHILDID_NONE) {
+			if (osChildObject != 0) return COM.S_OK;
+			setIntVARIANT(pvarChild, COM.VT_EMPTY, 0);
+			return COM.S_FALSE;
+		}
 		setIntVARIANT(pvarChild, COM.VT_I4, childIDToOs(childID));
 		return COM.S_OK;
 	}
@@ -1855,7 +1840,7 @@ public class Accessible {
 	
 	/* accSelect([in] flagsSelect, [in] varChild) */
 	int accSelect(int flagsSelect, int /*long*/ varChild) {
-		// TODO: Are we going to support this?
+		// TODO: Probably need to support this?
 		int code = COM.DISP_E_MEMBERNOTFOUND;
 		if (iaccessible != null) {
 			/* Currently, we don't expose this as API. Forward to the proxy. */
@@ -1967,8 +1952,8 @@ public class Accessible {
 		 * 
 		 * TODO: Description was exposed as SWT API. We will need to either deprecate this (?),
 		 * or find a suitable replacement. Also, check description property on other platforms.
-		 * Note that the trick to expose tree columns (below) was not supported by screen readers
-		 * (verify W-E?), so it should be replaced.
+		 * Note that the trick to expose tree columns (below) was not supported by screen readers,
+		 * so it should be replaced.
 		 */
 		VARIANT v = getVARIANT(varChild);
 		if (v.vt != COM.VT_I4) return COM.E_INVALIDARG;
@@ -2202,15 +2187,15 @@ public class Accessible {
 	 */
 	int get_accParent(int /*long*/ ppdispParent) {
 		// TODO: Do we need getParent API? Returning 'parent', or proxy's parent should be ok?
-//		if (parent != null) {
-//			parent.AddRef();
-//			setPtrVARIANT(ppdispParent, COM.VT_DISPATCH, parent.getAddress());
-//			return COM.S_OK;
-//		}
 		int code = COM.DISP_E_MEMBERNOTFOUND;
 		if (iaccessible != null) {
 			/* Currently, we don't expose this as API. Forward to the proxy. */
 			code = iaccessible.get_accParent(ppdispParent);
+		} else if (parent != null) {
+			/* For lightweight accessibles, return the accessible's parent. */
+			parent.AddRef();
+			setPtrVARIANT(ppdispParent, COM.VT_DISPATCH, parent.getAddress());
+			code = COM.S_OK;
 		}
 		return code;
 	}
@@ -2252,6 +2237,7 @@ public class Accessible {
 	 */
 	int get_accSelection(int /*long*/ pvarChildren) {
 		int osChild = ACC.CHILDID_NONE;
+		int /*long*/ osChildObject = 0;
 		if (iaccessible != null) {
 			/* Get the default selection from the OS. */
 			int code = iaccessible.get_accSelection(pvarChildren);
@@ -2260,11 +2246,12 @@ public class Accessible {
 				VARIANT v = getVARIANT(pvarChildren);
 				if (v.vt == COM.VT_I4) {
 					osChild = osToChildID(v.lVal);
+				} else if (v.vt == COM.VT_DISPATCH) {
+					osChildObject = v.lVal;
 				} else if (v.vt == COM.VT_UNKNOWN) {
 					osChild = ACC.CHILDID_MULTIPLE;
 					// TODO: Should get IEnumVARIANT from punkVal field, and enumerate children...
 				}
-				// TODO: Should also handle (v.vt == COM.VT_DISPATCH)
 			}
 		}
 
@@ -2282,13 +2269,14 @@ public class Accessible {
 		}
 		int childID = event.childID;
 		if (childID == ACC.CHILDID_NONE) {
+			if (osChildObject != 0) return COM.S_OK;
 			setIntVARIANT(pvarChildren, COM.VT_EMPTY, 0);
 			return COM.S_FALSE;
 		}
 		if (childID == ACC.CHILDID_MULTIPLE) {
-			// TODO: return an enumeration for event.children
-			AddRef();
-			setPtrVARIANT(pvarChildren, COM.VT_UNKNOWN, getAddress());
+			// TODO: return an enumeration for event.children (currently just returns enumeration from proxy)
+			//AddRef();
+			//setPtrVARIANT(pvarChildren, COM.VT_UNKNOWN, getAddress());
 			return COM.S_OK;
 		}
 		if (childID == ACC.CHILDID_SELF) {
@@ -2403,7 +2391,7 @@ public class Accessible {
 	
 	/* put_accValue([in] varChild, [in] szValue) */
 	int put_accValue(int /*long*/ varChild, int /*long*/ szValue) {
-		// TODO: Are we going to support this?
+		// TODO: Are we going to support this (in EditableText)?
 		/* MSAA: this method is typically only used for edit controls. */
 		int code = COM.DISP_E_MEMBERNOTFOUND;
 		if (iaccessible != null) {
@@ -2616,6 +2604,7 @@ public class Accessible {
 
 	/* IAccessible2::scrollTo([in] scrollType) */
 	int scrollTo(int scrollType) {
+		if (scrollType < ACC.SCROLL_TYPE_LEFT_EDGE || scrollType > ACC.SCROLL_TYPE_ANYWHERE) return COM.E_INVALIDARG;
 		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
 		event.type = scrollType;
 		for (int i = 0; i < accessibleScrollListeners.size(); i++) {
@@ -2623,11 +2612,12 @@ public class Accessible {
 			listener.scroll(event);
 		}
 		return COM.S_OK;
-		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
 	/* IAccessible2::scrollToPoint([in] coordinateType, [in] x, [in] y) */
 	int scrollToPoint(int coordinateType, int x, int y) {
+		if (coordinateType != COM.IA2_COORDTYPE_SCREEN_RELATIVE) return COM.E_INVALIDARG;
+		
 		AccessibleScrollEvent event = new AccessibleScrollEvent(this);
 		event.type = ACC.SCROLL_TYPE_POINT;
 		event.x = x;
@@ -2637,7 +2627,6 @@ public class Accessible {
 			listener.scroll(event);
 		}
 		return COM.S_OK;
-		// TODO: @retval E_INVALIDARG if bad [in] passed
 	}
 
 	/* IAccessible2::get_groupPosition([out] pGroupLevel, [out] pSimilarItemsInGroup, [out] pPositionInGroup) */
@@ -3157,7 +3146,7 @@ public class Accessible {
 		event.column = column;
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
-			listener.getCellAt(event);
+			listener.getCell(event);
 		}
 		Accessible accessible = event.accessible;
 		if (accessible != null) {
