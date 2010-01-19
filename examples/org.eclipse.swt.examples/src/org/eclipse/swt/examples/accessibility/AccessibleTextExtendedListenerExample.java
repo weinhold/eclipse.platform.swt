@@ -21,6 +21,7 @@ import org.eclipse.swt.accessibility.AccessibleTextExtendedEvent;
 import org.eclipse.swt.accessibility.AccessibleTextExtendedListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
@@ -34,7 +35,7 @@ public class AccessibleTextExtendedListenerExample {
 		final Display display = new Display();
 		final Shell shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.setLayout(new FillLayout());
-		Canvas canvas = new Canvas(shell, SWT.NONE);
+		final Canvas canvas = new Canvas(shell, SWT.MULTI);
 		final String text = "line one\nline two\nline three";
 		canvas.addListener(SWT.Paint, new Listener() {
 			public void handleEvent(Event event) {
@@ -54,22 +55,26 @@ public class AccessibleTextExtendedListenerExample {
 				GC gc = new GC(shell);
 				Point extent = gc.textExtent(text);
 				gc.dispose();
-				e.x = 10;
-				e.y = 10;
-				e.width = extent.x;
-				e.height = extent.y;
+				Rectangle rect = display.map(canvas, null, 10, 10, extent.x, extent.y);
+				e.x = rect.x;
+				e.y = rect.y;
+				e.width = rect.width;
+				e.height = rect.height;
 			}
-			public void getState(AccessibleControlEvent e) {
-				e.detail = ACC.STATE_FOCUSABLE; //how do you say enabled?
-			}
+//			public void getState(AccessibleControlEvent e) {
+//				e.detail = ACC.STATE_FOCUSABLE; //how do you say enabled?
+//			}
 			public void getValue(AccessibleControlEvent e) {
 				e.result = text;
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = ACC.CHILDID_SELF;
 			}
 		});
 		acc.addAccessibleTextExtendedListener(new AccessibleTextExtendedListener() {
 			public void getSelectionRange(AccessibleTextEvent e) {
-				e.offset = 1;
-				e.length = 10;
+				e.offset = 0;
+				e.length = 4;
 			}
 			public void getCaretOffset(AccessibleTextEvent e) {
 				e.offset = 16;
@@ -88,10 +93,14 @@ public class AccessibleTextExtendedListenerExample {
 				
 			}
 			public void getTextBounds(AccessibleTextExtendedEvent e) {
-				e.x = 10;
-				e.y = 10;
-				e.width = 100;
-				e.height = 100;
+				GC gc = new GC(shell);
+				Point extent = gc.textExtent(text);
+				gc.dispose();
+				Rectangle rect = display.map(canvas, null, 10, 10, extent.x, extent.y);
+				e.x = rect.x;
+				e.y = rect.y;
+				e.width = rect.width;
+				e.height = rect.height;
 			}
 			public void getText(AccessibleTextExtendedEvent e) {
 				int start = 0, end = text.length();
@@ -188,7 +197,8 @@ public class AccessibleTextExtendedListenerExample {
 				System.out.println("NEVER CALLED: addSelection" );
 			}
 			public void getVisibleRanges(AccessibleTextExtendedEvent e) {
-				
+				e.start = 0;
+				e.end = text.length() - 1;
 			}
 		});
 		shell.open();
