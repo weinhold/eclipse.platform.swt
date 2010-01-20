@@ -1879,7 +1879,7 @@ void initAccessibility () {
 			// TODO: What is a caption? How does it differ from name? Should app supply?
 			e.result = "This is the Custom Table's Test Caption";
 		}
-		public void getCellAt(AccessibleTableEvent e) {
+		public void getCell(AccessibleTableEvent e) {
 			int index = e.row;
 			if (0 <= index && index < itemsCount) {
 				CTableItem row = items [index];
@@ -1927,7 +1927,7 @@ void initAccessibility () {
 			for (int r = 0; r < selectedItems.length; r++) {
 				CTableItem row = selectedItems [r];
 				for (int c = 0; c < columnCount; c++)
-					accessibles[r] = row.getAccessible (accessibleTable, c);
+					accessibles[r+c] = row.getAccessible (accessibleTable, c);
 			}
 			e.accessibles = accessibles;
 		}
