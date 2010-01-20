@@ -871,6 +871,10 @@ public static final int STATE_SYSTEM_MULTISELECTABLE = 0x1000000;
 //public static final int STATE_SYSTEM_PROTECTED = 0x20000000;
 //public static final int STATE_SYSTEM_VALID = 0x3fffffff;
 
+/* IA2 additional constants */
+public static final int IA2_COORDTYPE_SCREEN_RELATIVE = 0;
+public static final int IA2_COORDTYPE_PARENT_RELATIVE = 1;
+
 /** Accessibility natives */
 
 /**
