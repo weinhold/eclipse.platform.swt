@@ -2008,6 +2008,8 @@ void addAccessibilityMethods(int /*long*/ cls, int /*long*/ proc2, int /*long*/ 
 	OS.class_addMethod(cls, OS.sel_accessibilityAttributeValue_forParameter_, proc4, "@:@@");	
 	OS.class_addMethod(cls, OS.sel_accessibilityPerformAction_, proc3, "@:@");	
 	OS.class_addMethod(cls, OS.sel_accessibilityActionDescription_, proc3, "@:@");
+	OS.class_addMethod(cls, OS.sel_accessibilityIsAttributeSettable_, proc3, "@:@");
+	OS.class_addMethod(cls, OS.sel_accessibilitySetValue_forAttribute_, proc4, "@:@@");
 	OS.class_addMethod(cls, OS.sel_accessibleHandle, proc2, "@:");
 }
 
@@ -4839,6 +4841,8 @@ static int /*long*/ windowProc(int /*long*/ id, int /*long*/ sel, int /*long*/ a
 		widget.accessibilityPerformAction(id, sel, arg0);
 	} else if (sel == OS.sel_accessibilityActionDescription_) {
 		widget.accessibilityActionDescription(id, sel, arg0);
+	} else if (sel == OS.sel_accessibilityIsAttributeSettable_) {
+		return widget.accessibilityIsAttributeSettable(id, sel, arg0) ? 1 : 0;
 	} else if (sel == OS.sel_makeFirstResponder_) {
 		return widget.makeFirstResponder(id, sel, arg0) ? 1 : 0;
 	} else if (sel == OS.sel_tableViewColumnDidMove_) {
@@ -4948,6 +4952,8 @@ static int /*long*/ windowProc(int /*long*/ id, int /*long*/ sel, int /*long*/ a
 		NSRect rect = new NSRect();
 		OS.memmove(rect, arg1, NSRect.sizeof);
 		widget.drawLabelInRect(id, sel, arg0==1, rect);
+	} else if (sel == OS.sel_accessibilitySetValue_forAttribute_) {
+		widget.accessibilitySetValue_forAttribute(id, sel, arg0, arg1);
 	}
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -180,10 +180,14 @@ typedef enum {
 	NSAccessibilityActionDescription_FUNC,
 	NSAccessibilityBoundsForRangeParameterizedAttribute_FUNC,
 	NSAccessibilityButtonRole_FUNC,
+	NSAccessibilityCellForColumnAndRowParameterizedAttribute_FUNC,
+	NSAccessibilityCellRole_FUNC,
 	NSAccessibilityCheckBoxRole_FUNC,
 	NSAccessibilityChildrenAttribute_FUNC,
 	NSAccessibilityColorWellRole_FUNC,
+	NSAccessibilityColumnHeaderUIElementsAttribute_FUNC,
 	NSAccessibilityColumnRole_FUNC,
+	NSAccessibilityColumnsAttribute_FUNC,
 	NSAccessibilityComboBoxRole_FUNC,
 	NSAccessibilityConfirmAction_FUNC,
 	NSAccessibilityContentsAttribute_FUNC,
@@ -239,11 +243,14 @@ typedef enum {
 	NSAccessibilityRoleDescriptionAttribute_FUNC,
 	NSAccessibilityRoleDescriptionForUIElement_FUNC,
 	NSAccessibilityRowRole_FUNC,
+	NSAccessibilityRowsAttribute_FUNC,
 	NSAccessibilityScrollAreaRole_FUNC,
 	NSAccessibilityScrollBarRole_FUNC,
 	NSAccessibilitySelectedAttribute_FUNC,
+	NSAccessibilitySelectedCellsAttribute_FUNC,
 	NSAccessibilitySelectedChildrenAttribute_FUNC,
 	NSAccessibilitySelectedChildrenChangedNotification_FUNC,
+	NSAccessibilitySelectedRowsAttribute_FUNC,
 	NSAccessibilitySelectedTextAttribute_FUNC,
 	NSAccessibilitySelectedTextChangedNotification_FUNC,
 	NSAccessibilitySelectedTextRangeAttribute_FUNC,
@@ -282,8 +289,11 @@ typedef enum {
 	NSAccessibilityValueIndicatorRole_FUNC,
 	NSAccessibilityVerticalOrientationValue_FUNC,
 	NSAccessibilityVerticalScrollBarAttribute_FUNC,
+	NSAccessibilityVisibleCellsAttribute_FUNC,
 	NSAccessibilityVisibleCharacterRangeAttribute_FUNC,
 	NSAccessibilityVisibleChildrenAttribute_FUNC,
+	NSAccessibilityVisibleColumnsAttribute_FUNC,
+	NSAccessibilityVisibleRowsAttribute_FUNC,
 	NSAccessibilityWindowAttribute_FUNC,
 	NSAccessibilityWindowRole_FUNC,
 	NSAffineTransformStruct_1sizeof_FUNC,

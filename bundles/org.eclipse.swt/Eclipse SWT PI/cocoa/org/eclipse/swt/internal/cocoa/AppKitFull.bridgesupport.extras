@@ -2,10 +2,14 @@
 <signatures swt_gen="mixed">
 	<constant name="NSAccessibilityBoundsForRangeParameterizedAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityButtonRole" swt_gen="true"></constant>
+	<constant name="NSAccessibilityCellForColumnAndRowParameterizedAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityCellRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityCheckBoxRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityChildrenAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityColorWellRole" swt_gen="true"></constant>
+	<constant name="NSAccessibilityColumnHeaderUIElementsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityColumnRole" swt_gen="true"></constant>
+	<constant name="NSAccessibilityColumnsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityComboBoxRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityConfirmAction" swt_gen="true"></constant>
 	<constant name="NSAccessibilityContentsAttribute" swt_gen="true"></constant>
@@ -57,11 +61,14 @@
 	<constant name="NSAccessibilityRoleAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityRoleDescriptionAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityRowRole" swt_gen="true"></constant>
+	<constant name="NSAccessibilityRowsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityScrollAreaRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityScrollBarRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilitySelectedCellsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedChildrenAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedChildrenChangedNotification" swt_gen="true"></constant>
+	<constant name="NSAccessibilitySelectedRowsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedTextAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedTextChangedNotification" swt_gen="true"></constant>
 	<constant name="NSAccessibilitySelectedTextRangeAttribute" swt_gen="true"></constant>
@@ -96,8 +103,11 @@
 	<constant name="NSAccessibilityValueIndicatorRole" swt_gen="true"></constant>
 	<constant name="NSAccessibilityVerticalOrientationValue" swt_gen="true"></constant>
 	<constant name="NSAccessibilityVerticalScrollBarAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityVisibleCellsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityVisibleCharacterRangeAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityVisibleChildrenAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityVisibleColumnsAttribute" swt_gen="true"></constant>
+	<constant name="NSAccessibilityVisibleRowsAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityWindowAttribute" swt_gen="true"></constant>
 	<constant name="NSAccessibilityWindowRole" swt_gen="true"></constant>
 	<constant name="NSApplicationDidChangeScreenParametersNotification" swt_gen="true"></constant>
@@ -3309,7 +3319,7 @@
 	</class>
 	<class name="NSTableView" swt_gen="mixed" swt_superclass="NSControl">
 		<method selector="addTableColumn:" swt_gen="true">
-			<arg name="column" swt_gen="true"></arg>
+			<arg name="tableColumn"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="allowsColumnReordering" swt_gen="true">
@@ -3377,7 +3387,7 @@
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="moveColumn:toColumn:" swt_gen="true">
-			<arg name="column" swt_gen="true"></arg>
+			<arg name="oldIndex"></arg>
 			<arg name="newIndex" swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
@@ -3405,7 +3415,7 @@
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="removeTableColumn:" swt_gen="true">
-			<arg name="column" swt_gen="true"></arg>
+			<arg name="tableColumn"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="rowAtPoint:" swt_gen="true">
@@ -3472,7 +3482,7 @@
 		</method>
 		<method selector="setDropRow:dropOperation:" swt_gen="true">
 			<arg name="row" swt_gen="true"></arg>
-			<arg name="op" swt_gen="true"></arg>
+			<arg name="dropOperation"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="setHeaderView:" swt_gen="true">
@@ -3480,12 +3490,12 @@
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="setHighlightedTableColumn:" swt_gen="true">
-			<arg name="tc" swt_gen="true"></arg>
+			<arg name="tableColumn"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="setIndicatorImage:inTableColumn:" swt_gen="true">
 			<arg name="anImage" swt_gen="true"></arg>
-			<arg name="tc" swt_gen="true"></arg>
+			<arg name="tableColumn"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="setIntercellSpacing:" swt_gen="true">
@@ -4017,7 +4027,7 @@
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="drawRect:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="rect" swt_gen="true"></arg>
+			<arg name="dirtyRect"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="endDocument" swt_gen="true">
@@ -4527,39 +4537,9 @@
 			<arg name="attribute" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
-	<informal_protocol name="NSApplicationDelegate" swt_gen="mixed">
-		<method selector="applicationShouldTerminate:" swt_gen="true">
-			<arg name="sender" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSApplicationNotifications" swt_gen="mixed">
-		<method selector="applicationDidBecomeActive:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="applicationDidFinishLaunching:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="applicationDidResignActive:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="applicationWillFinishLaunching:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="applicationWillTerminate:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
 	<informal_protocol name="NSColorPanelResponderMethod" swt_gen="true">
 		<method selector="changeColor:" swt_gen="true">
 			<arg name="sender" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSComboBoxNotifications" swt_gen="mixed">
-		<method selector="comboBoxSelectionDidChange:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="comboBoxWillDismiss:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
 	<informal_protocol name="NSDraggingDestination" swt_gen="mixed">
@@ -4600,84 +4580,6 @@
 			<arg name="sender" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
-	<informal_protocol name="NSMenuDelegate" swt_gen="mixed">
-		<method selector="menu:willHighlightItem:" swt_gen="true">
-			<arg name="menu" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="menuDidClose:" swt_gen="true">
-			<arg name="menu" swt_gen="true"></arg>
-		</method>
-		<method selector="menuNeedsUpdate:" swt_gen="true">
-			<arg name="menu" swt_gen="true"></arg>
-		</method>
-		<method selector="menuWillOpen:" swt_gen="true">
-			<arg name="menu" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSOutlineViewDataSource" swt_gen="mixed">
-		<method selector="outlineView:acceptDrop:item:childIndex:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="info" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-			<arg name="index" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:child:ofItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="index" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:isItemExpandable:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:numberOfChildrenOfItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:objectValueForTableColumn:byItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:setObjectValue:forTableColumn:byItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="object" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:validateDrop:proposedItem:proposedChildIndex:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="info" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-			<arg name="index" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:writeItems:toPasteboard:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="items" swt_gen="true"></arg>
-			<arg name="pasteboard" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSOutlineViewDelegate" swt_gen="mixed">
-		<method selector="outlineView:didClickTableColumn:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:shouldCollapseItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:shouldExpandItem:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-		<method selector="outlineView:willDisplayCell:forTableColumn:item:" swt_gen="true">
-			<arg name="outlineView" swt_gen="true"></arg>
-			<arg name="cell" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="item" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
 	<informal_protocol name="NSOutlineViewNotifications" swt_gen="mixed">
 		<method selector="outlineViewColumnDidMove:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
@@ -4698,107 +4600,11 @@
 			<arg name="type" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
-	<informal_protocol name="NSSavePanelDelegate" swt_gen="mixed">
-		<method selector="panel:shouldShowFilename:" swt_gen="true">
-			<arg name="sender" swt_gen="true"></arg>
-			<arg name="filename" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSTabViewDelegate" swt_gen="mixed">
-		<method selector="tabView:didSelectTabViewItem:" swt_gen="true">
-			<arg name="tabView" swt_gen="true"></arg>
-			<arg name="tabViewItem" swt_gen="true"></arg>
-		</method>
-		<method selector="tabView:shouldSelectTabViewItem:" swt_gen="true">
-			<arg name="tabView" swt_gen="true"></arg>
-			<arg name="tabViewItem" swt_gen="true"></arg>
-		</method>
-		<method selector="tabView:willSelectTabViewItem:" swt_gen="true">
-			<arg name="tabView" swt_gen="true"></arg>
-			<arg name="tabViewItem" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSTableDataSource" swt_gen="mixed">
-		<method selector="numberOfRowsInTableView:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:acceptDrop:row:dropOperation:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="info" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-			<arg name="dropOperation" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:objectValueForTableColumn:row:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:setObjectValue:forTableColumn:row:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="object" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:validateDrop:proposedRow:proposedDropOperation:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="info" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-			<arg name="dropOperation" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:writeRowsWithIndexes:toPasteboard:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="rowIndexes" swt_gen="true"></arg>
-			<arg name="pboard" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSTableViewDelegate" swt_gen="mixed">
-		<method selector="tableView:didClickTableColumn:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:shouldEditTableColumn:row:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-		</method>
-		<method selector="tableView:willDisplayCell:forTableColumn:row:" swt_gen="true">
-			<arg name="tableView" swt_gen="true"></arg>
-			<arg name="cell" swt_gen="true"></arg>
-			<arg name="tableColumn" swt_gen="true"></arg>
-			<arg name="row" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSTableViewNotifications" swt_gen="mixed">
-		<method selector="tableViewColumnDidMove:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="tableViewColumnDidResize:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="tableViewSelectionDidChange:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
 	<informal_protocol name="NSTextDelegate" swt_gen="mixed">
 		<method selector="textDidChange:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 		<method selector="textDidEndEditing:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-	</informal_protocol>
-	<informal_protocol name="NSTextViewDelegate" swt_gen="mixed">
-		<method selector="textView:clickedOnLink:atIndex:" swt_gen="true">
-			<arg name="textView" swt_gen="true"></arg>
-			<arg name="link" swt_gen="true"></arg>
-			<arg name="charIndex" swt_gen="true"></arg>
-		</method>
-		<method selector="textView:willChangeSelectionFromCharacterRange:toCharacterRange:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="textView" swt_gen="true"></arg>
-			<arg name="oldSelectedCharRange" swt_gen="true"></arg>
-			<arg name="newSelectedCharRange" swt_gen="true"></arg>
-		</method>
-		<method selector="textViewDidChangeSelection:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
@@ -4810,27 +4616,159 @@
 			<arg name="data" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
-	<informal_protocol name="NSToolbarDelegate" swt_gen="true">
-		<method selector="toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:" swt_gen="true">
-			<arg name="toolbar" swt_gen="true"></arg>
-			<arg name="itemIdentifier" swt_gen="true"></arg>
-			<arg name="flag" swt_gen="true"></arg>
+	<class name="NSSecureTextField" swt_gen="true" swt_superclass="NSTextField"></class>
+	<informal_protocol name="NSMenuDelegate" swt_gen="mixed">
+		<method selector="menuNeedsUpdate:" swt_gen="true">
+			<arg name="menu" swt_gen="true"></arg>
 		</method>
-		<method selector="toolbarAllowedItemIdentifiers:" swt_gen="true">
-			<arg name="toolbar" swt_gen="true"></arg>
+		<method selector="menuDidClose:" swt_gen="true">
+			<arg name="menu" swt_gen="true"></arg>
 		</method>
-		<method selector="toolbarDefaultItemIdentifiers:" swt_gen="true">
-			<arg name="toolbar" swt_gen="true"></arg>
+		<method selector="menu:willHighlightItem:" swt_gen="true">
+			<arg name="menu" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
 		</method>
-		<method selector="toolbarSelectableItemIdentifiers:" swt_gen="true">
-			<arg name="toolbar" swt_gen="true"></arg>
+		<method selector="menuWillOpen:" swt_gen="true">
+			<arg name="menu" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSOutlineViewDataSource" swt_gen="mixed">
+		<method selector="outlineView:numberOfChildrenOfItem:" swt_gen="true">
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:writeItems:toPasteboard:" swt_gen="true">
+			<arg name="items" swt_gen="true"></arg>
+			<arg name="pasteboard" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:setObjectValue:forTableColumn:byItem:" swt_gen="true">
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="object" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:validateDrop:proposedItem:proposedChildIndex:" swt_gen="true">
+			<arg name="index" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="info" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:child:ofItem:" swt_gen="true">
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="index" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:objectValueForTableColumn:byItem:" swt_gen="true">
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:isItemExpandable:" swt_gen="true">
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:acceptDrop:item:childIndex:" swt_gen="true">
+			<arg name="index" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="info" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSTableDataSource" swt_gen="mixed">
+		<method selector="numberOfRowsInTableView:" swt_gen="true">
+			<arg name="tableView" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:setObjectValue:forTableColumn:row:" swt_gen="true">
+			<arg name="row" swt_gen="true"></arg>
+			<arg name="object" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:writeRowsWithIndexes:toPasteboard:" swt_gen="true">
+			<arg name="pboard" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="rowIndexes" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:objectValueForTableColumn:row:" swt_gen="true">
+			<arg name="row" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:acceptDrop:row:dropOperation:" swt_gen="true">
+			<arg name="dropOperation" swt_gen="true"></arg>
+			<arg name="info" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="row" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:validateDrop:proposedRow:proposedDropOperation:" swt_gen="true">
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="row" swt_gen="true"></arg>
+			<arg name="info" swt_gen="true"></arg>
+			<arg name="dropOperation" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSTextInput" swt_gen="true">
+		<method selector="hasMarkedText" swt_gen="true"></method>
+		<method selector="insertText:" swt_gen="true">
+			<arg name="aString" swt_gen="true"></arg>
+		</method>
+		<method selector="unmarkText" swt_gen="true"></method>
+		<method selector="selectedRange" swt_gen="true" swt_gen_custom_callback="true"></method>
+		<method selector="characterIndexForPoint:" swt_gen="true" swt_gen_custom_callback="true">
+			<arg name="thePoint" swt_gen="true"></arg>
+		</method>
+		<method selector="firstRectForCharacterRange:" swt_gen="true" swt_gen_custom_callback="true">
+			<arg name="theRange" swt_gen="true"></arg>
+		</method>
+		<method selector="validAttributesForMarkedText" swt_gen="true"></method>
+		<method selector="attributedSubstringFromRange:" swt_gen="true" swt_gen_custom_callback="true">
+			<arg name="theRange" swt_gen="true"></arg>
+		</method>
+		<method selector="setMarkedText:selectedRange:" swt_gen="true" swt_gen_custom_callback="true">
+			<arg name="selRange" swt_gen="true"></arg>
+			<arg name="aString" swt_gen="true"></arg>
+		</method>
+		<method selector="markedRange" swt_gen="true" swt_gen_custom_callback="true"></method>
+	</informal_protocol>
+	<informal_protocol name="NSApplicationDelegate" swt_gen="mixed">
+		<method selector="applicationShouldTerminate:" swt_gen="true">
+			<arg name="sender" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSApplicationNotifications" swt_gen="mixed">
+		<method selector="applicationDidResignActive:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="applicationWillFinishLaunching:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="applicationDidBecomeActive:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="applicationDidFinishLaunching:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="applicationWillTerminate:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
 	<informal_protocol name="NSToolbarNotifications" swt_gen="true">
+		<method selector="toolbarWillAddItem:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
 		<method selector="toolbarDidRemoveItem:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
-		<method selector="toolbarWillAddItem:" swt_gen="true">
+	</informal_protocol>
+	<informal_protocol name="NSTableViewNotifications" swt_gen="mixed">
+		<method selector="tableViewColumnDidResize:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="tableViewSelectionDidChange:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="tableViewColumnDidMove:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
@@ -4840,13 +4778,19 @@
 		</method>
 	</informal_protocol>
 	<informal_protocol name="NSWindowNotifications" swt_gen="mixed">
+		<method selector="windowDidResize:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="windowWillClose:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
+		<method selector="windowDidMiniaturize:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
+		</method>
 		<method selector="windowDidBecomeKey:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 		<method selector="windowDidDeminiaturize:" swt_gen="true">
-			<arg name="notification" swt_gen="true"></arg>
-		</method>
-		<method selector="windowDidMiniaturize:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 		<method selector="windowDidMove:" swt_gen="true">
@@ -4855,35 +4799,101 @@
 		<method selector="windowDidResignKey:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
-		<method selector="windowDidResize:" swt_gen="true">
+	</informal_protocol>
+	<informal_protocol name="NSTableViewDelegate" swt_gen="mixed">
+		<method selector="tableView:willDisplayCell:forTableColumn:row:" swt_gen="true">
+			<arg name="row" swt_gen="true"></arg>
+			<arg name="cell" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:didClickTableColumn:" swt_gen="true">
+			<arg name="tableView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="tableView:shouldEditTableColumn:row:" swt_gen="true">
+			<arg name="tableColumn" swt_gen="true"></arg>
+			<arg name="row" swt_gen="true"></arg>
+			<arg name="tableView" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSTabViewDelegate" swt_gen="mixed">
+		<method selector="tabView:willSelectTabViewItem:" swt_gen="true">
+			<arg name="tabView" swt_gen="true"></arg>
+			<arg name="tabViewItem" swt_gen="true"></arg>
+		</method>
+		<method selector="tabView:shouldSelectTabViewItem:" swt_gen="true">
+			<arg name="tabViewItem" swt_gen="true"></arg>
+			<arg name="tabView" swt_gen="true"></arg>
+		</method>
+		<method selector="tabView:didSelectTabViewItem:" swt_gen="true">
+			<arg name="tabViewItem" swt_gen="true"></arg>
+			<arg name="tabView" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSToolbarDelegate" swt_gen="true">
+		<method selector="toolbarAllowedItemIdentifiers:" swt_gen="true">
+			<arg name="toolbar" swt_gen="true"></arg>
+		</method>
+		<method selector="toolbarDefaultItemIdentifiers:" swt_gen="true">
+			<arg name="toolbar" swt_gen="true"></arg>
+		</method>
+		<method selector="toolbarSelectableItemIdentifiers:" swt_gen="true">
+			<arg name="toolbar" swt_gen="true"></arg>
+		</method>
+		<method selector="toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:" swt_gen="true">
+			<arg name="itemIdentifier" swt_gen="true"></arg>
+			<arg name="toolbar" swt_gen="true"></arg>
+			<arg name="flag" swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSComboBoxNotifications" swt_gen="mixed">
+		<method selector="comboBoxWillDismiss:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
-		<method selector="windowWillClose:" swt_gen="true">
+		<method selector="comboBoxSelectionDidChange:" swt_gen="true">
 			<arg name="notification" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
-	<class name="NSSecureTextField" swt_gen="true" swt_superclass="NSTextField"></class>
-	<informal_protocol name="NSTextInput" swt_gen="true">
-		<method selector="markedRange" swt_gen="true" swt_gen_custom_callback="true"></method>
-		<method selector="insertText:" swt_gen="true">
-			<arg name="aString" swt_gen="true"></arg>
+	<informal_protocol name="NSTextViewDelegate" swt_gen="mixed">
+		<method selector="textViewDidChangeSelection:" swt_gen="true">
+			<arg name="notification" swt_gen="true"></arg>
 		</method>
-		<method selector="unmarkText" swt_gen="true"></method>
-		<method selector="hasMarkedText" swt_gen="true"></method>
-		<method selector="validAttributesForMarkedText" swt_gen="true"></method>
-		<method selector="characterIndexForPoint:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="thePoint" swt_gen="true"></arg>
+		<method selector="textView:clickedOnLink:atIndex:" swt_gen="true">
+			<arg name="charIndex" swt_gen="true"></arg>
+			<arg name="textView" swt_gen="true"></arg>
+			<arg name="link" swt_gen="true"></arg>
 		</method>
-		<method selector="attributedSubstringFromRange:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="theRange" swt_gen="true"></arg>
+		<method selector="textView:willChangeSelectionFromCharacterRange:toCharacterRange:" swt_gen="true" swt_gen_custom_callback="true">
+			<arg name="oldSelectedCharRange" swt_gen="true"></arg>
+			<arg name="textView" swt_gen="true"></arg>
+			<arg name="newSelectedCharRange" swt_gen="true"></arg>
 		</method>
-		<method selector="selectedRange" swt_gen="true" swt_gen_custom_callback="true"></method>
-		<method selector="setMarkedText:selectedRange:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="selRange" swt_gen="true"></arg>
-			<arg name="aString" swt_gen="true"></arg>
+	</informal_protocol>
+	<informal_protocol name="NSSavePanelDelegate" swt_gen="mixed">
+		<method selector="panel:shouldShowFilename:" swt_gen="true">
+			<arg name="filename" swt_gen="true"></arg>
+			<arg name="sender" swt_gen="true"></arg>
 		</method>
-		<method selector="firstRectForCharacterRange:" swt_gen="true" swt_gen_custom_callback="true">
-			<arg name="theRange" swt_gen="true"></arg>
+	</informal_protocol>
+	<informal_protocol name="NSOutlineViewDelegate" swt_gen="mixed">
+		<method selector="outlineView:willDisplayCell:forTableColumn:item:" swt_gen="true">
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="cell" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:shouldCollapseItem:" swt_gen="true">
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="item" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:didClickTableColumn:" swt_gen="true">
+			<arg name="outlineView" swt_gen="true"></arg>
+			<arg name="tableColumn" swt_gen="true"></arg>
+		</method>
+		<method selector="outlineView:shouldExpandItem:" swt_gen="true">
+			<arg name="item" swt_gen="true"></arg>
+			<arg name="outlineView" swt_gen="true"></arg>
 		</method>
 	</informal_protocol>
 </signatures>

@@ -262,6 +262,27 @@ int /*long*/ accessibilityAttributeValue_forParameter(int /*long*/ id, int /*lon
 		return returnValue.id;
 }
 
+boolean accessibilityIsAttributeSettable(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0) {
+	boolean returnValue = false;
+	if (accessible != null) {
+		NSString attribute = new NSString (arg0);
+		returnValue = accessible.internal_accessibilityIsAttributeSettable(attribute);
+	} else {
+		returnValue = super.accessibilityIsAttributeSettable(id, sel, arg0);
+	}
+	return returnValue;
+}
+
+void accessibilitySetValue_forAttribute(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0, int /*long*/ arg1) {
+	if (accessible != null) {
+		id value = new id(arg0);
+		NSString attribute = new NSString(arg1);
+		accessible.internal_accessibilitySetValue_forAttribute(value, attribute);
+	} else {
+		super.accessibilitySetValue_forAttribute(id, sel, arg0, arg1);
+	}
+}
+
 /**
  * Adds the listener to the collection of listeners who will
  * be notified when the control is moved or resized, by sending

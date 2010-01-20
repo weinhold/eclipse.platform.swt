@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 532;
-int OS_nativeFunctionCallCount[532];
+int OS_nativeFunctionCount = 542;
+int OS_nativeFunctionCallCount[542];
 char * OS_nativeFunctionNames[] = {
 	"ATSFontActivateFromFileReference",
 	"AcquireRootMenu",
@@ -172,10 +172,14 @@ char * OS_nativeFunctionNames[] = {
 	"NSAccessibilityActionDescription",
 	"NSAccessibilityBoundsForRangeParameterizedAttribute",
 	"NSAccessibilityButtonRole",
+	"NSAccessibilityCellForColumnAndRowParameterizedAttribute",
+	"NSAccessibilityCellRole",
 	"NSAccessibilityCheckBoxRole",
 	"NSAccessibilityChildrenAttribute",
 	"NSAccessibilityColorWellRole",
+	"NSAccessibilityColumnHeaderUIElementsAttribute",
 	"NSAccessibilityColumnRole",
+	"NSAccessibilityColumnsAttribute",
 	"NSAccessibilityComboBoxRole",
 	"NSAccessibilityConfirmAction",
 	"NSAccessibilityContentsAttribute",
@@ -231,11 +235,14 @@ char * OS_nativeFunctionNames[] = {
 	"NSAccessibilityRoleDescriptionAttribute",
 	"NSAccessibilityRoleDescriptionForUIElement",
 	"NSAccessibilityRowRole",
+	"NSAccessibilityRowsAttribute",
 	"NSAccessibilityScrollAreaRole",
 	"NSAccessibilityScrollBarRole",
 	"NSAccessibilitySelectedAttribute",
+	"NSAccessibilitySelectedCellsAttribute",
 	"NSAccessibilitySelectedChildrenAttribute",
 	"NSAccessibilitySelectedChildrenChangedNotification",
+	"NSAccessibilitySelectedRowsAttribute",
 	"NSAccessibilitySelectedTextAttribute",
 	"NSAccessibilitySelectedTextChangedNotification",
 	"NSAccessibilitySelectedTextRangeAttribute",
@@ -274,8 +281,11 @@ char * OS_nativeFunctionNames[] = {
 	"NSAccessibilityValueIndicatorRole",
 	"NSAccessibilityVerticalOrientationValue",
 	"NSAccessibilityVerticalScrollBarAttribute",
+	"NSAccessibilityVisibleCellsAttribute",
 	"NSAccessibilityVisibleCharacterRangeAttribute",
 	"NSAccessibilityVisibleChildrenAttribute",
+	"NSAccessibilityVisibleColumnsAttribute",
+	"NSAccessibilityVisibleRowsAttribute",
 	"NSAccessibilityWindowAttribute",
 	"NSAccessibilityWindowRole",
 	"NSAffineTransformStruct_1sizeof",

@@ -71,11 +71,27 @@ public class Accessible {
 		OS.NSAccessibilityValueAttribute,
 	};
 	
+	static NSString[] baseTableAttributes = {
+		OS.NSAccessibilitySelectedCellsAttribute,
+		OS.NSAccessibilityVisibleCellsAttribute,
+		OS.NSAccessibilityColumnsAttribute,
+		OS.NSAccessibilityRowsAttribute,
+		OS.NSAccessibilityVisibleRowsAttribute,
+		OS.NSAccessibilityVisibleColumnsAttribute,
+		OS.NSAccessibilityColumnHeaderUIElementsAttribute,
+	};
+	
 	static NSString[] baseParameterizedAttributes = {
 		OS.NSAccessibilityStringForRangeParameterizedAttribute,
 		OS.NSAccessibilityRangeForLineParameterizedAttribute,
 		OS.NSAccessibilityLineForIndexParameterizedAttribute,
 		OS.NSAccessibilityBoundsForRangeParameterizedAttribute,
+	};
+	
+	static NSString[] baseValueAttributes = {
+		OS.NSAccessibilityMaxValueAttribute,
+		OS.NSAccessibilityMinValueAttribute,
+		OS.NSAccessibilityValueAttribute,
 	};
 	
 
@@ -140,6 +156,13 @@ public class Accessible {
 	 */
 	public static Accessible internal_new_Accessible(Control control) {
 		return new Accessible(control);
+	}
+	
+	id accessibleHandle(Accessible acc) {
+		if (acc == null) return null;
+		NSView view = acc.control.view;
+		int /*long*/ handle = OS.objc_msgSend(view.id, OS.sel_accessibleHandle);
+		return new id(handle);
 	}
 
 	/**
@@ -485,18 +508,18 @@ public class Accessible {
 		NSMutableArray returnValue = NSMutableArray.arrayWithCapacity(5);
 		
 		switch (event.detail) {
-		case ACC.ROLE_PUSHBUTTON:
-		case ACC.ROLE_RADIOBUTTON:
-		case ACC.ROLE_CHECKBUTTON:
-		case ACC.ROLE_TABITEM:
-			returnValue.addObject(OS.NSAccessibilityPressAction);
-			break;
+			case ACC.ROLE_PUSHBUTTON:
+			case ACC.ROLE_RADIOBUTTON:
+			case ACC.ROLE_CHECKBUTTON:
+			case ACC.ROLE_TABITEM:
+				returnValue.addObject(OS.NSAccessibilityPressAction);
+				break;
 		}
 
 		switch (event.detail) {
-		case ACC.ROLE_COMBOBOX:
-			returnValue.addObject(OS.NSAccessibilityConfirmAction);
-			break;
+			case ACC.ROLE_COMBOBOX:
+				returnValue.addObject(OS.NSAccessibilityConfirmAction);
+				break;
 		}
 
 
@@ -549,37 +572,53 @@ public class Accessible {
 			}
 		}
 		
+		if (accessibleTableListeners.size() > 0) {
+			for (int i = 0; i < baseTableAttributes.length; i++) {
+				if (!returnValue.containsObject(baseTableAttributes[i])) {
+					returnValue.addObject(baseTableAttributes[i]);
+				}
+			}
+		}
+		
+		if (accessibleValueListeners.size() > 0) {
+			for (int i = 0; i < baseValueAttributes.length; i++) {
+				if (!returnValue.containsObject(baseValueAttributes[i])) {
+					returnValue.addObject(baseValueAttributes[i]);
+				}
+			}
+		}
+		
 		// The following are expected to have a value (AXValue)
 		switch (event.detail) {
-		case ACC.ROLE_CHECKBUTTON:
-		case ACC.ROLE_RADIOBUTTON:
-		case ACC.ROLE_LABEL:
-		case ACC.ROLE_TABITEM:
-		case ACC.ROLE_TABFOLDER:
-			returnValue.addObject(OS.NSAccessibilityValueAttribute);
-			break;
+			case ACC.ROLE_CHECKBUTTON:
+			case ACC.ROLE_RADIOBUTTON:
+			case ACC.ROLE_LABEL:
+			case ACC.ROLE_TABITEM:
+			case ACC.ROLE_TABFOLDER:
+				returnValue.addObject(OS.NSAccessibilityValueAttribute);
+				break;
 		}
 		
 		// The following are expected to report their enabled status (AXEnabled)
 		switch (event.detail) {
-		case ACC.ROLE_CHECKBUTTON:
-		case ACC.ROLE_RADIOBUTTON:
-		case ACC.ROLE_LABEL:
-		case ACC.ROLE_TABITEM:
-		case ACC.ROLE_PUSHBUTTON:
-		case ACC.ROLE_COMBOBOX:
-			returnValue.addObject(OS.NSAccessibilityEnabledAttribute);
-			break;
+			case ACC.ROLE_CHECKBUTTON:
+			case ACC.ROLE_RADIOBUTTON:
+			case ACC.ROLE_LABEL:
+			case ACC.ROLE_TABITEM:
+			case ACC.ROLE_PUSHBUTTON:
+			case ACC.ROLE_COMBOBOX:
+				returnValue.addObject(OS.NSAccessibilityEnabledAttribute);
+				break;
 		}
 		
 		// The following are expected to report a title (AXTitle)
 		switch (event.detail) {
-		case ACC.ROLE_CHECKBUTTON:
-		case ACC.ROLE_RADIOBUTTON:
-		case ACC.ROLE_PUSHBUTTON:
-		case ACC.ROLE_TABITEM:
-			returnValue.addObject(OS.NSAccessibilityTitleAttribute);
-			break;
+			case ACC.ROLE_CHECKBUTTON:
+			case ACC.ROLE_RADIOBUTTON:
+			case ACC.ROLE_PUSHBUTTON:
+			case ACC.ROLE_TABITEM:
+				returnValue.addObject(OS.NSAccessibilityTitleAttribute);
+				break;
 		}
 			
 		// Accessibility verifier says these attributes must be reported for combo boxes.
@@ -628,6 +667,8 @@ public class Accessible {
 		if (attribute.isEqualToString(OS.NSAccessibilityHelpAttribute)) return getHelpAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityTitleAttribute)) return getTitleAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityValueAttribute)) return getValueAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityMaxValueAttribute)) return getMaxValueAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityMinValueAttribute)) return getMinValueAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityEnabledAttribute)) return getEnabledAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityFocusedAttribute)) return getFocusedAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityParentAttribute)) return getParentAttribute(childID);
@@ -649,15 +690,57 @@ public class Accessible {
 		if (attribute.isEqualToString(OS.NSAccessibilityLinkedUIElementsAttribute)) return getLinkedUIElementsAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityServesAsTitleForUIElementsAttribute)) return getServesAsTitleForUIElementsAttribute(childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityTitleUIElementAttribute)) return getTitleUIElementAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilitySelectedCellsAttribute)) return getSelectedCellsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityVisibleCellsAttribute)) return getVisibleCellsAttribute(childID);
+		
+		if (attribute.isEqualToString(OS.NSAccessibilityColumnsAttribute)) return getColumnsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityRowsAttribute)) return getRowsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityVisibleRowsAttribute)) return getVisibleRowsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityVisibleColumnsAttribute)) return getVisibleColumnsAttribute(childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityColumnHeaderUIElementsAttribute)) return getColumnHeaderUIElementsAttribute(childID);
 		// If this object don't know how to get the value it's up to the control itself to return an attribute value.
 		return null;
 	}
+
+	public boolean internal_accessibilityIsAttributeSettable(NSString attribute) {
+		if (attribute.isEqualToString(OS.NSAccessibilityValueAttribute)) return true;
+		return false;
+	}
 	
+	id getColumnHeaderUIElementsAttribute(int childID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	id getVisibleColumnsAttribute(int childID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	id getVisibleRowsAttribute(int childID) {
+		// TODO NEED API to get visible rows????
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener)accessibleActionListeners.elementAt(i);
+			//get visible rows
+		}
+		return null;
+	}
+
+	id getRowsAttribute(int childID) {
+		return null;
+	}
+
+	id getColumnsAttribute(int childID) {
+		return null;
+	}
+
 	public id internal_accessibilityAttributeValue_forParameter(NSString attribute, id parameter, int childID) {
 		if (attribute.isEqualToString(OS.NSAccessibilityStringForRangeParameterizedAttribute)) return getStringForRangeAttribute(parameter, childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityRangeForLineParameterizedAttribute)) return getRangeForLineParameterizedAttribute(parameter, childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityLineForIndexParameterizedAttribute)) return getLineForIndexParameterizedAttribute(parameter, childID);
 		if (attribute.isEqualToString(OS.NSAccessibilityBoundsForRangeParameterizedAttribute)) return getBoundsForRangeParameterizedAttribute(parameter, childID);
+		if (attribute.isEqualToString(OS.NSAccessibilityCellForColumnAndRowParameterizedAttribute)) return getCellForColumnAndRowParameter(parameter, childID);
 		return null;
 	}
 
@@ -741,6 +824,11 @@ public class Accessible {
 				}
 			}
 		}
+		if (accessibleTableListeners.size() > 0) {
+			if (!returnValue.containsObject(OS.NSAccessibilityCellForColumnAndRowParameterizedAttribute)) {
+				returnValue.addObject(OS.NSAccessibilityCellForColumnAndRowParameterizedAttribute);
+			}
+		}
 
 		if (childID == ACC.CHILDID_SELF) {
 			parameterizedAttributeNames = returnValue;
@@ -757,6 +845,18 @@ public class Accessible {
 		// No action support for now.
 	}
 
+	public void internal_accessibilitySetValue_forAttribute(id value, NSString attribute) {
+		if (accessibleValueListeners.size() > 0) {
+			AccessibleValueEvent event = new AccessibleValueEvent(this);
+			NSNumber number = new NSNumber(value);
+			event.value = new Double(number.doubleValue());
+			for (int i = 0; i < accessibleValueListeners.size(); i++) {
+				AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+				listener.setCurrentValue(event);
+			}
+		}
+	}
+	
 	/**
 	 * Disposes of the operating system resources associated with
 	 * the receiver.
@@ -953,7 +1053,6 @@ public class Accessible {
 	}
 	
 	id getTitleUIElementAttribute(int childID) {
-		System.out.println(control);
 		id returnValue = null;
 		Relation relation = relations[ACC.RELATION_LABELLED_BY]; 
 		if (relation != null) {
@@ -964,78 +1063,86 @@ public class Accessible {
 	
 	id getValueAttribute (int childID) {
 		id returnValue = null;
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.detail = -1;
-		event.result = null; //TODO: could pass the OS value to the app
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getRole(event);
-			listener.getValue(event);
-		}
-		int role = event.detail;
-		String value = event.result;
-
-		switch (role) {
-		case ACC.ROLE_RADIOBUTTON: // 1 = on, 0 = off
-		case ACC.ROLE_CHECKBUTTON: // 1 = checked, 0 = unchecked, 2 = mixed
-		case ACC.ROLE_SCROLLBAR: // numeric value representing the position of the scroller
-		case ACC.ROLE_SLIDER: // the value associated with the position of the slider thumb
-		case ACC.ROLE_PROGRESSBAR: // the value associated with the fill level of the progress bar
-			if (value != null) {
-				try {
-					int number = Integer.parseInt(value);
-					returnValue = NSNumber.numberWithInt(number);
-				} catch (NumberFormatException ex) {
-					if (value.equalsIgnoreCase("true")) {
-						returnValue = NSNumber.numberWithBool(true);
-					} else if (value.equalsIgnoreCase("false")) {
-						returnValue = NSNumber.numberWithBool(false);
-					}
-				}
-			} else {
-				returnValue = NSNumber.numberWithBool(false);
+		if (accessibleValueListeners.size() > 0) {
+			AccessibleValueEvent event = new AccessibleValueEvent(this);
+			for (int i = 0; i < accessibleValueListeners.size(); i++) {
+				AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+				listener.getCurrentValue(event);
 			}
-			break;
-		case ACC.ROLE_TABFOLDER: // the accessibility object representing the currently selected tab item
-		case ACC.ROLE_TABITEM:  // 1 = selected, 0 = not selected
-			AccessibleControlEvent ace = new AccessibleControlEvent(this);
-			ace.childID = -4;
+			returnValue = NSNumber.numberWithDouble(event.value.doubleValue());
+		} else {
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.detail = -1;
+			event.result = null; //TODO: could pass the OS value to the app
 			for (int i = 0; i < accessibleControlListeners.size(); i++) {
 				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-				listener.getSelection(ace);
+				listener.getRole(event);
+				listener.getValue(event);
 			}
-			if (ace.childID >= ACC.CHILDID_SELF) {
-				if (role == ACC.ROLE_TABITEM) {
-			 		returnValue = NSNumber.numberWithBool(ace.childID == childID);
-				} else {
-					returnValue = new id(OS.NSAccessibilityUnignoredAncestor(childIDToOs(ace.childID).id));
-				}
-			} else {
-		 		returnValue = NSNumber.numberWithBool(false);				
+			int role = event.detail;
+			String value = event.result;
+	
+			switch (role) {
+				case ACC.ROLE_RADIOBUTTON: // 1 = on, 0 = off
+				case ACC.ROLE_CHECKBUTTON: // 1 = checked, 0 = unchecked, 2 = mixed
+				case ACC.ROLE_SCROLLBAR: // numeric value representing the position of the scroller
+				case ACC.ROLE_SLIDER: // the value associated with the position of the slider thumb
+				case ACC.ROLE_PROGRESSBAR: // the value associated with the fill level of the progress bar
+					if (value != null) {
+						try {
+							int number = Integer.parseInt(value);
+							returnValue = NSNumber.numberWithInt(number);
+						} catch (NumberFormatException ex) {
+							if (value.equalsIgnoreCase("true")) {
+								returnValue = NSNumber.numberWithBool(true);
+							} else if (value.equalsIgnoreCase("false")) {
+								returnValue = NSNumber.numberWithBool(false);
+							}
+						}
+					} else {
+						returnValue = NSNumber.numberWithBool(false);
+					}
+					break;
+				case ACC.ROLE_TABFOLDER: // the accessibility object representing the currently selected tab item
+				case ACC.ROLE_TABITEM:  // 1 = selected, 0 = not selected
+					AccessibleControlEvent ace = new AccessibleControlEvent(this);
+					ace.childID = -4;
+					for (int i = 0; i < accessibleControlListeners.size(); i++) {
+						AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+						listener.getSelection(ace);
+					}
+					if (ace.childID >= ACC.CHILDID_SELF) {
+						if (role == ACC.ROLE_TABITEM) {
+					 		returnValue = NSNumber.numberWithBool(ace.childID == childID);
+						} else {
+							returnValue = new id(OS.NSAccessibilityUnignoredAncestor(childIDToOs(ace.childID).id));
+						}
+					} else {
+				 		returnValue = NSNumber.numberWithBool(false);				
+					}
+					break;
+				case ACC.ROLE_COMBOBOX: // text of the currently selected item
+				case ACC.ROLE_TEXT: // text in the text field
+					if (value != null) returnValue = NSString.stringWith(value);
+					break;
+				case ACC.ROLE_LABEL: // text in the label
+					/* On a Mac, the 'value' of a label is the same as the 'name' of the label. */
+					AccessibleEvent e = new AccessibleEvent(this);
+					e.childID = childID;
+					e.result = null;
+					for (int i = 0; i < accessibleListeners.size(); i++) {
+						AccessibleListener listener = (AccessibleListener) accessibleListeners.elementAt(i);
+						listener.getName(e);
+					}
+					if (e.result != null) {
+						returnValue = NSString.stringWith(e.result);
+					} else {
+						if (value != null) returnValue = NSString.stringWith(value);
+					}
+					break;
 			}
-			break;
-		case ACC.ROLE_COMBOBOX: // text of the currently selected item
-		case ACC.ROLE_TEXT: // text in the text field
-			if (value != null) returnValue = NSString.stringWith(value);
-			break;
-		case ACC.ROLE_LABEL: // text in the label
-			/* On a Mac, the 'value' of a label is the same as the 'name' of the label. */
-			AccessibleEvent e = new AccessibleEvent(this);
-			e.childID = childID;
-			e.result = null;
-			for (int i = 0; i < accessibleListeners.size(); i++) {
-				AccessibleListener listener = (AccessibleListener) accessibleListeners.elementAt(i);
-				listener.getName(e);
-			}
-			if (e.result != null) {
-				returnValue = NSString.stringWith(e.result);
-			} else {
-				if (value != null) returnValue = NSString.stringWith(value);
-			}
-			break;
 		}
-		
 		return returnValue;
 	}
 	
@@ -1263,6 +1370,22 @@ public class Accessible {
 		return returnValue;
 	}
 	
+	id getCellForColumnAndRowParameter(id parameter, int childID) {
+		id returnValue = null;
+		NSArray parameterObject = new NSArray(parameter.id);
+		if (parameterObject.count() == 2) {
+			AccessibleTableEvent event = new AccessibleTableEvent(this);
+			event.column = new NSNumber(parameterObject.objectAtIndex(0)).intValue();
+			event.row = new NSNumber(parameterObject.objectAtIndex(1)).intValue();
+			for (int i = 0; i < accessibleTableListeners.size(); i++) {
+				AccessibleTableListener listener = (AccessibleTableListener)accessibleActionListeners.elementAt(i);
+				listener.getCellAt(event);
+				returnValue = accessibleHandle(event.accessible);
+			}
+		}
+		return returnValue;
+	}
+
 	id getDescriptionAttribute (int childID) {
 		AccessibleEvent event = new AccessibleEvent(this);
 		event.childID = childID;
@@ -1349,16 +1472,41 @@ public class Accessible {
 				listener.getValue(controlEvent);
 			}
 			String text = controlEvent.result;
-			returnValue = NSNumber.numberWithInt(lineNumberForOffset(text, charNumber));
+			if (text != null) returnValue = NSNumber.numberWithInt(lineNumberForOffset(text, charNumber));
 		}
 		return returnValue;
 	}
 	
 	id getLinkedUIElementsAttribute(int childID) {
-		System.out.println("Linked: " + control);
 		id returnValue = null;
 		Relation relation = relations[ACC.RELATION_MEMBER_OF];
 		if (relation != null) returnValue = relation.getLinkedUIElements();
+		return returnValue;
+	}
+	
+	id getMaxValueAttribute(int childID) {
+		id returnValue = null;
+		if (accessibleValueListeners.size() > 0) {
+			AccessibleValueEvent event = new AccessibleValueEvent(this);
+			for (int i = 0; i < accessibleValueListeners.size(); i++) {
+				AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+				listener.getMaximumValue(event);
+			}
+			returnValue = NSNumber.numberWithDouble(event.value.doubleValue());
+		}
+		return returnValue;
+	}
+	
+	id getMinValueAttribute(int childID) {
+		id returnValue = null;
+		if (accessibleValueListeners.size() > 0) {
+			AccessibleValueEvent event = new AccessibleValueEvent(this);
+			for (int i = 0; i < accessibleValueListeners.size(); i++) {
+				AccessibleValueListener listener = (AccessibleValueListener) accessibleValueListeners.elementAt(i);
+				listener.getMinimumValue(event);
+			}
+			returnValue = NSNumber.numberWithDouble(event.value.doubleValue());
+		}
 		return returnValue;
 	}
 	
@@ -1424,6 +1572,20 @@ public class Accessible {
 		return returnValue;
 	}
 	
+	id getSelectedCellsAttribute(int childID) {
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getSelectedCells(event);
+		}
+		Accessible[] selectedCells = event.accessibles;
+		NSMutableArray array = NSMutableArray.arrayWithCapacity(selectedCells.length);
+		for (int i = 0; i < selectedCells.length; i++) {
+			array.addObject(accessibleHandle(selectedCells[i]));
+		}
+		return array;
+	}
+	
 	id getSelectedTextAttribute (int childID) {
 		id returnValue = NSString.string();
 		if (accessibleTextExtendedListeners.size() > 0) {
@@ -1485,7 +1647,7 @@ public class Accessible {
 			}
 			NSRange range = new NSRange();
 			range.location = event.start;
-			range.length = event.end - event.start + 1;
+			range.length = event.end - event.start;
 			returnValue = NSValue.valueWithRange(range);
 		} else {
 			AccessibleTextEvent event = new AccessibleTextEvent(this);
@@ -1523,7 +1685,8 @@ public class Accessible {
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 			event.childID = childID;
 			event.start = (int) /*64*/ range.location;
-			event.end = (int) /*64*/ (range.location + range.length - 1);
+			event.end = (int) /*64*/ (range.location + range.length);
+			event.type = ACC.TEXT_BOUNDARY_ALL;
 			for (int i = 0; i < accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
 				listener.getText(event);
@@ -1543,7 +1706,6 @@ public class Accessible {
 				returnValue = NSString.stringWith(appValue.substring((int)/*64*/range.location, (int)/*64*/(range.location + range.length)));
 			}
 		}
-
 		return returnValue;
 	}
 	
@@ -1592,27 +1754,43 @@ public class Accessible {
 		return returnValue;
 	}
 	
+	id getVisibleCellsAttribute(int childID) {
+		AccessibleTableEvent rowEvent = new AccessibleTableEvent(this);
+		AccessibleTableEvent columnEvent = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
+			listener.getRowCount(rowEvent);
+			listener.getColumnCount(columnEvent);
+		}
+		int rows = rowEvent.count;
+		int columns = rowEvent.count;
+		NSMutableArray cells = NSMutableArray.arrayWithCapacity(rows*columns);
+		AccessibleTableEvent cellEvent = new AccessibleTableEvent(this);
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < columns; j++) {
+				cellEvent.row = i;
+				cellEvent.column = j;
+				for (int k = 0; k < accessibleTableListeners.size(); k++) {
+					AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(k);
+					listener.getCellAt(cellEvent);
+				}
+				cells.addObject(accessibleHandle(cellEvent.accessible));
+			}
+		}
+		return cells;
+	}
+	
 	id getVisibleCharacterRangeAttribute (int childID) {
 		NSRange range = new NSRange();
 		if (accessibleTextExtendedListeners.size() > 0) {
-			AccessibleControlEvent controlEvent = new AccessibleControlEvent(this);
-			controlEvent.childID = childID;
-			for (int i = 0; i < accessibleControlListeners.size(); i++) {
-				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-				listener.getLocation(controlEvent);
-			}
 			AccessibleTextExtendedEvent event = new AccessibleTextExtendedEvent(this);
 			event.childID = childID;
-			event.x = controlEvent.x;
-			event.y = controlEvent.y;
-			event.width = controlEvent.width;
-			event.height = controlEvent.height;
 			for (int i=0; i<accessibleTextExtendedListeners.size(); i++) {
 				AccessibleTextExtendedListener listener = (AccessibleTextExtendedListener) accessibleTextExtendedListeners.elementAt(i);
-				listener.getRanges(event);
+				listener.getVisibleRanges(event);
 			}
 			range.location = event.start;
-			range.length = event.end;
+			range.length = event.end + 1;
 		} else {
 			AccessibleControlEvent event = new AccessibleControlEvent(this);
 			event.childID = childID;
@@ -2153,7 +2331,7 @@ public class Accessible {
 			case ACC.ROLE_LIST: nsReturnValue = OS.NSAccessibilityOutlineRole; break;
 			case ACC.ROLE_LISTITEM: nsReturnValue = OS.NSAccessibilityStaticTextRole; break;
 			case ACC.ROLE_TABLE: nsReturnValue = OS.NSAccessibilityTableRole; break;
-			case ACC.ROLE_TABLECELL: nsReturnValue = concatStringsAsRole(OS.NSAccessibilityRowRole, OS.NSAccessibilityTableRowSubrole); break;
+			case ACC.ROLE_TABLECELL: nsReturnValue = OS.NSAccessibilityCellRole; break;
 			case ACC.ROLE_TABLECOLUMNHEADER: nsReturnValue = OS.NSAccessibilitySortButtonRole; break;
 			case ACC.ROLE_TABLEROWHEADER: nsReturnValue = concatStringsAsRole(OS.NSAccessibilityRowRole, OS.NSAccessibilityTableRowSubrole); break;
 			case ACC.ROLE_TREE: nsReturnValue = OS.NSAccessibilityOutlineRole; break;
@@ -2229,6 +2407,7 @@ public class Accessible {
 		if (osRole.isEqualToString(OS.NSAccessibilityMenuButtonRole)) return ACC.ROLE_CHECK_MENU_ITEM;
 		if (osRole.isEqualToString(OS.NSAccessibilityMenuButtonRole)) return ACC.ROLE_RADIO_MENU_ITEM;
 		if (osRole.isEqualToString(OS.NSAccessibilityColorWellRole)) return ACC.ROLE_COLOR_CHOOSER;
+		if (osRole.isEqualToString(OS.NSAccessibilityCellRole)) return ACC.ROLE_TABLECELL;
 		return ACC.ROLE_CLIENT_AREA;
 	}
 	

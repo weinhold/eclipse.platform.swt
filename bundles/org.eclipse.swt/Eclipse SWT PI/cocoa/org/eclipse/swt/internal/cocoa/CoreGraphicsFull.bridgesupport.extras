@@ -57,16 +57,16 @@
 		<arg name="height" swt_gen="true"></arg>
 		<arg name="bitsPerComponent" swt_gen="true"></arg>
 		<arg name="bytesPerRow" swt_gen="true"></arg>
-		<arg name="colorspace" swt_gen="true"></arg>
+		<arg name="space"></arg>
 		<arg name="bitmapInfo" swt_gen="true"></arg>
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGBitmapContextCreateImage" swt_gen="true">
-		<arg name="c" swt_gen="true"></arg>
+		<arg name="context"></arg>
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGBitmapContextGetData" swt_gen="true">
-		<arg name="c" swt_gen="true"></arg>
+		<arg name="context"></arg>
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGColorCreate" swt_gen="true">
@@ -115,12 +115,12 @@
 		<arg name="mode" swt_gen="true"></arg>
 	</function>
 	<function name="CGContextSetFillColor" swt_gen="true">
-		<arg name="c" swt_gen="true"></arg>
+		<arg name="context"></arg>
 		<arg name="components" swt_gen="true" swt_java_type="float[]" swt_java_type64="double[]"></arg>
 	</function>
 	<function name="CGContextSetFillColorSpace" swt_gen="true">
-		<arg name="c" swt_gen="true"></arg>
-		<arg name="colorspace" swt_gen="true"></arg>
+		<arg name="context"></arg>
+		<arg name="space"></arg>
 	</function>
 	<function name="CGContextSetLineCap" swt_gen="true">
 		<arg name="c" swt_gen="true"></arg>
@@ -145,7 +145,7 @@
 		<arg name="limit" swt_gen="true"></arg>
 	</function>
 	<function name="CGContextSetShouldAntialias" swt_gen="true">
-		<arg name="c" swt_gen="true"></arg>
+		<arg name="context"></arg>
 		<arg name="shouldAntialias" swt_gen="true"></arg>
 	</function>
 	<function name="CGContextSetTextDrawingMode" swt_gen="true">
@@ -209,7 +209,7 @@
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGEnableEventStateCombining" swt_gen="true">
-		<arg name="doCombineState" swt_gen="true"></arg>
+		<arg name="combineState"></arg>
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGEventCreateKeyboardEvent" swt_gen="true">
@@ -235,8 +235,8 @@
 	<function name="CGGetDisplaysWithRect" swt_gen="true">
 		<arg name="rect" swt_gen="true"></arg>
 		<arg name="maxDisplays" swt_gen="true"></arg>
-		<arg name="dspys" swt_gen="true"></arg>
-		<arg name="dspyCnt" swt_gen="true"></arg>
+		<arg name="displays"></arg>
+		<arg name="matchingDisplayCount"></arg>
 		<retval swt_gen="true"></retval>
 	</function>
 	<function name="CGImageCreate" swt_gen="true">
@@ -245,7 +245,7 @@
 		<arg name="bitsPerComponent" swt_gen="true"></arg>
 		<arg name="bitsPerPixel" swt_gen="true"></arg>
 		<arg name="bytesPerRow" swt_gen="true"></arg>
-		<arg name="colorspace" swt_gen="true"></arg>
+		<arg name="space"></arg>
 		<arg name="bitmapInfo" swt_gen="true"></arg>
 		<arg name="provider" swt_gen="true"></arg>
 		<arg name="decode" swt_gen="true"></arg>

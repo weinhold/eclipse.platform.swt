@@ -2090,6 +2090,12 @@ public static final NSString NSAccessibilityBoundsForRangeParameterizedAttribute
 public static final native int /*long*/ NSAccessibilityButtonRole();
 public static final NSString NSAccessibilityButtonRole = new NSString(NSAccessibilityButtonRole());
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilityCellForColumnAndRowParameterizedAttribute();
+public static final NSString NSAccessibilityCellForColumnAndRowParameterizedAttribute = new NSString(NSAccessibilityCellForColumnAndRowParameterizedAttribute());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityCellRole();
+public static final NSString NSAccessibilityCellRole = new NSString(NSAccessibilityCellRole());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilityCheckBoxRole();
 public static final NSString NSAccessibilityCheckBoxRole = new NSString(NSAccessibilityCheckBoxRole());
 /** @method flags=const */
@@ -2099,8 +2105,14 @@ public static final NSString NSAccessibilityChildrenAttribute = new NSString(NSA
 public static final native int /*long*/ NSAccessibilityColorWellRole();
 public static final NSString NSAccessibilityColorWellRole = new NSString(NSAccessibilityColorWellRole());
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilityColumnHeaderUIElementsAttribute();
+public static final NSString NSAccessibilityColumnHeaderUIElementsAttribute = new NSString(NSAccessibilityColumnHeaderUIElementsAttribute());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilityColumnRole();
 public static final NSString NSAccessibilityColumnRole = new NSString(NSAccessibilityColumnRole());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityColumnsAttribute();
+public static final NSString NSAccessibilityColumnsAttribute = new NSString(NSAccessibilityColumnsAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityComboBoxRole();
 public static final NSString NSAccessibilityComboBoxRole = new NSString(NSAccessibilityComboBoxRole());
@@ -2255,6 +2267,9 @@ public static final NSString NSAccessibilityRoleDescriptionAttribute = new NSStr
 public static final native int /*long*/ NSAccessibilityRowRole();
 public static final NSString NSAccessibilityRowRole = new NSString(NSAccessibilityRowRole());
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilityRowsAttribute();
+public static final NSString NSAccessibilityRowsAttribute = new NSString(NSAccessibilityRowsAttribute());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilityScrollAreaRole();
 public static final NSString NSAccessibilityScrollAreaRole = new NSString(NSAccessibilityScrollAreaRole());
 /** @method flags=const */
@@ -2264,11 +2279,17 @@ public static final NSString NSAccessibilityScrollBarRole = new NSString(NSAcces
 public static final native int /*long*/ NSAccessibilitySelectedAttribute();
 public static final NSString NSAccessibilitySelectedAttribute = new NSString(NSAccessibilitySelectedAttribute());
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilitySelectedCellsAttribute();
+public static final NSString NSAccessibilitySelectedCellsAttribute = new NSString(NSAccessibilitySelectedCellsAttribute());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilitySelectedChildrenAttribute();
 public static final NSString NSAccessibilitySelectedChildrenAttribute = new NSString(NSAccessibilitySelectedChildrenAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilitySelectedChildrenChangedNotification();
 public static final NSString NSAccessibilitySelectedChildrenChangedNotification = new NSString(NSAccessibilitySelectedChildrenChangedNotification());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilitySelectedRowsAttribute();
+public static final NSString NSAccessibilitySelectedRowsAttribute = new NSString(NSAccessibilitySelectedRowsAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilitySelectedTextAttribute();
 public static final NSString NSAccessibilitySelectedTextAttribute = new NSString(NSAccessibilitySelectedTextAttribute());
@@ -2372,11 +2393,20 @@ public static final NSString NSAccessibilityVerticalOrientationValue = new NSStr
 public static final native int /*long*/ NSAccessibilityVerticalScrollBarAttribute();
 public static final NSString NSAccessibilityVerticalScrollBarAttribute = new NSString(NSAccessibilityVerticalScrollBarAttribute());
 /** @method flags=const */
+public static final native int /*long*/ NSAccessibilityVisibleCellsAttribute();
+public static final NSString NSAccessibilityVisibleCellsAttribute = new NSString(NSAccessibilityVisibleCellsAttribute());
+/** @method flags=const */
 public static final native int /*long*/ NSAccessibilityVisibleCharacterRangeAttribute();
 public static final NSString NSAccessibilityVisibleCharacterRangeAttribute = new NSString(NSAccessibilityVisibleCharacterRangeAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityVisibleChildrenAttribute();
 public static final NSString NSAccessibilityVisibleChildrenAttribute = new NSString(NSAccessibilityVisibleChildrenAttribute());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityVisibleColumnsAttribute();
+public static final NSString NSAccessibilityVisibleColumnsAttribute = new NSString(NSAccessibilityVisibleColumnsAttribute());
+/** @method flags=const */
+public static final native int /*long*/ NSAccessibilityVisibleRowsAttribute();
+public static final NSString NSAccessibilityVisibleRowsAttribute = new NSString(NSAccessibilityVisibleRowsAttribute());
 /** @method flags=const */
 public static final native int /*long*/ NSAccessibilityWindowAttribute();
 public static final NSString NSAccessibilityWindowAttribute = new NSString(NSAccessibilityWindowAttribute());
@@ -2674,18 +2704,18 @@ public static final native int /*long*/ CFURLCreateStringByAddingPercentEscapes(
  * @param height cast=(size_t)
  * @param bitsPerComponent cast=(size_t)
  * @param bytesPerRow cast=(size_t)
- * @param colorspace cast=(CGColorSpaceRef)
+ * @param space cast=(CGColorSpaceRef)
  * @param bitmapInfo cast=(CGBitmapInfo)
  */
-public static final native int /*long*/ CGBitmapContextCreate(int /*long*/ data, int /*long*/ width, int /*long*/ height, int /*long*/ bitsPerComponent, int /*long*/ bytesPerRow, int /*long*/ colorspace, int bitmapInfo);
+public static final native int /*long*/ CGBitmapContextCreate(int /*long*/ data, int /*long*/ width, int /*long*/ height, int /*long*/ bitsPerComponent, int /*long*/ bytesPerRow, int /*long*/ space, int bitmapInfo);
 /**
- * @param c cast=(CGContextRef)
+ * @param context cast=(CGContextRef)
  */
-public static final native int /*long*/ CGBitmapContextCreateImage(int /*long*/ c);
+public static final native int /*long*/ CGBitmapContextCreateImage(int /*long*/ context);
 /**
- * @param c cast=(CGContextRef)
+ * @param context cast=(CGContextRef)
  */
-public static final native int /*long*/ CGBitmapContextGetData(int /*long*/ c);
+public static final native int /*long*/ CGBitmapContextGetData(int /*long*/ context);
 /**
  * @param space cast=(CGColorSpaceRef)
  * @param components cast=(CGFloat*)
@@ -2740,15 +2770,15 @@ public static final native void CGContextScaleCTM(int /*long*/ c, float /*double
  */
 public static final native void CGContextSetBlendMode(int /*long*/ context, int mode);
 /**
- * @param c cast=(CGContextRef)
+ * @param context cast=(CGContextRef)
  * @param components cast=(CGFloat*)
  */
-public static final native void CGContextSetFillColor(int /*long*/ c, float[] /*double[]*/ components);
+public static final native void CGContextSetFillColor(int /*long*/ context, float[] /*double[]*/ components);
 /**
- * @param c cast=(CGContextRef)
- * @param colorspace cast=(CGColorSpaceRef)
+ * @param context cast=(CGContextRef)
+ * @param space cast=(CGColorSpaceRef)
  */
-public static final native void CGContextSetFillColorSpace(int /*long*/ c, int /*long*/ colorspace);
+public static final native void CGContextSetFillColorSpace(int /*long*/ context, int /*long*/ space);
 /**
  * @param c cast=(CGContextRef)
  * @param cap cast=(CGLineCap)
@@ -2777,10 +2807,10 @@ public static final native void CGContextSetLineWidth(int /*long*/ c, float /*do
  */
 public static final native void CGContextSetMiterLimit(int /*long*/ c, float /*double*/ limit);
 /**
- * @param c cast=(CGContextRef)
+ * @param context cast=(CGContextRef)
  * @param shouldAntialias cast=(_Bool)
  */
-public static final native void CGContextSetShouldAntialias(int /*long*/ c, boolean shouldAntialias);
+public static final native void CGContextSetShouldAntialias(int /*long*/ context, boolean shouldAntialias);
 /**
  * @param c cast=(CGContextRef)
  * @param mode cast=(CGTextDrawingMode)
@@ -2843,9 +2873,9 @@ public static final native int /*long*/ CGDisplayPixelsHigh(int display);
  */
 public static final native int /*long*/ CGDisplayPixelsWide(int display);
 /**
- * @param doCombineState cast=(boolean_t)
+ * @param combineState cast=(boolean_t)
  */
-public static final native int CGEnableEventStateCombining(int doCombineState);
+public static final native int CGEnableEventStateCombining(int combineState);
 /**
  * @param source cast=(CGEventSourceRef)
  * @param virtualKey cast=(CGKeyCode)
@@ -2870,25 +2900,25 @@ public static final native void CGEventKeyboardSetUnicodeString(int /*long*/ eve
 public static final native void CGEventPost(int tap, int /*long*/ event);
 /**
  * @param rect flags=struct
- * @param maxDisplays cast=(CGDisplayCount)
- * @param dspys cast=(CGDirectDisplayID*)
- * @param dspyCnt cast=(CGDisplayCount*)
+ * @param maxDisplays cast=(uint32_t)
+ * @param displays cast=(CGDirectDisplayID*)
+ * @param matchingDisplayCount cast=(uint32_t*)
  */
-public static final native int CGGetDisplaysWithRect(CGRect rect, int maxDisplays, int /*long*/ dspys, int /*long*/ dspyCnt);
+public static final native int CGGetDisplaysWithRect(CGRect rect, int maxDisplays, int /*long*/ displays, int /*long*/ matchingDisplayCount);
 /**
  * @param width cast=(size_t)
  * @param height cast=(size_t)
  * @param bitsPerComponent cast=(size_t)
  * @param bitsPerPixel cast=(size_t)
  * @param bytesPerRow cast=(size_t)
- * @param colorspace cast=(CGColorSpaceRef)
+ * @param space cast=(CGColorSpaceRef)
  * @param bitmapInfo cast=(CGBitmapInfo)
  * @param provider cast=(CGDataProviderRef)
  * @param decode cast=(CGFloat*)
  * @param shouldInterpolate cast=(_Bool)
  * @param intent cast=(CGColorRenderingIntent)
  */
-public static final native int /*long*/ CGImageCreate(int /*long*/ width, int /*long*/ height, int /*long*/ bitsPerComponent, int /*long*/ bitsPerPixel, int /*long*/ bytesPerRow, int /*long*/ colorspace, int bitmapInfo, int /*long*/ provider, int /*long*/ decode, boolean shouldInterpolate, int intent);
+public static final native int /*long*/ CGImageCreate(int /*long*/ width, int /*long*/ height, int /*long*/ bitsPerComponent, int /*long*/ bitsPerPixel, int /*long*/ bytesPerRow, int /*long*/ space, int bitmapInfo, int /*long*/ provider, int /*long*/ decode, boolean shouldInterpolate, int intent);
 /**
  * @param image cast=(CGImageRef)
  */
