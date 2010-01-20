@@ -115,6 +115,7 @@ public class Accessible {
 	Control control;
 
 	Map /*<Integer, SWTAccessibleDelegate>*/ children = new HashMap();
+	SWTAccessibleDelegate delegate;
 	
 	/**
 	 * Constructs a new instance of this class given its parent.
@@ -128,7 +129,7 @@ public class Accessible {
 	public Accessible(Accessible parent) {
 		this.parent = parent;
 		this.control = parent.control;
-		//TODO: (platform-specific?) code to add this accessible to the parent's children
+		delegate = new SWTAccessibleDelegate(this, ACC.CHILDID_SELF);
 	}
 
 	/**
@@ -713,26 +714,79 @@ public class Accessible {
 	}
 
 	id getVisibleColumnsAttribute(int childID) {
-		// TODO Auto-generated method stub
-		return null;
+		id returnValue = null;
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener)accessibleTableListeners.elementAt(i);
+			listener.getVisibleColumns(event);
+		}
+		if (event.accessibles != null) {
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(event.accessibles.length);
+			Accessible[] accessibles = event.accessibles;
+			for (int i = 0; i < accessibles.length; i++) {
+				Accessible acc = accessibles[i];
+				array.addObject(acc.delegate);
+			}
+			returnValue = array;
+		}
+		return returnValue;
 	}
 
 	id getVisibleRowsAttribute(int childID) {
-		// TODO NEED API to get visible rows????
+		id returnValue = null;
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
-			AccessibleTableListener listener = (AccessibleTableListener)accessibleActionListeners.elementAt(i);
-			//get visible rows
+			AccessibleTableListener listener = (AccessibleTableListener)accessibleTableListeners.elementAt(i);
+			listener.getVisibleRows(event);
 		}
-		return null;
+		if (event.accessibles != null) {
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(event.accessibles.length);
+			Accessible[] accessibles = event.accessibles;
+			for (int i = 0; i < accessibles.length; i++) {
+				Accessible acc = accessibles[i];
+				array.addObject(acc.delegate);
+			}
+			returnValue = array;
+		}
+		return returnValue;
 	}
 
 	id getRowsAttribute(int childID) {
-		return null;
+		id returnValue = null;
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener)accessibleTableListeners.elementAt(i);
+			listener.getRows(event);
+		}
+		if (event.accessibles != null) {
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(event.accessibles.length);
+			Accessible[] accessibles = event.accessibles;
+			for (int i = 0; i < accessibles.length; i++) {
+				Accessible acc = accessibles[i];
+				array.addObject(acc.delegate);
+			}
+			returnValue = array;
+		}
+		return returnValue;
 	}
 
 	id getColumnsAttribute(int childID) {
-		return null;
+		id returnValue = null;
+		AccessibleTableEvent event = new AccessibleTableEvent(this);
+		for (int i = 0; i < accessibleTableListeners.size(); i++) {
+			AccessibleTableListener listener = (AccessibleTableListener)accessibleTableListeners.elementAt(i);
+			listener.getColumns(event);
+		}
+		if (event.accessibles != null) {
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(event.accessibles.length);
+			Accessible[] accessibles = event.accessibles;
+			for (int i = 0; i < accessibles.length; i++) {
+				Accessible acc = accessibles[i];
+				array.addObject(acc.delegate);
+			}
+			returnValue = array;
+		}
+		return returnValue;
 	}
 
 	public id internal_accessibilityAttributeValue_forParameter(NSString attribute, id parameter, int childID) {
@@ -1379,8 +1433,8 @@ public class Accessible {
 			event.row = new NSNumber(parameterObject.objectAtIndex(1)).intValue();
 			for (int i = 0; i < accessibleTableListeners.size(); i++) {
 				AccessibleTableListener listener = (AccessibleTableListener)accessibleActionListeners.elementAt(i);
-				listener.getCellAt(event);
-				returnValue = accessibleHandle(event.accessible);
+				listener.getCell(event);
+				returnValue = event.accessible.delegate;
 			}
 		}
 		return returnValue;
@@ -1573,17 +1627,21 @@ public class Accessible {
 	}
 	
 	id getSelectedCellsAttribute(int childID) {
+		id returnValue = null;
 		AccessibleTableEvent event = new AccessibleTableEvent(this);
 		for (int i = 0; i < accessibleTableListeners.size(); i++) {
 			AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(i);
 			listener.getSelectedCells(event);
 		}
 		Accessible[] selectedCells = event.accessibles;
-		NSMutableArray array = NSMutableArray.arrayWithCapacity(selectedCells.length);
-		for (int i = 0; i < selectedCells.length; i++) {
-			array.addObject(accessibleHandle(selectedCells[i]));
+		if (selectedCells != null) {
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(selectedCells.length);
+			for (int i = 0; i < selectedCells.length; i++) {
+				array.addObject(selectedCells[i].delegate);
+			}
+			returnValue = array;
 		}
-		return array;
+		return returnValue;
 	}
 	
 	id getSelectedTextAttribute (int childID) {
@@ -1763,7 +1821,7 @@ public class Accessible {
 			listener.getColumnCount(columnEvent);
 		}
 		int rows = rowEvent.count;
-		int columns = rowEvent.count;
+		int columns = columnEvent.count;
 		NSMutableArray cells = NSMutableArray.arrayWithCapacity(rows*columns);
 		AccessibleTableEvent cellEvent = new AccessibleTableEvent(this);
 		for (int i = 0; i < rows; i++) {
@@ -1772,9 +1830,9 @@ public class Accessible {
 				cellEvent.column = j;
 				for (int k = 0; k < accessibleTableListeners.size(); k++) {
 					AccessibleTableListener listener = (AccessibleTableListener) accessibleTableListeners.elementAt(k);
-					listener.getCellAt(cellEvent);
+					listener.getCell(cellEvent);
+					cells.addObject(cellEvent.accessible.delegate);
 				}
-				cells.addObject(accessibleHandle(cellEvent.accessible));
 			}
 		}
 		return cells;
@@ -2330,6 +2388,8 @@ public class Accessible {
 			case ACC.ROLE_TOOLBAR: nsReturnValue = OS.NSAccessibilityToolbarRole; break;
 			case ACC.ROLE_LIST: nsReturnValue = OS.NSAccessibilityOutlineRole; break;
 			case ACC.ROLE_LISTITEM: nsReturnValue = OS.NSAccessibilityStaticTextRole; break;
+			case ACC.ROLE_COLUMN: nsReturnValue =  OS.NSAccessibilityColumnRole; break;
+			case ACC.ROLE_ROW: nsReturnValue =  concatStringsAsRole(OS.NSAccessibilityTableRole, OS.NSAccessibilityTableRowSubrole); break;
 			case ACC.ROLE_TABLE: nsReturnValue = OS.NSAccessibilityTableRole; break;
 			case ACC.ROLE_TABLECELL: nsReturnValue = OS.NSAccessibilityCellRole; break;
 			case ACC.ROLE_TABLECOLUMNHEADER: nsReturnValue = OS.NSAccessibilitySortButtonRole; break;
