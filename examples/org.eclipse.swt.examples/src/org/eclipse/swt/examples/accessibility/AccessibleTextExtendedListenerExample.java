@@ -71,7 +71,7 @@ public class AccessibleTextExtendedListenerExample {
 				e.childID = ACC.CHILDID_SELF;
 			}
 		});
-		acc.addAccessibleTextExtendedListener(new AccessibleTextExtendedListener() {
+		acc.addAccessibleTextListener(new AccessibleTextExtendedListener() {
 			public void getSelectionRange(AccessibleTextEvent e) {
 				e.offset = 0;
 				e.length = 4;

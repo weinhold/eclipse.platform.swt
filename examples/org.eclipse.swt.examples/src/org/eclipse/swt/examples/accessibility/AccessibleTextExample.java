@@ -42,7 +42,7 @@ public class AccessibleTextExample {
 				e.result = "This is the text's new accessible name";
 			}
 		});
-		accessibleText.addAccessibleTextExtendedListener(new AccessibleTextExtendedListener() {
+		accessibleText.addAccessibleTextListener(new AccessibleTextExtendedListener() {
 			public void addSelection(AccessibleTextExtendedEvent e) {
 				System.out.print("addSelection " + e);
 				text.setSelection(e.start, e.end);
