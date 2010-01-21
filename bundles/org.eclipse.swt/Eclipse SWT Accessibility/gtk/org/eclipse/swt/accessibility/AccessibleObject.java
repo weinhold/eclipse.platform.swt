@@ -840,7 +840,7 @@ class AccessibleObject {
 			event.column = (int)/*64*/column;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-				listener.getCellAt(event);
+				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
 			if (result != null) {
@@ -863,7 +863,7 @@ class AccessibleObject {
 			event.column = (int)/*64*/column;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-				listener.getCellAt(event);
+				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
 			//TODO need to return an index instead of accessible
@@ -967,7 +967,7 @@ class AccessibleObject {
 			event.column = (int)/*64*/column;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-				listener.getCellAt(event);
+				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
 			if (result != null) {
@@ -1000,7 +1000,7 @@ class AccessibleObject {
 			event.column = (int)/*64*/column;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-				listener.getCellAt(event);
+				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
 			if (result != null) {
@@ -1271,7 +1271,7 @@ class AccessibleObject {
 			event.column = (int)/*64*/column;
 			for (int i = 0, length = listeners.size(); i < length; i++) {
 				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-				listener.getCellAt(event);
+				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
 			if (result != null) {
@@ -1315,7 +1315,7 @@ class AccessibleObject {
 				event.row = (int)/*64*/row;
 				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-					listener.unselectRow(event);
+					listener.deselectRow(event);
 				}
 				//TODO should listener return if it did it or not
 				return 1;
@@ -1356,7 +1356,7 @@ class AccessibleObject {
 				event.column = (int)/*64*/column;
 				for (int i = 0; i < length; i++) {
 					AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
-					listener.unselectColumn(event);
+					listener.deselectColumn(event);
 				}
 				//TODO should listener return if it did it or not
 				return 1;
