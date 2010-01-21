@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2010 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -83,8 +83,8 @@ void cacheAtkAttributeFields(JNIEnv *env, jobject lpObject)
 AtkAttribute *getAtkAttributeFields(JNIEnv *env, jobject lpObject, AtkAttribute *lpStruct)
 {
 	if (!AtkAttributeFc.cached) cacheAtkAttributeFields(env, lpObject);
-	lpStruct->name = (*env)->GetIntLongField(env, lpObject, AtkAttributeFc.name);
-	lpStruct->value = (*env)->GetIntLongField(env, lpObject, AtkAttributeFc.value);
+	lpStruct->name = (char *)(*env)->GetIntLongField(env, lpObject, AtkAttributeFc.name);
+	lpStruct->value = (char *)(*env)->GetIntLongField(env, lpObject, AtkAttributeFc.value);
 	return lpStruct;
 }
 

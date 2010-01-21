@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2010 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -623,7 +623,7 @@ JNIEXPORT jintLong JNICALL ATK_NATIVE(g_1strdup)
 {
 	jintLong rc = 0;
 	ATK_NATIVE_ENTER(env, that, g_1strdup_FUNC);
-	rc = (jintLong)g_strdup(arg0);
+	rc = (jintLong)g_strdup((char *)arg0);
 	ATK_NATIVE_EXIT(env, that, g_1strdup_FUNC);
 	return rc;
 }

@@ -451,6 +451,7 @@ public static final int /*long*/ call (int /*long*/ function, int /*long*/ arg0,
 		lock.unlock();
 	}
 }
+/** @param str cast=(char *) */
 public static final native int /*long*/ g_strdup (int /*long*/ str);
 public static final native void memmove (AtkActionIface dest, int /*long*/ src);
 public static final native void memmove (AtkComponentIface dest, int /*long*/ src);
