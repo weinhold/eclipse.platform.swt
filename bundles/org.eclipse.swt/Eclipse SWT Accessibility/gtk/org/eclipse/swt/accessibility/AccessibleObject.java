@@ -866,8 +866,13 @@ class AccessibleObject {
 				listener.getCell(event);
 			}
 			Accessible result = event.accessible;
-			//TODO need to return an index instead of accessible
-			return result.accessibleObject.handle;
+			if (result == null) return -1;
+			event = new AccessibleTableEvent(accessible);
+			for (int i = 0, length = listeners.size(); i < length; i++) {
+				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
+				listener.getColumnCount(event);
+			}
+			return row * event.count + column;
 		}
 		int /*long*/ parentResult = 0;
 		AtkTableIface iface = getTableIface (atkObject);
@@ -880,14 +885,20 @@ class AccessibleObject {
 	static int /*long*/ atkTable_get_column_at_index (int /*long*/ atkObject, int /*long*/ index) {
 		if (DEBUG) System.out.println ("-->atkTable_get_column_at_index");
 		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object != null) {
+			Accessible accessible = object.accessible;
+			Vector listeners = accessible.accessibleTableListeners;
+			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
+			for (int i = 0, length = listeners.size(); i < length; i++) {
+				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
+				listener.getColumnCount(event);
+			}
+			return index % event.count;
+		}
 		int /*long*/ parentResult = 0;
 		AtkTableIface iface = getTableIface (atkObject);
 		if (iface != null && iface.get_column_at_index != 0) {
 			parentResult = ATK.call (iface.get_column_at_index, atkObject, index);
-		}
-		if (object != null) {
-			//TODO
-			return 0;
 		}
 		return parentResult;
 	}
@@ -895,14 +906,20 @@ class AccessibleObject {
 	static int /*long*/ atkTable_get_row_at_index (int /*long*/ atkObject, int /*long*/ index) {
 		if (DEBUG) System.out.println ("-->atkTable_get_row_at_index");
 		AccessibleObject object = getAccessibleObject (atkObject);
+		if (object != null) {
+			Accessible accessible = object.accessible;
+			Vector listeners = accessible.accessibleTableListeners;
+			AccessibleTableEvent event = new AccessibleTableEvent(accessible);
+			for (int i = 0, length = listeners.size(); i < length; i++) {
+				AccessibleTableListener listener = (AccessibleTableListener) listeners.elementAt(i);
+				listener.getColumnCount(event);
+			}
+			return index / event.count;
+		}
 		int /*long*/ parentResult = 0;
 		AtkTableIface iface = getTableIface (atkObject);
 		if (iface != null && iface.get_row_at_index != 0) {
 			parentResult = ATK.call (iface.get_row_at_index, atkObject, index);
-		}
-		if (object != null) {
-			//TODO
-			return 0;
 		}
 		return parentResult;
 	}
