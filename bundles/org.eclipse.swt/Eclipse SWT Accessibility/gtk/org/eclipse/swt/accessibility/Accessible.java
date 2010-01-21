@@ -76,7 +76,8 @@ public class Accessible {
 	 * @since 3.6
 	 */
 	public Accessible(Accessible parent) {
-		this.parent = parent;
+		this.parent = checkNull(parent);
+		this.control = parent.control;
 		//TODO: (platform-specific?) code to add this accessible to the parent's children
 	}
 
@@ -84,6 +85,11 @@ public class Accessible {
 	 * @since 3.5
 	 */
 	protected Accessible() {
+	}
+
+	static Accessible checkNull (Accessible parent) {
+		if (parent == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+		return parent;
 	}
 
 	Accessible (Control control) {
@@ -177,7 +183,11 @@ public class Accessible {
 	public void addAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextListeners.addElement (listener);		
+		if (listener instanceof AccessibleTextExtendedListener) {
+			accessibleTextExtendedListeners.addElement (listener);		
+		} else {
+			accessibleTextListeners.addElement (listener);
+		}
 	}
 	
 	/**
@@ -286,33 +296,6 @@ public class Accessible {
 		checkWidget();
 		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		accessibleTableCellListeners.addElement(listener);
-	}
-
-	/**
-	 * Adds the listener to the collection of listeners that will be
-	 * notified when an accessible client asks for any of the properties
-	 * defined in the <code>AccessibleTextExtended</code> interface.
-	 *
-	 * @param listener the listener that should be notified when the receiver
-	 * is asked for <code>AccessibleTextExtended</code> interface properties
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleTextExtendedListener
-	 * @see #removeAccessibleTextExtendedListener
-	 * 
-	 * @since 3.6
-	 */
-	public void addAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
-		checkWidget();
-		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextExtendedListeners.addElement(listener);
 	}
 
 	/**
@@ -432,7 +415,6 @@ public class Accessible {
 	 * </p>
 	 */
 	public void dispose () {
-		if (control != null) return;
 		// TODO: platform-specific code to dispose a lightweight accessible
 	}
 
@@ -559,7 +541,11 @@ public class Accessible {
 	public void removeAccessibleTextListener (AccessibleTextListener listener) {
 		checkWidget ();
 		if (listener == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextListeners.removeElement (listener);
+		if (listener instanceof AccessibleTextExtendedListener) {
+			accessibleTextExtendedListeners.removeElement (listener);
+		} else {
+			accessibleTextListeners.removeElement (listener);
+		}
 	}
 	
 	/**
@@ -668,33 +654,6 @@ public class Accessible {
 		checkWidget();
 		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 		accessibleTableCellListeners.removeElement(listener);
-	}
-
-	/**
-	 * Removes the listener from the collection of listeners that will be
-	 * notified when an accessible client asks for any of the properties
-	 * defined in the <code>AccessibleTextExtended</code> interface.
-	 *
-	 * @param listener the listener that should no longer be notified when the receiver
-	 * is asked for <code>AccessibleTextExtended</code> interface properties
-	 *
-	 * @exception IllegalArgumentException <ul>
-	 *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-	 * </ul>
-	 * @exception SWTException <ul>
-	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
-	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
-	 * </ul>
-	 *
-	 * @see AccessibleTextExtendedListener
-	 * @see #addAccessibleTextExtendedListener
-	 * 
-	 * @since 3.6
-	 */
-	public void removeAccessibleTextExtendedListener(AccessibleTextExtendedListener listener) {
-		checkWidget();
-		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-		accessibleTextExtendedListeners.removeElement(listener);
 	}
 
 	/**
@@ -821,6 +780,26 @@ public class Accessible {
 		//TODO: send platform-specific event (i.e. WinEvent with EVENT_OBJECT_* or IA2_EVENT_* on Win, Signal on ATK, Notification on Mac)
 	}
 
+	/**
+	 * Sends a message with event-specific data to accessible clients
+	 * indicating that something has changed within a custom control.
+	 *
+	 * @param event an <code>ACC</code> constant beginning with EVENT_* indicating the message to send
+	 * @param childID an identifier specifying a child of the control or the control itself
+	 * @param eventData an object containing event-specific data
+	 * 
+	 * @exception SWTException <ul>
+	 *    <li>ERROR_WIDGET_DISPOSED - if the receiver's control has been disposed</li>
+	 *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver's control</li>
+	 * </ul>
+	 * 
+	 * @since 3.6
+	 */
+	public void sendEvent(int event, int childID, Object eventData) {
+		checkWidget();
+		//TODO: send platform-specific event (i.e. WinEvent with EVENT_OBJECT_* or IA2_EVENT_* on Win, Signal on ATK, Notification on Mac)
+	}
+	
 	/**
 	 * Sends a message to accessible clients that the child selection
 	 * within a custom container control has changed.
