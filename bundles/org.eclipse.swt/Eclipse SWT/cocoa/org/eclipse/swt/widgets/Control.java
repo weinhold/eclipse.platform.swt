@@ -124,6 +124,15 @@ int /*long*/ accessibleHandle() {
 	return view.id;
 }
 
+int /*long*/ accessibilityActionDescription(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0) {
+	if (accessible != null) {
+		NSString actionName = new NSString(arg0);
+		id returnValue = accessible.internal_accessibilityActionDescription(actionName, ACC.CHILDID_SELF);
+		if (returnValue != null) return returnValue.id;
+	}
+	return super.accessibilityActionDescription(id, sel, arg0);
+}
+
 int /*long*/ accessibilityActionNames(int /*long*/ id, int /*long*/ sel) {
 	if (accessible != null) {
 		NSArray returnValue = accessible.internal_accessibilityActionNames(ACC.CHILDID_SELF);
@@ -188,6 +197,14 @@ int /*long*/ accessibilityParameterizedAttributeNames(int /*long*/ id, int /*lon
 	}
 
 	return super.accessibilityParameterizedAttributeNames(id, sel);
+}
+
+void accessibilityPerformAction(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0) {
+	if (accessible != null) {
+		NSString action = new NSString(arg0);
+		if (accessible.internal_accessibilityPerformAction(action, ACC.CHILDID_SELF)) return;
+	}
+	super.accessibilityPerformAction(id, sel, arg0);
 }
 
 int /*long*/ accessibilityFocusedUIElement(int /*long*/ id, int /*long*/ sel) {

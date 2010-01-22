@@ -483,54 +483,101 @@ public class Accessible {
 	}
 	
 	public id internal_accessibilityActionDescription(NSString action, int childID) {
-		// TODO No action support for now.
-		return NSString.string();
+		NSString returnValue = NSString.string();
+		String actionName = action.getString();
+		if (accessibleActionListeners.size() > 0) {
+			AccessibleActionEvent event = new AccessibleActionEvent(this);
+			for (int i = 0; i < accessibleActionListeners.size(); i++) {
+				AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+				listener.getActionCount(event);
+			}
+			int index = -1;
+			for (int i = 0; i < event.count; i++) {
+				event.index = i;
+				for (int j = 0; j < accessibleActionListeners.size(); j++) {
+					AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(j);
+					listener.getName(event);
+				}
+				if (actionName.equals(event.result)) {
+					index = i;
+					break;
+				}
+			}
+			if (index != -1) {
+				event.index = index;
+				event.result = null;
+				for (int i = 0; i < accessibleActionListeners.size(); i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+					listener.getDescription(event);
+				}
+				if (event.result != null) returnValue = NSString.stringWith(event.result);
+			}
+		} 
+		return returnValue;
 	}
 
 	public NSArray internal_accessibilityActionNames(int childID) {
-		// The supported action list depends on the role played by the control.
-		AccessibleControlEvent event = new AccessibleControlEvent(this);
-		event.childID = childID;
-		event.detail = -1;
-		for (int i = 0; i < accessibleControlListeners.size(); i++) {
-			AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
-			listener.getRole(event);
-		}
-
-		// No accessible listener is overriding the role of the control, so let Cocoa return the default set for the control.
-		if (event.detail == -1) {
-			return null;
-		}
-		
-		if ((childID == ACC.CHILDID_SELF) && (actionNames != null)) {
-			return retainedAutoreleased(actionNames);
-		}
-		
-		NSMutableArray returnValue = NSMutableArray.arrayWithCapacity(5);
-		
-		switch (event.detail) {
-			case ACC.ROLE_PUSHBUTTON:
-			case ACC.ROLE_RADIOBUTTON:
-			case ACC.ROLE_CHECKBUTTON:
-			case ACC.ROLE_TABITEM:
-				returnValue.addObject(OS.NSAccessibilityPressAction);
-				break;
-		}
-
-		switch (event.detail) {
-			case ACC.ROLE_COMBOBOX:
-				returnValue.addObject(OS.NSAccessibilityConfirmAction);
-				break;
-		}
-
-
-		if (childID == ACC.CHILDID_SELF) {
-			actionNames = returnValue;
-			actionNames.retain();
-			return retainedAutoreleased(actionNames);
+		if (accessibleActionListeners.size() > 0) {
+			AccessibleActionEvent event = new AccessibleActionEvent(this);
+			for (int i = 0; i < accessibleActionListeners.size(); i++) {
+				AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+				listener.getActionCount(event);
+			}
+			NSMutableArray array = NSMutableArray.arrayWithCapacity(event.count);
+			for (int i = 0; i < event.count; i++) {
+				event.index = i;
+				for (int j = 0; j < accessibleActionListeners.size(); j++) {
+					AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(j);
+					listener.getName(event);
+				}
+				array.addObject(NSString.stringWith(event.result));	
+			}
+			return array;
 		} else {
-			// Caller must retain if they want to hold on to it.
-			return returnValue;
+			// The supported action list depends on the role played by the control.
+			AccessibleControlEvent event = new AccessibleControlEvent(this);
+			event.childID = childID;
+			event.detail = -1;
+			for (int i = 0; i < accessibleControlListeners.size(); i++) {
+				AccessibleControlListener listener = (AccessibleControlListener) accessibleControlListeners.elementAt(i);
+				listener.getRole(event);
+			}
+	
+			// No accessible listener is overriding the role of the control, so let Cocoa return the default set for the control.
+			if (event.detail == -1) {
+				return null;
+			}
+			
+			if ((childID == ACC.CHILDID_SELF) && (actionNames != null)) {
+				return retainedAutoreleased(actionNames);
+			}
+			
+			NSMutableArray returnValue = NSMutableArray.arrayWithCapacity(5);
+			
+			switch (event.detail) {
+				case ACC.ROLE_PUSHBUTTON:
+				case ACC.ROLE_RADIOBUTTON:
+				case ACC.ROLE_CHECKBUTTON:
+				case ACC.ROLE_TABITEM:
+					returnValue.addObject(OS.NSAccessibilityPressAction);
+					break;
+			}
+	
+			switch (event.detail) {
+				case ACC.ROLE_COMBOBOX:
+					returnValue.addObject(OS.NSAccessibilityConfirmAction);
+					break;
+			}
+	
+	
+			if (childID == ACC.CHILDID_SELF) {
+				actionNames = returnValue;
+				actionNames.retain();
+				return retainedAutoreleased(actionNames);
+			} else {
+				// Caller must retain if they want to hold on to it.
+				return returnValue;
+			}
 		}
 	}
 
@@ -894,9 +941,37 @@ public class Accessible {
 		}
 	}
 
-	public void internal_accessibilityPerformAction(NSString action, int childID) {
-		// TODO Auto-generated method stub
-		// No action support for now.
+	public boolean internal_accessibilityPerformAction(NSString action, int childID) {
+		String actionName = action.getString();
+		if (accessibleActionListeners.size() > 0) {
+			AccessibleActionEvent event = new AccessibleActionEvent(this);
+			for (int i = 0; i < accessibleActionListeners.size(); i++) {
+				AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+				listener.getActionCount(event);
+			}
+			int index = -1;
+			for (int i = 0; i < event.count; i++) {
+				event.index = i;
+				for (int j = 0; j < accessibleActionListeners.size(); j++) {
+					AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(j);
+					listener.getName(event);
+				}
+				if (actionName.equals(event.result)) {
+					index = i;
+					break;
+				}
+			}
+			if (index != -1) {
+				event.index = index;
+				event.result = null;
+				for (int i = 0; i < accessibleActionListeners.size(); i++) {
+					AccessibleActionListener listener = (AccessibleActionListener) accessibleActionListeners.elementAt(i);
+					listener.doAction(event);
+					return true;
+				}
+			}
+		} 
+		return false;
 	}
 
 	public void internal_accessibilitySetValue_forAttribute(id value, NSString attribute) {

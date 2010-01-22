@@ -4840,7 +4840,7 @@ static int /*long*/ windowProc(int /*long*/ id, int /*long*/ sel, int /*long*/ a
 	} else if (sel == OS.sel_accessibilityPerformAction_) {
 		widget.accessibilityPerformAction(id, sel, arg0);
 	} else if (sel == OS.sel_accessibilityActionDescription_) {
-		widget.accessibilityActionDescription(id, sel, arg0);
+		return widget.accessibilityActionDescription(id, sel, arg0);
 	} else if (sel == OS.sel_accessibilityIsAttributeSettable_) {
 		return widget.accessibilityIsAttributeSettable(id, sel, arg0) ? 1 : 0;
 	} else if (sel == OS.sel_makeFirstResponder_) {
