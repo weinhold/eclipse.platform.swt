@@ -179,6 +179,8 @@ public CTable (Composite parent, int style) {
 	addListener (SWT.FocusOut, listener);
 	addListener (SWT.FocusIn, listener);
 	addListener (SWT.Traverse, listener);
+	
+	initAccessibility ();
 
 	header = new Canvas (this, SWT.NO_REDRAW_RESIZE | SWT.NO_FOCUS);
 	header.setVisible (false);
@@ -219,8 +221,6 @@ public CTable (Composite parent, int style) {
 		vBar.setVisible (false);
 		vBar.addListener (SWT.Selection, listener);
 	}
-	
-	initAccessibility ();
 }
 /**
  * Adds the listener to the collection of listeners who will
