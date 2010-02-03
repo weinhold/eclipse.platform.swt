@@ -775,7 +775,7 @@ void updateWidth (GC gc) {
 	}
 }
 /* Returns the accessible for a column header cell.
- * The accessibleParent must be for a column header.
+ * The accessibleParent must be a column header accessible.
  */
 Accessible getAccessible(Accessible accessibleParent) {
 	if (accessible == null) {
