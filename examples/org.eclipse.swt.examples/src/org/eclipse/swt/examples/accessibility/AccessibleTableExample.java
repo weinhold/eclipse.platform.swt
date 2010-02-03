@@ -62,7 +62,9 @@ public class AccessibleTableExample {
 		table1Accessible.addRelation(ACC.RELATION_LABELLED_BY, label1Accessible);
 		table1Accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				e.result = "Custom Table with column headers";
+				if (e.childID == ACC.CHILDID_SELF) {
+					e.result = "Custom Table with column headers";
+				}
 			}
 		});
 		
@@ -88,7 +90,9 @@ public class AccessibleTableExample {
 		table2Accessible.addRelation(ACC.RELATION_LABELLED_BY, label2Accessible);
 		table2Accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				e.result = "Custom Table used as a list";
+				if (e.childID == ACC.CHILDID_SELF) {
+					e.result = "Custom Table used as a list";
+				}
 			}
 		});
 		
