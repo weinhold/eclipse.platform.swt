@@ -46,11 +46,12 @@ public class CTableItem extends Item {
 	Image[] images;
 	Color foreground, background;
 	String[] displayTexts;
-	Accessible[] accessibles;
 	Color[] cellForegrounds, cellBackgrounds;
 	Font font;
 	Font[] cellFonts;
 	Display display;
+	Accessible accessible; // represents the row itself
+	Accessible[] cellAccessibles; // one cell per column (or one cell, if table is a list)
 	
 	static final int MARGIN_TEXT = 3;			/* the left and right margins within the text's space */
 
@@ -130,7 +131,7 @@ CTableItem (CTable parent, int style, int index, boolean notifyParent) {
 	this.index = index;
 	this.display = parent.getDisplay ();
 	int columnCount = parent.columns.length;
-	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
+	cellAccessibles = new Accessible [columnCount > 0 ? columnCount : 1];
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
 		if (columnCount > 1) {
@@ -217,14 +218,7 @@ void addColumn (CTableColumn column) {
 		System.arraycopy (fontHeights, index, newFontHeights, index + 1, columnCount - index - 1);
 		fontHeights = newFontHeights;
 	}
-
-	if (columnCount > accessibles.length) {
-		Accessible[] newAccessibles = new Accessible [columnCount];
-		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-		System.arraycopy (accessibles, index, newAccessibles, index + 1, columnCount - index - 1);
-		accessibles = newAccessibles;
-	}
-
+	
 	if (index == 0 && columnCount > 1) {
 		/* 
 		 * The new second column may have more width available to it than it did when it was
@@ -236,6 +230,12 @@ void addColumn (CTableColumn column) {
 			computeDisplayText (1, gc);
 			gc.dispose ();
 		}
+	}
+	if (columnCount > cellAccessibles.length) {
+		Accessible[] newAccessibles = new Accessible [columnCount];
+		System.arraycopy (cellAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (cellAccessibles, index, newAccessibles, index + 1, columnCount - index - 1);
+		cellAccessibles = newAccessibles;
 	}
 }
 static CTable checkNull (CTable table) {
@@ -257,10 +257,8 @@ void clear () {
 	cached = false;
 	super.setText ("");
 	super.setImage (null);
-
-	int columnCount = parent.columns.length;
 	disposeAccessibles();
-	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
+	int columnCount = parent.columns.length;
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
 		if (columnCount > 1) {
@@ -268,6 +266,9 @@ void clear () {
 			textWidths = new int [columnCount];
 			images = new Image [columnCount];
 		}
+		cellAccessibles = new Accessible [columnCount];
+	} else {
+		cellAccessibles = new Accessible [1];
 	}
 }
 void computeDisplayText (int columnIndex, GC gc) {
@@ -402,19 +403,99 @@ void dispose (boolean notifyParent) {
 	parent = null;
 }
 void disposeAccessibles() {
-	if (accessibles != null) {
-		for (int i = 0; i < accessibles.length; i++) {
-			if (accessibles[i] != null) {
-				accessibles[i].dispose();
+	if (cellAccessibles != null) {
+		for (int i = 0; i < cellAccessibles.length; i++) {
+			if (cellAccessibles[i] != null) {
+				cellAccessibles[i].dispose();
 			}
 		}
-		accessibles = null;
+		cellAccessibles = null;
 	}
+	if (accessible != null) accessible.dispose();
 }
+/* Returns a row accessible whose children are accessible cell objects. */
+Accessible getAccessible(final Accessible accessibleTable) {
+	if (accessible == null) {
+		accessible = new Accessible(accessibleTable);
+		accessible.addAccessibleListener(new AccessibleAdapter() {
+			public void getName(AccessibleEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				int childID = e.childID;
+				if (childID == ACC.CHILDID_SELF) { // row
+					e.result = getText();
+				} else if (0 <= childID && childID < validColumnCount) { // cell
+					e.result = getText(childID);
+				}
+				System.out.println("tableItem getName = " + e.result);
+			}
+		});
+		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = Math.max (1, parent.columns.length);
+			}
+			public void getChildren(AccessibleControlEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				Object[] children = new Object[validColumnCount];
+				for (int i = 0; i < validColumnCount; i++) {
+					children[i] = new Integer(i);
+					// TODO: try returning cell accessibles instead of childIDs
+					//children[i] = getAccessible (accessible, i);
+				}
+				e.children = children;
+				
+			}
+			public void getChild(AccessibleControlEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				int childID = e.childID;
+				if (childID == ACC.CHILDID_SELF) { // row
+					e.accessible = accessible;
+				} else if (0 <= childID && childID < validColumnCount) { // cell
+					getAccessible (accessible, childID);
+				}
+			}
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				Point point = parent.toControl(e.x, e.y);
+				int validColumnCount = Math.max (1, parent.columns.length);
+				for (int i = 0; i < validColumnCount; i++) {
+					if (getBounds(i).contains(point)) { // cell
+						e.accessible = getAccessible (accessible, i);
+						return;
+					}
+				}
+				e.childID = getHitBounds().contains(point) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getLocation(AccessibleControlEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				Rectangle location = getBounds();
+				Point pt = parent.toDisplay(location.x, location.y);
+				int childID = e.childID;
+				if (0 <= childID && childID < validColumnCount) { // cell
+					location = getBounds(childID);
+					pt = parent.toDisplay(location.x, location.y);
+				}
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = location.width;
+				e.height = location.height;
+			}
+			public void getRole(AccessibleControlEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				int childID = e.childID;
+				if (childID == ACC.CHILDID_SELF) { // row
+					e.detail = ACC.ROLE_ROW;
+				} else if (0 <= childID && childID < validColumnCount) { // cell
+					e.detail = ACC.ROLE_TABLECELL;
+				}
+			}
+		});
+	}
+	return accessible;
+}
+
 /* Returns the cell accessible for the specified column index in the receiver. */
-Accessible getAccessible(final Accessible accessibleTable, final int columnIndex) {
-	if (accessibles [columnIndex] == null) {
-		Accessible accessible = new Accessible(accessibleTable);
+Accessible getAccessible(final Accessible accessibleRow, final int columnIndex) {
+	if (cellAccessibles [columnIndex] == null) {
+		Accessible accessible = new Accessible(accessibleRow);
 		accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
 				e.result = getText(columnIndex);
@@ -423,8 +504,13 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 		});
 		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
 			public void getChildAtPoint(AccessibleControlEvent e) {
-				e.childID = ACC.CHILDID_SELF;
-				e.accessible = accessibles [columnIndex];
+				Point point = parent.toControl(e.x, e.y);
+				if (getBounds(columnIndex).contains(point)) {
+					e.childID = ACC.CHILDID_SELF;
+					e.accessible = cellAccessibles [columnIndex];
+				} else {
+					e.childID = ACC.CHILDID_NONE;
+				}
 			}
 			public void getChildCount(AccessibleControlEvent e) {
 				e.detail = 0;
@@ -449,7 +535,7 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 				} else {
 					/* CTable cells only occupy one column. */
 					CTableColumn column = parent.columns [columnIndex];
-					e.accessibles = new Accessible[] {column.getAccessible (accessibleTable)};
+					e.accessibles = new Accessible[] {column.getAccessible (parent.accessibleTableHeader)};
 				}
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
@@ -470,15 +556,15 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 				e.count = 1;
 			}
 			public void getTable(AccessibleTableCellEvent e) {
-				e.accessible = accessibleTable;
+				e.accessible = accessibleRow;
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
 				e.isSelected = CTableItem.this.isSelected();
 			}
 		});
-		accessibles [columnIndex] = accessible;
+		cellAccessibles [columnIndex] = accessible;
 	}
-	return accessibles [columnIndex];
+	return cellAccessibles [columnIndex];
 }
 /**
  * Returns the receiver's background color.
@@ -1516,9 +1602,9 @@ void removeColumn (CTableColumn column, int index) {
 
 	if (columnCount > 1) {
 		Accessible[] newAccessibles = new Accessible [columnCount];
-		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-		System.arraycopy (accessibles, index + 1, newAccessibles, index, columnCount - index);
-		accessibles = newAccessibles;
+		System.arraycopy (cellAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (cellAccessibles, index + 1, newAccessibles, index, columnCount - index);
+		cellAccessibles = newAccessibles;
 	}
 
 	if (cellBackgrounds != null) {
