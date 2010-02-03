@@ -1750,7 +1750,8 @@ void initAccessibility () {
 			} else if (childID == itemsCount && columns.length > 0) { // header
 				e.result = "header";
 			} else { // columns
-				CTableColumn column = columns [childID];
+				int columnIndex = childID - itemsCount - (columns.length > 0 ? 1 : 0);
+				CTableColumn column = columns [columnIndex];
 				e.result = column.getText();
 			}
 		}
@@ -1833,7 +1834,7 @@ void initAccessibility () {
 				location = header.getBounds();
 				pt = toDisplay(location.x, location.y);
 			} else if (childID != ACC.CHILDID_SELF && columns.length > 0) { // columns
-				int columnIndex = itemsCount + columns.length + childID;
+				int columnIndex = childID - itemsCount - (columns.length > 0 ? 1 : 0);
 				CTableColumn column = columns [columnIndex];
 				location = new Rectangle (column.getX (), 0, column.width, location.height);
 				pt = toDisplay(location.x, location.y);
