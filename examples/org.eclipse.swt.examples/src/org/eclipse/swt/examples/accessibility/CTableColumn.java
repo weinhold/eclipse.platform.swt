@@ -774,29 +774,48 @@ void updateWidth (GC gc) {
 		}
 	}
 }
-/* Returns the accessible for the column header. */
-Accessible getAccessible(final Accessible accessibleTableHeader) {
+/* Returns the accessible for a column header cell.
+ * The accessibleParent must be for a column header.
+ */
+Accessible getAccessible(Accessible accessibleParent) {
 	if (accessible == null) {
-		accessible = new Accessible(accessibleTableHeader);
-		accessible.addAccessibleListener(new AccessibleAdapter() {
+		accessible = new Accessible(accessibleParent);
+		accessible.addAccessibleListener(new AccessibleListener() {
 			public void getName(AccessibleEvent e) {
 				e.result = getText();
 				System.out.println("tableColumn getName = " + e.result);
 			}
+
+			public void getHelp(AccessibleEvent e) {
+				e.result = getToolTipText();
+			}
+
+			public void getKeyboardShortcut(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getDescription(AccessibleEvent e) {
+				// TODO: ?
+			}
 		});
-		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+		accessible.addAccessibleControlListener(new AccessibleControlListener() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = 0;
+			}
+			public void getChildren(AccessibleControlEvent e) {
+				e.children = null;
+			}
+			public void getChild(AccessibleControlEvent e) {
+				e.accessible = accessible;
+			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
 				int x = getX();
 				if (x <= point.x && point.x <= x + getWidth()) {
 					e.childID = ACC.CHILDID_SELF;
-					e.accessible = accessible;
 				} else {
 					e.childID = ACC.CHILDID_NONE;
 				}
-			}
-			public void getChildCount(AccessibleControlEvent e) {
-				e.detail = 0;
 			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle rect = parent.header.getBounds();
@@ -810,10 +829,25 @@ Accessible getAccessible(final Accessible accessibleTableHeader) {
 			public void getRole(AccessibleControlEvent e) {
 				e.detail = ACC.ROLE_TABLECELL;
 			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				e.childID = ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				e.detail = ACC.STATE_NORMAL; // read-only?
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: sort?
+			}
+			public void getValue(AccessibleControlEvent e) {
+				// TODO: do header cells have a value?
+			}
 		});
-		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+		accessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {
-				/* Column header does not have a header. */
+				/* Column header cell does not have a header. */
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
 				e.index = getIndex();
@@ -822,7 +856,7 @@ Accessible getAccessible(final Accessible accessibleTableHeader) {
 				e.count = 1; /* CTable cells only occupy one column. */
 			}
 			public void getRowHeaders(AccessibleTableCellEvent e) {
-				 /* CTable does not support row headers. */
+				/* CTable does not support row headers. */
 			}
 			public void getRowIndex(AccessibleTableCellEvent e) {
 				e.index = 0;
@@ -831,10 +865,10 @@ Accessible getAccessible(final Accessible accessibleTableHeader) {
 				e.count = 1; /* CTable cells only occupy one row. */
 			}
 			public void getTable(AccessibleTableCellEvent e) {
-				e.accessible = accessibleTableHeader;
+				e.accessible = parent.getAccessible();
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
-				e.isSelected = false;  /* CTable columns cannot be selected (only rows can be selected). */
+				e.isSelected = false;  /* Column header cells cannot be selected. */
 			}
 		});
 	}

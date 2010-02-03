@@ -413,23 +413,33 @@ void disposeAccessibles() {
 	}
 	if (accessible != null) accessible.dispose();
 }
-/* Returns a row accessible whose children are accessible cell objects. */
-Accessible getAccessible(final Accessible accessibleTable) {
+/* Returns a row accessible whose children are accessible cell objects.
+ * The accessibleParent must be a table accessible.
+ */
+Accessible getAccessible(Accessible accessibleParent) {
 	if (accessible == null) {
-		accessible = new Accessible(accessibleTable);
-		accessible.addAccessibleListener(new AccessibleAdapter() {
+		accessible = new Accessible(accessibleParent);
+		accessible.addAccessibleListener(new AccessibleListener() {
 			public void getName(AccessibleEvent e) {
-				int validColumnCount = Math.max (1, parent.columns.length);
-				int childID = e.childID;
-				if (childID == ACC.CHILDID_SELF) { // row
+				if (e.childID == ACC.CHILDID_SELF) { // row
 					e.result = getText();
-				} else if (0 <= childID && childID < validColumnCount) { // cell
-					e.result = getText(childID);
+					System.out.println("row getName = " + e.result);
 				}
-				System.out.println("tableItem getName = " + e.result);
+			}
+
+			public void getHelp(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getKeyboardShortcut(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getDescription(AccessibleEvent e) {
+				// TODO: ?
 			}
 		});
-		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+		accessible.addAccessibleControlListener(new AccessibleControlListener() {
 			public void getChildCount(AccessibleControlEvent e) {
 				e.detail = Math.max (1, parent.columns.length);
 			}
@@ -437,9 +447,7 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				int validColumnCount = Math.max (1, parent.columns.length);
 				Object[] children = new Object[validColumnCount];
 				for (int i = 0; i < validColumnCount; i++) {
-					children[i] = new Integer(i);
-					// TODO: try returning cell accessibles instead of childIDs
-					//children[i] = getAccessible (accessible, i);
+					children[i] = getAccessible (accessible, i);
 				}
 				e.children = children;
 				
@@ -450,6 +458,7 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				if (childID == ACC.CHILDID_SELF) { // row
 					e.accessible = accessible;
 				} else if (0 <= childID && childID < validColumnCount) { // cell
+					System.out.println("row was asked for cell child " + childID);
 					getAccessible (accessible, childID);
 				}
 			}
@@ -458,6 +467,7 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				int validColumnCount = Math.max (1, parent.columns.length);
 				for (int i = 0; i < validColumnCount; i++) {
 					if (getBounds(i).contains(point)) { // cell
+						System.out.println("row getChildAtPoint has point in a cell");
 						e.accessible = getAccessible (accessible, i);
 						return;
 					}
@@ -470,6 +480,7 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				Point pt = parent.toDisplay(location.x, location.y);
 				int childID = e.childID;
 				if (0 <= childID && childID < validColumnCount) { // cell
+					System.out.println("row was asked for location of a cell child");
 					location = getBounds(childID);
 					pt = parent.toDisplay(location.x, location.y);
 				}
@@ -484,36 +495,78 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				if (childID == ACC.CHILDID_SELF) { // row
 					e.detail = ACC.ROLE_ROW;
 				} else if (0 <= childID && childID < validColumnCount) { // cell
+					System.out.println("row was asked for role of a cell child");
 					e.detail = ACC.ROLE_TABLECELL;
 				}
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = parent.hasFocus && parent.focusItem == CTableItem.this ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				e.childID = isSelected() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				if (e.childID != ACC.CHILDID_SELF) System.out.println("row is being asked for the state of a cell child?");
+				int state = ACC.STATE_NORMAL | ACC.STATE_FOCUSABLE | ACC.STATE_SELECTABLE;
+				if (parent.hasFocus && parent.focusItem != null && parent.focusItem == CTableItem.this) {
+					state |= ACC.STATE_FOCUSED;
+				}
+				if (isSelected()) {
+					state |= ACC.STATE_SELECTED;
+				}
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: select?
+			}
+			public void getValue(AccessibleControlEvent e) {
+				// TODO: ?
 			}
 		});
 	}
 	return accessible;
 }
 
-/* Returns the cell accessible for the specified column index in the receiver. */
-Accessible getAccessible(final Accessible accessibleRow, final int columnIndex) {
+/* Returns the cell accessible for the specified column index in the receiver.
+ * The accessibleParent must be a row accessible.
+ */
+Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 	if (cellAccessibles [columnIndex] == null) {
-		Accessible accessible = new Accessible(accessibleRow);
-		accessible.addAccessibleListener(new AccessibleAdapter() {
+		Accessible cellAccessible = new Accessible(accessibleParent);
+		cellAccessible.addAccessibleListener(new AccessibleListener() {
 			public void getName(AccessibleEvent e) {
 				e.result = getText(columnIndex);
-				System.out.println("tableItem getName = " + e.result);
+				System.out.println("cell getName = " + e.result);
+			}
+
+			public void getHelp(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getKeyboardShortcut(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getDescription(AccessibleEvent e) {
+				// TODO: ?
 			}
 		});
-		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+		cellAccessible.addAccessibleControlListener(new AccessibleControlListener() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = 0;
+			}
+			public void getChildren(AccessibleControlEvent e) {
+				e.children = null;
+			}
+			public void getChild(AccessibleControlEvent e) {
+				e.accessible = cellAccessibles [columnIndex];
+			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
 				if (getBounds(columnIndex).contains(point)) {
 					e.childID = ACC.CHILDID_SELF;
-					e.accessible = cellAccessibles [columnIndex];
 				} else {
 					e.childID = ACC.CHILDID_NONE;
 				}
-			}
-			public void getChildCount(AccessibleControlEvent e) {
-				e.detail = 0;
 			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle location = getBounds(columnIndex);
@@ -524,10 +577,32 @@ Accessible getAccessible(final Accessible accessibleRow, final int columnIndex) 
 				e.height = location.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
-				e.detail = ACC.ROLE_TABLECELL;
+				e.detail = ACC.ROLE_TABLECELL; // TODO: ROLE_LABEL? might need a group if there's an image? (then need children...)
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = CTableItem.this == parent.focusItem ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				e.childID = isSelected() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				if (e.childID != ACC.CHILDID_SELF) System.out.println("cell is being asked for the state of a child???");
+				int state = ACC.STATE_NORMAL | ACC.STATE_FOCUSABLE | ACC.STATE_SELECTABLE;
+				if (parent.hasFocus && parent.focusItem != null && parent.focusItem == CTableItem.this) {
+					state |= ACC.STATE_FOCUSED;
+				}
+				if (isSelected()) {
+					state |= ACC.STATE_SELECTED;
+				}
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: ?
+			}
+			public void getValue(AccessibleControlEvent e) {
+				// TODO: ?
 			}
 		});
-		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+		cellAccessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {
 				if (parent.columns.length == 0) {
 					/* The CTable is being used as a list, and there are no headers. */
@@ -535,7 +610,7 @@ Accessible getAccessible(final Accessible accessibleRow, final int columnIndex) 
 				} else {
 					/* CTable cells only occupy one column. */
 					CTableColumn column = parent.columns [columnIndex];
-					e.accessibles = new Accessible[] {column.getAccessible (parent.accessibleTableHeader)};
+					e.accessibles = new Accessible[] {column.getAccessible (parent.header.getAccessible())};
 				}
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
@@ -556,13 +631,13 @@ Accessible getAccessible(final Accessible accessibleRow, final int columnIndex) 
 				e.count = 1;
 			}
 			public void getTable(AccessibleTableCellEvent e) {
-				e.accessible = accessibleRow;
+				e.accessible = parent.getAccessible();
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
 				e.isSelected = CTableItem.this.isSelected();
 			}
 		});
-		cellAccessibles [columnIndex] = accessible;
+		cellAccessibles [columnIndex] = cellAccessible;
 	}
 	return cellAccessibles [columnIndex];
 }
