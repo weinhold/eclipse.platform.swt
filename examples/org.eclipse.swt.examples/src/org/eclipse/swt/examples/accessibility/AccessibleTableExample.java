@@ -44,6 +44,7 @@ public class AccessibleTableExample {
 		label1.setText("Custom Table with column headers");
 		
 		CTable table1 = new CTable(shell, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+		table1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table1.setHeaderVisible(true);
 		table1.setLinesVisible(true);
 		for (int col = 0; col < 3; col++) {
@@ -62,9 +63,7 @@ public class AccessibleTableExample {
 		table1Accessible.addRelation(ACC.RELATION_LABELLED_BY, label1Accessible);
 		table1Accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				if (e.childID == ACC.CHILDID_SELF) {
-					e.result = "Custom Table with column headers";
-				}
+				e.result = "Custom Table with column headers";
 			}
 		});
 		
@@ -72,6 +71,7 @@ public class AccessibleTableExample {
 		label2.setText("Custom Table used as a list");
 		
 		CTable table2 = new CTable(shell, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+		table2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table2.setLinesVisible(true);
 		String [] itemText = new String [] {
 				AccessibleTableExample.getResourceString("color1"),
@@ -90,9 +90,7 @@ public class AccessibleTableExample {
 		table2Accessible.addRelation(ACC.RELATION_LABELLED_BY, label2Accessible);
 		table2Accessible.addAccessibleListener(new AccessibleAdapter() {
 			public void getName(AccessibleEvent e) {
-				if (e.childID == ACC.CHILDID_SELF) {
-					e.result = "Custom Table used as a list";
-				}
+				e.result = "Custom Table used as a list";
 			}
 		});
 		
