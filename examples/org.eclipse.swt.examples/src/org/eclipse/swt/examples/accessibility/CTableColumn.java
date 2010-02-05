@@ -806,7 +806,7 @@ Accessible getAccessible(Accessible accessibleParent) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
-				e.accessible = accessible;
+				/* There are no "simple element" children. */
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);

@@ -853,18 +853,19 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 		});
 		columnAccessible.addAccessibleControlListener(new AccessibleControlListener() {
 			public void getChildCount(AccessibleControlEvent e) {
-				e.detail = 0; // columns have "row (cells)" and a "header (cell)", but they do not have "children"
+				/* CTable columns have "row (cells)" and a "header (cell)", but they do not have "children". */
+				e.detail = 0;
 			}
 			public void getChildren(AccessibleControlEvent e) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
-				e.accessible = columnAccessibles [columnIndex]; // self
+				/* CTable columns do not have children. */
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				e.childID = ACC.CHILDID_NONE;
 				Point point = toControl(e.x, e.y);
-				if (getBounds().contains(point)) {
+				if (getBounds().contains(getParent().toControl(e.x, e.y))) {
 					if (columns.length > 0) {
 						CTableColumn column = columns[columnIndex];
 						int x = column.getX();
@@ -878,12 +879,13 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle rect = getBounds();
+				Point pt = getParent().toDisplay(rect.x, rect.y);
 				if (columns.length > 0) {
 					CTableColumn column = columns[columnIndex];
 					rect.x = column.getX();
 					rect.width = column.getWidth();
+					pt = toDisplay(rect.x, 0);
 				}
-				Point pt = toDisplay(rect.x, rect.y);
 				e.x = pt.x;
 				e.y = pt.y;
 				e.width = rect.width;
@@ -2035,33 +2037,27 @@ void initAccessibility () {
 			e.children = children;
 		}
 		public void getChild(AccessibleControlEvent e) {
+			/* There are no "simple element" children. */
 		}
 		public void getChildAtPoint(AccessibleControlEvent e) {
-			/* The point can be in the header, a row, the table or none (but not in a column). */
+			/* The point can be in the header, a row, the table or none (a column cannot be selected). */
 			Point point = toControl(e.x, e.y);
 			if (columns.length > 0 && point.y < getHeaderHeight ()) { // header
-				System.out.println("table getChildAtPoint found header");
 				e.accessible = header.getAccessible();
 			} else { // rows
 				int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
 				if (0 <= rowIndex && rowIndex < itemsCount) {
 					CTableItem row = items [rowIndex];
 					if (row.getHitBounds ().contains (point)) {  /* considers the x value */
-						System.out.println("table getChildAtPoint found row " + rowIndex);
 						e.accessible = row.getAccessible (getAccessible());
 						return;
 					}
 				}
 			}
-			e.childID = getBounds().contains(point) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			e.childID = getBounds().contains(getParent().toControl(e.x, e.y)) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
 		}
 		public void getLocation(AccessibleControlEvent e) {
-			Rectangle location = getBounds();
-			Point pt = getParent().toDisplay(location.x, location.y);
-			e.x = pt.x;
-			e.y = pt.y;
-			e.width = location.width;
-			e.height = location.height;
+			/* Use the system (default) location for the CTable. */
 		}
 		public void getRole(AccessibleControlEvent e) {
 			e.detail = ACC.ROLE_TABLE;
@@ -2315,13 +2311,7 @@ void initAccessibility () {
 			e.children = children;
 		}
 		public void getChild(AccessibleControlEvent e) {
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // header
-				e.accessible = header.getAccessible();
-			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
-				CTableColumn column = columns [childID];
-				e.accessible = column.getAccessible(header.getAccessible());
-			}
+			/* There are no "simple element" children. */
 		}
 		public void getRole(AccessibleControlEvent e) {
 			// TODO: Not sure what role a header should have. Group? Row?

@@ -453,14 +453,7 @@ Accessible getAccessible(Accessible accessibleParent) {
 				
 			}
 			public void getChild(AccessibleControlEvent e) {
-				int validColumnCount = Math.max (1, parent.columns.length);
-				int childID = e.childID;
-				if (childID == ACC.CHILDID_SELF) { // row
-					e.accessible = accessible;
-				} else if (0 <= childID && childID < validColumnCount) { // cell
-					System.out.println("row was asked for cell child " + childID);
-					getAccessible (accessible, childID);
-				}
+				/* There are no "simple element" children. */
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
@@ -475,28 +468,22 @@ Accessible getAccessible(Accessible accessibleParent) {
 				e.childID = getHitBounds().contains(point) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
 			}
 			public void getLocation(AccessibleControlEvent e) {
-				int validColumnCount = Math.max (1, parent.columns.length);
-				Rectangle location = getBounds();
-				Point pt = parent.toDisplay(location.x, location.y);
-				int childID = e.childID;
-				if (0 <= childID && childID < validColumnCount) { // cell
-					System.out.println("row was asked for location of a cell child");
-					location = getBounds(childID);
-					pt = parent.toDisplay(location.x, location.y);
+				Rectangle location = getBounds (false);
+				if (parent.columns.length > 0) {
+					CTableColumn[] orderedColumns = parent.getOrderedColumns ();
+					CTableColumn lastColumn = orderedColumns [orderedColumns.length - 1];
+					location.width = lastColumn.getX () + lastColumn.width;
 				}
+				Point pt = parent.toDisplay(location.x, location.y);
 				e.x = pt.x;
 				e.y = pt.y;
 				e.width = location.width;
 				e.height = location.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
-				int validColumnCount = Math.max (1, parent.columns.length);
 				int childID = e.childID;
 				if (childID == ACC.CHILDID_SELF) { // row
 					e.detail = ACC.ROLE_ROW;
-				} else if (0 <= childID && childID < validColumnCount) { // cell
-					System.out.println("row was asked for role of a cell child");
-					e.detail = ACC.ROLE_TABLECELL;
 				}
 			}
 			public void getFocus(AccessibleControlEvent e) {
@@ -537,15 +524,12 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				e.result = getText(columnIndex);
 				System.out.println("cell getName = " + e.result);
 			}
-
 			public void getHelp(AccessibleEvent e) {
 				// TODO: ?
 			}
-
 			public void getKeyboardShortcut(AccessibleEvent e) {
 				// TODO: ?
 			}
-
 			public void getDescription(AccessibleEvent e) {
 				// TODO: ?
 			}
@@ -558,7 +542,6 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
-				e.accessible = cellAccessibles [columnIndex];
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
@@ -577,7 +560,8 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				e.height = location.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
-				e.detail = ACC.ROLE_TABLECELL; // TODO: ROLE_LABEL? might need a group if there's an image? (then need children...)
+				// TODO: ROLE_LABEL? might need a group if there's an image? (then need children...)
+				e.detail = ACC.ROLE_LABEL;
 			}
 			public void getFocus(AccessibleControlEvent e) {
 				e.childID = CTableItem.this == parent.focusItem ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
