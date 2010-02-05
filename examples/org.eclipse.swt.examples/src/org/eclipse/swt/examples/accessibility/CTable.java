@@ -2035,7 +2035,7 @@ void initAccessibility () {
 			Point point = toControl(e.x, e.y);
 			if (columns.length > 0 && point.y < getHeaderHeight ()) { // header
 				System.out.println("table getChildAtPoint found header");
-				e.accessible = getAccessible();
+				e.accessible = header.getAccessible();
 			} else { // rows
 				int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
 				if (0 <= rowIndex && rowIndex < itemsCount) {
@@ -2291,6 +2291,7 @@ void initAccessibility () {
 			int columnIndex = computeColumnIntersect (point.x, 0);
 			if (columnIndex != -1) {
 				CTableColumn column = columns [columnIndex];
+				System.out.println("header getChildAtPoint found column " + columnIndex + " (" + column.getText() + ") at point " + point);
 				e.accessible = column.getAccessible (header.getAccessible());
 			}
 		}
@@ -2319,28 +2320,29 @@ void initAccessibility () {
 			e.detail = ACC.ROLE_GROUP;   // TODO: Not sure what role here. Group? Row?
 		}
 		public void getLocation(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			Rectangle location = header.getBounds();
+			Point pt = toDisplay(location.x, location.y);
+			e.x = pt.x;
+			e.y = pt.y;
+			e.width = location.width;
+			e.height = location.height;
 		}
 		public void getDefaultAction(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			// TODO
 		}
 		public void getFocus(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			/* CTable header cannot take focus. */
+			e.childID = ACC.CHILDID_NONE;
 		}
 		public void getSelection(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			/* CTable header cannot be selected. */
+			e.childID = ACC.CHILDID_NONE;
 		}
 		public void getState(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			e.detail = ACC.STATE_NORMAL; // read-only?
 		}
 		public void getValue(AccessibleControlEvent e) {
-			// TODO Auto-generated method stub
-			
+			// TODO
 		}
 	});
 }
