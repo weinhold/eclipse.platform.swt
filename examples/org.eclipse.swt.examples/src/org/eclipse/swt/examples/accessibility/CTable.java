@@ -2231,6 +2231,7 @@ void initAccessibility () {
 			setSelection(e.row);
 		}
 		public void getVisibleColumns(AccessibleTableEvent e) {
+			CTableColumn[] orderedColumns = getOrderedColumns ();
 			Rectangle bounds = getBounds();
 			int numColumns = orderedColumns.length;
 			int startColumn = -1, endColumn = -1;
