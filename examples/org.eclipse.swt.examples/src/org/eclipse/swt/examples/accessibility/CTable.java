@@ -14,7 +14,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 /** 
@@ -847,10 +846,9 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				}
 			}
 			public void getKeyboardShortcut(AccessibleEvent e) {
-				// TODO: ?
 			}
 			public void getDescription(AccessibleEvent e) {
-				// TODO: ?
+				// TODO: consider implementing accessible table listener's getColumnDescription here?
 			}
 		});
 		columnAccessible.addAccessibleControlListener(new AccessibleControlListener() {
@@ -909,133 +907,141 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				// TODO: sort?
 			}
 			public void getValue(AccessibleControlEvent e) {
-				// TODO: ?
 			}
 		});
 		columnAccessible.addAccessibleTableListener(new AccessibleTableListener() {
 			public void deselectColumn(AccessibleTableEvent e) {
 				/* CTable columns cannot be selected. */
 			}
-
 			public void deselectRow(AccessibleTableEvent e) {
 				/* Rows in CTables cannot be selected separately. */
 			}
-
 			public void getCaption(AccessibleTableEvent e) {
-				// TODO ?
 			}
-
 			public void getCell(AccessibleTableEvent e) {
-				// TODO should columns answer cells? or just rows that are cells?
+				// TODO: should columns answer cells? or just rows that are cells? What does Mac want?
 			}
-
 			public void getColumn(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void getColumnCount(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void getColumnDescription(AccessibleTableEvent e) {
-				// TODO ?
 			}
-
 			public void getColumnHeader(AccessibleTableEvent e) {
-				// TODO
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeaders or getColumnHeaderCells)
+				if (columns.length == 0) {
+					/* The CTable is being used as a list, and there are no headers. */
+					e.accessibles = null;
+				} else {
+					/* CTable cells only occupy one column. */
+					CTableColumn column = columns [columnIndex];
+					e.accessibles = new Accessible[] {column.getAccessible (header.getAccessible())};
+				}
 			}
-
 			public void getColumnHeaderCells(AccessibleTableEvent e) {
-				// TODO
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeaders or getColumnHeaderCells)
+				if (columns.length == 0) {
+					/* The CTable is being used as a list, and there are no headers. */
+					e.accessibles = null;
+				} else {
+					/* CTable cells only occupy one column. */
+					CTableColumn column = columns [columnIndex];
+					e.accessibles = new Accessible[] {column.getAccessible (header.getAccessible())};
+				}
 			}
-
 			public void getColumns(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
-			public void getRow(AccessibleTableEvent e) {
-				// TODO
-			}
-
 			public void getRowCount(AccessibleTableEvent e) {
-				// TODO
+				e.count = itemsCount;
 			}
-
+			public void getRow(AccessibleTableEvent e) {
+				int index = e.row;
+				if (0 <= index && index < itemsCount) {
+					CTableItem row = items [index];
+					e.accessible = row.getAccessible (getAccessible(), columnIndex);
+				}
+			}
+			public void getRows(AccessibleTableEvent e) {
+				Accessible[] accessibles = new Accessible[itemsCount];
+				for (int i = 0; i < itemsCount; i++) {
+					CTableItem row = items [i];
+					accessibles[i] = row.getAccessible (getAccessible(), columnIndex);
+				}
+				e.accessibles = accessibles;
+			}
 			public void getRowDescription(AccessibleTableEvent e) {
-				// TODO ?
 			}
-
 			public void getRowHeader(AccessibleTableEvent e) {
 				/* CTables do not have row headers. */
 			}
-
 			public void getRowHeaderCells(AccessibleTableEvent e) {
 				/* CTables do not have row headers. */
 			}
-
-			public void getRows(AccessibleTableEvent e) {
-				// TODO
-			}
-
 			public void getSelectedCellCount(AccessibleTableEvent e) {
-				// TODO
+				// TODO: not sure if Mac wants 'rows' and/or 'cells' for columns
 			}
-
 			public void getSelectedCells(AccessibleTableEvent e) {
-				// TODO
+				// TODO: not sure if Mac wants 'rows' and/or 'cells' for columns
 			}
-
 			public void getSelectedColumnCount(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 				e.count = 0;
 			}
-
 			public void getSelectedColumns(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void getSelectedRowCount(AccessibleTableEvent e) {
-				// TODO
+				e.count = selectedItems.length;
 			}
-
 			public void getSelectedRows(AccessibleTableEvent e) {
-				// TODO
+				int[] selectedIndices = new int[selectedItems.length];
+				for (int i = 0; i < selectedItems.length; i++) {
+					selectedIndices[i] = selectedItems [i].index;
+				}
+				e.selected = selectedIndices;
 			}
-
 			public void getSummary(AccessibleTableEvent e) {
-				// TODO ?
 			}
-
 			public void getVisibleColumns(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void getVisibleRows(AccessibleTableEvent e) {
-				// TODO
+				Rectangle bounds = getBounds();
+				int startIndex = (bounds.y - getHeaderHeight ()) / itemHeight + topIndex;
+				int endIndex = -1;
+				if (startIndex < itemsCount) {
+					endIndex = startIndex + (int)Math.ceil((float)bounds.height / itemHeight);
+				}
+				startIndex = Math.max (0, startIndex);
+				endIndex = Math.min (endIndex, itemsCount - 1);
+				Accessible[] accessibles = new Accessible[endIndex - startIndex + 1];
+				for (int i = startIndex; i <= endIndex; i++) {
+					CTableItem row = items [i];
+					accessibles[i] = row.getAccessible (getAccessible(), columnIndex);
+				}
+				e.accessibles = accessibles;
 			}
-
 			public void isColumnSelected(AccessibleTableEvent e) {
-				/* CTable columns cannot be selected. */
+				/* CTable does not support column selection. */
+				e.isSelected = false;
 			}
-
 			public void isRowSelected(AccessibleTableEvent e) {
-				// TODO
+				e.isSelected = isSelected(e.row);
 			}
-
 			public void selectColumn(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void selectRow(AccessibleTableEvent e) {
-				/* Rows in CTable columns cannot be selected separately. */
+				/* Rows (i.e. cells) in CTable columns cannot be selected separately. */
 			}
-
 			public void setSelectedColumn(AccessibleTableEvent e) {
 				/* CTable columns do not have columns. */
 			}
-
 			public void setSelectedRow(AccessibleTableEvent e) {
-				/* Rows in CTable columns cannot be selected separately. */
+				/* Rows (i.e. cells) in CTable columns cannot be selected separately. */
 			}
 		});
 		columnAccessibles [columnIndex] = columnAccessible;
@@ -2213,7 +2219,8 @@ void initAccessibility () {
 			// TODO: What is a summary? Should app supply?
 		}
 		public void isColumnSelected(AccessibleTableEvent e) {
-			e.isSelected = false; /* CTable does not support column selection. */
+			/* CTable does not support column selection. */
+			e.isSelected = false;
 		}
 		public void isRowSelected(AccessibleTableEvent e) {
 			e.isSelected = isSelected(e.row);
@@ -2307,8 +2314,7 @@ void initAccessibility () {
 			}
 			e.children = children;
 		}
-		public void getChild(AccessibleControlEvent e) { // TODO
-			/* ChildID's are in the same order as in getChildren. */
+		public void getChild(AccessibleControlEvent e) {
 			int childID = e.childID;
 			if (childID == ACC.CHILDID_SELF) { // header
 				e.accessible = header.getAccessible();
@@ -2318,7 +2324,8 @@ void initAccessibility () {
 			}
 		}
 		public void getRole(AccessibleControlEvent e) {
-			e.detail = ACC.ROLE_GROUP;   // TODO: Not sure what role here. Group? Row?
+			// TODO: Not sure what role a header should have. Group? Row?
+			e.detail = ACC.ROLE_GROUP;
 		}
 		public void getLocation(AccessibleControlEvent e) {
 			Rectangle location = header.getBounds();
@@ -2329,7 +2336,6 @@ void initAccessibility () {
 			e.height = location.height;
 		}
 		public void getDefaultAction(AccessibleControlEvent e) {
-			// TODO
 		}
 		public void getFocus(AccessibleControlEvent e) {
 			/* CTable header cannot take focus. */
@@ -2343,7 +2349,6 @@ void initAccessibility () {
 			e.detail = ACC.STATE_NORMAL; // read-only?
 		}
 		public void getValue(AccessibleControlEvent e) {
-			// TODO
 		}
 	});
 }
