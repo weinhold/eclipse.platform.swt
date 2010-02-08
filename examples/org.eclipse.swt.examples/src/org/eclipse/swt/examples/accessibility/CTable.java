@@ -932,23 +932,23 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 			public void getColumnDescription(AccessibleTableEvent e) {
 			}
 			public void getColumnHeader(AccessibleTableEvent e) {
-				// TODO: Not sure which of these the Mac wants for columns (getColumnHeaders or getColumnHeaderCells)
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)
 				if (columns.length == 0) {
-					/* The CTable is being used as a list, and there are no headers. */
-					e.accessibles = null;
+					/* The CTable is being used as a list, and there is no column header. */
+					e.accessible = null;
 				} else {
-					/* CTable cells only occupy one column. */
+					/* A CTable column has one header cell. */
 					CTableColumn column = columns [columnIndex];
-					e.accessibles = new Accessible[] {column.getAccessible (header.getAccessible())};
+					e.accessible = column.getAccessible (header.getAccessible());
 				}
 			}
 			public void getColumnHeaderCells(AccessibleTableEvent e) {
-				// TODO: Not sure which of these the Mac wants for columns (getColumnHeaders or getColumnHeaderCells)
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)
 				if (columns.length == 0) {
-					/* The CTable is being used as a list, and there are no headers. */
+					/* The CTable is being used as a list, and there are no header cells. */
 					e.accessibles = null;
 				} else {
-					/* CTable cells only occupy one column. */
+					/* A CTable column has one header cell. */
 					CTableColumn column = columns [columnIndex];
 					e.accessibles = new Accessible[] {column.getAccessible (header.getAccessible())};
 				}
