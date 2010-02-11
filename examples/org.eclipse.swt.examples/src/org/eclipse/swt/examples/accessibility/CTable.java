@@ -1012,7 +1012,7 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 			}
 			public void getVisibleRows(AccessibleTableEvent e) {
 				Rectangle bounds = getBounds();
-				int startIndex = (bounds.y - getHeaderHeight ()) / itemHeight + topIndex;
+				int startIndex = topIndex;
 				int endIndex = -1;
 				if (startIndex < itemsCount) {
 					endIndex = startIndex + (int)Math.ceil((float)bounds.height / itemHeight);
@@ -2256,7 +2256,7 @@ void initAccessibility () {
 		}
 		public void getVisibleRows(AccessibleTableEvent e) {
 			Rectangle bounds = getBounds();
-			int startIndex = (bounds.y - getHeaderHeight ()) / itemHeight + topIndex;
+			int startIndex = topIndex;
 			int endIndex = -1;
 			if (startIndex < itemsCount) {
 				endIndex = startIndex + (int)Math.ceil((float)bounds.height / itemHeight);
