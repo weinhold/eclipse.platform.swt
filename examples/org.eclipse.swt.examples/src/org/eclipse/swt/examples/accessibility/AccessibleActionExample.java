@@ -52,6 +52,11 @@ public class AccessibleActionExample {
 				e.result = "ALT+P"; 
 			}
 		});
+		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getRole(AccessibleControlEvent e) {
+				e.detail = ACC.ROLE_PUSHBUTTON;
+			}
+		});
 		accessible.addAccessibleActionListener(new AccessibleActionAdapter() {
 			public void getActionCount(AccessibleActionEvent e) {
 				e.count = 1;
