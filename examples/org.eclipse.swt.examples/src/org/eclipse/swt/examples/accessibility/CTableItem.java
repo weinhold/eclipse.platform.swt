@@ -453,7 +453,15 @@ Accessible getAccessible(Accessible accessibleParent) {
 				
 			}
 			public void getChild(AccessibleControlEvent e) {
-				/* There are no "simple element" children. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_AT_INDEX:
+						e.accessible = getAccessible (accessible, e.detail);
+						break;
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = index;
+						break;
+					default: /* CTable rows do not have "simple element" children. */
+				}
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
@@ -542,6 +550,12 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
+				/* CTable cells do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = columnIndex;
+						break;
+				}
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);

@@ -860,7 +860,12 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
-				/* CTable columns do not have children. */
+				/* CTable columns do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = columnIndex;
+						break;
+				}
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				e.childID = ACC.CHILDID_NONE;
@@ -2037,7 +2042,31 @@ void initAccessibility () {
 			e.children = children;
 		}
 		public void getChild(AccessibleControlEvent e) {
-			/* There are no "simple element" children. */
+			switch (e.childID) {
+				case ACC.CHILDID_CHILD_AT_INDEX: {
+					int index = e.detail;
+					if (index < itemsCount) {
+						CTableItem row = items [index];
+						e.accessible = row.getAccessible (getAccessible());
+					} else if (index == itemsCount && columns.length > 0) {
+						e.accessible = header.getAccessible();
+					} else if (index < itemsCount + (columns.length > 0 ? columns.length : 1)) {
+						e.accessible = getAccessible (getAccessible(), index);
+					}
+					break;
+				}
+				case ACC.CHILDID_CHILD_INDEX: {
+					Control [] children = getParent().getChildren();
+					int index = 0;
+					while (index < children.length) {
+						if (children[index] == CTable.this) break;
+						index++;
+					}
+					e.detail = index;
+					break;
+				}
+				default: /* CTable does not have "simple element" children. */
+			}
 		}
 		public void getChildAtPoint(AccessibleControlEvent e) {
 			/* The point can be in the header, a row, the table or none (a column cannot be selected). */
@@ -2311,7 +2340,17 @@ void initAccessibility () {
 			e.children = children;
 		}
 		public void getChild(AccessibleControlEvent e) {
-			/* There are no "simple element" children. */
+			switch (e.childID) {
+				case ACC.CHILDID_CHILD_AT_INDEX:
+					int index = e.detail;
+					CTableColumn column = columns [index];
+					e.accessible = column.getAccessible(header.getAccessible());
+					break;
+				case ACC.CHILDID_CHILD_INDEX:
+					e.detail = itemsCount;
+					break;
+				default: /* CTable header does not have "simple element" children. */
+			}
 		}
 		public void getRole(AccessibleControlEvent e) {
 			// TODO: Not sure what role a header should have. Group? Row?

@@ -806,7 +806,12 @@ Accessible getAccessible(Accessible accessibleParent) {
 				e.children = null;
 			}
 			public void getChild(AccessibleControlEvent e) {
-				/* There are no "simple element" children. */
+				/* CTable column header cells do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = getIndex();
+						break;
+				}
 			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
@@ -827,7 +832,7 @@ Accessible getAccessible(Accessible accessibleParent) {
 				e.height = rect.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
-				e.detail = ACC.ROLE_TABLECELL;
+				e.detail = ACC.ROLE_TABLECELL; // TODO: or ROLE_LABEL or maybe ROLE_PUSHBUTTON if sort?
 			}
 			public void getFocus(AccessibleControlEvent e) {
 				e.childID = ACC.CHILDID_NONE;
