@@ -43,7 +43,7 @@ public class AccessibleTextExample {
 			}
 		});
 		accessibleText.addAccessibleTextListener(new AccessibleTextExtendedListener() {
-			public void addSelection(AccessibleTextExtendedEvent e) {
+			public void addSelection(AccessibleTextEvent e) {
 				System.out.print("addSelection " + e);
 				text.setSelection(e.start, e.end);
 				System.out.println(" returning " + e);
@@ -53,36 +53,36 @@ public class AccessibleTextExample {
 				e.offset = text.getCaretPosition();
 				System.out.println(" returning " + e);
 			}
-			public void getCharacterCount(AccessibleTextExtendedEvent e) {
+			public void getCharacterCount(AccessibleTextEvent e) {
 				System.out.print("getCharacterCount " + e);
 				e.count = text.getCharCount();
 				System.out.println(" returning " + e);
 			}
-			public void getHyperlink(AccessibleTextExtendedEvent e) {
+			public void getHyperlink(AccessibleTextEvent e) {
 				System.out.print("getHyperlink " + e);
 				System.out.println(" returning " + e);
 			}
-			public void getHyperlinkCount(AccessibleTextExtendedEvent e) {
+			public void getHyperlinkCount(AccessibleTextEvent e) {
 				System.out.print("getHyperlinkCount " + e);
 				e.count = 0;
 				System.out.println(" returning " + e);
 			}
-			public void getHyperlinkIndex(AccessibleTextExtendedEvent e) {
+			public void getHyperlinkIndex(AccessibleTextEvent e) {
 				System.out.print("getHyperlinkIndex " + e);
 				e.index = -1;
 				System.out.println(" returning " + e);
 			}
-			public void getOffsetAtPoint(AccessibleTextExtendedEvent e) {
+			public void getOffsetAtPoint(AccessibleTextEvent e) {
 				System.out.print("getOffsetAtPoint " + e);
 				//TODO: maybe can emulate this with getTopIndex, getTopPixel, getLineHeight, getOrientation, etc.
 				System.out.println(" returning " + e);
 			}
-			public void getRanges(AccessibleTextExtendedEvent e) {
+			public void getRanges(AccessibleTextEvent e) {
 				System.out.print("getRanges " + e);
 				//TODO: maybe can emulate this with getTopIndex, getTopPixel, getLineHeight, getOrientation, etc.
 				System.out.println(" returning " + e);
 			}
-			public void getSelection(AccessibleTextExtendedEvent e) {
+			public void getSelection(AccessibleTextEvent e) {
 				System.out.print("getSelection " + e);
 				if (e.index == 0) {
 					Point sel = text.getSelection();
@@ -90,7 +90,7 @@ public class AccessibleTextExample {
 				}
 				System.out.println(" returning " + e);
 			}
-			public void getSelectionCount(AccessibleTextExtendedEvent e) {
+			public void getSelectionCount(AccessibleTextEvent e) {
 				e.count = text.getSelectionCount();
 			}
 			public void getSelectionRange(AccessibleTextEvent e) {
@@ -100,23 +100,23 @@ public class AccessibleTextExample {
 				e.length = sel.y - sel.x;
 				System.out.println(" returning " + e);
 			}
-			public void getText(AccessibleTextExtendedEvent e) {
+			public void getText(AccessibleTextEvent e) {
 				System.out.print("getText " + e);
 				// TODO: need to implement this
 				e.result = text.getText(e.start, e.end);
 				System.out.println(" returning " + e);
 			}
-			public void getTextBounds(AccessibleTextExtendedEvent e) {
+			public void getTextBounds(AccessibleTextEvent e) {
 				System.out.print("getTextBounds " + e);
 				// TODO: Can probably emulate this
 				System.out.println(" returning " + e);
 			}
-			public void removeSelection(AccessibleTextExtendedEvent e) {
+			public void removeSelection(AccessibleTextEvent e) {
 				System.out.print("removeSelection " + e);
 				if (e.index == 0) text.setSelection(text.getCaretPosition());
 				System.out.println(" returning " + e);
 			}
-			public void scrollText(AccessibleTextExtendedEvent e) {
+			public void scrollText(AccessibleTextEvent e) {
 				System.out.print("scrollText " + e);
 				// TODO: try to implement this for other scroll types
 				if (e.type == ACC.SCROLL_TYPE_TOP_LEFT) {
@@ -124,19 +124,19 @@ public class AccessibleTextExample {
 				}
 				System.out.println(" returning " + e);
 			}
-			public void setCaretOffset(AccessibleTextExtendedEvent e) {
+			public void setCaretOffset(AccessibleTextEvent e) {
 				System.out.print("setCaretOffset " + e);
 				text.setSelection(e.offset);
 				System.out.println(" returning " + e);
 			}
-			public void setSelection(AccessibleTextExtendedEvent e) {
+			public void setSelection(AccessibleTextEvent e) {
 				System.out.print("setSelection " + e);
 				if (e.index == 0) {
 					text.setSelection(e.start, e.end);
 				}
 				System.out.println(" returning " + e);
 			}
-			public void getVisibleRanges(AccessibleTextExtendedEvent e) {
+			public void getVisibleRanges(AccessibleTextEvent e) {
 				// TODO 
 			}
 		});

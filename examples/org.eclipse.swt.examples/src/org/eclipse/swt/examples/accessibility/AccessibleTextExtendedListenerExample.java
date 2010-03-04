@@ -12,13 +12,7 @@
 package org.eclipse.swt.examples.accessibility;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.accessibility.ACC;
-import org.eclipse.swt.accessibility.Accessible;
-import org.eclipse.swt.accessibility.AccessibleControlAdapter;
-import org.eclipse.swt.accessibility.AccessibleControlEvent;
-import org.eclipse.swt.accessibility.AccessibleTextEvent;
-import org.eclipse.swt.accessibility.AccessibleTextExtendedEvent;
-import org.eclipse.swt.accessibility.AccessibleTextExtendedListener;
+import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -79,20 +73,20 @@ public class AccessibleTextExtendedListenerExample {
 			public void getCaretOffset(AccessibleTextEvent e) {
 				e.offset = 16;
 			}
-			public void setSelection(AccessibleTextExtendedEvent e) {
+			public void setSelection(AccessibleTextEvent e) {
 				System.out.println("Never Called: setSelection");
 			}
-			public void setCaretOffset(AccessibleTextExtendedEvent e) {
+			public void setCaretOffset(AccessibleTextEvent e) {
 				System.out.println("Never Called: setCaretOffset");
 			}
-			public void scrollText(AccessibleTextExtendedEvent e) {
+			public void scrollText(AccessibleTextEvent e) {
 				System.out.println("Never Called: scrollText");
 			}
-			public void removeSelection(AccessibleTextExtendedEvent e) {
+			public void removeSelection(AccessibleTextEvent e) {
 				System.out.println("Never Called: removeSelection");
 				
 			}
-			public void getTextBounds(AccessibleTextExtendedEvent e) {
+			public void getTextBounds(AccessibleTextEvent e) {
 				GC gc = new GC(shell);
 				Point extent = gc.textExtent(text);
 				gc.dispose();
@@ -102,7 +96,7 @@ public class AccessibleTextExtendedListenerExample {
 				e.width = rect.width;
 				e.height = rect.height;
 			}
-			public void getText(AccessibleTextExtendedEvent e) {
+			public void getText(AccessibleTextEvent e) {
 				int start = 0, end = text.length();
 				switch (e.type) {
 					case ACC.TEXT_BOUNDARY_ALL:
@@ -164,39 +158,39 @@ public class AccessibleTextExtendedListenerExample {
 				}
 				e.result = text.substring(start, end);
 			}
-			public void getSelectionCount(AccessibleTextExtendedEvent e) {
+			public void getSelectionCount(AccessibleTextEvent e) {
 				e.count = 1;
 			}
-			public void getSelection(AccessibleTextExtendedEvent e) {
+			public void getSelection(AccessibleTextEvent e) {
 				getSelectionRange(e);
 				e.start = e.offset;
 				e.end = e.offset + e.length;
 			}
-			public void getRanges(AccessibleTextExtendedEvent e) {
+			public void getRanges(AccessibleTextEvent e) {
 				e.start = 0;
 				e.end = text.length() - 1;
 				int[] ranges = {0,1,2,4,7,18};
 				e.ranges = ranges;
 			}
-			public void getOffsetAtPoint(AccessibleTextExtendedEvent e) {
+			public void getOffsetAtPoint(AccessibleTextEvent e) {
 				System.out.println("Not Called: getOffsetAtPoint");
 			}
-			public void getHyperlinkIndex(AccessibleTextExtendedEvent e) {
+			public void getHyperlinkIndex(AccessibleTextEvent e) {
 				System.out.println("Not Called: getHyperlinkIndex");
 			}
-			public void getHyperlinkCount(AccessibleTextExtendedEvent e) {
+			public void getHyperlinkCount(AccessibleTextEvent e) {
 				System.out.println("Not Called: getHyperlinkCount");
 			}
-			public void getHyperlink(AccessibleTextExtendedEvent e) {
+			public void getHyperlink(AccessibleTextEvent e) {
 				System.out.println("Not Called: getHyperlink");
 			}
-			public void getCharacterCount(AccessibleTextExtendedEvent e) {
+			public void getCharacterCount(AccessibleTextEvent e) {
 				e.count = text.length();
 			}
-			public void addSelection(AccessibleTextExtendedEvent e) {
+			public void addSelection(AccessibleTextEvent e) {
 				System.out.println("NEVER CALLED: addSelection" );
 			}
-			public void getVisibleRanges(AccessibleTextExtendedEvent e) {
+			public void getVisibleRanges(AccessibleTextEvent e) {
 				e.start = 0;
 				e.end = text.length() - 1;
 			}
