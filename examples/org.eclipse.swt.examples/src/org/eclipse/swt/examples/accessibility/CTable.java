@@ -2051,7 +2051,7 @@ void initAccessibility () {
 					} else if (index == itemsCount && columns.length > 0) {
 						e.accessible = header.getAccessible();
 					} else if (index < itemsCount + (columns.length > 0 ? columns.length : 1)) {
-						e.accessible = getAccessible (getAccessible(), index);
+						e.accessible = getAccessible (getAccessible(), index - itemsCount - 1);
 					}
 					break;
 				}
