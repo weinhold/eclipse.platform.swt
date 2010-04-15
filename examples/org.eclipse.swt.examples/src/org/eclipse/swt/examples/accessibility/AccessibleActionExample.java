@@ -23,6 +23,7 @@ import org.eclipse.swt.accessibility.*;
  */
 public class AccessibleActionExample {
 	public static void main(String[] args) {
+		Display.DEBUG = true;
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout());
