@@ -790,7 +790,6 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				int x = getX();
 				if (x <= point.x && point.x <= x + getWidth()) {
 					e.childID = ACC.CHILDID_SELF;
-					e.accessible = accessible;
 				} else {
 					e.childID = ACC.CHILDID_NONE;
 				}
@@ -799,12 +798,13 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				e.detail = 0;
 			}
 			public void getLocation(AccessibleControlEvent e) {
-				Point pt = parent.getLocation();
-				pt = parent.toDisplay(pt.x, pt.y);
+				Rectangle rect = parent.header.getBounds();
+				rect.x = getX();
+				Point pt = parent.toDisplay(rect.x, rect.y);
 				e.x = pt.x;
 				e.y = pt.y;
 				e.width = width;
-				e.height = parent.getHeaderHeight ();
+				e.height = rect.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
 				e.detail = ACC.ROLE_TABLECELL;
