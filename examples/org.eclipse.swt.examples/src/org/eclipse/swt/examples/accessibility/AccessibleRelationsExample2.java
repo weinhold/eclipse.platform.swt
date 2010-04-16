@@ -19,7 +19,7 @@ import org.eclipse.swt.accessibility.*;
  * This example shows how to use accessible relations to provide
  * additional information to an AT.
  */
-public class RelationsExample2 {
+public class AccessibleRelationsExample2 {
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);
