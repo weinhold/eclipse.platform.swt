@@ -2355,8 +2355,7 @@ void initAccessibility () {
 			}
 		}
 		public void getRole(AccessibleControlEvent e) {
-			// TODO: Not sure what role a header should have. Group? Row?
-			e.detail = ACC.ROLE_GROUP;
+			e.detail = ACC.ROLE_TABLECOLUMNHEADER;
 		}
 		public void getLocation(AccessibleControlEvent e) {
 			Rectangle location = header.getBounds();
