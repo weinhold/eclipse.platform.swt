@@ -14,7 +14,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 /** 
@@ -67,13 +66,13 @@ import org.eclipse.swt.widgets.*;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class CTable extends Composite {
+public class CTable2 extends Composite {
 	Canvas header;
-	CTableColumn[] columns = new CTableColumn [0];
-	CTableColumn[] orderedColumns;
-	CTableItem[] items = new CTableItem [0];
-	CTableItem[] selectedItems = new CTableItem [0];
-	CTableItem focusItem, anchorItem, lastClickedItem;
+	CTableColumn2[] columns = new CTableColumn2 [0];
+	CTableColumn2[] orderedColumns;
+	CTableItem2[] items = new CTableItem2 [0];
+	CTableItem2[] selectedItems = new CTableItem2 [0];
+	CTableItem2 focusItem, anchorItem, lastClickedItem;
 	Event lastSelectionEvent;
 	boolean linesVisible, ignoreKey, ignoreDispose, customHeightSet;
 	int itemsCount = 0;
@@ -81,10 +80,10 @@ public class CTable extends Composite {
 	int fontHeight = 0, imageHeight = 0, itemHeight = 0;
 	int col0ImageWidth = 0;
 	int headerImageHeight = 0;
-	CTableColumn resizeColumn;
+	CTableColumn2 resizeColumn;
 	int resizeColumnX = -1;
 	int drawCount = 0;
-	CTableColumn sortColumn;
+	CTableColumn2 sortColumn;
 	int sortDirection = SWT.NONE;
 
 	/* column header tooltip */
@@ -109,6 +108,7 @@ public class CTable extends Composite {
 	static final String ID_ARROWDOWN = "ARROWDOWN";			//$NON-NLS-1$
 	
 	Display display;
+	Accessible[] columnAccessibles; // one accessible per column (or one accessible, if table is a list)
 
 //TEMPORARY CODE
 boolean hasFocus;
@@ -150,7 +150,7 @@ public boolean isFocusControl() {
  * @see Widget#checkSubclass
  * @see Widget#getStyle
  */
-public CTable (Composite parent, int style) {
+public CTable2 (Composite parent, int style) {
 	super (parent, checkStyle (style));
 	this.display = parent.getDisplay ();
 	setForeground (null);	/* set foreground and background to chosen default colors */
@@ -180,8 +180,6 @@ public CTable (Composite parent, int style) {
 	addListener (SWT.FocusIn, listener);
 	addListener (SWT.Traverse, listener);
 	
-	initAccessibility ();
-
 	header = new Canvas (this, SWT.NO_REDRAW_RESIZE | SWT.NO_FOCUS);
 	header.setVisible (false);
 	header.setBounds (0, 0, 0, fontHeight + 2 * getHeaderPadding ());
@@ -221,6 +219,9 @@ public CTable (Composite parent, int style) {
 		vBar.setVisible (false);
 		vBar.addListener (SWT.Selection, listener);
 	}
+
+	columnAccessibles = new Accessible [1];
+	initAccessibility ();
 }
 /**
  * Adds the listener to the collection of listeners who will
@@ -256,7 +257,7 @@ public void addSelectionListener (SelectionListener listener) {
 	addListener (SWT.Selection, typedListener);
 	addListener (SWT.DefaultSelection, typedListener);
 }
-boolean checkData (CTableItem item, boolean redraw) {
+boolean checkData (CTableItem2 item, boolean redraw) {
 	if (item.cached) return true;
 	if ((getStyle () & SWT.VIRTUAL) != 0) {
 		item.cached = true;
@@ -428,7 +429,7 @@ public void clearAll () {
  * or -1 if the x lies to the right of the last column.
  */
 int computeColumnIntersect (int x, int startColumn) {
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	if (orderedColumns.length - 1 < startColumn) return -1;
 	int rightX = orderedColumns [startColumn].getX ();
 	for (int i = startColumn; i < orderedColumns.length; i++) {
@@ -449,8 +450,8 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 				width = Math.max (width, itemBounds.x + itemBounds.width);
 			}
 		} else {
-			CTableColumn[] orderedColumns = getOrderedColumns ();
-			CTableColumn lastColumn = orderedColumns [orderedColumns.length - 1];
+			CTableColumn2[] orderedColumns = getOrderedColumns ();
+			CTableColumn2 lastColumn = orderedColumns [orderedColumns.length - 1];
 			width = lastColumn.getX () + lastColumn.width;
 		}
 	}
@@ -462,8 +463,8 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	Rectangle result = computeTrim (0, 0, width, height);
 	return new Point (result.width, result.height);
 }
-void createItem (CTableColumn column, int index) {
-	CTableColumn[] newColumns = new CTableColumn [columns.length + 1];
+void createItem (CTableColumn2 column, int index) {
+	CTableColumn2[] newColumns = new CTableColumn2 [columns.length + 1];
 	System.arraycopy (columns, 0, newColumns, 0, index);
 	newColumns [index] = column;
 	System.arraycopy (columns, index, newColumns, index + 1, columns.length - index);
@@ -474,7 +475,7 @@ void createItem (CTableColumn column, int index) {
 		if (index > 0) {
 			insertIndex = columns [index - 1].getOrderIndex () + 1;
 		}
-		CTableColumn[] newOrderedColumns = new CTableColumn [orderedColumns.length + 1];
+		CTableColumn2[] newOrderedColumns = new CTableColumn2 [orderedColumns.length + 1];
 		System.arraycopy (orderedColumns, 0, newOrderedColumns, 0, insertIndex);
 		newOrderedColumns [insertIndex] = column;
 		System.arraycopy (
@@ -500,12 +501,19 @@ void createItem (CTableColumn column, int index) {
 			redrawFromItemDownwards (topIndex);
 		}
 	}
+
+	if (columns.length > columnAccessibles.length) {
+		Accessible[] newAccessibles = new Accessible [columns.length];
+		System.arraycopy (columnAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (columnAccessibles, index, newAccessibles, index + 1, columns.length - index - 1);
+		columnAccessibles = newAccessibles;
+	}
 }
-void createItem (CTableItem item) {
+void createItem (CTableItem2 item) {
 	int index = item.index;
 	if (itemsCount == items.length) {
 		int grow = drawCount <= 0 ? 4 : Math.max (4, items.length * 3 / 2);
-		CTableItem[] newItems = new CTableItem [items.length + grow];
+		CTableItem2[] newItems = new CTableItem2 [items.length + grow];
 		System.arraycopy (items, 0, newItems, 0, items.length);
 		items = newItems;
 	}
@@ -564,11 +572,11 @@ void createItem (CTableItem item) {
 public void deselect (int index) {
 	checkWidget ();
 	if (!(0 <= index && index < itemsCount)) return;
-	CTableItem item = items [index];
+	CTableItem2 item = items [index];
 	int selectIndex = getSelectionIndex (item);
 	if (selectIndex == -1) return;
 	
-	CTableItem[] newSelectedItems = new CTableItem [selectedItems.length - 1];
+	CTableItem2[] newSelectedItems = new CTableItem2 [selectedItems.length - 1];
 	System.arraycopy (selectedItems, 0, newSelectedItems, 0, selectIndex);
 	System.arraycopy (selectedItems, selectIndex + 1, newSelectedItems, selectIndex, newSelectedItems.length - selectIndex);
 	selectedItems = newSelectedItems;
@@ -576,6 +584,7 @@ public void deselect (int index) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItem (item.index, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Deselects the items at the given zero-relative indices in the receiver.
@@ -639,18 +648,19 @@ public void deselect (int [] indices) {
  */
 public void deselectAll () {
 	checkWidget ();
-	CTableItem[] oldSelection = selectedItems;
-	selectedItems = new CTableItem [0];
+	CTableItem2[] oldSelection = selectedItems;
+	selectedItems = new CTableItem2 [0];
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		for (int i = 0; i < oldSelection.length; i++) {
 			redrawItem (oldSelection [i].index, true);
 		}
 	}
+	getAccessible().selectionChanged();
 }
-void deselectItem (CTableItem item) {
+void deselectItem (CTableItem2 item) {
 	int index = getSelectionIndex (item);
 	if (index == -1) return;
-	CTableItem[] newSelectedItems = new CTableItem [selectedItems.length - 1];
+	CTableItem2[] newSelectedItems = new CTableItem2 [selectedItems.length - 1];
 	System.arraycopy (selectedItems, 0, newSelectedItems, 0, index);
 	System.arraycopy (
 		selectedItems,
@@ -660,22 +670,29 @@ void deselectItem (CTableItem item) {
 		newSelectedItems.length - index);
 	selectedItems = newSelectedItems;
 }
-void destroyItem (CTableColumn column) {
+void destroyItem (CTableColumn2 column) {
 	headerHideToolTip ();
 	int index = column.getIndex ();
 	int orderedIndex = column.getOrderIndex ();
 
-	CTableColumn[] newColumns = new CTableColumn [columns.length - 1];
+	CTableColumn2[] newColumns = new CTableColumn2 [columns.length - 1];
 	System.arraycopy (columns, 0, newColumns, 0, index);
 	System.arraycopy (columns, index + 1, newColumns, index, newColumns.length - index);
 	columns = newColumns;
+
+	if (columns.length > 1) {
+		Accessible[] newAccessibles = new Accessible [columns.length];
+		System.arraycopy (columnAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (columnAccessibles, index + 1, newAccessibles, index, columns.length - index);
+		columnAccessibles = newAccessibles;
+	}
 
 	if (orderedColumns != null) {
 		if (columns.length < 2) {
 			orderedColumns = null;
 		} else {
 			int removeIndex = column.getOrderIndex ();
-			CTableColumn[] newOrderedColumns = new CTableColumn [orderedColumns.length - 1];
+			CTableColumn2[] newOrderedColumns = new CTableColumn2 [orderedColumns.length - 1];
 			System.arraycopy (orderedColumns, 0, newOrderedColumns, 0, removeIndex);
 			System.arraycopy (
 				orderedColumns,
@@ -721,7 +738,7 @@ void destroyItem (CTableColumn column) {
 			if (header.isVisible () && drawCount <= 0) header.redraw ();
 		}
 	}
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	for (int i = orderedIndex; i < orderedColumns.length; i++) {
 		if (!orderedColumns [i].isDisposed ()) {
 			orderedColumns [i].notifyListeners (SWT.Move, new Event ());
@@ -736,7 +753,7 @@ void destroyItem (CTableColumn column) {
  * Allows the Table to update internal structures it has that may contain the
  * item being destroyed.
  */
-void destroyItem (CTableItem item) {
+void destroyItem (CTableItem2 item) {
 	if (item == focusItem) reassignFocus ();
 
 	int index = item.index;
@@ -754,7 +771,7 @@ void destroyItem (CTableItem item) {
 	
 	if (drawCount <= 0 && items.length - itemsCount == 4) {
 		/* shrink the items array */
-		CTableItem[] newItems = new CTableItem [itemsCount];
+		CTableItem2[] newItems = new CTableItem2 [itemsCount];
 		System.arraycopy (items, 0, newItems, 0, newItems.length);
 		items = newItems;
 	}
@@ -781,7 +798,7 @@ void destroyItem (CTableItem item) {
 	/* selectedItems array */
 	if (item.isSelected ()) {
 		int selectionIndex = getSelectionIndex (item);
-		CTableItem[] newSelectedItems = new CTableItem [selectedItems.length - 1];
+		CTableItem2[] newSelectedItems = new CTableItem2 [selectedItems.length - 1];
 		System.arraycopy (selectedItems, 0, newSelectedItems, 0, selectionIndex);
 		System.arraycopy (
 			selectedItems,
@@ -801,6 +818,244 @@ void destroyItem (CTableItem item) {
 		redraw ();
 		return;
 	}
+}
+void disposeAccessibles() {
+	if (columnAccessibles != null) {
+		for (int i = 0; i < columnAccessibles.length; i++) {
+			if (columnAccessibles[i] != null) {
+				columnAccessibles[i].dispose();
+			}
+		}
+		columnAccessibles = null;
+	}
+}
+/* Returns the accessible column for the specified column index in the receiver.
+ * The accessibleParent must be the table accessible.
+ */
+Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
+	if (columnAccessibles [columnIndex] == null) {
+		Accessible columnAccessible = new Accessible(accessibleParent);
+		columnAccessible.addAccessibleListener(new AccessibleListener() {
+			public void getName(AccessibleEvent e) {
+				if (columns.length > 0) {
+					e.result = columns[columnIndex].getText();
+					System.out.println("column getName = " + e.result);
+				}
+			}
+			public void getHelp(AccessibleEvent e) {
+				if (columns.length > 0) {
+					e.result = columns[columnIndex].getToolTipText();
+				}
+			}
+			public void getKeyboardShortcut(AccessibleEvent e) {
+			}
+			public void getDescription(AccessibleEvent e) {
+				// TODO: consider implementing accessible table listener's getColumnDescription here?
+			}
+		});
+		columnAccessible.addAccessibleControlListener(new AccessibleControlListener() {
+			public void getChildCount(AccessibleControlEvent e) {
+				/* CTable2 columns have "row (cells)" and a "header (cell)", but they do not have "children". */
+				e.detail = 0;
+			}
+			public void getChildren(AccessibleControlEvent e) {
+				e.children = null;
+			}
+			public void getChild(AccessibleControlEvent e) {
+				/* CTable2 columns do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = columnIndex;
+						break;
+				}
+			}
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				e.childID = ACC.CHILDID_NONE;
+				Point point = toControl(e.x, e.y);
+				if (getBounds().contains(getParent().toControl(e.x, e.y))) {
+					if (columns.length > 0) {
+						CTableColumn2 column = columns[columnIndex];
+						int x = column.getX();
+						if (x <= point.x && point.x <= x + column.getWidth()) {
+							e.childID = ACC.CHILDID_SELF;
+						}
+					} else {
+						e.childID = ACC.CHILDID_SELF;
+					}
+				}
+			}
+			public void getLocation(AccessibleControlEvent e) {
+				Rectangle rect = getBounds();
+				Point pt = getParent().toDisplay(rect.x, rect.y);
+				if (columns.length > 0) {
+					CTableColumn2 column = columns[columnIndex];
+					rect.x = column.getX();
+					rect.width = column.getWidth();
+					pt = toDisplay(rect.x, 0);
+				}
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = rect.width;
+				e.height = rect.height;
+			}
+			public void getRole(AccessibleControlEvent e) {
+				e.detail = ACC.ROLE_COLUMN;
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				/* CTable2 columns do not take focus. */
+				e.childID = ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				/* CTable2 columns cannot be selected. */
+				e.childID = ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				e.detail = ACC.STATE_NORMAL; // read-only?
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: sort?
+			}
+			public void getValue(AccessibleControlEvent e) {
+			}
+		});
+		columnAccessible.addAccessibleTableListener(new AccessibleTableListener() {
+			public void deselectColumn(AccessibleTableEvent e) {
+				/* CTable2 columns cannot be selected. */
+			}
+			public void deselectRow(AccessibleTableEvent e) {
+				/* Rows in CTables cannot be selected separately. */
+			}
+			public void getCaption(AccessibleTableEvent e) {
+			}
+			public void getCell(AccessibleTableEvent e) {
+				// TODO: should columns answer cells? or just rows that are cells? What does Mac want?
+			}
+			public void getColumn(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void getColumnCount(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void getColumnDescription(AccessibleTableEvent e) {
+			}
+			public void getColumnHeader(AccessibleTableEvent e) {
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)
+				if (columns.length == 0) {
+					/* The CTable2 is being used as a list, and there is no column header. */
+					e.accessible = null;
+				} else {
+					/* A CTable2 column has one header cell. */
+					CTableColumn2 column = columns [columnIndex];
+					e.accessible = column.getAccessible (header.getAccessible());
+				}
+			}
+			public void getColumnHeaderCells(AccessibleTableEvent e) {
+				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)
+				if (columns.length == 0) {
+					/* The CTable2 is being used as a list, and there are no header cells. */
+					e.accessibles = null;
+				} else {
+					/* A CTable2 column has one header cell. */
+					CTableColumn2 column = columns [columnIndex];
+					e.accessibles = new Accessible[] {column.getAccessible (header.getAccessible())};
+				}
+			}
+			public void getColumns(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void getRowCount(AccessibleTableEvent e) {
+				e.count = itemsCount;
+			}
+			public void getRow(AccessibleTableEvent e) {
+				int index = e.row;
+				if (0 <= index && index < itemsCount) {
+					CTableItem2 row = items [index];
+					e.accessible = row.getAccessible (getAccessible(), columnIndex);
+				}
+			}
+			public void getRows(AccessibleTableEvent e) {
+				Accessible[] accessibles = new Accessible[itemsCount];
+				for (int i = 0; i < itemsCount; i++) {
+					CTableItem2 row = items [i];
+					accessibles[i] = row.getAccessible (getAccessible(), columnIndex);
+				}
+				e.accessibles = accessibles;
+			}
+			public void getRowDescription(AccessibleTableEvent e) {
+			}
+			public void getRowHeader(AccessibleTableEvent e) {
+				/* CTables do not have row headers. */
+			}
+			public void getRowHeaderCells(AccessibleTableEvent e) {
+				/* CTables do not have row headers. */
+			}
+			public void getSelectedCellCount(AccessibleTableEvent e) {
+				// TODO: not sure if Mac wants 'rows' and/or 'cells' for columns
+			}
+			public void getSelectedCells(AccessibleTableEvent e) {
+				// TODO: not sure if Mac wants 'rows' and/or 'cells' for columns
+			}
+			public void getSelectedColumnCount(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+				e.count = 0;
+			}
+			public void getSelectedColumns(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void getSelectedRowCount(AccessibleTableEvent e) {
+				e.count = selectedItems.length;
+			}
+			public void getSelectedRows(AccessibleTableEvent e) {
+				int[] selectedIndices = new int[selectedItems.length];
+				for (int i = 0; i < selectedItems.length; i++) {
+					selectedIndices[i] = selectedItems [i].index;
+				}
+				e.selected = selectedIndices;
+			}
+			public void getSummary(AccessibleTableEvent e) {
+			}
+			public void getVisibleColumns(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void getVisibleRows(AccessibleTableEvent e) {
+				Rectangle bounds = getBounds();
+				int startIndex = topIndex;
+				int endIndex = -1;
+				if (startIndex < itemsCount) {
+					endIndex = startIndex + (int)Math.ceil((float)bounds.height / itemHeight);
+				}
+				startIndex = Math.max (0, startIndex);
+				endIndex = Math.min (endIndex, itemsCount - 1);
+				Accessible[] accessibles = new Accessible[endIndex - startIndex + 1];
+				for (int i = startIndex; i <= endIndex; i++) {
+					CTableItem2 row = items [i];
+					accessibles[i] = row.getAccessible (getAccessible(), columnIndex);
+				}
+				e.accessibles = accessibles;
+			}
+			public void isColumnSelected(AccessibleTableEvent e) {
+				/* CTable2 does not support column selection. */
+				e.isSelected = false;
+			}
+			public void isRowSelected(AccessibleTableEvent e) {
+				e.isSelected = isSelected(e.row);
+			}
+			public void selectColumn(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void selectRow(AccessibleTableEvent e) {
+				/* Rows (i.e. cells) in CTable2 columns cannot be selected separately. */
+			}
+			public void setSelectedColumn(AccessibleTableEvent e) {
+				/* CTable2 columns do not have columns. */
+			}
+			public void setSelectedRow(AccessibleTableEvent e) {
+				/* Rows (i.e. cells) in CTable2 columns cannot be selected separately. */
+			}
+		});
+		columnAccessibles [columnIndex] = columnAccessible;
+	}
+	return columnAccessibles [columnIndex];
 }
 Image getArrowDownImage () {
 	return (Image) display.getData (ID_ARROWDOWN);
@@ -849,13 +1104,13 @@ public Control[] getChildren () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see CTable#getColumnOrder()
- * @see CTable#setColumnOrder(int[])
- * @see CTableColumn#getMoveable()
- * @see CTableColumn#setMoveable(boolean)
+ * @see CTable2#getColumnOrder()
+ * @see CTable2#setColumnOrder(int[])
+ * @see CTableColumn2#getMoveable()
+ * @see CTableColumn2#setMoveable(boolean)
  * @see SWT#Move
  */
-public CTableColumn getColumn (int index) {
+public CTableColumn2 getColumn (int index) {
 	checkWidget ();
 	if (!(0 <= index && index < columns.length)) SWT.error (SWT.ERROR_INVALID_RANGE);
 	return columns [index];
@@ -899,9 +1154,9 @@ public int getColumnCount () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see CTable#setColumnOrder(int[])
- * @see CTableColumn#getMoveable()
- * @see CTableColumn#setMoveable(boolean)
+ * @see CTable2#setColumnOrder(int[])
+ * @see CTableColumn2#getMoveable()
+ * @see CTableColumn2#setMoveable(boolean)
  * @see SWT#Move
  * 
  * @since 3.1
@@ -941,15 +1196,15 @@ public int[] getColumnOrder () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see CTable#getColumnOrder()
- * @see CTable#setColumnOrder(int[])
- * @see CTableColumn#getMoveable()
- * @see CTableColumn#setMoveable(boolean)
+ * @see CTable2#getColumnOrder()
+ * @see CTable2#setColumnOrder(int[])
+ * @see CTableColumn2#getMoveable()
+ * @see CTableColumn2#setMoveable(boolean)
  * @see SWT#Move
  */
-public CTableColumn[] getColumns () {
+public CTableColumn2[] getColumns () {
 	checkWidget ();
-	CTableColumn[] result = new CTableColumn [columns.length];
+	CTableColumn2[] result = new CTableColumn2 [columns.length];
 	System.arraycopy (columns, 0, result, 0, columns.length);
 	return result;
 }
@@ -1026,7 +1281,7 @@ public boolean getHeaderVisible () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public CTableItem getItem (int index) {
+public CTableItem2 getItem (int index) {
 	checkWidget ();
 	if (!(0 <= index && index < itemsCount)) SWT.error (SWT.ERROR_INVALID_RANGE);
 	return items [index];
@@ -1054,12 +1309,12 @@ public CTableItem getItem (int index) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public CTableItem getItem (Point point) {
+public CTableItem2 getItem (Point point) {
 	checkWidget ();
 	if (point == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	int index = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
 	if (!(0 <= index && index < itemsCount)) return null;		/* below the last item */
-	CTableItem result = items [index];
+	CTableItem2 result = items [index];
 	if (!result.getHitBounds ().contains (point)) return null;	/* considers the x value */
 	return result;
 }
@@ -1108,16 +1363,16 @@ public int getItemHeight () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public CTableItem[] getItems () {
+public CTableItem2[] getItems () {
 	checkWidget ();
-	CTableItem[] result = new CTableItem [itemsCount];
+	CTableItem2[] result = new CTableItem2 [itemsCount];
 	System.arraycopy (items, 0, result, 0, itemsCount);
 	return result;	
 }
 /*
  * Returns the current y-coordinate that the specified item should have. 
  */
-int getItemY (CTableItem item) {
+int getItemY (CTableItem2 item) {
 	return (item.index - topIndex) * itemHeight + getHeaderHeight ();
 }
 /**
@@ -1142,7 +1397,7 @@ public boolean getLinesVisible () {
 	checkWidget ();
 	return linesVisible;
 }
-CTableColumn[] getOrderedColumns () {
+CTableColumn2[] getOrderedColumns () {
 	if (orderedColumns != null) return orderedColumns;
 	return columns;
 }
@@ -1162,9 +1417,9 @@ CTableColumn[] getOrderedColumns () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public CTableItem[] getSelection () {
+public CTableItem2[] getSelection () {
 	checkWidget ();
-	CTableItem[] result = new CTableItem [selectedItems.length];
+	CTableItem2[] result = new CTableItem2 [selectedItems.length];
 	System.arraycopy (selectedItems, 0, result, 0, selectedItems.length);
 	sortAscent (result);
 	return result;
@@ -1203,7 +1458,7 @@ public int getSelectionIndex () {
  * Returns the index of the argument in the receiver's array of currently-
  * selected items, or -1 if the item is not currently selected.
  */
-int getSelectionIndex (CTableItem item) {
+int getSelectionIndex (CTableItem2 item) {
 	for (int i = 0; i < selectedItems.length; i++) {
 		if (selectedItems [i] == item) return i;
 	}
@@ -1246,11 +1501,11 @@ public int [] getSelectionIndices () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see #setSortColumn(CTableColumn)
+ * @see #setSortColumn(CTableColumn2)
  * 
  * @since 3.2
  */
-public CTableColumn getSortColumn () {
+public CTableColumn2 getSortColumn () {
 	checkWidget ();
 	return sortColumn;
 }
@@ -1369,8 +1624,8 @@ String headerGetToolTip (int x) {
 	if (resizeColumn != null) return null;
 	int orderedIndex = computeColumnIntersect (x, 0);
 	if (orderedIndex == -1) return null;
-	CTableColumn[] orderedColumns = getOrderedColumns ();
-	CTableColumn column = orderedColumns [orderedIndex];
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
+	CTableColumn2 column = orderedColumns [orderedIndex];
 	if (column.toolTipText == null) return null;
 
 	/* no tooltip should appear if the hover is at a column resize opportunity */
@@ -1398,14 +1653,14 @@ void headerHideToolTip() {
 void headerOnMouseDoubleClick (Event event) {
 	if (!isFocusControl ()) setFocus ();
 	if (columns.length == 0) return;
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	int x = -horizontalOffset;
 	for (int i = 0; i < orderedColumns.length; i++) {
-		CTableColumn column = orderedColumns [i];
+		CTableColumn2 column = orderedColumns [i];
 		x += column.width;
 		if (event.x < x) {
 			/* found the clicked column */
-			CTableColumn packColumn = null;
+			CTableColumn2 packColumn = null;
 			if (x - event.x <= TOLLERANCE_COLUMNRESIZE) {
 				/* clicked on column bound for this column */
 				packColumn = column;
@@ -1434,10 +1689,10 @@ void headerOnMouseDoubleClick (Event event) {
 }
 void headerOnMouseDown (Event event) {
 	if (event.button != 1) return;
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	int x = -horizontalOffset;
 	for (int i = 0; i < orderedColumns.length; i++) {
-		CTableColumn column = orderedColumns [i];
+		CTableColumn2 column = orderedColumns [i];
 		x += column.width;
 		/* if close to a resizable column separator line then begin column resize */
 		if (column.resizable && Math.abs (x - event.x) <= TOLLERANCE_COLUMNRESIZE) {
@@ -1466,7 +1721,7 @@ void headerOnMouseDown (Event event) {
 				if (pointerX < 0) return;	/* dragged too far left */
 				x = -horizontalOffset;
 				for (int destIndex = 0; destIndex < orderedColumns.length; destIndex++) {
-					CTableColumn destColumn = orderedColumns [destIndex];
+					CTableColumn2 destColumn = orderedColumns [destIndex];
 					x += destColumn.width;
 					if (pointerX < x) {
 						int oldIndex = column.getOrderIndex ();
@@ -1520,7 +1775,7 @@ void headerOnMouseMove (Event event) {
 	if (resizeColumn == null) {
 		/* not currently resizing a column */
 		for (int i = 0; i < columns.length; i++) {
-			CTableColumn column = columns [i]; 
+			CTableColumn2 column = columns [i]; 
 			int x = column.getX () + column.width;
 			if (Math.abs (x - event.x) <= TOLLERANCE_COLUMNRESIZE) {
 				if (column.resizable) {
@@ -1566,7 +1821,7 @@ void headerOnMouseUp (Event event) {
 	resizeColumn = null;
 }
 void headerOnPaint (Event event) {
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	int numColumns = orderedColumns.length;
 	GC gc = event.gc;
 	Rectangle clipping = gc.getClipping ();
@@ -1641,7 +1896,7 @@ boolean headerUpdateToolTip (int x) {
 	if (tooltip.equals (toolTipLabel.getText ())) return true;
 
 	toolTipLabel.setText (tooltip);
-	CTableColumn column = getOrderedColumns () [computeColumnIntersect (x, 0)];
+	CTableColumn2 column = getOrderedColumns () [computeColumnIntersect (x, 0)];
 	toolTipShell.setData (new Integer (column.getIndex ()));
 	Point labelSize = toolTipLabel.computeSize (SWT.DEFAULT, SWT.DEFAULT, true);
 	labelSize.x += 2; labelSize.y += 2;
@@ -1685,7 +1940,7 @@ boolean headerUpdateToolTip (int x) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public int indexOf (CTableColumn column) {
+public int indexOf (CTableColumn2 column) {
 	checkWidget ();
 	if (column == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	if (column.parent != this) return -1;
@@ -1708,7 +1963,7 @@ public int indexOf (CTableColumn column) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public int indexOf (CTableItem item) {
+public int indexOf (CTableItem2 item) {
 	checkWidget ();
 	if (item == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	if (item.parent != this) return -1;
@@ -1716,206 +1971,246 @@ public int indexOf (CTableItem item) {
 }
 
 void initAccessibility () {
-	// TODO: does this all work if CTable is virtual?
-	final Accessible accessibleTable = getAccessible();
-	accessibleTable.addAccessibleListener(new AccessibleAdapter() {
+	/* CTable2 has an optional "column header" child, and "row" and "column" children.
+	 * The "column header" child has "column header cell" children,
+	 * and the "row" and "column" children have "cell" children.
+	 * Cell children may also have children, such as graphic, label, combo, etc.
+	 * CTable2 does not support a "row header".
+	 * 
+	 * The "column header" child is implemented by the accessible object for the header Canvas.
+	 * Each of the "column header cell" children are implemented in CTableColumn2.
+	 * "Row" children and "cell" children are implemented in CTableItem2.
+	 * "Column" children are implemented in CTable2.
+	 */
+	// TODO: test virtual, image, and checkbox
+	Accessible accessibleTable = getAccessible();
+	accessibleTable.addAccessibleListener(new AccessibleListener() {
 		public void getName(AccessibleEvent e) {
-			/* CTables take their name from the preceding Label, if any. */
-			Control[] siblings = getParent().getChildren();
-			for (int i = 0; i < siblings.length; i++) {
-				if (i != 0 && siblings[i] == CTable.this) {
-					Control control = siblings[i-1];
-					if (control instanceof Label) {
-						e.result = ((Label) control).getText();
+			int childID = e.childID;
+			if (childID == ACC.CHILDID_SELF) { // table
+				/* CTables take their name from the preceding Label control, if any. */
+				Control[] siblings = getParent().getChildren();
+				for (int i = 0; i < siblings.length; i++) {
+					if (i != 0 && siblings[i] == CTable2.this) {
+						Control control = siblings[i-1];
+						if (control instanceof Label) {
+							e.result = ((Label) control).getText();
+						}
 					}
 				}
 			}
 		}
 		public void getHelp(AccessibleEvent e) {
-			/* A CTable's toolTip text (if any) can be used as its help text. */
+			/* A CTable2's toolTip text (if any) can be used as its help text. */
 			e.result = getToolTipText();
 		}
+		public void getKeyboardShortcut(AccessibleEvent e) {
+			// TODO: parse the preceding label to see if it has a mnemonic?
+		}
+		public void getDescription(AccessibleEvent e) {
+			// TODO: implement "MSAA table" getDescription (i.e. "H1: cell1, H2: cell2", etc)
+			// for backward compatibility with MSAA-only AT's?
+		}
 	});
-	accessibleTable.addAccessibleControlListener(new AccessibleControlAdapter() {
-		/* Child IDs are assigned as follows:
-		 * - column header ids (if any) are numbered from 0 to columnCount - 1
-		 * - cell ids are numbered in row-major order (starting from columnCount if there are columns)
-		 * Accessibles are returned in getChild.
-		 */
-		public void getChild(AccessibleControlEvent e) {
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // table
-				e.accessible = accessibleTable;
-			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
-				CTableColumn column = columns [childID];
-				e.accessible = column.getAccessible(accessibleTable);
-			} else { // item cell
-				int columnCount = columns.length > 0 ? columns.length : 1;
-				if (columns.length > 0) childID -= columnCount;
-				if (0 <= childID && childID < itemsCount * columnCount) {
-					int rowIndex = childID / columnCount;
-					int columnIndex = childID - rowIndex * columnCount;
-					e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
-				}
-			}
-		}
-		public void getChildAtPoint(AccessibleControlEvent e) {
-			Point point = toControl(e.x, e.y);
-			if (columns.length > 0 && point.y < getHeaderHeight ()) { // header cell
-				int columnIndex = computeColumnIntersect (point.x, 0);
-				if (columnIndex != -1) {
-					CTableColumn column = columns [columnIndex];
-					e.accessible = column.getAccessible (accessibleTable);
-				}
-			} else { // item cell
-				int columnIndex = columns.length > 0 ? computeColumnIntersect (point.x, 0) : 0;
-				if (columnIndex != -1) {
-					int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
-					if (0 <= rowIndex && rowIndex < itemsCount) {
-						if (items [rowIndex].getHitBounds ().contains (point)) {  /* considers the x value */
-							e.accessible = items[rowIndex].getAccessible (accessibleTable, columnIndex);
-						}
-					}
-				}
-			}
-		}
+	accessibleTable.addAccessibleControlListener(new AccessibleControlListener() {
 		public void getChildCount(AccessibleControlEvent e) {
-			e.detail = columns.length > 0 ? columns.length + itemsCount * columns.length : itemsCount;
+			/* Return the number of row and column children.
+			 * If the CTable2 is being used as a list (i.e. if columns.length == 0) then add 1 column child.
+			 * If there is a column header (i.e. if columns.length > 0) then add 1 "column header" child.
+			 */
+			e.detail = itemsCount + columns.length + 1;
 		}
 		public void getChildren(AccessibleControlEvent e) {
-			int childIdCount = columns.length > 0 ? columns.length + itemsCount * columns.length : itemsCount;
-			Object[] children = new Object[childIdCount];
-			for (int i = 0; i < childIdCount; i++) {
-				children[i] = new Integer(i);
+			/* Return accessible row objects for the row children,
+			 * an accessible object for the "column header" child (if any),
+			 * and accessible column objects for the column children.
+			 */
+			int childCount = itemsCount + columns.length + 1;
+			Object[] children = new Object[childCount];
+			int index = 0;
+			for (int i = 0; i < itemsCount; i++) { // rows
+				CTableItem2 row = items [index];
+				children[index++] = row.getAccessible (getAccessible());
+			}
+			int columnCount = columns.length;
+			if (columnCount > 0) { // header
+				children[index++] = header.getAccessible();
+			} else {
+				columnCount = 1;
+			}
+			for (int i = 0; i < columnCount; i++) { // columns
+				children[index++] = getAccessible (getAccessible(), i);
 			}
 			e.children = children;
 		}
-		public void getFocus(AccessibleControlEvent e) {
-			e.childID = isFocusControl() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+		public void getChild(AccessibleControlEvent e) {
+			switch (e.childID) {
+				case ACC.CHILDID_CHILD_AT_INDEX: {
+					int index = e.detail;
+					if (index < itemsCount) {
+						CTableItem2 row = items [index];
+						e.accessible = row.getAccessible (getAccessible());
+					} else if (index == itemsCount && columns.length > 0) {
+						e.accessible = header.getAccessible();
+					} else if (index < itemsCount + (columns.length > 0 ? columns.length : 1)) {
+						e.accessible = getAccessible (getAccessible(), index - itemsCount - 1);
+					}
+					break;
+				}
+				case ACC.CHILDID_CHILD_INDEX: {
+					Control [] children = getParent().getChildren();
+					int index = 0;
+					while (index < children.length) {
+						if (children[index] == CTable2.this) break;
+						index++;
+					}
+					e.detail = index;
+					break;
+				}
+				default: /* CTable2 does not have "simple element" children. */
+			}
+		}
+		public void getChildAtPoint(AccessibleControlEvent e) {
+			/* The point can be in the header, a row, the table or none (a column cannot be selected). */
+			Point point = toControl(e.x, e.y);
+			if (columns.length > 0 && point.y < getHeaderHeight ()) { // header
+				e.accessible = header.getAccessible();
+			} else { // rows
+				int rowIndex = (point.y - getHeaderHeight ()) / itemHeight + topIndex;
+				if (0 <= rowIndex && rowIndex < itemsCount) {
+					CTableItem2 row = items [rowIndex];
+					if (row.getHitBounds ().contains (point)) {  /* considers the x value */
+						e.accessible = row.getAccessible (getAccessible());
+						return;
+					}
+				}
+			}
+			e.childID = getBounds().contains(getParent().toControl(e.x, e.y)) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
 		}
 		public void getLocation(AccessibleControlEvent e) {
-			Rectangle location = null;
-			Point pt = null;
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // table
-				location = getBounds();
-				pt = getParent().toDisplay(location.x, location.y);
-			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
-				CTableColumn column = columns [childID];
-				location = new Rectangle (column.getX (), 0, column.getWidth(), getHeaderHeight());
-				pt = toDisplay(location.x, location.y);
-			} else { // item cell
-				int columnCount = columns.length > 0 ? columns.length : 1;
-				if (columns.length > 0) childID -= columnCount;
-				if (0 <= childID && childID < itemsCount * columnCount) {
-					int rowIndex = childID / columnCount;
-					int columnIndex = childID - rowIndex * columnCount;
-					location = items[rowIndex].getBounds(columnIndex);
-					pt = toDisplay(location.x, location.y);
-				}
-			}
-			if (location != null && pt != null) {
-				e.x = pt.x;
-				e.y = pt.y;
-				e.width = location.width;
-				e.height = location.height;
-			}
+			/* Use the system (default) location for the CTable2. */
 		}
 		public void getRole(AccessibleControlEvent e) {
-			e.detail = e.childID == ACC.CHILDID_SELF ? ACC.ROLE_TABLE : ACC.ROLE_TABLECELL;
+			e.detail = ACC.ROLE_TABLE;
+		}
+		public void getFocus(AccessibleControlEvent e) {
+			if (hasFocus) {
+				if (focusItem != null) {
+					e.childID = focusItem.index;
+				} else {
+					e.childID = ACC.CHILDID_SELF;
+				}
+			} else {
+				e.childID = ACC.CHILDID_NONE;
+			}
 		}
 		public void getSelection(AccessibleControlEvent e) {
-			int columnCount = columns.length > 0 ? columns.length : 1;
-			int [] selectionIndices = getSelectionIndices();
-			Object[] selectedChildren = new Object[selectionIndices.length * columnCount];
-			for (int i = 0; i < selectionIndices.length; i++) {
-				int row = selectionIndices[i];
-				for (int col = 0; col < columnCount; col++) {
-					selectedChildren[i] = new Integer(row * columnCount + col);
+			/* Only rows (CTableItem2s) can be selected. */
+			if (selectedItems.length > 0) {
+				if (selectedItems.length == 1) {
+					e.accessible = selectedItems [0].getAccessible (getAccessible());
+				} else {
+					e.childID = ACC.CHILDID_MULTIPLE;
+					Object[] selectedChildren = new Object[selectedItems.length];
+					for (int i = 0; i < selectedItems.length; i++) {
+						selectedChildren[i] = selectedItems [i].getAccessible (getAccessible());
+					}
+					e.children = selectedChildren;
 				}
+			} else {
+				e.childID = ACC.CHILDID_NONE;
 			}
-			e.children = selectedChildren;
 		}
 		public void getState(AccessibleControlEvent e) {
-			int state = ACC.STATE_NORMAL;
-			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // table
-				state |= ACC.STATE_FOCUSABLE;
-				if (isFocusControl()) {
-					state |= ACC.STATE_FOCUSED;
-				}
-			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
-				/* CTable does not support header cell focus or selection. */
-				state |= ACC.STATE_SIZEABLE;
-			} else { // item cell
-				int columnCount = columns.length > 0 ? columns.length : 1;
-				if (columns.length > 0) childID -= columnCount;
-				if (0 <= childID && childID < itemsCount * columnCount) {
-					/* CTable does not support cell selection (only row selection). */
-					int rowIndex = childID / columnCount;
-					state |= ACC.STATE_SELECTABLE;
-					if (isFocusControl()) {
-						state |= ACC.STATE_FOCUSABLE;
-					}
-					if (items[rowIndex].isSelected()) {
-						state |= ACC.STATE_SELECTED;
-						if (isFocusControl()) {
-							state |= ACC.STATE_FOCUSED;
-						}
-					}
-				}
+			int state = ACC.STATE_NORMAL | ACC.STATE_FOCUSABLE;
+			if (hasFocus) {
+				state |= ACC.STATE_FOCUSED;
 			}
 			e.detail = state;
 		}
+		public void getDefaultAction(AccessibleControlEvent e) {
+		}
+		public void getValue(AccessibleControlEvent e) {
+		}
 	});
-	accessibleTable.addAccessibleTableListener(new AccessibleTableAdapter() {
+	accessibleTable.addAccessibleTableListener(new AccessibleTableListener() {
 		public void deselectColumn(AccessibleTableEvent e) {
-			/* CTable does not support column selection. */
+			/* CTable2 does not support column selection. */
 		}
 		public void deselectRow(AccessibleTableEvent e) {
 			deselect(e.row);
 		}
 		public void getCaption(AccessibleTableEvent e) {
-			// TODO: What is a caption? How does it differ from name? Should app supply?
-			e.result = "This is the Custom Table's Test Caption";
+			// TODO: What is a caption? Should app supply?
 		}
 		public void getCell(AccessibleTableEvent e) {
 			int index = e.row;
 			if (0 <= index && index < itemsCount) {
-				CTableItem row = items [index];
-				e.accessible = row.getAccessible (accessibleTable, e.column);
+				CTableItem2 row = items [index];
+				e.accessible = row.getAccessible (getAccessible(), e.column);
 			}
 		}
 		public void getColumnCount(AccessibleTableEvent e) {
+			e.count = columns.length > 0 ? columns.length : 1;
+		}
+		public void getColumn(AccessibleTableEvent e) {
+			getAccessible(getAccessible(), e.column);
+		}
+		public void getColumns(AccessibleTableEvent e) {
 			int columnCount = columns.length > 0 ? columns.length : 1;
-			e.count = columnCount;
+			Accessible[] accessibles = new Accessible[columnCount];
+			for (int i = 0; i < columnCount; i++) {
+				accessibles[i] = getAccessible (getAccessible(), i);
+			}
+			e.accessibles = accessibles;
 		}
 		public void getColumnDescription(AccessibleTableEvent e) {
-			// TODO: What is a description? How does it differ from name? Should app supply?
+			// TODO: What is a description? Should app supply?
 			e.result = "This is the Custom Table's Test Description for column " + e.column;
 		}
-		public void getColumnHeaders(AccessibleTableEvent e) {
-			if (columns.length == 0) {
-				/* The CTable is being used as a list, and there are no headers. */
-				e.accessibles = null;
-			} else {
+		public void getColumnHeader(AccessibleTableEvent e) {
+			e.accessible = header.getAccessible();
+		}
+		public void getColumnHeaderCells(AccessibleTableEvent e) {
+			if (columns.length > 0) {
 				Accessible[] accessibles = new Accessible[columns.length];
 				for (int i = 0; i < columns.length; i++) {
-					CTableColumn column = columns [i];
-					accessibles[i] = column.getAccessible (accessibleTable);
+					CTableColumn2 column = columns [i];
+					accessibles[i] = column.getAccessible (header.getAccessible());
 				}
 				e.accessibles = accessibles;
+			} else {
+				/* The CTable2 is being used as a list, and there is no column header. */
+				e.accessibles = null;
 			}
 		}
 		public void getRowCount(AccessibleTableEvent e) {
 			e.count = itemsCount;
 		}
+		public void getRow(AccessibleTableEvent e) {
+			int index = e.row;
+			if (0 <= index && index < itemsCount) {
+				CTableItem2 row = items [index];
+				e.accessible = row.getAccessible (getAccessible());
+			}
+		}
+		public void getRows(AccessibleTableEvent e) {
+			Accessible[] accessibles = new Accessible[itemsCount];
+			for (int i = 0; i < itemsCount; i++) {
+				CTableItem2 row = items [i];
+				accessibles[i] = row.getAccessible (getAccessible());
+			}
+			e.accessibles = accessibles;
+		}
 		public void getRowDescription(AccessibleTableEvent e) {
-			// TODO: What is a description? How does it differ from name? Should app supply?
+			// TODO: What is a description? Should app supply?
 			e.result = "This is the Custom Table's Test Description for row " + e.row;
 		}
-		public void getRowHeaders(AccessibleTableEvent e) {
-			/* CTable does not support row headers. */
+		public void getRowHeader(AccessibleTableEvent e) {
+			/* CTable2 does not support row headers. */
+		}
+		public void getRowHeaderCells(AccessibleTableEvent e) {
+			/* CTable2 does not support row headers. */
 		}
 		public void getSelectedCellCount(AccessibleTableEvent e) {
 			int columnCount = columns.length > 0 ? columns.length : 1;
@@ -1925,17 +2220,17 @@ void initAccessibility () {
 			int columnCount = columns.length > 0 ? columns.length : 1;
 			Accessible[] accessibles = new Accessible[selectedItems.length * columnCount];
 			for (int r = 0; r < selectedItems.length; r++) {
-				CTableItem row = selectedItems [r];
+				CTableItem2 row = selectedItems [r];
 				for (int c = 0; c < columnCount; c++)
-					accessibles[r+c] = row.getAccessible (accessibleTable, c);
+					accessibles[r * columnCount + c] = row.getAccessible (row.getAccessible(getAccessible()), c);
 			}
 			e.accessibles = accessibles;
 		}
 		public void getSelectedColumnCount(AccessibleTableEvent e) {
-			e.count = 0; /* CTable does not support column selection. */
+			e.count = 0; /* CTable2 does not support column selection. */
 		}
 		public void getSelectedColumns(AccessibleTableEvent e) {
-			/* CTable does not support column selection. */
+			/* CTable2 does not support column selection. */
 		}
 		public void getSelectedRowCount(AccessibleTableEvent e) {
 			e.count = selectedItems.length;
@@ -1948,59 +2243,145 @@ void initAccessibility () {
 			e.selected = selectedIndices;
 		}
 		public void getSummary(AccessibleTableEvent e) {
-			// TODO: What is a summary? How does it differ from name? Should app supply?
-			e.result = "This is the Custom Table's Summary";
+			// TODO: What is a summary? Should app supply?
 		}
 		public void isColumnSelected(AccessibleTableEvent e) {
-			e.isSelected = false; /* CTable does not support column selection. */
+			/* CTable2 does not support column selection. */
+			e.isSelected = false;
 		}
 		public void isRowSelected(AccessibleTableEvent e) {
 			e.isSelected = isSelected(e.row);
 		}
 		public void selectColumn(AccessibleTableEvent e) {
-			/* CTable does not support column selection. */
+			/* CTable2 does not support column selection. */
 		}
 		public void selectRow(AccessibleTableEvent e) {
 			select(e.row);
 		}
 		public void setSelectedColumn(AccessibleTableEvent e) {
-			/* CTable does not support column selection. */
+			/* CTable2 does not support column selection. */
 		}
 		public void setSelectedRow(AccessibleTableEvent e) {
 			setSelection(e.row);
 		}
+		public void getVisibleColumns(AccessibleTableEvent e) {
+			CTableColumn2[] orderedColumns = getOrderedColumns ();
+			Rectangle bounds = getBounds();
+			int numColumns = orderedColumns.length;
+			int startColumn = -1, endColumn = -1;
+			if (numColumns > 0) {
+				startColumn = computeColumnIntersect (bounds.x, 0);
+				if (startColumn != -1) {	/* the clip x is within a column's bounds */
+					endColumn = computeColumnIntersect (bounds.x + bounds.width, startColumn);
+					if (endColumn == -1) endColumn = numColumns - 1;
+				}
+			} else {
+				startColumn = endColumn = 0;
+			}
+			int columnCount = columns.length > 0 ? columns.length : 1;
+			Accessible[] accessibles = new Accessible[columnCount];
+			for (int i = 0; i < columnCount; i++) {
+				accessibles[i] = getAccessible (getAccessible(), i);
+			}
+			e.accessibles = accessibles;
+		}
+		public void getVisibleRows(AccessibleTableEvent e) {
+			Rectangle bounds = getBounds();
+			int startIndex = topIndex;
+			int endIndex = -1;
+			if (startIndex < itemsCount) {
+				endIndex = startIndex + (int)Math.ceil((float)bounds.height / itemHeight);
+			}
+			startIndex = Math.max (0, startIndex);
+			endIndex = Math.min (endIndex, itemsCount - 1);
+			Accessible[] accessibles = new Accessible[endIndex - startIndex + 1];
+			for (int i = startIndex; i <= endIndex; i++) {
+				CTableItem2 row = items [i];
+				accessibles[i] = row.getAccessible (getAccessible());
+			}
+			e.accessibles = accessibles;
+		}
 	});
 	
-//	final Accessible accessibleTableHeader = header.getAccessible();
-//	accessibleTableHeader.addAccessibleListener(new AccessibleAdapter() {
-//		public void getName(AccessibleEvent e) {
-//			CTableColumn column = columns [e.childID];
-//			e.result = column.getText();
-//		}
-//	});
-//	accessibleTableHeader.addAccessibleControlListener(new AccessibleControlAdapter() {
-//		public void getChildAtPoint(AccessibleControlEvent e) {
-//			Point point = toControl(e.x, e.y);
-//			int columnIndex = computeColumnIntersect (point.x, 0);
-//			if (columnIndex != -1) {
-//				CTableColumn column = columns [columnIndex];
-//				e.accessible = column.getAccessible (accessibleTable);
-//			}
-//		}
-//		public void getChildCount(AccessibleControlEvent e) {
-//			e.detail = columns.length;
-//		}
-//		public void getChildren(AccessibleControlEvent e) {
-//			Object[] children = new Object[columns.length];
-//			for (int i = 0; i < columns.length; i++) {
-//				children[i] = new Integer(i);
-//			}
-//			e.children = children;
-//		}
-//		public void getRole(AccessibleControlEvent e) {
-//			e.detail = ACC.ROLE_TABLECELL;
-//		}
-//	});
+	Accessible accessibleTableHeader = header.getAccessible();
+	accessibleTableHeader.addAccessibleListener(new AccessibleListener() {
+		/* The header canvas has "column header cell" children. */
+		public void getName(AccessibleEvent e) {
+			e.result = "Header";
+		}
+
+		public void getHelp(AccessibleEvent e) {
+			e.result = header.getToolTipText();
+		}
+
+		public void getKeyboardShortcut(AccessibleEvent e) {
+		}
+
+		public void getDescription(AccessibleEvent e) {
+		}
+	});
+	accessibleTableHeader.addAccessibleControlListener(new AccessibleControlListener() {
+		public void getChildAtPoint(AccessibleControlEvent e) {
+			Point point = toControl(e.x, e.y);
+			int columnIndex = computeColumnIntersect (point.x, 0);
+			if (columnIndex != -1) {
+				CTableColumn2 column = columns [columnIndex];
+				System.out.println("header getChildAtPoint found column " + columnIndex + " (" + column.getText() + ") at point " + point);
+				e.accessible = column.getAccessible (header.getAccessible());
+			}
+		}
+		public void getChildCount(AccessibleControlEvent e) {
+			e.detail = columns.length;
+		}
+		public void getChildren(AccessibleControlEvent e) {
+			Object[] children = new Object[columns.length];
+			for (int i = 0; i < columns.length; i++) {
+				CTableColumn2 column = columns [i];
+				children[i] = column.getAccessible(header.getAccessible());
+			}
+			e.children = children;
+		}
+		public void getChild(AccessibleControlEvent e) {
+			switch (e.childID) {
+				case ACC.CHILDID_CHILD_AT_INDEX:
+					int index = e.detail;
+					CTableColumn2 column = columns [index];
+					e.accessible = column.getAccessible(header.getAccessible());
+					break;
+				case ACC.CHILDID_CHILD_INDEX:
+					e.detail = itemsCount;
+					break;
+				default: /* CTable2 header does not have "simple element" children. */
+			}
+		}
+		public void getRole(AccessibleControlEvent e) {
+			// TODO: Not sure what role a header should have. Group? Row?
+			e.detail = ACC.ROLE_GROUP;
+		}
+		public void getLocation(AccessibleControlEvent e) {
+			Rectangle location = header.getBounds();
+			Point pt = toDisplay(location.x, location.y);
+			e.x = pt.x;
+			e.y = pt.y;
+			e.width = location.width;
+			e.height = location.height;
+		}
+		public void getDefaultAction(AccessibleControlEvent e) {
+		}
+		public void getFocus(AccessibleControlEvent e) {
+			/* CTable2 header cannot take focus. */
+			e.childID = ACC.CHILDID_NONE;
+		}
+		public void getSelection(AccessibleControlEvent e) {
+			/* CTable2 header cannot be selected. */
+			e.childID = ACC.CHILDID_NONE;
+		}
+		public void getState(AccessibleControlEvent e) {
+			e.detail = ACC.STATE_NORMAL; // read-only?
+		}
+		public void getValue(AccessibleControlEvent e) {
+		}
+	});
 }
 
 static void initImages (final Display display) {
@@ -2085,6 +2466,10 @@ public boolean isSelected (int index) {
 	if (!(0 <= index && index < itemsCount)) return false;
 	return items [index].isSelected ();
 }
+public void notifyListeners (int eventType, Event event) {
+	super.notifyListeners(eventType, event);
+	if (eventType == SWT.Selection && event.detail != SWT.CHECK) getAccessible().selectionChanged();
+}
 void onArrowDown (int stateMask) {
 	if ((stateMask & (SWT.SHIFT | SWT.CTRL)) == 0) {
 		/* Down Arrow with no modifiers */
@@ -2149,7 +2534,7 @@ void onArrowDown (int stateMask) {
 		/* CTRL+Down Arrow */
 		int focusIndex = focusItem.index; 
 		if (focusIndex == itemsCount - 1) return;	/* at bottom */
-		CTableItem newFocusItem = items [focusIndex + 1];
+		CTableItem2 newFocusItem = items [focusIndex + 1];
 		setFocusItem (newFocusItem, true);
 		redrawItem (newFocusItem.index, true);
 		showItem (newFocusItem);
@@ -2228,7 +2613,7 @@ void onArrowUp (int stateMask) {
 		/* Up Arrow with no modifiers */
 		int newFocusIndex = focusItem.index - 1;
 		if (newFocusIndex < 0) return; 		/* at top */
-		CTableItem item = items [newFocusIndex];
+		CTableItem2 item = items [newFocusIndex];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (newFocusIndex, true);
@@ -2257,7 +2642,7 @@ void onArrowUp (int stateMask) {
 		/* Shift+Up Arrow */
 		int newFocusIndex = focusItem.index - 1;
 		if (newFocusIndex < 0) return; 	/* at top */
-		CTableItem item = items [newFocusIndex];
+		CTableItem2 item = items [newFocusIndex];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (newFocusIndex, true);
@@ -2287,7 +2672,7 @@ void onArrowUp (int stateMask) {
 		/* CTRL+Up Arrow */
 		int focusIndex = focusItem.index; 
 		if (focusIndex == 0) return;	/* at top */
-		CTableItem newFocusItem = items [focusIndex - 1];
+		CTableItem2 newFocusItem = items [focusIndex - 1];
 		setFocusItem (newFocusItem, true);
 		showItem (newFocusItem);
 		redrawItem (newFocusItem.index, true);
@@ -2301,7 +2686,7 @@ void onArrowUp (int stateMask) {
 		deselectItem (focusItem);
 		redrawItem (focusItem.index, true);
 	}
-	CTableItem item = items [newFocusIndex];
+	CTableItem2 item = items [newFocusIndex];
 	selectItem (item, true);
 	setFocusItem (item, true);
 	redrawItem (newFocusIndex, true);
@@ -2328,6 +2713,7 @@ void onDispose (Event event) {
 	for (int i = 0; i < columns.length; i++) {
 		columns [i].dispose (false);
 	}
+	disposeAccessibles();
 	if (toolTipShell != null) {
 		toolTipShell.dispose ();
 		toolTipShell = null;
@@ -2347,7 +2733,7 @@ void onEnd (int stateMask) {
 	if ((stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
 		/* End with no modifiers */
 		if (focusItem.index == lastAvailableIndex) return; 	/* at bottom */
-		CTableItem item = items [lastAvailableIndex]; 
+		CTableItem2 item = items [lastAvailableIndex]; 
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (lastAvailableIndex, true);
@@ -2366,7 +2752,7 @@ void onEnd (int stateMask) {
 		}
 		/* Shift+End */
 		if (focusItem.index == lastAvailableIndex) return; /* at bottom */
-		CTableItem item = items [lastAvailableIndex]; 
+		CTableItem2 item = items [lastAvailableIndex]; 
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (lastAvailableIndex, true);
@@ -2385,7 +2771,7 @@ void onEnd (int stateMask) {
 		}
 		/* CTRL+End */
 		if (focusItem.index == lastAvailableIndex) return; /* at bottom */
-		CTableItem item = items [lastAvailableIndex];
+		CTableItem2 item = items [lastAvailableIndex];
 		setFocusItem (item, true);
 		showItem (item);
 		redrawItem (item.index, true);
@@ -2393,11 +2779,11 @@ void onEnd (int stateMask) {
 	}
 	/* Shift+End */
 	if (anchorItem == null) anchorItem = focusItem;
-	CTableItem selectedItem = items [lastAvailableIndex];
+	CTableItem2 selectedItem = items [lastAvailableIndex];
 	if (selectedItem == focusItem && selectedItem.isSelected ()) return;
 	int anchorIndex = anchorItem.index;
 	int selectIndex = selectedItem.index;
-	CTableItem[] newSelection = new CTableItem [selectIndex - anchorIndex + 1];
+	CTableItem2[] newSelection = new CTableItem2 [selectIndex - anchorIndex + 1];
 	int writeIndex = 0;
 	for (int i = anchorIndex; i <= selectIndex; i++) {
 		newSelection [writeIndex++] = items [i];
@@ -2426,7 +2812,7 @@ void onFocusIn () {
 		return;
 	}
 	/* an initial focus item must be selected */
-	CTableItem initialFocus;
+	CTableItem2 initialFocus;
 	if (selectedItems.length > 0) {
 		initialFocus = selectedItems [0];
 	} else {
@@ -2455,7 +2841,7 @@ void onHome (int stateMask) {
 	if ((stateMask & (SWT.CTRL | SWT.SHIFT)) == 0) {
 		/* Home with no modifiers */
 		if (focusItem.index == 0) return; 		/* at top */
-		CTableItem item = items [0];
+		CTableItem2 item = items [0];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (0, true);
@@ -2473,7 +2859,7 @@ void onHome (int stateMask) {
 		}
 		/* Shift+Home */
 		if (focusItem.index == 0) return; 		/* at top */
-		CTableItem item = items [0];
+		CTableItem2 item = items [0];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		redrawItem (0, true);
@@ -2492,7 +2878,7 @@ void onHome (int stateMask) {
 		}
 		/* CTRL+Home */
 		if (focusItem.index == 0) return; /* at top */
-		CTableItem item = items [0];
+		CTableItem2 item = items [0];
 		setFocusItem (item, true);
 		showItem (item);
 		redrawItem (item.index, true);
@@ -2500,11 +2886,11 @@ void onHome (int stateMask) {
 	}
 	/* Shift+Home */
 	if (anchorItem == null) anchorItem = focusItem;
-	CTableItem selectedItem = items [0];
+	CTableItem2 selectedItem = items [0];
 	if (selectedItem == focusItem && selectedItem.isSelected ()) return;
 	int anchorIndex = anchorItem.index;
 	int selectIndex = selectedItem.index;
-	CTableItem[] newSelection = new CTableItem [anchorIndex + 1];
+	CTableItem2[] newSelection = new CTableItem2 [anchorIndex + 1];
 	int writeIndex = 0;
 	for (int i = anchorIndex; i >= 0; i--) {
 		newSelection [writeIndex++] = items [i];
@@ -2570,7 +2956,7 @@ void onKeyDown (Event event) {
 	char character = Character.toLowerCase (event.character);
 	/* check available items from current focus item to bottom */
 	for (int i = initialIndex + 1; i < itemsCount; i++) {
-		CTableItem item = items [i];
+		CTableItem2 item = items [i];
 		String text = item.getText (0, false);
 		if (text.length () > 0) {
 			if (Character.toLowerCase (text.charAt (0)) == character) {
@@ -2587,7 +2973,7 @@ void onKeyDown (Event event) {
 	}
 	/* check available items from top to current focus item */
 	for (int i = 0; i < initialIndex; i++) {
-		CTableItem item = items [i];
+		CTableItem2 item = items [i];
 		String text = item.getText (0, false);
 		if (text.length () > 0) {
 			if (Character.toLowerCase (text.charAt (0)) == character) {
@@ -2607,7 +2993,7 @@ void onMouseDoubleClick (Event event) {
 	if (!isFocusControl ()) setFocus ();
 	int index = (event.y - getHeaderHeight ()) / itemHeight + topIndex;
 	if  (!(0 <= index && index < itemsCount)) return;	/* not on an available item */
-	CTableItem selectedItem = items [index];
+	CTableItem2 selectedItem = items [index];
 	
 	/* 
 	 * If the two clicks of the double click did not occur over the same item then do not
@@ -2625,7 +3011,7 @@ void onMouseDown (Event event) {
 	if (!isFocusControl ()) forceFocus ();
 	int index = (event.y - getHeaderHeight ()) / itemHeight + topIndex;
 	if (!(0 <= index && index < itemsCount)) return;	/* not on an available item */
-	CTableItem selectedItem = items [index];
+	CTableItem2 selectedItem = items [index];
 	
 	/* if click was in checkbox */
 	if ((getStyle () & SWT.CHECK) != 0 && selectedItem.getCheckboxBounds ().contains (event.x, event.y)) {
@@ -2699,7 +3085,7 @@ void onMouseDown (Event event) {
 				if (anchorItem == null) anchorItem = focusItem;
 				int anchorIndex = anchorItem.index;
 				int selectIndex = selectedItem.index;
-				CTableItem[] newSelection = new CTableItem [Math.abs (anchorIndex - selectIndex) + 1];
+				CTableItem2[] newSelection = new CTableItem2 [Math.abs (anchorIndex - selectIndex) + 1];
 				int step = anchorIndex < selectIndex ? 1 : -1;
 				int writeIndex = 0;
 				for (int i = anchorIndex; i != selectIndex; i += step) {
@@ -2759,7 +3145,7 @@ void onMouseDown (Event event) {
 		if (anchorItem == null) anchorItem = focusItem;
 		int anchorIndex = anchorItem.index;
 		int selectIndex = selectedItem.index;
-		CTableItem[] newSelection = new CTableItem [Math.abs (anchorIndex - selectIndex) + 1];
+		CTableItem2[] newSelection = new CTableItem2 [Math.abs (anchorIndex - selectIndex) + 1];
 		int step = anchorIndex < selectIndex ? 1 : -1;
 		int writeIndex = 0;
 		for (int i = anchorIndex; i != selectIndex; i += step) {
@@ -2800,7 +3186,7 @@ void onPageDown (int stateMask) {
 		int newFocusIndex = focusItem.index + visibleItemCount - 1;
 		newFocusIndex = Math.min (newFocusIndex, itemsCount - 1);
 		if (newFocusIndex == focusItem.index) return;
-		CTableItem item = items [newFocusIndex];
+		CTableItem2 item = items [newFocusIndex];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		showItem (item);
@@ -2821,7 +3207,7 @@ void onPageDown (int stateMask) {
 			int newFocusIndex = focusItem.index + visibleItemCount - 1;
 			newFocusIndex = Math.min (newFocusIndex, itemsCount - 1);
 			if (newFocusIndex == focusItem.index) return;
-			CTableItem item = items [newFocusIndex];
+			CTableItem2 item = items [newFocusIndex];
 			selectItem (item, false);
 			setFocusItem (item, true);
 			showItem (item);
@@ -2866,8 +3252,8 @@ void onPageDown (int stateMask) {
 		selectIndex = Math.min (itemsCount - 1, bottomIndex + visibleItemCount);
 		if (selectIndex == focusItem.index && focusItem.isSelected ()) return;
 	}
-	CTableItem selectedItem = items [selectIndex];
-	CTableItem[] newSelection = new CTableItem [Math.abs (anchorIndex - selectIndex) + 1];
+	CTableItem2 selectedItem = items [selectIndex];
+	CTableItem2[] newSelection = new CTableItem2 [Math.abs (anchorIndex - selectIndex) + 1];
 	int step = anchorIndex < selectIndex ? 1 : -1;
 	int writeIndex = 0;
 	for (int i = anchorIndex; i != selectIndex; i += step) {
@@ -2887,7 +3273,7 @@ void onPageUp (int stateMask) {
 		/* PageUp with no modifiers */
 		int newFocusIndex = Math.max (0, focusItem.index - visibleItemCount + 1);
 		if (newFocusIndex == focusItem.index) return;
-		CTableItem item = items [newFocusIndex];
+		CTableItem2 item = items [newFocusIndex];
 		selectItem (item, false);
 		setFocusItem (item, true);
 		showItem (item);
@@ -2906,7 +3292,7 @@ void onPageUp (int stateMask) {
 			/* Shift+PageUp */
 			int newFocusIndex = Math.max (0, focusItem.index - visibleItemCount + 1);
 			if (newFocusIndex == focusItem.index) return;
-			CTableItem item = items [newFocusIndex];
+			CTableItem2 item = items [newFocusIndex];
 			selectItem (item, false);
 			setFocusItem (item, true);
 			showItem (item);
@@ -2948,8 +3334,8 @@ void onPageUp (int stateMask) {
 		selectIndex = Math.max (0, topIndex - visibleItemCount);
 		if (selectIndex == focusItem.index && focusItem.isSelected ()) return;
 	}
-	CTableItem selectedItem = items [selectIndex];
-	CTableItem[] newSelection = new CTableItem [Math.abs (anchorIndex - selectIndex) + 1];
+	CTableItem2 selectedItem = items [selectIndex];
+	CTableItem2[] newSelection = new CTableItem2 [Math.abs (anchorIndex - selectIndex) + 1];
 	int step = anchorIndex < selectIndex ? 1 : -1;
 	int writeIndex = 0;
 	for (int i = anchorIndex; i != selectIndex; i += step) {
@@ -2964,7 +3350,7 @@ void onPageUp (int stateMask) {
 	notifyListeners (SWT.Selection, newEvent);
 }
 void onPaint (Event event) {
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	GC gc = event.gc;
 	Rectangle clipping = gc.getClipping ();
 	int headerHeight = getHeaderHeight ();
@@ -2984,7 +3370,7 @@ void onPaint (Event event) {
 	int startIndex = (clipping.y - headerHeight) / itemHeight + topIndex;
 	int endIndex = -1;
 	if (startIndex < itemsCount) {
-		endIndex = startIndex + Compatibility.ceil (clipping.height, itemHeight);
+		endIndex = startIndex + (int)Math.ceil((float)clipping.height / itemHeight);
 	}
 	startIndex = Math.max (0, startIndex);
 	endIndex = Math.min (endIndex, itemsCount - 1);
@@ -2999,7 +3385,7 @@ void onPaint (Event event) {
 		//drawBackground (gc, 0, bottomY, clientArea.width, fillHeight);
 	}
 	if (columns.length > 0) {
-		CTableColumn column = orderedColumns [orderedColumns.length - 1];	/* last column */
+		CTableColumn2 column = orderedColumns [orderedColumns.length - 1];	/* last column */
 		int rightX = column.getX () + column.width;
 		if (rightX < clientArea.width) {
 			gc.fillRectangle (rightX, 0, clientArea.width - rightX, clientArea.height - fillHeight);
@@ -3012,7 +3398,7 @@ void onPaint (Event event) {
 	int[] lineDash = gc.getLineDash ();
 	int lineWidth = gc.getLineWidth ();
 	for (int i = startIndex; i <= Math.min (endIndex, itemsCount - 1); i++) {
-		CTableItem item = items [i];
+		CTableItem2 item = items [i];
 		if (!item.isDisposed ()) {	/* ensure that item was not disposed in a callback */
 			if (startColumn == -1) {
 				/* indicates that region to paint is to the right of the last column */
@@ -3204,7 +3590,7 @@ void reassignFocus () {
 		index++;
 	}
 	if (index < itemsCount) {
-		CTableItem item = items [index];
+		CTableItem2 item = items [index];
 		setFocusItem (item, false);
 		showItem (item);
 	} else {
@@ -3248,9 +3634,9 @@ void redrawItems (int startIndex, int endIndex, boolean focusBoundsOnly) {
 	if (focusBoundsOnly) {
 		boolean custom = isListening (SWT.EraseItem) || isListening (SWT.PaintItem);
 		if (!custom && columns.length > 0) {
-			CTableColumn lastColumn;
+			CTableColumn2 lastColumn;
 			if ((getStyle () & SWT.FULL_SELECTION) != 0) {
-				CTableColumn[] orderedColumns = getOrderedColumns ();
+				CTableColumn2[] orderedColumns = getOrderedColumns ();
 				lastColumn = orderedColumns [orderedColumns.length - 1];
 			} else {
 				lastColumn = columns [0];
@@ -3260,7 +3646,7 @@ void redrawItems (int startIndex, int endIndex, boolean focusBoundsOnly) {
 		}
 		endIndex = Math.min (endIndex, itemsCount - 1);
 		for (int i = startIndex; i <= endIndex; i++) {
-			CTableItem item = items [i];
+			CTableItem2 item = items [i];
 			if (item.isInViewport ()) {
 				/* if custom painting is being done then repaint the full item */
 				if (custom) {
@@ -3376,8 +3762,8 @@ public void removeAll () {
 	for (int i = 0; i < itemsCount; i++) {
 		items [i].dispose (false);
 	}
-	items = new CTableItem [0];
-	selectedItems = new CTableItem [0];
+	items = new CTableItem2 [0];
+	selectedItems = new CTableItem2 [0];
 	itemsCount = topIndex = 0;
 	anchorItem = lastClickedItem = null;
 	lastSelectionEvent = null;
@@ -3415,7 +3801,7 @@ String removeMnemonics (String string) {
 	return new String (chars, 0, j);
 }
 void removeSelectedItem (int index) {
-	CTableItem[] newSelectedItems = new CTableItem [selectedItems.length - 1];
+	CTableItem2[] newSelectedItems = new CTableItem2 [selectedItems.length - 1];
 	System.arraycopy (selectedItems, 0, newSelectedItems, 0, index);
 	System.arraycopy (selectedItems, index + 1, newSelectedItems, index, newSelectedItems.length - index);
 	selectedItems = newSelectedItems;
@@ -3462,6 +3848,7 @@ public void select (int index) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItem (index, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items in the range specified by the given zero-relative
@@ -3484,7 +3871,7 @@ public void select (int index) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see CTable#setSelection(int,int)
+ * @see CTable2#setSelection(int,int)
  */
 public void select (int start, int end) {
 	checkWidget ();
@@ -3498,6 +3885,7 @@ public void select (int start, int end) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItems (start, end, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items at the given zero-relative indices in the receiver.
@@ -3520,7 +3908,7 @@ public void select (int start, int end) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  * 
- * @see CTable#setSelection(int[])
+ * @see CTable2#setSelection(int[])
  */
 public void select (int [] indices) {
 	checkWidget ();
@@ -3539,6 +3927,7 @@ public void select (int [] indices) {
 			}
 		}
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects all of the items in the receiver.
@@ -3554,16 +3943,17 @@ public void select (int [] indices) {
 public void selectAll () {
 	checkWidget ();
 	if ((getStyle () & SWT.SINGLE) != 0) return;
-	selectedItems = new CTableItem [itemsCount];
+	selectedItems = new CTableItem2 [itemsCount];
 	System.arraycopy (items, 0, selectedItems, 0, itemsCount);
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redraw ();
 	}
+	getAccessible().selectionChanged();
 }
-void selectItem (CTableItem item, boolean addToSelection) {
-	CTableItem[] oldSelectedItems = selectedItems;
+void selectItem (CTableItem2 item, boolean addToSelection) {
+	CTableItem2[] oldSelectedItems = selectedItems;
 	if (!addToSelection || (getStyle () & SWT.SINGLE) != 0) {
-		selectedItems = new CTableItem[] {item};
+		selectedItems = new CTableItem2[] {item};
 		if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 			for (int i = 0; i < oldSelectedItems.length; i++) {
 				if (oldSelectedItems [i] != item) {
@@ -3573,7 +3963,7 @@ void selectItem (CTableItem item, boolean addToSelection) {
 		}
 	} else {
 		if (item.isSelected ()) return;
-		selectedItems = new CTableItem [selectedItems.length + 1];
+		selectedItems = new CTableItem2 [selectedItems.length + 1];
 		System.arraycopy (oldSelectedItems, 0, selectedItems, 0, oldSelectedItems.length);
 		selectedItems [selectedItems.length - 1] = item;
 	}
@@ -3605,9 +3995,9 @@ public void setForeground (Color color) {
  *    <li>ERROR_INVALID_ARGUMENT - if the item order is not the same length as the number of items</li>
  * </ul>
  * 
- * @see CTable#getColumnOrder()
- * @see CTableColumn#getMoveable()
- * @see CTableColumn#setMoveable(boolean)
+ * @see CTable2#getColumnOrder()
+ * @see CTableColumn2#getMoveable()
+ * @see CTableColumn2#setMoveable(boolean)
  * @see SWT#Move
  * 
  * @since 3.1
@@ -3637,12 +4027,12 @@ public void setColumnOrder (int [] order) {
 	for (int i = 0; i < columns.length; i++) {
 		oldX [i] = columns [i].getX ();
 	}
-	orderedColumns = new CTableColumn [order.length];
+	orderedColumns = new CTableColumn2 [order.length];
 	for (int i = 0; i < order.length; i++) {
 		orderedColumns [i] = columns [order [i]];
 	}
 	for (int i = 0; i < orderedColumns.length; i++) {
-		CTableColumn column = orderedColumns [i];
+		CTableColumn2 column = orderedColumns [i];
 		if (!column.isDisposed () && column.getX () != oldX [column.getIndex ()]) {
 			column.notifyListeners (SWT.Move, new Event ());
 		}
@@ -3651,13 +4041,14 @@ public void setColumnOrder (int [] order) {
 	redraw ();
 	if (drawCount <= 0 && header.isVisible ()) header.redraw ();
 }
-void setFocusItem (CTableItem item, boolean redrawOldFocus) {
+void setFocusItem (CTableItem2 item, boolean redrawOldFocus) {
 	if (item == focusItem) return;
-	CTableItem oldFocusItem = focusItem;
+	CTableItem2 oldFocusItem = focusItem;
 	focusItem = item;
 	if (redrawOldFocus && oldFocusItem != null) {
 		redrawItem (oldFocusItem.index, true);
 	}
+	item.getAccessible(getAccessible()).setFocus(ACC.CHILDID_SELF);
 }
 public void setFont (Font value) {
 	checkWidget ();
@@ -3774,10 +4165,10 @@ public void setItemCount (int count) {
 		}
 		if (newSelectedCount != selectedItems.length) {
 			/* one or more selected items have been disposed */
-			CTableItem[] newSelectedItems = new CTableItem [newSelectedCount];
+			CTableItem2[] newSelectedItems = new CTableItem2 [newSelectedCount];
 			int pos = 0;
 			for (int i = 0; i < selectedItems.length; i++) {
-				CTableItem item = selectedItems [i];
+				CTableItem2 item = selectedItems [i];
 				if (!item.isDisposed ()) {
 					newSelectedItems [pos++] = item;
 				}
@@ -3788,7 +4179,7 @@ public void setItemCount (int count) {
 		if (anchorItem != null && anchorItem.isDisposed ()) anchorItem = null;
 		if (lastClickedItem != null && lastClickedItem.isDisposed ()) lastClickedItem = null;
 		if (focusItem != null && focusItem.isDisposed ()) {
-			CTableItem newFocusItem = count > 0 ? items [count - 1] : null; 
+			CTableItem2 newFocusItem = count > 0 ? items [count - 1] : null; 
 			setFocusItem (newFocusItem, false);
 		}
 		itemsCount = count;
@@ -3796,11 +4187,11 @@ public void setItemCount (int count) {
 	} else {
 		redrawStart = itemsCount;
 		redrawEnd = count - 1;
-		CTableItem[] newItems = new CTableItem [count];
+		CTableItem2[] newItems = new CTableItem2 [count];
 		System.arraycopy (items, 0, newItems, 0, itemsCount);
 		items = newItems;
 		for (int i = itemsCount; i < count; i++) {
-			items [i] = new CTableItem (this, SWT.NONE, i, false);
+			items [i] = new CTableItem2 (this, SWT.NONE, i, false);
 			itemsCount++;
 		}
 		if (oldCount == 0) focusItem = items [0];
@@ -3854,7 +4245,7 @@ public void setRedraw (boolean value) {
 	if (value) {
 		if (--drawCount == 0) {
 			if (items.length - itemsCount > 3) {
-				CTableItem[] newItems = new CTableItem [itemsCount];
+				CTableItem2[] newItems = new CTableItem2 [itemsCount];
 				System.arraycopy (items, 0, newItems, 0, itemsCount);
 				items = newItems;
 			}
@@ -3887,10 +4278,10 @@ public void setRedraw (boolean value) {
  * 
  * @since 3.2
  */
-public void setSelection (CTableItem item) {
+public void setSelection (CTableItem2 item) {
 	checkWidget ();
 	if (item == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
-	setSelection (new CTableItem[] {item}, true);
+	setSelection (new CTableItem2[] {item}, true);
 }
 /**
  * Sets the receiver's selection to be the given array of items.
@@ -3912,34 +4303,34 @@ public void setSelection (CTableItem item) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#deselectAll()
- * @see CTable#select(int[])
- * @see CTable#setSelection(int[])
+ * @see CTable2#deselectAll()
+ * @see CTable2#select(int[])
+ * @see CTable2#setSelection(int[])
  */
-public void setSelection (CTableItem[] items) {
+public void setSelection (CTableItem2[] items) {
 	checkWidget ();
 	if (items == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	setSelection (items, true);
 }
-void setSelection (CTableItem[] items, boolean updateViewport) {
+void setSelection (CTableItem2[] items, boolean updateViewport) {
 	if (items.length == 0 || ((getStyle () & SWT.SINGLE) != 0 && items.length > 1)) {
 		deselectAll ();
 		return;
 	}
-	CTableItem[] oldSelection = selectedItems;
+	CTableItem2[] oldSelection = selectedItems;
 	
 	/* remove null and duplicate items */
 	int index = 0;
-	selectedItems = new CTableItem [items.length];	/* assume all valid items */
+	selectedItems = new CTableItem2 [items.length];	/* assume all valid items */
 	for (int i = 0; i < items.length; i++) {
-		CTableItem item = items [i];
+		CTableItem2 item = items [i];
 		if (item != null && item.parent == this && !item.isSelected ()) {
 			selectedItems [index++] = item;
 		}
 	}
 	if (index != items.length) {
 		/* an invalid item was provided so resize the array accordingly */
-		CTableItem[] temp = new CTableItem [index];
+		CTableItem2[] temp = new CTableItem2 [index];
 		System.arraycopy (selectedItems, 0, temp, 0, index);
 		selectedItems = temp;
 	}
@@ -3962,6 +4353,7 @@ void setSelection (CTableItem[] items, boolean updateViewport) {
 		showItem (selectedItems [0]);
 		setFocusItem (selectedItems [0], true);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Sets the column used by the sort indicator for the receiver. A null
@@ -3980,7 +4372,7 @@ void setSelection (CTableItem[] items, boolean updateViewport) {
  * 
  * @since 3.2
  */
-public void setSortColumn (CTableColumn column) {
+public void setSortColumn (CTableColumn2 column) {
 	checkWidget ();
 	if (column != null && column.isDisposed ()) SWT.error (SWT.ERROR_INVALID_ARGUMENT);
 	if (column == sortColumn) return;
@@ -4023,8 +4415,8 @@ public void setSortDirection (int direction) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#deselectAll()
- * @see CTable#select(int)
+ * @see CTable2#deselectAll()
+ * @see CTable2#select(int)
  */
 public void setSelection (int index) {
 	checkWidget ();
@@ -4034,6 +4426,7 @@ public void setSelection (int index) {
 	setFocusItem (items [index], true);
 	redrawItem (index, true);
 	showSelection ();
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items in the range specified by the given zero-relative
@@ -4054,8 +4447,8 @@ public void setSelection (int index) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#deselectAll()
- * @see CTable#select(int,int)
+ * @see CTable2#deselectAll()
+ * @see CTable2#select(int,int)
  */
 public void setSelection (int start, int end) {
 	checkWidget ();
@@ -4087,8 +4480,8 @@ public void setSelection (int start, int end) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#deselectAll()
- * @see CTable#select(int[])
+ * @see CTable2#deselectAll()
+ * @see CTable2#select(int[])
  */
 public void setSelection (int [] indices) {
 	checkWidget ();
@@ -4155,7 +4548,7 @@ public void setTopIndex (int index) {
  *
  * @since 3.0
  */
-public void showColumn (CTableColumn column) {
+public void showColumn (CTableColumn2 column) {
 	checkWidget ();
 	if (column == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	if (column.isDisposed ()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
@@ -4167,7 +4560,7 @@ public void showColumn (CTableColumn column) {
 
 	headerHideToolTip ();
 	int absX = 0;	/* the X of the column irrespective of the horizontal scroll */
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	for (int i = 0; i < column.getOrderIndex (); i++) {
 		absX += orderedColumns [i].width;
 	}
@@ -4197,9 +4590,9 @@ public void showColumn (CTableColumn column) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#showSelection()
+ * @see CTable2#showSelection()
  */
-public void showItem (CTableItem item) {
+public void showItem (CTableItem2 item) {
 	checkWidget ();
 	if (item == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	if (item.isDisposed ()) SWT.error (SWT.ERROR_INVALID_ARGUMENT);
@@ -4229,7 +4622,7 @@ public void showItem (CTableItem item) {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  *
- * @see CTable#showItem(CTableItem)
+ * @see CTable2#showItem(CTableItem2)
  */
 public void showSelection () {
 	checkWidget ();
@@ -4266,14 +4659,14 @@ void sortAscent (int [] items) {
 		}
 	}
 }
-void sortAscent (CTableItem [] items) {
+void sortAscent (CTableItem2 [] items) {
 	/* Shell Sort from K&R, pg 108 */
 	int length = items.length;
 	for (int gap = length / 2; gap > 0; gap /= 2) {
 		for (int i = gap; i < length; i++) {
 			for (int j = i - gap; j >= 0; j -= gap) {
 				if (items [j].index >= items [j + gap].index) {
-					CTableItem swap = items [j];
+					CTableItem2 swap = items [j];
 					items [j] = items [j + gap];
 					items [j + gap] = swap;
 				}
@@ -4281,7 +4674,7 @@ void sortAscent (CTableItem [] items) {
 		}
 	}
 }
-void updateColumnWidth (CTableColumn column, int width) {
+void updateColumnWidth (CTableColumn2 column, int width) {
 	headerHideToolTip ();
 	int oldWidth = column.width;
 	int columnX = column.getX ();
@@ -4353,7 +4746,7 @@ void updateColumnWidth (CTableColumn column, int width) {
 	}
 
 	column.notifyListeners (SWT.Resize, new Event ());
-	CTableColumn[] orderedColumns = getOrderedColumns ();
+	CTableColumn2[] orderedColumns = getOrderedColumns ();
 	for (int i = column.getOrderIndex () + 1; i < orderedColumns.length; i++) {
 		if (!orderedColumns [i].isDisposed ()) {
 			orderedColumns [i].notifyListeners (SWT.Move, new Event ());

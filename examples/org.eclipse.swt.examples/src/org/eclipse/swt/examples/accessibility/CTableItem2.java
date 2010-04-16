@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.*;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class CTableItem extends Item {
-	CTable parent;
+public class CTableItem2 extends Item {
+	CTable2 parent;
 	int index = -1;
 	boolean checked, grayed, cached;
 
@@ -46,11 +46,12 @@ public class CTableItem extends Item {
 	Image[] images;
 	Color foreground, background;
 	String[] displayTexts;
-	Accessible[] accessibles;
 	Color[] cellForegrounds, cellBackgrounds;
 	Font font;
 	Font[] cellFonts;
 	Display display;
+	Accessible accessible; // represents the row itself
+	Accessible[] cellAccessibles; // one cell per column (or one cell, if table is a list)
 	
 	static final int MARGIN_TEXT = 3;			/* the left and right margins within the text's space */
 
@@ -84,7 +85,7 @@ public class CTableItem extends Item {
  * @see Widget#checkSubclass
  * @see Widget#getStyle
  */
-public CTableItem (CTable parent, int style) {
+public CTableItem2 (CTable2 parent, int style) {
 	this (parent, style, checkNull (parent).itemsCount);
 }
 /**
@@ -119,10 +120,10 @@ public CTableItem (CTable parent, int style) {
  * @see Widget#checkSubclass
  * @see Widget#getStyle
  */
-public CTableItem (CTable parent, int style, int index) {
+public CTableItem2 (CTable2 parent, int style, int index) {
 	this (parent, style, index, true);
 }
-CTableItem (CTable parent, int style, int index, boolean notifyParent) {
+CTableItem2 (CTable2 parent, int style, int index, boolean notifyParent) {
 	super (parent, style);
 	int validItemIndex = parent.itemsCount;
 	if (!(0 <= index && index <= validItemIndex)) SWT.error (SWT.ERROR_INVALID_RANGE);
@@ -130,7 +131,7 @@ CTableItem (CTable parent, int style, int index, boolean notifyParent) {
 	this.index = index;
 	this.display = parent.getDisplay ();
 	int columnCount = parent.columns.length;
-	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
+	cellAccessibles = new Accessible [columnCount > 0 ? columnCount : 1];
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
 		if (columnCount > 1) {
@@ -144,7 +145,7 @@ CTableItem (CTable parent, int style, int index, boolean notifyParent) {
 /*
  * Updates internal structures in the receiver and its child items to handle the creation of a new column.
  */
-void addColumn (CTableColumn column) {
+void addColumn (CTableColumn2 column) {
 	int index = column.getIndex ();
 	int columnCount = parent.columns.length;
 
@@ -217,14 +218,7 @@ void addColumn (CTableColumn column) {
 		System.arraycopy (fontHeights, index, newFontHeights, index + 1, columnCount - index - 1);
 		fontHeights = newFontHeights;
 	}
-
-	if (columnCount > accessibles.length) {
-		Accessible[] newAccessibles = new Accessible [columnCount];
-		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-		System.arraycopy (accessibles, index, newAccessibles, index + 1, columnCount - index - 1);
-		accessibles = newAccessibles;
-	}
-
+	
 	if (index == 0 && columnCount > 1) {
 		/* 
 		 * The new second column may have more width available to it than it did when it was
@@ -237,8 +231,14 @@ void addColumn (CTableColumn column) {
 			gc.dispose ();
 		}
 	}
+	if (columnCount > cellAccessibles.length) {
+		Accessible[] newAccessibles = new Accessible [columnCount];
+		System.arraycopy (cellAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (cellAccessibles, index, newAccessibles, index + 1, columnCount - index - 1);
+		cellAccessibles = newAccessibles;
+	}
 }
-static CTable checkNull (CTable table) {
+static CTable2 checkNull (CTable2 table) {
 	if (table == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
 	return table;
 }
@@ -257,10 +257,8 @@ void clear () {
 	cached = false;
 	super.setText ("");
 	super.setImage (null);
-
-	int columnCount = parent.columns.length;
 	disposeAccessibles();
-	accessibles = new Accessible [columnCount > 0 ? columnCount : 1];
+	int columnCount = parent.columns.length;
 	if (columnCount > 0) {
 		displayTexts = new String [columnCount];
 		if (columnCount > 1) {
@@ -268,6 +266,9 @@ void clear () {
 			textWidths = new int [columnCount];
 			images = new Image [columnCount];
 		}
+		cellAccessibles = new Accessible [columnCount];
+	} else {
+		cellAccessibles = new Accessible [1];
 	}
 }
 void computeDisplayText (int columnIndex, GC gc) {
@@ -280,20 +281,20 @@ void computeDisplayText (int columnIndex, GC gc) {
 		return;
 	}
 
-	CTableColumn column = parent.columns [columnIndex];
+	CTableColumn2 column = parent.columns [columnIndex];
 	int availableWidth = column.width - 2 * parent.getCellPadding () - 2 * MARGIN_TEXT;
 	if (columnIndex == 0) {
 		availableWidth -= parent.col0ImageWidth;
-		if (parent.col0ImageWidth > 0) availableWidth -= CTable.MARGIN_IMAGE;
+		if (parent.col0ImageWidth > 0) availableWidth -= CTable2.MARGIN_IMAGE;
 		if ((parent.getStyle () & SWT.CHECK) != 0) {
 			availableWidth -= parent.checkboxBounds.width;
-			availableWidth -= CTable.MARGIN_IMAGE;
+			availableWidth -= CTable2.MARGIN_IMAGE;
 		}
 	} else {
 		Image image = getImage (columnIndex, false);
 		if (image != null) {
 			availableWidth -= image.getBounds ().width;
-			availableWidth -= CTable.MARGIN_IMAGE;
+			availableWidth -= CTable2.MARGIN_IMAGE;
 		}
 	}
 
@@ -306,10 +307,10 @@ void computeDisplayText (int columnIndex, GC gc) {
 	}
 
 	/* Ellipsis will be needed, so subtract their width from the available text width */
-	int ellipsisWidth = gc.stringExtent (CTable.ELLIPSIS).x;
+	int ellipsisWidth = gc.stringExtent (CTable2.ELLIPSIS).x;
 	availableWidth -= ellipsisWidth;
 	if (availableWidth <= 0) {
-		displayTexts [columnIndex] = CTable.ELLIPSIS;
+		displayTexts [columnIndex] = CTable2.ELLIPSIS;
 		textWidths [columnIndex] = ellipsisWidth;
 		return;
 	}
@@ -320,7 +321,7 @@ void computeDisplayText (int columnIndex, GC gc) {
 
 	/* Initial guess is correct. */
 	if (availableWidth == textWidth) {
-		displayTexts [columnIndex] = text.substring (0, index) + CTable.ELLIPSIS;
+		displayTexts [columnIndex] = text.substring (0, index) + CTable2.ELLIPSIS;
 		textWidths [columnIndex] = textWidth + ellipsisWidth;
 		return;
 	}
@@ -330,14 +331,14 @@ void computeDisplayText (int columnIndex, GC gc) {
 		do {
 			index--;
 			if (index < 0) {
-				displayTexts [columnIndex] = CTable.ELLIPSIS;
+				displayTexts [columnIndex] = CTable2.ELLIPSIS;
 				textWidths [columnIndex] = ellipsisWidth;
 				return;
 			}
 			text = text.substring (0, index);
 			textWidth = gc.stringExtent (text).x;
 		} while (availableWidth < textWidth);
-		displayTexts [columnIndex] = text + CTable.ELLIPSIS;
+		displayTexts [columnIndex] = text + CTable2.ELLIPSIS;
 		textWidths [columnIndex] = textWidth + ellipsisWidth;
 		return;
 	}
@@ -349,7 +350,7 @@ void computeDisplayText (int columnIndex, GC gc) {
 		previousWidth = textWidth;
 		textWidth = gc.stringExtent (text.substring (0, index)).x;
 	}
-	displayTexts [columnIndex] = text.substring (0, index - 1) + CTable.ELLIPSIS;
+	displayTexts [columnIndex] = text.substring (0, index - 1) + CTable2.ELLIPSIS;
 	textWidths [columnIndex] = previousWidth + ellipsisWidth;
 }
 void computeDisplayTexts (GC gc) {
@@ -381,7 +382,7 @@ void computeTextWidths (GC gc) {
 }
 public void dispose () {
 	if (isDisposed ()) return;
-	CTable parent = this.parent;
+	CTable2 parent = this.parent;
 	int startIndex = index;
 	int endIndex = parent.itemsCount - 1;
 	dispose (true);
@@ -402,32 +403,167 @@ void dispose (boolean notifyParent) {
 	parent = null;
 }
 void disposeAccessibles() {
-	if (accessibles != null) {
-		for (int i = 0; i < accessibles.length; i++) {
-			if (accessibles[i] != null) {
-				accessibles[i].dispose();
+	if (cellAccessibles != null) {
+		for (int i = 0; i < cellAccessibles.length; i++) {
+			if (cellAccessibles[i] != null) {
+				cellAccessibles[i].dispose();
 			}
 		}
-		accessibles = null;
+		cellAccessibles = null;
 	}
+	if (accessible != null) accessible.dispose();
 }
-/* Returns the cell accessible for the specified column index in the receiver. */
-Accessible getAccessible(final Accessible accessibleTable, final int columnIndex) {
-	if (accessibles [columnIndex] == null) {
-		Accessible accessible = new Accessible(accessibleTable);
-		accessible.addAccessibleListener(new AccessibleAdapter() {
+/* Returns a row accessible whose children are accessible cell objects.
+ * The accessibleParent must be a table accessible.
+ */
+Accessible getAccessible(Accessible accessibleParent) {
+	if (accessible == null) {
+		accessible = new Accessible(accessibleParent);
+		accessible.addAccessibleListener(new AccessibleListener() {
 			public void getName(AccessibleEvent e) {
-				e.result = getText(columnIndex);
-				System.out.println("tableItem getName = " + e.result);
+				if (e.childID == ACC.CHILDID_SELF) { // row
+					e.result = getText();
+					System.out.println("row getName = " + e.result);
+				}
+			}
+
+			public void getHelp(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getKeyboardShortcut(AccessibleEvent e) {
+				// TODO: ?
+			}
+
+			public void getDescription(AccessibleEvent e) {
+				// TODO: ?
 			}
 		});
-		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
-			public void getChildAtPoint(AccessibleControlEvent e) {
-				e.childID = ACC.CHILDID_SELF;
-				e.accessible = accessibles [columnIndex];
+		accessible.addAccessibleControlListener(new AccessibleControlListener() {
+			public void getChildCount(AccessibleControlEvent e) {
+				e.detail = Math.max (1, parent.columns.length);
 			}
+			public void getChildren(AccessibleControlEvent e) {
+				int validColumnCount = Math.max (1, parent.columns.length);
+				Object[] children = new Object[validColumnCount];
+				for (int i = 0; i < validColumnCount; i++) {
+					children[i] = getAccessible (accessible, i);
+				}
+				e.children = children;
+				
+			}
+			public void getChild(AccessibleControlEvent e) {
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_AT_INDEX:
+						e.accessible = getAccessible (accessible, e.detail);
+						break;
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = index;
+						break;
+					default: /* CTable2 rows do not have "simple element" children. */
+				}
+			}
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				Point point = parent.toControl(e.x, e.y);
+				int validColumnCount = Math.max (1, parent.columns.length);
+				for (int i = 0; i < validColumnCount; i++) {
+					if (getBounds(i).contains(point)) { // cell
+						System.out.println("row getChildAtPoint has point in a cell");
+						e.accessible = getAccessible (accessible, i);
+						return;
+					}
+				}
+				e.childID = getHitBounds().contains(point) ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getLocation(AccessibleControlEvent e) {
+				Rectangle location = getBounds (false);
+				if (parent.columns.length > 0) {
+					CTableColumn2[] orderedColumns = parent.getOrderedColumns ();
+					CTableColumn2 lastColumn = orderedColumns [orderedColumns.length - 1];
+					location.width = lastColumn.getX () + lastColumn.width;
+				}
+				Point pt = parent.toDisplay(location.x, location.y);
+				e.x = pt.x;
+				e.y = pt.y;
+				e.width = location.width;
+				e.height = location.height;
+			}
+			public void getRole(AccessibleControlEvent e) {
+				int childID = e.childID;
+				if (childID == ACC.CHILDID_SELF) { // row
+					e.detail = ACC.ROLE_ROW;
+				}
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = parent.hasFocus && parent.focusItem == CTableItem2.this ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				e.childID = isSelected() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				if (e.childID != ACC.CHILDID_SELF) System.out.println("row is being asked for the state of a cell child?");
+				int state = ACC.STATE_NORMAL | ACC.STATE_FOCUSABLE | ACC.STATE_SELECTABLE;
+				if (parent.hasFocus && parent.focusItem != null && parent.focusItem == CTableItem2.this) {
+					state |= ACC.STATE_FOCUSED;
+				}
+				if (isSelected()) {
+					state |= ACC.STATE_SELECTED;
+				}
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: select?
+			}
+			public void getValue(AccessibleControlEvent e) {
+				// TODO: ?
+			}
+		});
+	}
+	return accessible;
+}
+
+/* Returns the cell accessible for the specified column index in the receiver.
+ * The accessibleParent must be a row accessible.
+ */
+Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
+	if (cellAccessibles [columnIndex] == null) {
+		Accessible cellAccessible = new Accessible(accessibleParent);
+		cellAccessible.addAccessibleListener(new AccessibleListener() {
+			public void getName(AccessibleEvent e) {
+				e.result = getText(columnIndex);
+				System.out.println("cell getName = " + e.result);
+			}
+			public void getHelp(AccessibleEvent e) {
+				// TODO: ?
+			}
+			public void getKeyboardShortcut(AccessibleEvent e) {
+				// TODO: ?
+			}
+			public void getDescription(AccessibleEvent e) {
+				// TODO: ?
+			}
+		});
+		cellAccessible.addAccessibleControlListener(new AccessibleControlListener() {
 			public void getChildCount(AccessibleControlEvent e) {
 				e.detail = 0;
+			}
+			public void getChildren(AccessibleControlEvent e) {
+				e.children = null;
+			}
+			public void getChild(AccessibleControlEvent e) {
+				/* CTable2 cells do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = columnIndex;
+						break;
+				}
+			}
+			public void getChildAtPoint(AccessibleControlEvent e) {
+				Point point = parent.toControl(e.x, e.y);
+				if (getBounds(columnIndex).contains(point)) {
+					e.childID = ACC.CHILDID_SELF;
+				} else {
+					e.childID = ACC.CHILDID_NONE;
+				}
 			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle location = getBounds(columnIndex);
@@ -438,47 +574,70 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 				e.height = location.height;
 			}
 			public void getRole(AccessibleControlEvent e) {
-				e.detail = ACC.ROLE_TABLECELL;
+				// TODO: ROLE_LABEL? might need a group if there's an image? (then need children...)
+				e.detail = ACC.ROLE_LABEL;
+			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = CTableItem2.this == parent.focusItem ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getSelection(AccessibleControlEvent e) {
+				e.childID = isSelected() ? ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
+			public void getState(AccessibleControlEvent e) {
+				if (e.childID != ACC.CHILDID_SELF) System.out.println("cell is being asked for the state of a child???");
+				int state = ACC.STATE_NORMAL | ACC.STATE_FOCUSABLE | ACC.STATE_SELECTABLE;
+				if (parent.hasFocus && parent.focusItem != null && parent.focusItem == CTableItem2.this) {
+					state |= ACC.STATE_FOCUSED;
+				}
+				if (isSelected()) {
+					state |= ACC.STATE_SELECTED;
+				}
+			}
+			public void getDefaultAction(AccessibleControlEvent e) {
+				// TODO: ?
+			}
+			public void getValue(AccessibleControlEvent e) {
+				// TODO: ?
 			}
 		});
-		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+		cellAccessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {
 				if (parent.columns.length == 0) {
-					/* The CTable is being used as a list, and there are no headers. */
+					/* The CTable2 is being used as a list, and there are no headers. */
 					e.accessibles = null;
 				} else {
-					/* CTable cells only occupy one column. */
-					CTableColumn column = parent.columns [columnIndex];
-					e.accessibles = new Accessible[] {column.getAccessible (accessibleTable)};
+					/* CTable2 cells only occupy one column. */
+					CTableColumn2 column = parent.columns [columnIndex];
+					e.accessibles = new Accessible[] {column.getAccessible (parent.header.getAccessible())};
 				}
 			}
 			public void getColumnIndex(AccessibleTableCellEvent e) {
 				e.index = columnIndex;
 			}
 			public void getColumnSpan(AccessibleTableCellEvent e) {
-				/* CTable cells only occupy one column. */
+				/* CTable2 cells only occupy one column. */
 				e.count = 1;
 			}
 			public void getRowHeaders(AccessibleTableCellEvent e) {
-				 /* CTable does not support row headers. */
+				 /* CTable2 does not support row headers. */
 			}
 			public void getRowIndex(AccessibleTableCellEvent e) {
 				e.index = index;
 			}
 			public void getRowSpan(AccessibleTableCellEvent e) {
-				/* CTable cells only occupy one row. */
+				/* CTable2 cells only occupy one row. */
 				e.count = 1;
 			}
 			public void getTable(AccessibleTableCellEvent e) {
-				e.accessible = accessibleTable;
+				e.accessible = parent.getAccessible();
 			}
 			public void isSelected(AccessibleTableCellEvent e) {
-				e.isSelected = CTableItem.this.isSelected();
+				e.isSelected = CTableItem2.this.isSelected();
 			}
 		});
-		accessibles [columnIndex] = accessible;
+		cellAccessibles [columnIndex] = cellAccessible;
 	}
-	return accessibles [columnIndex];
+	return cellAccessibles [columnIndex];
 }
 /**
  * Returns the receiver's background color.
@@ -541,7 +700,7 @@ Rectangle getBounds (boolean checkData) {
 	int x = getTextX (0);
 	int width = textWidths [0] + 2 * MARGIN_TEXT;
 	if (parent.columns.length > 0) {
-		CTableColumn column = parent.columns [0];
+		CTableColumn2 column = parent.columns [0];
 		int right = column.getX () + column.width;
 		if (x + width > right) {
 			width = Math.max (0, right - x);
@@ -564,7 +723,7 @@ Rectangle getBounds (boolean checkData) {
 public Rectangle getBounds (int columnIndex) {
 	checkWidget ();
 	if (!parent.checkData (this, true)) SWT.error (SWT.ERROR_WIDGET_DISPOSED);
-	CTableColumn[] columns = parent.columns;
+	CTableColumn2[] columns = parent.columns;
 	int columnCount = columns.length;
 	int validColumnCount = Math.max (1, columnCount);
 	if (!(0 <= columnIndex && columnIndex < validColumnCount)) {
@@ -582,7 +741,7 @@ public Rectangle getBounds (int columnIndex) {
 			parent.itemHeight - 1);
 	}
 	
-	CTableColumn column = columns [columnIndex];
+	CTableColumn2 column = columns [columnIndex];
 	if (columnIndex == 0) {
 		/* 
 		 * For column 0 this is bounds from the beginning of the content to the
@@ -613,7 +772,7 @@ Rectangle getCellBounds (int columnIndex) {
 		}
 		return new Rectangle (-parent.horizontalOffset, y, width, parent.itemHeight);
 	}
-	CTableColumn column = parent.columns [columnIndex];
+	CTableColumn2 column = parent.columns [columnIndex];
 	return new Rectangle (column.getX (), y, column.width, parent.itemHeight);
 }
 /*
@@ -652,11 +811,11 @@ int getContentWidth (int columnIndex) {
 	int width = textWidths [columnIndex] + 2 * MARGIN_TEXT;
 	if (columnIndex == 0) {
 		width += parent.col0ImageWidth;
-		if (parent.col0ImageWidth > 0) width += CTable.MARGIN_IMAGE;
+		if (parent.col0ImageWidth > 0) width += CTable2.MARGIN_IMAGE;
 	} else {
 		Image image = getImage (columnIndex, false);
 		if (image != null) {
-			width += image.getBounds ().width + CTable.MARGIN_IMAGE;
+			width += image.getBounds ().width + CTable2.MARGIN_IMAGE;
 		}
 	}
 	return width;
@@ -670,13 +829,13 @@ int getContentX (int columnIndex) {
 	if (columnIndex == 0) {
 		Rectangle checkboxBounds = getCheckboxBounds ();
 		if (checkboxBounds != null) {
-			minX += checkboxBounds.width + CTable.MARGIN_IMAGE;
+			minX += checkboxBounds.width + CTable2.MARGIN_IMAGE;
 		}
 	}
 
 	if (parent.columns.length == 0) return minX - parent.horizontalOffset;	/* free first column */
 
-	CTableColumn column = parent.columns [columnIndex];
+	CTableColumn2 column = parent.columns [columnIndex];
 	int columnX = column.getX ();
 	if ((column.getStyle () & SWT.LEFT) != 0) return columnX + minX;
 
@@ -700,7 +859,7 @@ String getDisplayText (int columnIndex) {
  */
 Rectangle getFocusBounds () {
 	int x = 0;
-	CTableColumn[] columns = parent.columns;
+	CTableColumn2[] columns = parent.columns;
 	int[] columnOrder = parent.getColumnOrder ();
 	if ((parent.getStyle () & SWT.FULL_SELECTION) != 0) {
 		int col0index = columnOrder.length == 0 ? 0 : columnOrder [0];
@@ -727,7 +886,7 @@ Rectangle getFocusBounds () {
 			width = textWidths [0] + 2 * MARGIN_TEXT;
 		}
 	} else {
-		CTableColumn column;
+		CTableColumn2 column;
 		if ((parent.getStyle () & SWT.FULL_SELECTION) != 0) {
 			column = columns [columnOrder [columnOrder.length - 1]];
 		} else {
@@ -870,7 +1029,7 @@ Rectangle getHitBounds () {
 	}
 	
 	int width = 0;
-	CTableColumn[] columns = parent.columns;
+	CTableColumn2[] columns = parent.columns;
 	if (columns.length == 0) {
 		width = getContentWidth (0);
 	} else {
@@ -878,7 +1037,7 @@ Rectangle getHitBounds () {
 		 * If there are columns then this spans from the beginning of the receiver's column 0
 		 * image or text to the end of either column 0 or the last column (FULL_SELECTION).
 		 */
-		CTableColumn column;
+		CTableColumn2 column;
 		if ((parent.getStyle () & SWT.FULL_SELECTION) != 0) {
 			column = columns [columnOrder [columnOrder.length - 1]];
 		} else {
@@ -968,7 +1127,7 @@ public int getImageIndent () {
 }
 public String toString () {
 	if (!isDisposed () && (parent.getStyle () & SWT.VIRTUAL) != 0 && !cached) {
-		return "CTableItem {*virtual*}"; //$NON-NLS-1$
+		return "CTableItem2 {*virtual*}"; //$NON-NLS-1$
 	}
 	return super.toString ();
 }
@@ -982,7 +1141,7 @@ public String toString () {
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
  * </ul>
  */
-public CTable getParent () {
+public CTable2 getParent () {
 	checkWidget ();
 	return parent;
 }
@@ -997,13 +1156,13 @@ int getPreferredWidth (int columnIndex) {
 	if (columnIndex == 0) {
 		if (parent.col0ImageWidth > 0) {
 			width += parent.col0ImageWidth;
-			width += CTable.MARGIN_IMAGE;
+			width += CTable2.MARGIN_IMAGE;
 		}
 	} else {
 		Image image = getImage (columnIndex, false);
 		if (image != null) {
 			width += image.getBounds ().width;
-			width += CTable.MARGIN_IMAGE;
+			width += CTable2.MARGIN_IMAGE;
 		}
 	}
 
@@ -1028,7 +1187,7 @@ int getPreferredWidth (int columnIndex) {
 	gc.dispose ();
 	if (columnIndex == 0 && (parent.getStyle () & SWT.CHECK) != 0) {
 		width += parent.checkboxBounds.width;
-		width += CTable.MARGIN_IMAGE;
+		width += CTable2.MARGIN_IMAGE;
 	}
 	return width + 2 * parent.getCellPadding ();
 }
@@ -1080,7 +1239,7 @@ String getText (int columnIndex, boolean checkData) {
 public Rectangle getTextBounds (int columnIndex) {
 	checkWidget ();
 	if (!parent.checkData (this, true)) SWT.error (SWT.ERROR_WIDGET_DISPOSED);
-	CTableColumn[] columns = parent.columns;
+	CTableColumn2[] columns = parent.columns;
 	int columnCount = columns.length;
 	int validColumnCount = Math.max (1, columnCount);
 	if (!(0 <= columnIndex && columnIndex < validColumnCount)) {
@@ -1100,7 +1259,7 @@ public Rectangle getTextBounds (int columnIndex) {
 			parent.itemHeight - 1);
 	}
 	
-	CTableColumn column = columns [columnIndex];
+	CTableColumn2 column = columns [columnIndex];
 	if (columnIndex == 0) {
 		/* 
 		 * For column 0 this is bounds from the beginning of the content to the
@@ -1126,11 +1285,11 @@ int getTextX (int columnIndex) {
 	int textX = getContentX (columnIndex);
 	if (columnIndex == 0) {
 		textX += parent.col0ImageWidth;
-		if (parent.col0ImageWidth > 0) textX += CTable.MARGIN_IMAGE;
+		if (parent.col0ImageWidth > 0) textX += CTable2.MARGIN_IMAGE;
 	} else {
 		Image image = getImage (columnIndex, false);
 		if (image != null) {
-			textX += image.getBounds ().width + CTable.MARGIN_IMAGE;	
+			textX += image.getBounds ().width + CTable2.MARGIN_IMAGE;	
 		}
 	}
 	return textX;
@@ -1155,7 +1314,7 @@ boolean isSelected () {
  * Returns a boolean indicating whether to abort drawing focus on the item.
  * If the receiver is not the current focus item then this value is irrelevant.
  */
-boolean paint (GC gc, CTableColumn column, boolean backgroundOnly) {
+boolean paint (GC gc, CTableColumn2 column, boolean backgroundOnly) {
 	if (!parent.checkData (this, true)) return false;
 	int columnIndex = 0, x = 0;
 	if (column != null) {
@@ -1479,7 +1638,7 @@ void redrawItem () {
 /*
  * Updates internal structures in the receiver and its child items to handle the removal of a column.
  */
-void removeColumn (CTableColumn column, int index) {
+void removeColumn (CTableColumn2 column, int index) {
 	int columnCount = parent.columns.length;
 
 	if (columnCount == 0) {
@@ -1516,9 +1675,9 @@ void removeColumn (CTableColumn column, int index) {
 
 	if (columnCount > 1) {
 		Accessible[] newAccessibles = new Accessible [columnCount];
-		System.arraycopy (accessibles, 0, newAccessibles, 0, index);
-		System.arraycopy (accessibles, index + 1, newAccessibles, index, columnCount - index);
-		accessibles = newAccessibles;
+		System.arraycopy (cellAccessibles, 0, newAccessibles, 0, index);
+		System.arraycopy (cellAccessibles, index + 1, newAccessibles, index, columnCount - index);
+		cellAccessibles = newAccessibles;
 	}
 
 	if (cellBackgrounds != null) {
@@ -1900,7 +2059,7 @@ public void setImage (int columnIndex, Image value) {
 	checkWidget ();
 	if (value != null && value.isDisposed ()) SWT.error (SWT.ERROR_INVALID_ARGUMENT);
 
-	CTableColumn[] columns = parent.columns;
+	CTableColumn2[] columns = parent.columns;
 	int validColumnCount = Math.max (1, columns.length);
 	if (!(0 <= columnIndex && columnIndex < validColumnCount)) return;
 	Image image = getImage (columnIndex, false);
@@ -1945,7 +2104,7 @@ public void setImage (int columnIndex, Image value) {
 					 * so all items must now recompute their column 0 displayTexts.
 					 */
 					GC gc = new GC (parent);
-					CTableItem[] rootItems = parent.items;
+					CTableItem2[] rootItems = parent.items;
 					for (int i = 0; i < parent.itemsCount; i++) {
 						rootItems [i].updateColumnWidth (columns [0], gc);
 					}
@@ -1972,7 +2131,7 @@ public void setImage (int columnIndex, Image value) {
 			 * so all items must now recompute their column 0 displayTexts.
 			 */
 			GC gc = new GC (parent);
-			CTableItem[] rootItems = parent.items;
+			CTableItem2[] rootItems = parent.items;
 			for (int i = 0; i < parent.itemsCount; i++) {
 				rootItems [i].updateColumnWidth (columns [0], gc);
 			}
@@ -2098,7 +2257,7 @@ public void setText (String[] value) {
 /*
  * Perform any internal changes necessary to reflect a changed column width.
  */
-void updateColumnWidth (CTableColumn column, GC gc) {
+void updateColumnWidth (CTableColumn2 column, GC gc) {
 	int columnIndex = column.getIndex ();
 	gc.setFont (getFont (columnIndex, false));
 	String oldDisplayText = displayTexts [columnIndex];
