@@ -1744,9 +1744,8 @@ void initAccessibility () {
 		 */
 		public void getChild(AccessibleControlEvent e) {
 			int childID = e.childID;
-			if (childID == ACC.CHILDID_SELF) { // table
-				e.accessible = accessibleTable;
-			} else if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
+			if (childID == ACC.CHILDID_CHILD_AT_INDEX) childID = e.detail; // childID == index
+			if (columns.length > 0 && 0 <= childID && childID < columns.length) { // header cell
 				CTableColumn column = columns [childID];
 				e.accessible = column.getAccessible(accessibleTable);
 			} else { // item cell
@@ -1874,6 +1873,7 @@ void initAccessibility () {
 		}
 		public void deselectRow(AccessibleTableEvent e) {
 			deselect(e.row);
+			e.result = ACC.OK;
 		}
 		public void getCaption(AccessibleTableEvent e) {
 			// TODO: What is a caption? How does it differ from name? Should app supply?
@@ -1897,7 +1897,7 @@ void initAccessibility () {
 			// TODO: What is a description? How does it differ from name? Should app supply?
 			e.result = "This is the Custom Table's Test Description for column " + e.column;
 		}
-		public void getColumnHeaders(AccessibleTableEvent e) {
+		public void getColumnHeader(AccessibleTableEvent e) {
 			if (columns.length == 0) {
 				/* The CTable is being used as a list, and there are no headers. */
 				e.accessibles = null;
@@ -1917,7 +1917,7 @@ void initAccessibility () {
 			// TODO: What is a description? How does it differ from name? Should app supply?
 			e.result = "This is the Custom Table's Test Description for row " + e.row;
 		}
-		public void getRowHeaders(AccessibleTableEvent e) {
+		public void getRowHeader(AccessibleTableEvent e) {
 			/* CTable does not support row headers. */
 		}
 		public void getSelectedCellCount(AccessibleTableEvent e) {
@@ -1965,45 +1965,16 @@ void initAccessibility () {
 		}
 		public void selectRow(AccessibleTableEvent e) {
 			select(e.row);
+			e.result = ACC.OK;
 		}
 		public void setSelectedColumn(AccessibleTableEvent e) {
 			/* CTable does not support column selection. */
 		}
 		public void setSelectedRow(AccessibleTableEvent e) {
 			setSelection(e.row);
+			e.result = ACC.OK;
 		}
 	});
-	
-//	final Accessible accessibleTableHeader = header.getAccessible();
-//	accessibleTableHeader.addAccessibleListener(new AccessibleAdapter() {
-//		public void getName(AccessibleEvent e) {
-//			CTableColumn column = columns [e.childID];
-//			e.result = column.getText();
-//		}
-//	});
-//	accessibleTableHeader.addAccessibleControlListener(new AccessibleControlAdapter() {
-//		public void getChildAtPoint(AccessibleControlEvent e) {
-//			Point point = toControl(e.x, e.y);
-//			int columnIndex = computeColumnIntersect (point.x, 0);
-//			if (columnIndex != -1) {
-//				CTableColumn column = columns [columnIndex];
-//				e.accessible = column.getAccessible (accessibleTable);
-//			}
-//		}
-//		public void getChildCount(AccessibleControlEvent e) {
-//			e.detail = columns.length;
-//		}
-//		public void getChildren(AccessibleControlEvent e) {
-//			Object[] children = new Object[columns.length];
-//			for (int i = 0; i < columns.length; i++) {
-//				children[i] = new Integer(i);
-//			}
-//			e.children = children;
-//		}
-//		public void getRole(AccessibleControlEvent e) {
-//			e.detail = ACC.ROLE_TABLECELL;
-//		}
-//	});
 }
 
 static void initImages (final Display display) {
@@ -2987,7 +2958,7 @@ void onPaint (Event event) {
 	int startIndex = (clipping.y - headerHeight) / itemHeight + topIndex;
 	int endIndex = -1;
 	if (startIndex < itemsCount) {
-		endIndex = startIndex + Compatibility.ceil (clipping.height, itemHeight);
+		endIndex = startIndex + (int)Math.ceil((float)clipping.height / itemHeight);
 	}
 	startIndex = Math.max (0, startIndex);
 	endIndex = Math.min (endIndex, itemsCount - 1);

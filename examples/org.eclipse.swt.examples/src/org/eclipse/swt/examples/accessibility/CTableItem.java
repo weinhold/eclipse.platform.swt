@@ -422,6 +422,14 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 			}
 		});
 		accessible.addAccessibleControlListener(new AccessibleControlAdapter() {
+			public void getChild(AccessibleControlEvent e) {
+				/* CTable cells do not have children, so just return the index in parent. */
+				switch (e.childID) {
+					case ACC.CHILDID_CHILD_INDEX:
+						e.detail = columnIndex;
+						break;
+				}
+			}
 			public void getChildAtPoint(AccessibleControlEvent e) {
 				Point point = parent.toControl(e.x, e.y);
 				if (getBounds(columnIndex).contains(point)) {
@@ -429,9 +437,6 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 				} else {
 					e.childID = ACC.CHILDID_NONE;
 				}
-			}
-			public void getChildCount(AccessibleControlEvent e) {
-				e.detail = 0;
 			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle location = getBounds(columnIndex);
@@ -445,7 +450,7 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 				e.detail = ACC.ROLE_TABLECELL;
 			}
 		});
-		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+		accessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {
 				if (parent.columns.length == 0) {
 					/* The CTable is being used as a list, and there are no headers. */

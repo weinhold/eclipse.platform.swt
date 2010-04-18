@@ -15,7 +15,6 @@ import java.util.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.layout.*;
-import org.eclipse.swt.accessibility.*;
 
 /**
  * This example shows how to use AccessibleTableListener and
@@ -45,7 +44,7 @@ public class AccessibleTableExample {
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout(2, true));
-		shell.setText("Accessible Table Examples");
+		shell.setText("Accessible Table Example");
 		
 		Group group = new Group(shell, SWT.NONE);
 		group.setText("Tables With Accessible Cell Children");

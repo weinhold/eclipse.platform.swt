@@ -2139,6 +2139,7 @@ void initAccessibility () {
 		}
 		public void deselectRow(AccessibleTableEvent e) {
 			deselect(e.row);
+			e.result = ACC.OK;
 		}
 		public void getCaption(AccessibleTableEvent e) {
 			// TODO: What is a caption? Should app supply?
@@ -2257,12 +2258,14 @@ void initAccessibility () {
 		}
 		public void selectRow(AccessibleTableEvent e) {
 			select(e.row);
+			e.result = ACC.OK;
 		}
 		public void setSelectedColumn(AccessibleTableEvent e) {
 			/* CTable2 does not support column selection. */
 		}
 		public void setSelectedRow(AccessibleTableEvent e) {
 			setSelection(e.row);
+			e.result = ACC.OK;
 		}
 		public void getVisibleColumns(AccessibleTableEvent e) {
 			CTableColumn2[] orderedColumns = getOrderedColumns ();

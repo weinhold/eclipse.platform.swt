@@ -810,7 +810,7 @@ Accessible getAccessible(final Accessible accessibleTable) {
 				e.detail = ACC.ROLE_TABLECELL;
 			}
 		});
-		accessible.addAccessibleTableCellListener(new AccessibleTableCellAdapter() {
+		accessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {
 				/* Column header does not have a header. */
 			}
