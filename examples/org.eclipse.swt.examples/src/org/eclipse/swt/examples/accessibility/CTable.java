@@ -1883,7 +1883,10 @@ void initAccessibility () {
 			int index = e.row;
 			if (0 <= index && index < itemsCount) {
 				CTableItem row = items [index];
-				e.accessible = row.getAccessible (accessibleTable, e.column);
+				index = e.column;
+				if (0 <= index && index < columns.length) {
+					e.accessible = row.getAccessible (accessibleTable, index);
+				}
 			}
 		}
 		public void getColumnCount(AccessibleTableEvent e) {
