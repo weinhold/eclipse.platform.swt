@@ -71,6 +71,7 @@ public class AccessibleActionExample {
 			public void doAction(AccessibleActionEvent e) {
 				System.out.println("Performing action " + e.index + " for " + customButton);
 				customButtonAction();
+				e.result = ACC.OK;
 			}
 			public void getKeyBinding(AccessibleActionEvent e) {
 				e.result = "P;CTRL+P";
