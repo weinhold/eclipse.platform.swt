@@ -24,21 +24,22 @@ public class AccessibleShapesExample {
 	static Shell shell;
 	
 	public static void main(String[] args) {
+		Display.DEBUG = true;
 		display = new Display();
 		shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 		
 		Shape redSquare = new Shape(shell, SWT.NONE);
 		redSquare.setColor(SWT.COLOR_RED);
-		redSquare.setShape("square");
+		redSquare.setShape(Shape.SQUARE);
 		
-		Shape blueCircle = new Shape(shell, SWT.NONE);
-		blueCircle.setColor(SWT.COLOR_BLUE);
-		blueCircle.setShape("circle");
-
-		Shape greenSquare = new Shape(shell, SWT.NONE);
-		greenSquare.setColor(SWT.COLOR_GREEN);
-		greenSquare.setShape("square");
+//		Shape blueCircle = new Shape(shell, SWT.NONE);
+//		blueCircle.setColor(SWT.COLOR_BLUE);
+//		blueCircle.setShape(Shape.CIRCLE);
+//
+//		Shape greenSquare = new Shape(shell, SWT.NONE);
+//		greenSquare.setColor(SWT.COLOR_GREEN);
+//		greenSquare.setShape(Shape.SQUARE);
 
 		shell.pack();
 		shell.open();
