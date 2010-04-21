@@ -14,7 +14,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 /** 
@@ -576,6 +575,7 @@ public void deselect (int index) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItem (item.index, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Deselects the items at the given zero-relative indices in the receiver.
@@ -646,6 +646,7 @@ public void deselectAll () {
 			redrawItem (oldSelection [i].index, true);
 		}
 	}
+	getAccessible().selectionChanged();
 }
 void deselectItem (CTableItem item) {
 	int index = getSelectionIndex (item);
@@ -2059,6 +2060,10 @@ public boolean isSelected (int index) {
 	if (!(0 <= index && index < itemsCount)) return false;
 	return items [index].isSelected ();
 }
+public void notifyListeners (int eventType, Event event) {
+	super.notifyListeners(eventType, event);
+	if (eventType == SWT.Selection && event.detail != SWT.CHECK) getAccessible().selectionChanged();
+}
 void onArrowDown (int stateMask) {
 	if ((stateMask & (SWT.SHIFT | SWT.CTRL)) == 0) {
 		/* Down Arrow with no modifiers */
@@ -3436,6 +3441,7 @@ public void select (int index) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItem (index, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items in the range specified by the given zero-relative
@@ -3472,6 +3478,7 @@ public void select (int start, int end) {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redrawItems (start, end, false);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items at the given zero-relative indices in the receiver.
@@ -3513,6 +3520,7 @@ public void select (int [] indices) {
 			}
 		}
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Selects all of the items in the receiver.
@@ -3533,6 +3541,7 @@ public void selectAll () {
 	if (isFocusControl () || (getStyle () & SWT.HIDE_SELECTION) == 0) {
 		redraw ();
 	}
+	getAccessible().selectionChanged();
 }
 void selectItem (CTableItem item, boolean addToSelection) {
 	CTableItem[] oldSelectedItems = selectedItems;
@@ -3936,6 +3945,7 @@ void setSelection (CTableItem[] items, boolean updateViewport) {
 		showItem (selectedItems [0]);
 		setFocusItem (selectedItems [0], true);
 	}
+	getAccessible().selectionChanged();
 }
 /**
  * Sets the column used by the sort indicator for the receiver. A null
@@ -4008,6 +4018,7 @@ public void setSelection (int index) {
 	setFocusItem (items [index], true);
 	redrawItem (index, true);
 	showSelection ();
+	getAccessible().selectionChanged();
 }
 /**
  * Selects the items in the range specified by the given zero-relative
