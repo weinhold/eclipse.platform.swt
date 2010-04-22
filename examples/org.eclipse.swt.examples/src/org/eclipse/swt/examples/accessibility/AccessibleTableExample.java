@@ -40,7 +40,6 @@ public class AccessibleTableExample {
 			AccessibleTableExample.getResourceString("color5"),};
 
 	public static void main(String[] args) {
-		Display.DEBUG = true;
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new GridLayout(2, true));
