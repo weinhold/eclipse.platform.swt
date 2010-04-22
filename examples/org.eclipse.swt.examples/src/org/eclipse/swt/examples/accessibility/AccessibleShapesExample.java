@@ -33,13 +33,13 @@ public class AccessibleShapesExample {
 		redSquare.setColor(SWT.COLOR_RED);
 		redSquare.setShape(Shape.SQUARE);
 		
-//		Shape blueCircle = new Shape(shell, SWT.NONE);
-//		blueCircle.setColor(SWT.COLOR_BLUE);
-//		blueCircle.setShape(Shape.CIRCLE);
-//
-//		Shape greenSquare = new Shape(shell, SWT.NONE);
-//		greenSquare.setColor(SWT.COLOR_GREEN);
-//		greenSquare.setShape(Shape.SQUARE);
+		Shape blueCircle = new Shape(shell, SWT.NONE);
+		blueCircle.setColor(SWT.COLOR_BLUE);
+		blueCircle.setShape(Shape.CIRCLE);
+
+		Shape greenSquare = new Shape(shell, SWT.NONE);
+		greenSquare.setColor(SWT.COLOR_GREEN);
+		greenSquare.setShape(Shape.SQUARE);
 
 		shell.pack();
 		shell.open();
