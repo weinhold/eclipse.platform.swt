@@ -509,6 +509,7 @@ Accessible getAccessible(Accessible accessibleParent) {
 				if (isSelected()) {
 					state |= ACC.STATE_SELECTED;
 				}
+				e.detail = state;
 			}
 			public void getDefaultAction(AccessibleControlEvent e) {
 				// TODO: select?

@@ -449,6 +449,9 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 			public void getRole(AccessibleControlEvent e) {
 				e.detail = ACC.ROLE_TABLECELL;
 			}
+			public void getValue(AccessibleControlEvent e) {
+				e.result = getText(columnIndex);
+			}
 		});
 		accessible.addAccessibleTableCellListener(new AccessibleTableCellListener() {
 			public void getColumnHeaders(AccessibleTableCellEvent e) {

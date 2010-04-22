@@ -2155,7 +2155,7 @@ void initAccessibility () {
 			e.count = columns.length > 0 ? columns.length : 1;
 		}
 		public void getColumn(AccessibleTableEvent e) {
-			getAccessible(getAccessible(), e.column);
+			e.accessible = getAccessible(getAccessible(), e.column);
 		}
 		public void getColumns(AccessibleTableEvent e) {
 			int columnCount = columns.length > 0 ? columns.length : 1;
