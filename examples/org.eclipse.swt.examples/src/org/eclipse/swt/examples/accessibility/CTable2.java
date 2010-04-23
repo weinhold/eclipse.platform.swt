@@ -939,15 +939,7 @@ Accessible getAccessible(Accessible accessibleParent, final int columnIndex) {
 			public void getColumnDescription(AccessibleTableEvent e) {
 			}
 			public void getColumnHeader(AccessibleTableEvent e) {
-				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)
-				if (columns.length == 0) {
-					/* The CTable2 is being used as a list, and there is no column header. */
-					e.accessible = null;
-				} else {
-					/* A CTable2 column has one header cell. */
-					CTableColumn2 column = columns [columnIndex];
-					e.accessible = column.getAccessible (header.getAccessible());
-				}
+				e.accessible = header.getAccessible();
 			}
 			public void getColumnHeaderCells(AccessibleTableEvent e) {
 				// TODO: Not sure which of these the Mac wants for columns (getColumnHeader* or getColumnHeaderCells)

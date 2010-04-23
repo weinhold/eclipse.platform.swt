@@ -438,6 +438,10 @@ Accessible getAccessible(final Accessible accessibleTable, final int columnIndex
 					e.childID = ACC.CHILDID_NONE;
 				}
 			}
+			public void getFocus(AccessibleControlEvent e) {
+				e.childID = (parent.focusItem == CTableItem.this && parent.isFocusControl()) ? 
+						ACC.CHILDID_SELF : ACC.CHILDID_NONE;
+			}
 			public void getLocation(AccessibleControlEvent e) {
 				Rectangle location = getBounds(columnIndex);
 				Point pt = parent.toDisplay(location.x, location.y);

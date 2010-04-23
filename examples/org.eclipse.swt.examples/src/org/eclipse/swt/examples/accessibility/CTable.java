@@ -1885,7 +1885,7 @@ void initAccessibility () {
 			if (0 <= index && index < itemsCount) {
 				CTableItem row = items [index];
 				index = e.column;
-				if (0 <= index && index < columns.length) {
+				if (columns.length == 0 || 0 <= index && index < columns.length) {
 					e.accessible = row.getAccessible (accessibleTable, index);
 				}
 			}
@@ -1898,7 +1898,10 @@ void initAccessibility () {
 			// TODO: What is a description? How does it differ from name? Should app supply?
 			e.result = "This is the Custom Table's Test Description for column " + e.column;
 		}
-		public void getColumnHeader(AccessibleTableEvent e) {
+//		public void getColumnHeader(AccessibleTableEvent e) {
+//			e.accessible = header.getAccessible();
+//		}
+		public void getColumnHeaderCells(AccessibleTableEvent e) {
 			if (columns.length == 0) {
 				/* The CTable is being used as a list, and there are no headers. */
 				e.accessibles = null;
