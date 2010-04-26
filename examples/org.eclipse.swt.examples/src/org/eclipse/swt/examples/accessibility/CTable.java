@@ -499,6 +499,15 @@ void createItem (CTableColumn column, int index) {
 			redrawFromItemDownwards (topIndex);
 		}
 	}
+	
+	/* Columns were added, so notify the accessible. */
+	int[] eventData = new int[5];
+	eventData[0] = ACC.INSERT;
+	eventData[1] = 0;
+	eventData[2] = 0;
+	eventData[3] = index;
+	eventData[4] = 1;
+	getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
 }
 void createItem (CTableItem item) {
 	int index = item.index;
@@ -729,6 +738,14 @@ void destroyItem (CTableColumn column) {
 		}
 	}
 
+	int[] eventData = new int[5];
+	eventData[0] = ACC.DELETE;
+	eventData[1] = 0;
+	eventData[2] = 0;
+	eventData[3] = index;
+	eventData[4] = 1;
+	getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
+
 	if (sortColumn == column) {
 		sortColumn = null;
 	}
@@ -800,8 +817,15 @@ void destroyItem (CTableItem item) {
 	 */
 	if (itemsCount == 0 && isFocusControl ()) {
 		redraw ();
-		return;
 	}
+
+	int[] eventData = new int[5];
+	eventData[0] = ACC.DELETE;
+	eventData[1] = 0;
+	eventData[2] = 0;
+	eventData[3] = index;
+	eventData[4] = 1;
+	getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
 }
 Image getArrowDownImage () {
 	return (Image) display.getData (ID_ARROWDOWN);
@@ -3360,9 +3384,19 @@ public void removeAll () {
 	}
 	items = new CTableItem [0];
 	selectedItems = new CTableItem [0];
+	int oldCount = itemsCount;
 	itemsCount = topIndex = 0;
 	anchorItem = lastClickedItem = null;
 	lastSelectionEvent = null;
+
+	int[] eventData = new int[5];
+	eventData[0] = ACC.DELETE;
+	eventData[1] = 0;
+	eventData[2] = oldCount;
+	eventData[3] = 0;
+	eventData[4] = 0;
+	getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
+	
 	ScrollBar vBar = getVerticalBar ();
 	if (vBar != null) {
 		vBar.setMaximum (1);
@@ -3777,6 +3811,14 @@ public void setItemCount (int count) {
 			CTableItem newFocusItem = count > 0 ? items [count - 1] : null; 
 			setFocusItem (newFocusItem, false);
 		}
+		int[] eventData = new int[5];
+		eventData[0] = ACC.DELETE;
+		eventData[1] = redrawStart;
+		eventData[2] = redrawEnd - redrawStart;
+		eventData[3] = 0;
+		eventData[4] = 0;
+		getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
+
 		itemsCount = count;
 		if (columns.length == 0) updateHorizontalBar ();
 	} else {
@@ -3789,6 +3831,14 @@ public void setItemCount (int count) {
 			items [i] = new CTableItem (this, SWT.NONE, i, false);
 			itemsCount++;
 		}
+
+		int[] eventData = new int[5];
+		eventData[0] = ACC.INSERT;
+		eventData[1] = redrawStart;
+		eventData[2] = count;
+		eventData[3] = 0;
+		eventData[4] = 0;
+		getAccessible().sendEvent(ACC.EVENT_TABLE_CHANGED, eventData);
 		if (oldCount == 0) focusItem = items [0];
 	}
 

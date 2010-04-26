@@ -13,8 +13,9 @@ package org.eclipse.swt.examples.accessibility;
 import java.util.*;
 
 import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This example shows how to use AccessibleTableListener and
@@ -23,6 +24,8 @@ import org.eclipse.swt.layout.*;
  */
 public class AccessibleTableExample {
 	static ResourceBundle resourceBundle = ResourceBundle.getBundle("examples_accessibility"); //$NON-NLS-1$
+	static CTable table1;
+	
 	static String getResourceString(String key) {
 		try {
 			return resourceBundle.getString(key);
@@ -39,6 +42,58 @@ public class AccessibleTableExample {
 			AccessibleTableExample.getResourceString("color4"),
 			AccessibleTableExample.getResourceString("color5"),};
 
+	private static SelectionListener addButtonHandler = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			int currSize = table1.getItemCount();
+			int colCount = table1.getColumnCount();
+			CTableItem item = new CTableItem(table1, SWT.NONE);
+			String[] cells = new String[colCount];
+			
+			for (int i = 0; i < colCount; i++) {
+				cells[i] = "C" + i + "R" + currSize;
+			}
+			item.setText(cells);
+		}
+	};
+	
+	private static SelectionListener removeButtonHandler = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			int currSize = table1.getItemCount();
+			if (currSize > 0) {
+				table1.remove(currSize - 1);
+			}
+		}
+	};
+	
+	private static SelectionListener removeSelectedHandler = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			CTableItem[] selectedItems = table1.getSelection();
+			for (int i = 0; i < selectedItems.length; i++) {
+				selectedItems[i].dispose();
+			}
+		}
+	};
+	
+	private static SelectionListener addColumnHandler = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			int currSize = table1.getColumnCount();
+			CTableColumn item = new CTableColumn(table1, SWT.NONE);
+			item.setText("Col " + currSize);
+			item.setWidth(50);
+		}
+	};
+	
+	private static SelectionListener removeColumnHandler = new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			int colCount = table1.getColumnCount();
+			
+			if (colCount > 0) {
+				CTableColumn column = table1.getColumn(colCount - 1);
+				column.dispose();
+			}
+		}
+	};
+	
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);
@@ -51,7 +106,7 @@ public class AccessibleTableExample {
 
 		new Label(group, SWT.NONE).setText("CTable with column headers");
 		
-		CTable table1 = new CTable(group, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+		table1 = new CTable(group, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
 		table1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table1.setHeaderVisible(true);
 		table1.setLinesVisible(true);
@@ -64,6 +119,24 @@ public class AccessibleTableExample {
 			CTableItem item = new CTableItem(table1, SWT.NONE);
 			item.setText(new String [] {"C0R" + row, "C1R" + row, "C2R" + row});
 		}
+		
+		Composite btnGroup = new Composite(group, SWT.NONE);
+		btnGroup.setLayout(new GridLayout(2, false));
+		Button btn = new Button(btnGroup, SWT.PUSH);
+		btn.setText("Add rows");
+		btn.addSelectionListener(addButtonHandler);
+		btn = new Button(btnGroup, SWT.PUSH);
+		btn.setText("Remove rows");
+		btn.addSelectionListener(removeButtonHandler);
+		btn = new Button(btnGroup, SWT.PUSH);
+		btn.setText("Remove selected rows");
+		btn.addSelectionListener(removeSelectedHandler);
+		btn = new Button(btnGroup, SWT.PUSH);
+		btn.setText("Add column");
+		btn.addSelectionListener(addColumnHandler);
+		btn = new Button(btnGroup, SWT.PUSH);
+		btn.setText("Remove last column");
+		btn.addSelectionListener(removeColumnHandler);
 		
 		new Label(group, SWT.NONE).setText("CTable used as a list");
 		
