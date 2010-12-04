@@ -362,8 +362,8 @@ public PrinterData open() {
 		if (printerData.duplex != SWT.DEFAULT) {
 			devmode.dmFields |= OS.DM_DUPLEX;
 			switch (printerData.duplex) {
-				case PrinterData.DOUBLE_SIDED_HORIZONTAL: devmode.dmDuplex = OS.DMDUP_HORIZONTAL; break;
-				case PrinterData.DOUBLE_SIDED_VERTICAL: devmode.dmDuplex = OS.DMDUP_VERTICAL; break;
+				case PrinterData.DUPLEX_SHORT_EDGE: devmode.dmDuplex = OS.DMDUP_HORIZONTAL; break;
+				case PrinterData.DUPLEX_LONG_EDGE: devmode.dmDuplex = OS.DMDUP_VERTICAL; break;
 				default: devmode.dmDuplex = OS.DMDUP_SIMPLEX;
 			}
 		}
@@ -472,7 +472,7 @@ public PrinterData open() {
 			}
 			if ((devmode.dmFields & OS.DM_DUPLEX) != 0) {
 				short dmDuplex = devmode.dmDuplex;
-				data.duplex = dmDuplex == OS.DMDUP_SIMPLEX ? PrinterData.SINGLE_SIDED : dmDuplex == OS.DMDUP_HORIZONTAL ? PrinterData.DOUBLE_SIDED_HORIZONTAL : PrinterData.DOUBLE_SIDED_VERTICAL;
+				data.duplex = dmDuplex == OS.DMDUP_SIMPLEX ? PrinterData.DUPLEX_NONE : dmDuplex == OS.DMDUP_HORIZONTAL ? PrinterData.DUPLEX_SHORT_EDGE : PrinterData.DUPLEX_LONG_EDGE;
 			}
 
 			OS.GlobalUnlock(hMem);

@@ -254,8 +254,8 @@ protected void create(DeviceData deviceData) {
 	if (data.duplex != SWT.DEFAULT) {
 		devmode.dmFields |= OS.DM_DUPLEX;
 		switch (data.duplex) {
-			case PrinterData.DOUBLE_SIDED_HORIZONTAL: devmode.dmDuplex = OS.DMDUP_HORIZONTAL; break;
-			case PrinterData.DOUBLE_SIDED_VERTICAL: devmode.dmDuplex = OS.DMDUP_VERTICAL; break;
+			case PrinterData.DUPLEX_SHORT_EDGE: devmode.dmDuplex = OS.DMDUP_HORIZONTAL; break;
+			case PrinterData.DUPLEX_LONG_EDGE: devmode.dmDuplex = OS.DMDUP_VERTICAL; break;
 			default: devmode.dmDuplex = OS.DMDUP_SIMPLEX;
 		}
 	}

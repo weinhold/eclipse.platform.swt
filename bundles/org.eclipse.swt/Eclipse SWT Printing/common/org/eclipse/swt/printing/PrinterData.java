@@ -118,17 +118,17 @@ public final class PrinterData extends DeviceData {
 	 * <dl>
 	 * <dt><code>SWT.DEFAULT</code></dt>
 	 * <dd>the default duplex value for the printer</dd>
-	 * <dt><code>SINGLE_SIDED</code></dt>
-	 * <dd>1-sided printing, also known as simplex</dd>
-	 * <dt><code>DOUBLE_SIDED_HORIZONTAL</code></dt>
-	 * <dd>2-sided printing where pages are flipped on a horizontal axis; also known as duplex tumble</dd>
-	 * <dt><code>DOUBLE_SIDED_VERTICAL</code></dt>
-	 * <dd>2-sided printing where pages are flipped on a vertical axis; also known as duplex</dd>
+	 * <dt><code>DUPLEX_NONE</code></dt>
+	 * <dd>single-sided printing, also known as simplex</dd>
+	 * <dt><code>DUPLEX_LONG_EDGE</code></dt>
+	 * <dd>double-sided printing as if bound on the long edge</dd>
+	 * <dt><code>DUPLEX_SHORT_EDGE</code></dt>
+	 * <dd>double-sided printing as if bound on the short edge</dd>
 	 * </dl>
 	 * <p>
 	 * The default value is SWT.DEFAULT, meaning do not set a value; use the printer's default duplex setting.
-	 * A printer's default value is typically SINGLE_SIDED, however it is sometimes set to default to
-	 * DOUBLE_SIDED_VERTICAL for non-transparent non-heavyweight print media, in order to save paper.
+	 * A printer's default value is typically single-sided, however it is sometimes set to default to
+	 * double-sided for non-transparent non-heavyweight print media, in order to save paper.
 	 * </p>
 	 * 
 	 * @since 3.7
@@ -179,37 +179,32 @@ public final class PrinterData extends DeviceData {
 	 * 
 	 * @since 3.7
 	 */
-	public static final int SINGLE_SIDED = 0;
+	public static final int DUPLEX_NONE = 0;
 	
 	/**
 	 * <code>duplex</code> field value indicating
-	 * two-sided printing with the page flipped on
-	 * a horizontal axis, i.e., the bottom of side one
-	 * and the top of side two are along the same edge
+	 * double-sided printing on short edge
 	 * <p>
-	 * This is also known as duplex tumble.
+	 * This is sometimes called tumble.
 	 * For portrait orientation, the short edge is horizontal.
-	 * For landscape orientation, the long edge is horizontal.
-	 * </p>
-	 * 
-	 * @since 3.7
-	 */
-	public static final int DOUBLE_SIDED_HORIZONTAL = 1;
-	
-	/**
-	 * <code>duplex</code> field value indicating
-	 * two-sided printing with the page flipped on
-	 * a vertical axis, i.e., the top of side one
-	 * and the top of side two are along the same edge
-	 * <p>
-	 * This is also known as duplex.
-	 * For portrait orientation, the long edge is vertical.
 	 * For landscape orientation, the short edge is vertical.
 	 * </p>
 	 * 
 	 * @since 3.7
 	 */
-	public static final int DOUBLE_SIDED_VERTICAL = 2;
+	public static final int DUPLEX_SHORT_EDGE = 1;
+	
+	/**
+	 * <code>duplex</code> field value indicating
+	 * double-sided printing on long edge
+	 * <p>
+	 * For portrait orientation, the long edge is vertical.
+	 * For landscape orientation, the long edge is horizontal.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public static final int DUPLEX_LONG_EDGE = 2;
 	
 
 	/**
