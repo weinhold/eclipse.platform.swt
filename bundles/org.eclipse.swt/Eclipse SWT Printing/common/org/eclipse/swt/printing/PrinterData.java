@@ -11,6 +11,7 @@
 package org.eclipse.swt.printing;
 
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 
 /**
@@ -113,6 +114,28 @@ public final class PrinterData extends DeviceData {
 	public int orientation = PORTRAIT;
 
 	/**
+	 * Single-sided or double-sided printing, expressed as one of the following values:
+	 * <dl>
+	 * <dt><code>SWT.DEFAULT</code></dt>
+	 * <dd>the default duplex value for the printer</dd>
+	 * <dt><code>SINGLE_SIDED</code></dt>
+	 * <dd>1-sided printing, also known as simplex</dd>
+	 * <dt><code>DOUBLE_SIDED_HORIZONTAL</code></dt>
+	 * <dd>2-sided printing where pages are flipped on a horizontal axis; also known as duplex tumble</dd>
+	 * <dt><code>DOUBLE_SIDED_VERTICAL</code></dt>
+	 * <dd>2-sided printing where pages are flipped on a vertical axis; also known as duplex</dd>
+	 * </dl>
+	 * <p>
+	 * The default value is SWT.DEFAULT, meaning do not set a value; use the printer's default duplex setting.
+	 * A printer's default value is typically SINGLE_SIDED, however it is sometimes set to default to
+	 * DOUBLE_SIDED_VERTICAL for non-transparent non-heavyweight print media, in order to save paper.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public int duplex = SWT.DEFAULT;
+
+	/**
 	 * <code>scope</code> field value indicating that
 	 * all pages should be printed
 	 */	
@@ -147,6 +170,48 @@ public final class PrinterData extends DeviceData {
 	 */
 	public static final int LANDSCAPE = 2;
 	
+ 	/**
+	 * <code>duplex</code> field value indicating
+	 * one-sided printing
+	 * <p>
+	 * This is also known as simplex.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public static final int SINGLE_SIDED = 0;
+	
+	/**
+	 * <code>duplex</code> field value indicating
+	 * two-sided printing with the page flipped on
+	 * a horizontal axis, i.e., the bottom of side one
+	 * and the top of side two are along the same edge
+	 * <p>
+	 * This is also known as duplex tumble.
+	 * For portrait orientation, the short edge is horizontal.
+	 * For landscape orientation, the long edge is horizontal.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public static final int DOUBLE_SIDED_HORIZONTAL = 1;
+	
+	/**
+	 * <code>duplex</code> field value indicating
+	 * two-sided printing with the page flipped on
+	 * a vertical axis, i.e., the top of side one
+	 * and the top of side two are along the same edge
+	 * <p>
+	 * This is also known as duplex.
+	 * For portrait orientation, the long edge is vertical.
+	 * For landscape orientation, the short edge is vertical.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public static final int DOUBLE_SIDED_VERTICAL = 2;
+	
+
 	/**
 	 * private, platform-specific data
 	 * On Windows, this contains a copy of the DEVMODE struct
