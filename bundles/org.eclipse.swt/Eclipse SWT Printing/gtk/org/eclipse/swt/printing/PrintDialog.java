@@ -348,6 +348,13 @@ public PrinterData open() {
 		}
 		OS.gtk_print_settings_set_n_copies(settings, printerData.copyCount);
 		OS.gtk_print_settings_set_collate(settings, printerData.collate);
+		if (printerData.duplex != SWT.DEFAULT) {
+			int duplex = printerData.duplex == PrinterData.DOUBLE_SIDED_HORIZONTAL ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
+				: printerData.duplex == PrinterData.DOUBLE_SIDED_VERTICAL ? OS.GTK_PRINT_DUPLEX_VERTICAL
+				: OS.GTK_PRINT_DUPLEX_SIMPLEX;
+			OS.gtk_print_settings_set_duplex (settings, duplex);
+			System.out.println("PrintDialog: duplex set to " + OS.gtk_print_settings_get_duplex (settings));
+		}
 		int orientation = printerData.orientation == PrinterData.LANDSCAPE ? OS.GTK_PAGE_ORIENTATION_LANDSCAPE : OS.GTK_PAGE_ORIENTATION_PORTRAIT;
 		OS.gtk_print_settings_set_orientation(settings, orientation);
 		OS.gtk_page_setup_set_orientation(page_setup, orientation);
@@ -430,16 +437,17 @@ public PrinterData open() {
 
 				data.copyCount = OS.gtk_print_settings_get_n_copies(settings);
 				data.collate = OS.gtk_print_settings_get_collate(settings);
+				int duplex = OS.gtk_print_settings_get_duplex(settings);
+				data.duplex = duplex == OS.GTK_PRINT_DUPLEX_HORIZONTAL ? PrinterData.DOUBLE_SIDED_HORIZONTAL
+						: duplex == OS.GTK_PRINT_DUPLEX_VERTICAL ? PrinterData.DOUBLE_SIDED_VERTICAL
+						: PrinterData.SINGLE_SIDED;
+				System.out.println("PrintDialog: get duplex = " + OS.gtk_print_settings_get_duplex (settings));
 				data.orientation = OS.gtk_page_setup_get_orientation(page_setup) == OS.GTK_PAGE_ORIENTATION_LANDSCAPE ? PrinterData.LANDSCAPE : PrinterData.PORTRAIT;
 
 				/* Save other print_settings data as key/value pairs in otherData. */
-				Callback printSettingsCallback = new Callback(this, "GtkPrintSettingsFunc", 3); //$NON-NLS-1$
-				int /*long*/ GtkPrintSettingsFunc = printSettingsCallback.getAddress();
-				if (GtkPrintSettingsFunc == 0) SWT.error (SWT.ERROR_NO_MORE_CALLBACKS);
-				index = 0;
 				settingsData = new byte[1024];
-				OS.gtk_print_settings_foreach (settings, GtkPrintSettingsFunc, 0);
-				printSettingsCallback.dispose ();
+				index = 0;
+				store(settings);
 				index++; // extra null terminator after print_settings and before page_setup
 
 				/* Save page_setup data as key/value pairs in otherData.
@@ -475,8 +483,19 @@ int /*long*/ GtkPrintSettingsFunc (int /*long*/ key, int /*long*/ value, int /*l
 	length = OS.strlen (value);
 	byte [] valueBuffer = new byte [length];
 	OS.memmove (valueBuffer, value, length);
+	/*if (new String(Converter.mbcsToWcs (null, keyBuffer)).contains("plex"))*/
+		System.out.println("Storing: " + new String(Converter.mbcsToWcs (null, keyBuffer)) + " = " + new String(Converter.mbcsToWcs (null, valueBuffer)));
 	store(keyBuffer, valueBuffer);
+	if (Printer.DEBUG) System.out.println(new String (Converter.mbcsToWcs (null, keyBuffer))+": "+new String (Converter.mbcsToWcs (null, valueBuffer)));
 	return 0;
+}
+
+void store(int settings) {
+	Callback printSettingsCallback = new Callback(this, "GtkPrintSettingsFunc", 3); //$NON-NLS-1$
+	int /*long*/ GtkPrintSettingsFunc = printSettingsCallback.getAddress();
+	if (GtkPrintSettingsFunc == 0) SWT.error (SWT.ERROR_NO_MORE_CALLBACKS);
+	OS.gtk_print_settings_foreach (settings, GtkPrintSettingsFunc, 0);
+	printSettingsCallback.dispose ();
 }
 
 void store(String key, int value) {

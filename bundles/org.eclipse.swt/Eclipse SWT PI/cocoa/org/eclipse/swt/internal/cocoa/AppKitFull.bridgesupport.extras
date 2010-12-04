@@ -2350,20 +2350,16 @@
 		<method selector="jobDisposition" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
-		<method selector="orientation" swt_gen="true">
+		<method selector="paperSize" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
-		<method selector="paperSize" swt_gen="true">
+		<method selector="printSettings" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="printer" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
 		<method selector="setJobDisposition:" swt_gen="true">
-			<arg swt_gen="true"></arg>
-			<retval swt_gen="true"></retval>
-		</method>
-		<method selector="setOrientation:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
@@ -2375,6 +2371,9 @@
 			<retval swt_gen="true"></retval>
 		</method>
 		<method class_method="true" selector="sharedPrintInfo" swt_gen="true">
+			<retval swt_gen="true"></retval>
+		</method>
+		<method selector="updateFromPMPrintSettings" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
 	</class>
@@ -2410,6 +2409,10 @@
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
+		<method selector="setPrintInfo:" swt_gen="true">
+			<arg swt_gen="true"></arg>
+			<retval swt_gen="true"></retval>
+		</method>
 		<method selector="setShowsPrintPanel:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
@@ -2431,6 +2434,9 @@
 		<method selector="options" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
+		<method selector="printInfo" swt_gen="true">
+			<retval swt_gen="true"></retval>
+		</method>
 		<method class_method="true" selector="printPanel" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
@@ -2440,6 +2446,9 @@
 		</method>
 		<method selector="setOptions:" swt_gen="true">
 			<arg swt_gen="true"></arg>
+			<retval swt_gen="true"></retval>
+		</method>
+		<method selector="updateFromPrintInfo" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
 	</class>
@@ -4525,6 +4534,7 @@
 	<constant name="NSPrintJobDisposition" swt_gen="true"></constant>
 	<constant name="NSPrintLastPage" swt_gen="true"></constant>
 	<constant name="NSPrintMustCollate" swt_gen="true"></constant>
+	<constant name="NSPrintOrientation" swt_gen="true"></constant>
 	<constant name="NSPrintPreviewJob" swt_gen="true"></constant>
 	<constant name="NSPrintSaveJob" swt_gen="true"></constant>
 	<constant name="NSPrintSavePath" swt_gen="true"></constant>
@@ -4676,7 +4686,11 @@
 	<enum name="NSPageDownFunctionKey" swt_gen="true"></enum>
 	<enum name="NSPageUpFunctionKey" swt_gen="true"></enum>
 	<enum name="NSPortraitOrientation" swt_gen="true"></enum>
+	<enum name="NSPrintPanelShowsCopies" swt_gen="true"></enum>
+	<enum name="NSPrintPanelShowsOrientation" swt_gen="true"></enum>
+	<enum name="NSPrintPanelShowsPageRange" swt_gen="true"></enum>
 	<enum name="NSPrintPanelShowsPageSetupAccessory" swt_gen="true"></enum>
+	<enum name="NSPrintPanelShowsPreview" swt_gen="true"></enum>
 	<enum name="NSProgressIndicatorPreferredThickness" swt_gen="true"></enum>
 	<enum name="NSPushOnPushOffButton" swt_gen="true"></enum>
 	<enum name="NSRadioButton" swt_gen="true"></enum>
