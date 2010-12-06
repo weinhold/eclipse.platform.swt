@@ -348,6 +348,13 @@ public PrinterData open() {
 		}
 		OS.gtk_print_settings_set_n_copies(settings, printerData.copyCount);
 		OS.gtk_print_settings_set_collate(settings, printerData.collate);
+		/* 
+		 * Bug in GTK.  The unix dialog gives priority to the value of the non-API
+		 * field cups-Duplex in the print_settings (which we preserve in otherData).
+		 * The fix is to manually clear cups-Duplex before setting the duplex field.
+		 */
+		byte [] keyBuffer = Converter.wcsToMbcs (null, "cups-Duplex", true);
+		OS.gtk_print_settings_set(settings, keyBuffer, (byte[]) null);
 		if (printerData.duplex != SWT.DEFAULT) {
 			int duplex = printerData.duplex == PrinterData.DUPLEX_LONG_EDGE ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
 				: printerData.duplex == PrinterData.DUPLEX_SHORT_EDGE ? OS.GTK_PRINT_DUPLEX_VERTICAL
