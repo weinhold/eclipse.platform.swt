@@ -443,9 +443,13 @@ public PrinterData open() {
 				data.orientation = OS.gtk_page_setup_get_orientation(page_setup) == OS.GTK_PAGE_ORIENTATION_LANDSCAPE ? PrinterData.LANDSCAPE : PrinterData.PORTRAIT;
 
 				/* Save other print_settings data as key/value pairs in otherData. */
-				settingsData = new byte[1024];
+				Callback printSettingsCallback = new Callback(this, "GtkPrintSettingsFunc", 3); //$NON-NLS-1$
+				int /*long*/ GtkPrintSettingsFunc = printSettingsCallback.getAddress();
+				if (GtkPrintSettingsFunc == 0) SWT.error (SWT.ERROR_NO_MORE_CALLBACKS);
 				index = 0;
-				store(settings);
+				settingsData = new byte[1024];
+				OS.gtk_print_settings_foreach (settings, GtkPrintSettingsFunc, 0);
+				printSettingsCallback.dispose ();
 				index++; // extra null terminator after print_settings and before page_setup
 
 				/* Save page_setup data as key/value pairs in otherData.
@@ -483,14 +487,6 @@ int /*long*/ GtkPrintSettingsFunc (int /*long*/ key, int /*long*/ value, int /*l
 	OS.memmove (valueBuffer, value, length);
 	store(keyBuffer, valueBuffer);
 	return 0;
-}
-
-void store(int settings) {
-	Callback printSettingsCallback = new Callback(this, "GtkPrintSettingsFunc", 3); //$NON-NLS-1$
-	int /*long*/ GtkPrintSettingsFunc = printSettingsCallback.getAddress();
-	if (GtkPrintSettingsFunc == 0) SWT.error (SWT.ERROR_NO_MORE_CALLBACKS);
-	OS.gtk_print_settings_foreach (settings, GtkPrintSettingsFunc, 0);
-	printSettingsCallback.dispose ();
 }
 
 void store(String key, int value) {
