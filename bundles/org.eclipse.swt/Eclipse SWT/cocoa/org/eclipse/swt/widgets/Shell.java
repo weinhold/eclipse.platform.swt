@@ -505,7 +505,10 @@ void bringToTop (boolean force) {
 boolean canBecomeKeyWindow (int /*long*/ id, int /*long*/ sel) {
 	if (isPopup) return false;
 	// Only answer if SWT created the window.
-	if (window != null) if (window.styleMask () == OS.NSBorderlessWindowMask) return true;
+	if (window != null) {
+		int /*long*/ styleMask = window.styleMask();
+		if (styleMask == OS.NSBorderlessWindowMask || (styleMask & OS.NSNonactivatingPanelMask) != 0) return true;
+	}
 	return super.canBecomeKeyWindow (id, sel);
 }
 
@@ -587,9 +590,13 @@ void createHandle () {
 	state |= HIDDEN;
 	if (window == null && view == null) {
 		int styleMask = OS.NSBorderlessWindowMask;
-		if ((style & SWT.TOOL) != 0) {
+		if ((style & (SWT.TOOL | SWT.SHEET)) != 0) {
 			window = (NSWindow) new SWTPanel().alloc();
-			styleMask |= OS.NSUtilityWindowMask | OS.NSNonactivatingPanelMask;
+			if ((style & SWT.SHEET) != 0) {
+				styleMask |= OS.NSDocModalWindowMask;
+			} else {
+				styleMask |= OS.NSUtilityWindowMask | OS.NSNonactivatingPanelMask;
+			}
  		} else {
  			window = (NSWindow) new SWTWindow().alloc ();
  		}
