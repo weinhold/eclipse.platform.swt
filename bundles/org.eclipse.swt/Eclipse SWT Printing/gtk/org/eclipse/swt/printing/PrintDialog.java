@@ -349,11 +349,10 @@ public PrinterData open() {
 		OS.gtk_print_settings_set_n_copies(settings, printerData.copyCount);
 		OS.gtk_print_settings_set_collate(settings, printerData.collate);
 		if (printerData.duplex != SWT.DEFAULT) {
-			int duplex = printerData.duplex == PrinterData.DOUBLE_SIDED_HORIZONTAL ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
-				: printerData.duplex == PrinterData.DOUBLE_SIDED_VERTICAL ? OS.GTK_PRINT_DUPLEX_VERTICAL
+			int duplex = printerData.duplex == PrinterData.DUPLEX_LONG_EDGE ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
+				: printerData.duplex == PrinterData.DUPLEX_SHORT_EDGE ? OS.GTK_PRINT_DUPLEX_VERTICAL
 				: OS.GTK_PRINT_DUPLEX_SIMPLEX;
 			OS.gtk_print_settings_set_duplex (settings, duplex);
-			System.out.println("PrintDialog: duplex set to " + OS.gtk_print_settings_get_duplex (settings));
 		}
 		int orientation = printerData.orientation == PrinterData.LANDSCAPE ? OS.GTK_PAGE_ORIENTATION_LANDSCAPE : OS.GTK_PAGE_ORIENTATION_PORTRAIT;
 		OS.gtk_print_settings_set_orientation(settings, orientation);
@@ -438,10 +437,9 @@ public PrinterData open() {
 				data.copyCount = OS.gtk_print_settings_get_n_copies(settings);
 				data.collate = OS.gtk_print_settings_get_collate(settings);
 				int duplex = OS.gtk_print_settings_get_duplex(settings);
-				data.duplex = duplex == OS.GTK_PRINT_DUPLEX_HORIZONTAL ? PrinterData.DOUBLE_SIDED_HORIZONTAL
-						: duplex == OS.GTK_PRINT_DUPLEX_VERTICAL ? PrinterData.DOUBLE_SIDED_VERTICAL
-						: PrinterData.SINGLE_SIDED;
-				System.out.println("PrintDialog: get duplex = " + OS.gtk_print_settings_get_duplex (settings));
+				data.duplex = duplex == OS.GTK_PRINT_DUPLEX_HORIZONTAL ? PrinterData.DUPLEX_LONG_EDGE
+						: duplex == OS.GTK_PRINT_DUPLEX_VERTICAL ? PrinterData.DUPLEX_SHORT_EDGE
+						: PrinterData.DUPLEX_NONE;
 				data.orientation = OS.gtk_page_setup_get_orientation(page_setup) == OS.GTK_PAGE_ORIENTATION_LANDSCAPE ? PrinterData.LANDSCAPE : PrinterData.PORTRAIT;
 
 				/* Save other print_settings data as key/value pairs in otherData. */

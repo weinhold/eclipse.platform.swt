@@ -114,21 +114,23 @@ public final class PrinterData extends DeviceData {
 	public int orientation = PORTRAIT;
 
 	/**
-	 * Single-sided or double-sided printing, expressed as one of the following values:
+	 * Single-sided or double-sided printing, expressed as one of the
+	 * following values:
 	 * <dl>
 	 * <dt><code>SWT.DEFAULT</code></dt>
 	 * <dd>the default duplex value for the printer</dd>
 	 * <dt><code>DUPLEX_NONE</code></dt>
-	 * <dd>single-sided printing, also known as simplex</dd>
+	 * <dd>single-sided printing</dd>
 	 * <dt><code>DUPLEX_LONG_EDGE</code></dt>
 	 * <dd>double-sided printing as if bound on the long edge</dd>
 	 * <dt><code>DUPLEX_SHORT_EDGE</code></dt>
 	 * <dd>double-sided printing as if bound on the short edge</dd>
 	 * </dl>
 	 * <p>
-	 * The default value is SWT.DEFAULT, meaning do not set a value; use the printer's default duplex setting.
-	 * A printer's default value is typically single-sided, however it is sometimes set to default to
-	 * double-sided for non-transparent non-heavyweight print media, in order to save paper.
+	 * The default value is SWT.DEFAULT, meaning do not set a value;
+	 * use the printer's default duplex setting.
+	 * A printer's default value is typically single-sided,
+	 * however it can default to double-sided in order to save paper.
 	 * </p>
 	 * 
 	 * @since 3.7
@@ -172,9 +174,9 @@ public final class PrinterData extends DeviceData {
 	
  	/**
 	 * <code>duplex</code> field value indicating
-	 * one-sided printing
+	 * single-sided printing.
 	 * <p>
-	 * This is also known as simplex.
+	 * This is also known as simplex printing.
 	 * </p>
 	 * 
 	 * @since 3.7
@@ -183,30 +185,33 @@ public final class PrinterData extends DeviceData {
 	
 	/**
 	 * <code>duplex</code> field value indicating
-	 * double-sided printing on short edge
-	 * <p>
-	 * This is sometimes called tumble.
-	 * For portrait orientation, the short edge is horizontal.
-	 * For landscape orientation, the short edge is vertical.
-	 * </p>
-	 * 
-	 * @since 3.7
-	 */
-	public static final int DUPLEX_SHORT_EDGE = 1;
-	
-	/**
-	 * <code>duplex</code> field value indicating
-	 * double-sided printing on long edge
+	 * double-sided printing for binding on the long edge.
 	 * <p>
 	 * For portrait orientation, the long edge is vertical.
 	 * For landscape orientation, the long edge is horizontal.
+	 * </p><p>
+	 * This is also known as duplex printing.
 	 * </p>
 	 * 
 	 * @since 3.7
 	 */
-	public static final int DUPLEX_LONG_EDGE = 2;
+	public static final int DUPLEX_LONG_EDGE = 1;
 	
 
+	/**
+	 * <code>duplex</code> field value indicating
+	 * double-sided printing for binding on the short edge.
+	 * <p>
+	 * For portrait orientation, the short edge is horizontal.
+	 * For landscape orientation, the short edge is vertical.
+	 * </p><p>
+	 * This is also known as duplex tumble printing.
+	 * </p>
+	 * 
+	 * @since 3.7
+	 */
+	public static final int DUPLEX_SHORT_EDGE = 2;
+	
 	/**
 	 * private, platform-specific data
 	 * On Windows, this contains a copy of the DEVMODE struct

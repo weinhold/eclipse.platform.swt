@@ -19,8 +19,6 @@ import org.eclipse.swt.internal.gtk.GdkVisual;
 import org.eclipse.swt.internal.gtk.OS;
 import org.eclipse.swt.internal.cairo.Cairo;
 import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * Instances of this class are used to print to a printer.
@@ -469,13 +467,6 @@ protected void release () {
 public boolean startJob(String jobName) {
 	checkDevice();
 	byte [] buffer = Converter.wcsToMbcs (null, jobName, true);
-	/// DEBUG CODE!!!! TEMPORARY!!!!
-	PrintDialog dialog = new PrintDialog(new Shell(Display.getCurrent ()));
-	dialog.settingsData = new byte[1024];
-	dialog.index = 0;
-	dialog.store(settings); // we are not really storing - just printing the values for debug
-	/// END DEBUG CODE!!!! TEMPORARY!!!!
-
 	printJob = OS.gtk_print_job_new (buffer, printer, settings, pageSetup);
 	if (printJob == 0) return false;
 	surface = OS.gtk_print_job_get_surface(printJob, null);
@@ -760,11 +751,15 @@ protected void init() {
 	OS.gtk_print_settings_set_n_copies(settings, data.copyCount);
 	OS.gtk_print_settings_set_collate(settings, data.collate);
 	if (data.duplex != SWT.DEFAULT) {
-		int duplex = data.duplex == PrinterData.DOUBLE_SIDED_HORIZONTAL ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
-			: data.duplex == PrinterData.DOUBLE_SIDED_VERTICAL ? OS.GTK_PRINT_DUPLEX_VERTICAL
+		int duplex = data.duplex == PrinterData.DUPLEX_LONG_EDGE ? OS.GTK_PRINT_DUPLEX_HORIZONTAL
+			: data.duplex == PrinterData.DUPLEX_SHORT_EDGE ? OS.GTK_PRINT_DUPLEX_VERTICAL
 			: OS.GTK_PRINT_DUPLEX_SIMPLEX;
 		OS.gtk_print_settings_set_duplex (settings, duplex);
-		// TEMPORARY CODE - try setting cups-Duplex to Tumble or NoTumble
+		/* 
+		 * Bug in GTK.  The cups backend only looks at the value
+		 * of the non-API field cups-Duplex in the print_settings.
+		 * The fix is to manually set cups-Duplex to Tumble or NoTumble.
+		 */
 		String cupsDuplexType = null;
 		if (duplex == OS.GTK_PRINT_DUPLEX_HORIZONTAL) cupsDuplexType = "DuplexNoTumble";
 		else if (duplex == OS.GTK_PRINT_DUPLEX_VERTICAL) cupsDuplexType = "DuplexTumble";
@@ -773,8 +768,6 @@ protected void init() {
 			byte [] valueBuffer = Converter.wcsToMbcs (null, cupsDuplexType, true);
 			OS.gtk_print_settings_set(settings, keyBuffer, valueBuffer);
 		}
-		System.out.println("Printer: duplex set to " + OS.gtk_print_settings_get_duplex (settings));
-		// END TEMPORARY CODE
 	}
 	int orientation = data.orientation == PrinterData.LANDSCAPE ? OS.GTK_PAGE_ORIENTATION_LANDSCAPE : OS.GTK_PAGE_ORIENTATION_PORTRAIT;
 	OS.gtk_page_setup_set_orientation(pageSetup, orientation);

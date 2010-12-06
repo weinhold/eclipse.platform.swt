@@ -211,8 +211,8 @@ protected void create(DeviceData deviceData) {
 			printer.retain();
 			printInfo.setPrinter(printer);
 		}
-		int /*long*/ settings = printInfo.PMPrintSettings();
-		if (data.duplex != SWT.DEFAULT) { 
+		if (data.duplex != SWT.DEFAULT) {
+			int /*long*/ settings = printInfo.PMPrintSettings();
 			int duplex = data.duplex == PrinterData.DUPLEX_SHORT_EDGE ? OS.kPMDuplexTumble
 					: data.duplex == PrinterData.DUPLEX_LONG_EDGE ? OS.kPMDuplexNoTumble
 					: OS.kPMDuplexNone;

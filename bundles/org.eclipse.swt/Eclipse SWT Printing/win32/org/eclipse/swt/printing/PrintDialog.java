@@ -462,8 +462,6 @@ public PrinterData open() {
 			ptr = OS.GlobalLock(hMem);
 			data.otherData = new byte[size];
 			OS.MoveMemory(data.otherData, ptr, size);
-			
-			/* Retrieve the remaining PrinterData fields (those not in PRINTDLG) from the DEVMODE struct. */
 			devmode = OS.IsUnicode ? (DEVMODE)new DEVMODEW () : new DEVMODEA ();
 			OS.MoveMemory(devmode, ptr, OS.IsUnicode ? OS.DEVMODEW_sizeof() : OS.DEVMODEA_sizeof());
 			if ((devmode.dmFields & OS.DM_ORIENTATION) != 0) {
