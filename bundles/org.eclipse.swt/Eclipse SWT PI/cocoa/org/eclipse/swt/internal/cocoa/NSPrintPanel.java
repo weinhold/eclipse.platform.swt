@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,11 +32,6 @@ public int /*long*/ options() {
 	return OS.objc_msgSend(this.id, OS.sel_options);
 }
 
-public NSPrintInfo printInfo() {
-	int /*long*/ result = OS.objc_msgSend(this.id, OS.sel_printInfo);
-	return result != 0 ? new NSPrintInfo(result) : null;
-}
-
 public static NSPrintPanel printPanel() {
 	int /*long*/ result = OS.objc_msgSend(OS.class_NSPrintPanel, OS.sel_printPanel);
 	return result != 0 ? new NSPrintPanel(result) : null;
@@ -48,10 +43,6 @@ public int /*long*/ runModalWithPrintInfo(NSPrintInfo printInfo) {
 
 public void setOptions(int /*long*/ options) {
 	OS.objc_msgSend(this.id, OS.sel_setOptions_, options);
-}
-
-public void updateFromPrintInfo() {
-	OS.objc_msgSend(this.id, OS.sel_updateFromPrintInfo);
 }
 
 }

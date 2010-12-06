@@ -2409,10 +2409,6 @@
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
-		<method selector="setPrintInfo:" swt_gen="true">
-			<arg swt_gen="true"></arg>
-			<retval swt_gen="true"></retval>
-		</method>
 		<method selector="setShowsPrintPanel:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
@@ -2434,9 +2430,6 @@
 		<method selector="options" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
-		<method selector="printInfo" swt_gen="true">
-			<retval swt_gen="true"></retval>
-		</method>
 		<method class_method="true" selector="printPanel" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
@@ -2446,9 +2439,6 @@
 		</method>
 		<method selector="setOptions:" swt_gen="true">
 			<arg swt_gen="true"></arg>
-			<retval swt_gen="true"></retval>
-		</method>
-		<method selector="updateFromPrintInfo" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
 	</class>
