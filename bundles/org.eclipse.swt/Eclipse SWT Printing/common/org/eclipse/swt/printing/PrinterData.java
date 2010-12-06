@@ -197,7 +197,6 @@ public final class PrinterData extends DeviceData {
 	 */
 	public static final int DUPLEX_LONG_EDGE = 1;
 	
-
 	/**
 	 * <code>duplex</code> field value indicating
 	 * double-sided printing for binding on the short edge.
