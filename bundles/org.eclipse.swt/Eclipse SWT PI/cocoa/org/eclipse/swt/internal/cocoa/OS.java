@@ -2268,11 +2268,7 @@ public static final int NSOutlineViewDropOnItemIndex = -1;
 public static final int NSPageDownFunctionKey = 63277;
 public static final int NSPageUpFunctionKey = 63276;
 public static final int NSPortraitOrientation = 0;
-public static final int NSPrintPanelShowsCopies = 1;
-public static final int NSPrintPanelShowsOrientation = 8;
-public static final int NSPrintPanelShowsPageRange = 2;
 public static final int NSPrintPanelShowsPageSetupAccessory = 256;
-public static final int NSPrintPanelShowsPreview = 131072;
 public static final int NSProgressIndicatorPreferredThickness = 14;
 public static final int NSPushOnPushOffButton = 1;
 public static final int NSRadioButton = 4;
@@ -3340,7 +3336,7 @@ public static final native int /*long*/ CGEventCreateMouseEvent(int /*long*/ sou
 /**
  * @param source cast=(CGEventSourceRef)
  * @param units cast=(CGScrollEventUnit)
- * @param wheelCount cast=(CGWheelCount)
+ * @param wheelCount cast=(uint32_t)
  * @param wheel1 cast=(int32_t)
  */
 public static final native int /*long*/ CGEventCreateScrollWheelEvent(int /*long*/ source, int units, int wheelCount, int wheel1);
@@ -3355,9 +3351,9 @@ public static final native long CGEventGetIntegerValueField(int /*long*/ event, 
  */
 public static final native void CGEventPost(int tap, int /*long*/ event);
 /**
- * @param sourceState cast=(CGEventSourceStateID)
+ * @param stateID cast=(CGEventSourceStateID)
  */
-public static final native int /*long*/ CGEventSourceCreate(int sourceState);
+public static final native int /*long*/ CGEventSourceCreate(int stateID);
 /**
  * @param rect flags=struct
  * @param maxDisplays cast=(CGDisplayCount)

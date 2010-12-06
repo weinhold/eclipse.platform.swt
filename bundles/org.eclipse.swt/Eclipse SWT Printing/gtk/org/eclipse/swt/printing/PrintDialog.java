@@ -481,10 +481,7 @@ int /*long*/ GtkPrintSettingsFunc (int /*long*/ key, int /*long*/ value, int /*l
 	length = OS.strlen (value);
 	byte [] valueBuffer = new byte [length];
 	OS.memmove (valueBuffer, value, length);
-	/*if (new String(Converter.mbcsToWcs (null, keyBuffer)).contains("plex"))*/
-		System.out.println("Storing: " + new String(Converter.mbcsToWcs (null, keyBuffer)) + " = " + new String(Converter.mbcsToWcs (null, valueBuffer)));
 	store(keyBuffer, valueBuffer);
-	if (Printer.DEBUG) System.out.println(new String (Converter.mbcsToWcs (null, keyBuffer))+": "+new String (Converter.mbcsToWcs (null, valueBuffer)));
 	return 0;
 }
 

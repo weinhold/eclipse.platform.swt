@@ -206,7 +206,6 @@ static void restore(byte [] data, int /*long*/ settings, int /*long*/ page_setup
 		end++;
 		byte [] valueBuffer = new byte [end - start];
 		System.arraycopy (settingsData, start, valueBuffer, 0, valueBuffer.length);
-		if (new String(Converter.mbcsToWcs (null, keyBuffer)).contains("plex")) System.out.println("Restoring: " + new String(Converter.mbcsToWcs (null, keyBuffer)) + " = " + new String(Converter.mbcsToWcs (null, valueBuffer)));
 		OS.gtk_print_settings_set(settings, keyBuffer, valueBuffer);
 		if (DEBUG) System.out.println(new String (Converter.mbcsToWcs (null, keyBuffer))+": "+new String (Converter.mbcsToWcs (null, valueBuffer)));
 	}
