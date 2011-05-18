@@ -526,6 +526,14 @@ int /*long*/ borderHandle () {
 	return handle;
 }
 
+void checkAero () {
+	if ((style & SWT.TRIM_FILL) != 0) {
+		if ((parent.style & SWT.TRIM_FILL) == 0) {
+			style &= ~SWT.TRIM_FILL;
+		}
+	}
+}
+
 void checkBackground () {
 	Shell shell = getShell ();
 	if (this == shell) return;
@@ -732,6 +740,7 @@ void createWidget () {
 	state |= DRAG_DETECT;
 	foreground = background = -1;
 	checkOrientation (parent);
+	checkAero ();
 	createHandle ();
 	checkBackground ();
 	checkBuffered ();
@@ -1183,6 +1192,7 @@ public Image getBackgroundImage () {
 }
 
 int getBackgroundPixel () {
+	if ((style & SWT.TRIM_FILL) != 0 && !getBufferredPaint ()) return 0x0;
 	return background != -1 ? background :  defaultBackground ();
 }
 
@@ -1230,6 +1240,10 @@ public Rectangle getBounds () {
 	int width = rect.right - rect.left;
 	int height =  rect.bottom - rect.top;
 	return new Rectangle (rect.left, rect.top, width, height);
+}
+
+boolean getBufferredPaint() {
+	return false;
 }
 
 int getCodePage () {
@@ -5070,6 +5084,7 @@ LRESULT WM_NOTIFY (int /*long*/ wParam, int /*long*/ lParam) {
 }
 
 LRESULT WM_PAINT (int /*long*/ wParam, int /*long*/ lParam) {
+	if (getBufferredPaint ()) return wmBufferedPaint (handle, wParam, lParam);
 	return wmPaint (handle, wParam, lParam);
 }
 

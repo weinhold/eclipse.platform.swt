@@ -518,6 +518,20 @@ void center () {
 	setLocation (x, y);
 }
 
+void checkAero () {
+	if ((style & SWT.TRIM_FILL) != 0) {
+		if (OS.WIN32_VERSION < OS.VERSION (6, 0)) {
+			style &= ~SWT.TRIM_FILL;
+		} else {
+			boolean [] pfEnabled = new boolean [1];
+			OS.DwmIsCompositionEnabled (pfEnabled);
+			if (!pfEnabled[0]) {
+				style &= ~SWT.TRIM_FILL;
+			}
+		}
+	}
+}
+
 /**
  * Requests that the window manager close the receiver in
  * the same way it would be closed when the user clicks on
@@ -619,6 +633,13 @@ void createHandle () {
 			psai.cbSize = SHACTIVATEINFO.sizeof;
 		}
 	}
+
+	if ((style & SWT.TRIM_FILL) != 0) {
+		MARGINS margin = new MARGINS ();
+		margin.cxLeftWidth = margin.cxRightWidth =  margin.cyTopHeight = margin.cyBottomHeight = -1;
+		OS.DwmExtendFrameIntoClientArea (handle, margin);
+	}
+
 	if (OS.IsDBLocale) {
 		hIMC = OS.ImmCreateContext ();
 		if (hIMC != 0) OS.ImmAssociateContext (handle, hIMC);

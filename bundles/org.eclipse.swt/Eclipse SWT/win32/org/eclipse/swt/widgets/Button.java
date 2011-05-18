@@ -636,6 +636,16 @@ public int getAlignment () {
 	return SWT.LEFT;
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0) {
+		if ((style & SWT.PUSH) != 0) return true;
+		if ((style & SWT.TOGGLE) != 0) return true;
+		//what about radio, check, and arrow ? should be transparent with custom draw ?
+	}
+	return false;
+}
+
 boolean getDefault () {
 	if ((style & SWT.PUSH) == 0) return false;
 	int bits = OS.GetWindowLong (handle, OS.GWL_STYLE);

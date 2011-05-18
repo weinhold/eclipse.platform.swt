@@ -38,6 +38,7 @@
 #define DrawThemeIcon_LIB "uxtheme.dll"
 #define DrawThemeParentBackground_LIB "uxtheme.dll"
 #define DrawThemeText_LIB "uxtheme.dll"
+#define DwmIsCompositionEnabled_LIB "dwmapi.dll"
 #define DwmEnableBlurBehindWindow_LIB "dwmapi.dll"
 #define DwmExtendFrameIntoClientArea_LIB "dwmapi.dll"
 #define GetGestureInfo_LIB "user32.dll"

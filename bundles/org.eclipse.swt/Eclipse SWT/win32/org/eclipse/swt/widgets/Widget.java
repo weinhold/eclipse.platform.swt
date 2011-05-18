@@ -2222,6 +2222,54 @@ LRESULT wmNCPaint (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) 
 	return null;
 }
 
+LRESULT wmBufferedPaint (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) {
+	PAINTSTRUCT ps = new PAINTSTRUCT ();
+	int /*long*/ result = 0; 
+	int /*long*/ hDC = OS.BeginPaint (hwnd, ps);
+	int width = ps.right - ps.left;
+	int height = ps.bottom - ps.top;
+	if (width != 0 && height != 0) {
+		RECT prcTarget = new RECT ();
+		OS.SetRect (prcTarget, ps.left, ps.top, ps.right, ps.bottom);
+		int /*long*/ [] phdc = new int /*long*/ [1];
+		int /*long*/ hBufferedPaint = OS.BeginBufferedPaint (hDC, prcTarget, OS.BPBF_TOPDOWNDIB, null, phdc);
+		result = callWindowProc (hwnd, OS.WM_PAINT, phdc [0], lParam);
+		System.out.println("HERE " + this);
+		if (hooks (SWT.Paint) || filters (SWT.Paint)) {
+			//badness
+			GCData data = new GCData ();
+			data.device = display;
+			data.foreground = ((Control)this).getForegroundPixel ();
+			Control control = ((Control)this).findBackgroundControl ();
+			if (control == null) control = (Control)this;
+			data.background = control.getBackgroundPixel ();
+			data.font = Font.win32_new(display, OS.SendMessage (hwnd, OS.WM_GETFONT, 0, 0));
+			data.uiState = (int)/*64*/OS.SendMessage (hwnd, OS.WM_QUERYUISTATE, 0, 0);
+			//what about the clipping ?
+			GC gc = GC.win32_new (phdc [0], data);
+			if (gc != null) {
+				OS.HideCaret (hwnd);
+				Event event = new Event ();
+				event.gc = gc;
+				event.x = ps.left;
+				event.y = ps.top;
+				event.width = width;
+				event.height = height;
+				sendEvent (SWT.Paint, event);
+				// widget could be disposed at this point
+				event.gc = null;
+				gc.dispose ();
+				OS.ShowCaret (hwnd);
+			}
+		}
+		OS.BufferedPaintSetAlpha (hBufferedPaint, prcTarget, (byte) 255);
+		OS.EndBufferedPaint (hBufferedPaint, true);
+	}
+	OS.EndPaint (hDC, ps);
+	if (result == 0) return LRESULT.ZERO;
+	return new LRESULT (result);
+}
+
 LRESULT wmPaint (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam) {
 
 	/* Exit early - don't draw the background */

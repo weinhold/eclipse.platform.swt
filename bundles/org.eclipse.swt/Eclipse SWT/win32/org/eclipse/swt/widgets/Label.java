@@ -223,6 +223,15 @@ public int getAlignment () {
 	return SWT.LEFT;
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0) {
+		if (image != null) return false;//note: can't be transparent for all images...
+		return true;//bad: should be transparent with custom draw
+	}
+	return false;
+}
+
 /**
  * Returns the receiver's image if it has one, or null
  * if it does not.

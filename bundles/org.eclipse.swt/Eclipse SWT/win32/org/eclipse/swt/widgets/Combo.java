@@ -657,6 +657,12 @@ boolean dragDetect (int /*long*/ hwnd, int x, int y, boolean filter, boolean [] 
 	return super.dragDetect (hwnd, x, y, filter, detect, consume);
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0) return true;
+	return false;
+}
+
 /**
  * Returns the item at the given, zero-relative index in the
  * receiver's list. Throws an exception if the index is out

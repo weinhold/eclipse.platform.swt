@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1053;
-int OS_nativeFunctionCallCount[1053];
+int OS_nativeFunctionCount = 1054;
+int OS_nativeFunctionCallCount[1054];
 char * OS_nativeFunctionNames[] = {
 	"ACCEL_1sizeof",
 	"ACTCTX_1sizeof",
@@ -207,6 +207,7 @@ char * OS_nativeFunctionNames[] = {
 	"DuplicateHandle",
 	"DwmEnableBlurBehindWindow",
 	"DwmExtendFrameIntoClientArea",
+	"DwmIsCompositionEnabled",
 	"EMREXTCREATEFONTINDIRECTW_1sizeof",
 	"EMR_1sizeof",
 	"EXTLOGFONTW_1sizeof",

@@ -1573,6 +1573,9 @@ public class SWT {
 	 * </ul></p>
 	 */
 	public static final int SMOOTH = 1 << 16;
+	
+	
+	public static final int TRIM_FILL = 1 << 31; //BAD
 
 	/**
 	 * Style constant for no background behavior (value is 1&lt;&lt;18).
