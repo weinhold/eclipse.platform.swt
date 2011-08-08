@@ -708,16 +708,12 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 	return null;
 }
 
-int getThemeGlowSize() {
-	int hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
+int getThemeGlowSize () {
+	int /*long*/ hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
 	int [] glowSize = new int[1];
 	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
 	OS.CloseThemeData(hTheme);
-	
-	if (glowSize[0] > 0)
-		return glowSize[0];
-	else
-		return 12; // default value;
+	return glowSize[0] > 0 ? glowSize[0] : 12;
 }
 
 LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
@@ -725,7 +721,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	
 	// BeginPaint ...
 	PAINTSTRUCT ps = new PAINTSTRUCT ();
-	int hDC = OS.BeginPaint (hWnd, ps);
+	int /*long*/ hDC = OS.BeginPaint (hWnd, ps);
 	
 	// copy the PAINTSTRUCT coordinates into a RECT structure
 	RECT rcPaintStruct = new RECT();
@@ -743,8 +739,8 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	// set up the buffered device context - the background is painted entirely black and its alpha 
 	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
 	// the glass background will just render through)
-	int [] hdcBuffered = new int[1];
-	int hBufferedPaint = OS.BeginBufferedPaint(hDC, rcClient, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(hDC, rcClient, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
 	OS.PatBlt(hdcBuffered[0], 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, OS.BLACKNESS);
 	OS.BufferedPaintSetAlpha(hBufferedPaint, rcPaintStruct, (byte)0x00);
 
@@ -801,13 +797,12 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 		// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
 		// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
 		DTTOPTS DttOpts = new DTTOPTS();
-		DttOpts.dwFlags = DTTOPTS.DTT_COMPOSITED; // 0x2000;
+		DttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE;
 		DttOpts.crText   = 0x00FFFFFF;
-		DttOpts.dwFlags |= DTTOPTS.DTT_GLOWSIZE; // 0x0800;
-		DttOpts.iGlowSize = getThemeGlowSize();
+		DttOpts.iGlowSize = getThemeGlowSize ();
 
 		// select the window's font into the buffered device context
-		int hFont = OS.SendMessage(hWnd, OS.WM_GETFONT, 0, 0);
+		int /*long*/ hFont = OS.SendMessage(hWnd, OS.WM_GETFONT, 0, 0);
 		if (hFont != 0) {
 			hFont = OS.SelectObject(hdcBuffered[0], hFont);
 		}
@@ -815,7 +810,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 		// draw the text using the special DrawThemeTextEx call 
 		int dwFlags = ((style & SWT.WRAP) != 0) ? OS.DT_WORDBREAK : 0;
 		TCHAR textBuffer = new TCHAR (getCodePage (), text, true);
-		int hTheme = OS.OpenThemeData(0, "ControlPanelStyle;".toCharArray());
+		int /*long*/ hTheme = OS.OpenThemeData(0, "ControlPanelStyle;".toCharArray());
 		// Aero-Glass TODO: add the OS.DrawThemeTextEx() API to swt.dll
 		OS.DrawThemeTextEx(hTheme, hdcBuffered[0], 0, 0, textBuffer.chars, textBuffer.length(), dwFlags, rect, DttOpts);
 //		TasktopOS.DrawThemeTextEx(hTheme, hdcBuffered[0], textBuffer.chars, dwFlags, rect, DttOpts.iGlowSize); // glowSize[0]); // this is our own JNI placeholder until swt.dll gets upgraded

@@ -212,6 +212,7 @@ typedef enum {
 	DrawThemeIcon_FUNC,
 	DrawThemeParentBackground_FUNC,
 	DrawThemeText_FUNC,
+	DrawThemeTextEx_FUNC,
 	DuplicateHandle_FUNC,
 	DwmEnableBlurBehindWindow_FUNC,
 	DwmExtendFrameIntoClientArea_FUNC,

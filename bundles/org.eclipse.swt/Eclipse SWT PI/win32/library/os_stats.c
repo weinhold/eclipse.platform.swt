@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1054;
-int OS_nativeFunctionCallCount[1054];
+int OS_nativeFunctionCount = 1055;
+int OS_nativeFunctionCallCount[1055];
 char * OS_nativeFunctionNames[] = {
 	"ACCEL_1sizeof",
 	"ACTCTX_1sizeof",
@@ -204,6 +204,7 @@ char * OS_nativeFunctionNames[] = {
 	"DrawThemeIcon",
 	"DrawThemeParentBackground",
 	"DrawThemeText",
+	"DrawThemeTextEx",
 	"DuplicateHandle",
 	"DwmEnableBlurBehindWindow",
 	"DwmExtendFrameIntoClientArea",

@@ -239,6 +239,7 @@
 #define NO_DrawThemeIcon
 #define NO_DrawThemeParentBackground
 #define NO_DrawThemeText
+#define NO_DrawThemeTextEx
 #define NO_DuplicateHandle
 #define NO_DwmEnableBlurBehindWindow
 #define NO_DwmExtendFrameIntoClientArea
@@ -675,6 +676,38 @@
 #endif
 
 #ifndef _WIN32_WCE
+// Callback function used by DrawTextWithGlow instead of DrawTextW
+typedef 
+int
+(WINAPI *DTT_CALLBACK_PROC)
+(
+    __in HDC hdc,
+    __inout_ecount(cchText) LPWSTR pszText,
+    __in int cchText,
+    __inout LPRECT prc,
+    __in UINT dwFlags,
+    __in LPARAM lParam);
+    
+typedef struct _DTTOPTS
+{
+    DWORD             dwSize;              // size of the struct
+    DWORD             dwFlags;             // which options have been specified
+    COLORREF          crText;              // color to use for text fill
+    COLORREF          crBorder;            // color to use for text outline
+    COLORREF          crShadow;            // color to use for text shadow
+    int               iTextShadowType;     // TST_SINGLE or TST_CONTINUOUS
+    POINT             ptShadowOffset;      // where shadow is drawn (relative to text)
+    int               iBorderSize;         // Border radius around text
+    int               iFontPropId;         // Font property to use for the text instead of TMT_FONT
+    int               iColorPropId;        // Color property to use for the text instead of TMT_TEXTCOLOR
+    int               iStateId;            // Alternate state id
+    BOOL              fApplyOverlay;       // Overlay text on top of any text effect?
+    int               iGlowSize;           // Glow radious around text
+    DTT_CALLBACK_PROC pfnDrawTextCallback; // Callback for DrawText
+    LPARAM            lParam;              // Parameter for callback
+} DTTOPTS, *PDTTOPTS; 
+
+
 #ifndef _BP_PAINTPARAMS
 typedef HANDLE HPAINTBUFFER;
 typedef struct _BP_PAINTPARAMS {
