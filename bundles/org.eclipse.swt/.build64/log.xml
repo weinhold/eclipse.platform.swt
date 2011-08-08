@@ -1,0 +1,1279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 8/4/11 4:48:24 PM EDT -->
+<!DOCTYPE compiler PUBLIC "-//Eclipse.org//DTD Eclipse JDT 3.2.004 Compiler//EN" "http://www.eclipse.org/jdt/core/compiler_32_004.dtd">
+<compiler copyright="Copyright IBM Corp 2000, 2011. All rights reserved." name="Eclipse Compiler for Java(TM)" version="0.C02, 3.8.0 M1">
+	<command_line>
+		<argument value="-nowarn"/>
+		<argument value="-d"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64//bin"/>
+		<argument value="-cp"/>
+		<argument value="C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/resources.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/rt.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/jsse.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/jce.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/charsets.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/ext/dnsns.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/ext/localedata.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/ext/sunjce_provider.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/ext/sunmscapi.jar;C:/Users/Felipe/Desktop/VM/jre6_26_x86/lib/ext/sunpkcs11.jar;/org.eclipse.swt/extra_jars/exceptions.jar;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64//bin"/>
+		<argument value="-log"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64//log.xml"/>
+		<argument value="-sourcepath"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/common_j2se;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT PI/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT PI/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT PI/common_j2se;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT OLE Win32/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Accessibility/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Accessibility/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT AWT/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT AWT/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Drag and Drop/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Drag and Drop/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Printing/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Printing/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Program/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Program/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Custom Widgets/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Browser/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Browser/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Mozilla/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Mozilla/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT WebKit/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT OpenGL/win32;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT OpenGL/common;C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT Theme/win32"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/widgets/Sash.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/internal/BidiUtil.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT PI/win32/org/eclipse/swt/internal/win32/OS.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/common/org/eclipse/swt/SWT.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/widgets/Tree.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/widgets/Label.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/widgets/Button.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT PI/common_j2se/org/eclipse/swt/internal/Library.java"/>
+		<argument value="C:/Users/Felipe/git/eclipse.platform.swt/bundles/org.eclipse.swt/.build64/Eclipse SWT/win32/org/eclipse/swt/widgets/Shell.java"/>
+	</command_line>
+	<options>
+		<option key="org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.codegen.targetPlatform" value="1.2"/>
+		<option key="org.eclipse.jdt.core.compiler.codegen.unusedLocal" value="optimize out"/>
+		<option key="org.eclipse.jdt.core.compiler.compliance" value="1.4"/>
+		<option key="org.eclipse.jdt.core.compiler.debug.lineNumber" value="generate"/>
+		<option key="org.eclipse.jdt.core.compiler.debug.localVariable" value="do not generate"/>
+		<option key="org.eclipse.jdt.core.compiler.debug.sourceFile" value="generate"/>
+		<option key="org.eclipse.jdt.core.compiler.doc.comment.support" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.generateClassFiles" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.maxProblemPerUnit" value="100"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.annotationSuperInterface" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.assertIdentifier" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.autoboxing" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.comparingIdentical" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.deadCode" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.deprecation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.discouragedReference" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.emptyStatement" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.enumIdentifier" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.fallthroughCase" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.fatalOptionalError" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.fieldHiding" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.finalParameterBound" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.forbiddenReference" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.indirectStaticAccess" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.invalidJavadoc" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.invalidJavadocTags" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility" value="public"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.localVariableHiding" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.methodWithConstructorName" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocComments" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility" value="public"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription" value="return_tag"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocTags" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility" value="public"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.noEffectAssignment" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.nullReference" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.parameterAssignment" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.potentialNullReference" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.rawTypeReference" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.redundantNullCheck" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.redundantSuperinterface" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.specialParameterHidingField" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.staticAccessReceiver" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.suppressWarnings" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.tasks" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.typeParameterHiding" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unhandledWarningToken" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unnecessaryElse" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedLabel" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedLocal" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedParameter" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedPrivateMember" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.unusedWarningToken" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast" value="ignore"/>
+		<option key="org.eclipse.jdt.core.compiler.processAnnotations" value="disabled"/>
+		<option key="org.eclipse.jdt.core.compiler.source" value="1.3"/>
+		<option key="org.eclipse.jdt.core.compiler.taskCaseSensitive" value="enabled"/>
+		<option key="org.eclipse.jdt.core.compiler.taskPriorities" value=""/>
+		<option key="org.eclipse.jdt.core.compiler.taskTags" value=""/>
+	</options>
+	<classpaths>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\resources.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\rt.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\jsse.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\jce.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\charsets.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\ext\dnsns.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\ext\localedata.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\ext\sunjce_provider.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\ext\sunmscapi.jar"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\ext\sunpkcs11.jar"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\common_j2se\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT OLE Win32\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT AWT\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Drag and Drop\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Drag and Drop\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Printing\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Printing\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Program\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Custom Widgets\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Browser\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Browser\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Mozilla\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Mozilla\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT WebKit\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT OpenGL\win32\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT OpenGL\common\"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Theme\win32\"/>
+		<classpath id="JAR" path="C:\Users\Felipe\Desktop\VM\jre6_26_x86\lib\resources.jar"/>
+		<classpath id="FOLDER" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\"/>
+	</classpaths>
+	<sources>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\widgets" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Sash.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Sash.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\internal" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\internal\BidiUtil.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\BidiUtil.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\internal\win32" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\SWT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\SWT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\widgets" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Tree.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Tree.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\widgets" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Label.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Label.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\widgets" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Button.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Button.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\internal" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\common_j2se\org\eclipse\swt\internal\Library.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\Library.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" package="org\eclipse\swt\widgets" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Shell.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Shell.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Control.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Control.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Widget.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Widget.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\Drawable.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Drawable.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\common\org\eclipse\swt\internal\C.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\C.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\Platform.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\Platform.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Composite.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Composite.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Scrollable.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Scrollable.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Decorations.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Decorations.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Canvas.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Canvas.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LRESULT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LRESULT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\SelectionListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\SelectionListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\org\eclipse\swt\internal\SWTEventListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\SWTEventListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\Point.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Point.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\org\eclipse\swt\internal\SerializableCompatibility.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\SerializableCompatibility.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TCHAR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TCHAR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ControlListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ControlListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\DragDetectListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\DragDetectListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\FocusListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\FocusListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\GestureListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\GestureListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\HelpListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\HelpListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\KeyListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\KeyListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MenuDetectListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MenuDetectListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MouseListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MouseListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MouseMoveListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MouseMoveListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MouseTrackListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MouseTrackListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MouseWheelListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MouseWheelListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\PaintListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\PaintListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TouchListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TouchListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TraverseListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TraverseListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Event.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Event.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MouseEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MouseEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TypedEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TypedEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\org\eclipse\swt\internal\SWTEventObject.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\SWTEventObject.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\RECT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\RECT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Cursor.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Cursor.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\Resource.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Resource.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Menu.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Menu.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\win32\org\eclipse\swt\accessibility\Accessible.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$13.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$8.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$3.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$9.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$11.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$14.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$1.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$10.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$7.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$15.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$5.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$2.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$6.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$12.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Accessible$4.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Color.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Color.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Image.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Image.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\Rectangle.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Rectangle.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Font.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Font.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Monitor.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Monitor.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Region.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Region.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\GCData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\GCData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\GC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\GC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\GESTUREINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\GESTUREINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TOUCHINPUT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TOUCHINPUT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MSG.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MSG.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\KeyEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\KeyEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CREATESTRUCT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CREATESTRUCT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMHDR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMHDR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Listener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Listener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\DisposeListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\DisposeListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Display.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Display$1.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Display.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Device.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Device.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\TypedListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TypedListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\EventTable.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\EventTable.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\POINT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\POINT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\internal\Callback.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\Callback.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\common\org\eclipse\swt\internal\LONG.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\LONG.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\GCP_RESULTS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\GCP_RESULTS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DEVMODE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DEVMODE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LOGFONT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LOGFONT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTTDISPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTTDISPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TEXTMETRIC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TEXTMETRIC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\ACCEL.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\ACCEL.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BITMAPINFOHEADER.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BITMAPINFOHEADER.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DEVMODEW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DEVMODEW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DEVMODEA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DEVMODEA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DOCHOSTUIINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DOCHOSTUIINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\GRADIENT_RECT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\GRADIENT_RECT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LOGFONTW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LOGFONTW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LOGFONTA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LOGFONTA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MEASUREITEMSTRUCT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MEASUREITEMSTRUCT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MINMAXINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MINMAXINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\UDACCEL.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\UDACCEL.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTTDISPINFOW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTTDISPINFOW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTTDISPINFOA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTTDISPINFOA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OPENFILENAME.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OPENFILENAME.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SAFEARRAY.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SAFEARRAY.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TRIVERTEX.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TRIVERTEX.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\WINDOWPOS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\WINDOWPOS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CERT_CONTEXT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CERT_CONTEXT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CERT_INFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CERT_INFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DRAWITEMSTRUCT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DRAWITEMSTRUCT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\EXTLOGPEN.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\EXTLOGPEN.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\FLICK_DATA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\FLICK_DATA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\FLICK_POINT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\FLICK_POINT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\HDITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\HDITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\HELPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\HELPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OFNOTIFY.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OFNOTIFY.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMRGINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMRGINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMCUSTOMDRAW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMCUSTOMDRAW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLVCUSTOMDRAW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLVCUSTOMDRAW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTBHOTITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTBHOTITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTREEVIEW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTREEVIEW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTVCUSTOMDRAW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTVCUSTOMDRAW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTVITEMCHANGE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTVITEMCHANGE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMUPDOWN.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMUPDOWN.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTTCUSTOMDRAW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTTCUSTOMDRAW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLVDISPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLVDISPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTVDISPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTVDISPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLVFINDITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLVFINDITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLVODSTATECHANGE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLVODSTATECHANGE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMHEADER.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMHEADER.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLINK.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLINK.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMLISTVIEW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMLISTVIEW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMREBARCHILDSIZE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMREBARCHILDSIZE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMREBARCHEVRON.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMREBARCHEVRON.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NMTOOLBAR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NMTOOLBAR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHDRAGIMAGE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHDRAGIMAGE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\EMR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\EMR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\EMREXTCREATEFONTINDIRECTW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\EMREXTCREATEFONTINDIRECTW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TEXTMETRICW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TEXTMETRICW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TEXTMETRICA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TEXTMETRICA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TVITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TVITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DROPFILES.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DROPFILES.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_ITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_ITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_LOGATTR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_LOGATTR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_PROPERTIES.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_PROPERTIES.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\KEYBDINPUT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\KEYBDINPUT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MOUSEINPUT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MOUSEINPUT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\GESTURECONFIG.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\GESTURECONFIG.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BLENDFUNCTION.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BLENDFUNCTION.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BP_PAINTPARAMS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BP_PAINTPARAMS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\PAINTSTRUCT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\PAINTSTRUCT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DLLVERSIONINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DLLVERSIONINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CERT_NAME_BLOB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CERT_NAME_BLOB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CHOOSECOLOR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CHOOSECOLOR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CHOOSEFONT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CHOOSEFONT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\ACTCTX.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\ACTCTX.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\ICONINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\ICONINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\STARTUPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\STARTUPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\PROCESS_INFORMATION.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\PROCESS_INFORMATION.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DWM_BLURBEHIND.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DWM_BLURBEHIND.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MARGINS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MARGINS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LOGBRUSH.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LOGBRUSH.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\FILETIME.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\FILETIME.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SYSTEMTIME.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SYSTEMTIME.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\WNDCLASS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\WNDCLASS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\COMBOBOXINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\COMBOBOXINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\GUITHREADINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\GUITHREADINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MENUBARINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MENUBARINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MENUINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MENUINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MENUITEMINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MENUITEMINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MONITORINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MONITORINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BITMAP.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BITMAP.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DIBSECTION.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DIBSECTION.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LOGPEN.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LOGPEN.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OUTLINETEXTMETRIC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OUTLINETEXTMETRIC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OUTLINETEXTMETRICA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OUTLINETEXTMETRICA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OUTLINETEXTMETRICW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OUTLINETEXTMETRICW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCROLLBARINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCROLLBARINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCROLLINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCROLLINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SIZE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SIZE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFOEX.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFOEX.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFOEXA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFOEXA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFOA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFOA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFOEXW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFOEXW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\OSVERSIONINFOW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\OSVERSIONINFOW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\WINDOWPLACEMENT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\WINDOWPLACEMENT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CANDIDATEFORM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CANDIDATEFORM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\COMPOSITIONFORM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\COMPOSITIONFORM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\INITCOMMONCONTROLSEX.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\INITCOMMONCONTROLSEX.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\PROPERTYKEY.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\PROPERTYKEY.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\PRINTDLG.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\PRINTDLG.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BROWSEINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BROWSEINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHMENUBARINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHMENUBARINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHFILEINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHFILEINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHFILEINFOA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHFILEINFOA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHFILEINFOW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHFILEINFOW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHACTIVATEINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHACTIVATEINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHRGINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHRGINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_DIGITSUBSTITUTE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_DIGITSUBSTITUTE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_CONTROL.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_CONTROL.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_STATE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_STATE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_ANALYSIS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_ANALYSIS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SCRIPT_FONTPROPERTIES.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SCRIPT_FONTPROPERTIES.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LVCOLUMN.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LVCOLUMN.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LVHITTESTINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LVHITTESTINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LVITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LVITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\LVINSERTMARK.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\LVINSERTMARK.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\MCHITTESTINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\MCHITTESTINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\REBARBANDINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\REBARBANDINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TBBUTTON.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TBBUTTON.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TBBUTTONINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TBBUTTONINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TCITEM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TCITEM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TCHITTESTINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TCHITTESTINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TOOLINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TOOLINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TVHITTESTINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TVHITTESTINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TVINSERTSTRUCT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TVINSERTSTRUCT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TVSORTCB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TVSORTCB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\HDHITTESTINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\HDHITTESTINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\HDLAYOUT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\HDLAYOUT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\BUTTON_IMAGELIST.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\BUTTON_IMAGELIST.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SHELLEXECUTEINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SHELLEXECUTEINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NOTIFYICONDATA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NOTIFYICONDATA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NOTIFYICONDATAA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NOTIFYICONDATAA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NOTIFYICONDATAW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NOTIFYICONDATAW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SIPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SIPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\DOCINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\DOCINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\HIGHCONTRAST.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\HIGHCONTRAST.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NONCLIENTMETRICS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NONCLIENTMETRICS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NONCLIENTMETRICSA.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NONCLIENTMETRICSA.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\NONCLIENTMETRICSW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\NONCLIENTMETRICSW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TRACKMOUSEEVENT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TRACKMOUSEEVENT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TF_DISPLAYATTRIBUTE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TF_DISPLAYATTRIBUTE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\org\eclipse\swt\internal\Compatibility.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\Compatibility.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\SWTError.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\SWTError.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\SWTException.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\SWTException.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TreeColumn.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TreeColumn.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Item.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Item.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TreeItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TreeItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\internal\ImageList.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ImageList.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TreeListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TreeListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Layout.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Layout.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\ScrollBar.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\ScrollBar.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Path.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Path.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Table.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Table.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\ImageData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\ImageData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common_j2se\org\eclipse\swt\internal\CloneableCompatibility.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\CloneableCompatibility.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\ToolTip.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\ToolTip.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ShellListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ShellListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\ToolBar.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\ToolBar.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\Caret.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Caret.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\IME.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\IME.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Dialog.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Dialog.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\Gdip.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\Gdip.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Touch.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Touch.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\TouchSource.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TouchSource.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\MenuItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\MenuItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\Lock.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\Lock.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\SelectionEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\SelectionEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ControlEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ControlEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\DragDetectEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\DragDetectEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\FocusEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\FocusEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\GestureEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\GestureEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\HelpEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\HelpEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MenuDetectEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MenuDetectEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\PaintEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\PaintEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TouchEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TouchEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TraverseEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TraverseEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\PaletteData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\PaletteData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\RGB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\RGB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MenuListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MenuListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IAccessible.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IAccessible.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IDispatch.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IDispatch.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IUnknown.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IUnknown.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\ToolItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\ToolItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT OLE Win32\win32\org\eclipse\swt\internal\ole\win32\COMObject.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\COMObject.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\win32\org\eclipse\swt\accessibility\Relation.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Relation.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\Relation$1.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\GUID.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\GUID.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleActionListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleActionListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleAttributeListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleAttributeListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleControlListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleControlListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleEditableTextListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleEditableTextListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleHyperlinkListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleHyperlinkListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTableCellListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTableCellListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTableListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTableListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTextListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTextListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleValueListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleValueListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\VARIANT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\VARIANT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\COM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\COM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT OLE Win32\win32\org\eclipse\swt\ole\win32\OLE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\ole\win32\OLE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\FORMATETC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\FORMATETC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\OLEINPLACEFRAMEINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\OLEINPLACEFRAMEINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\STATSTG.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\STATSTG.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\STGMEDIUM.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\STGMEDIUM.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\DISPPARAMS.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\DISPPARAMS.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\TYPEATTR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\TYPEATTR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\FUNCDESC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\FUNCDESC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\VARDESC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\VARDESC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTextExtendedListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTextExtendedListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\ACC.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\ACC.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTextEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTextEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IServiceProvider.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IServiceProvider.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleControlEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleControlEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleAdapter.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleAdapter.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TableItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TableItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleEditableTextEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleEditableTextEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IEnumVARIANT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IEnumVARIANT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\IEnum.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\IEnum.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleAttributeEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleAttributeEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleActionEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleActionEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTextAttributeEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTextAttributeEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\TextStyle.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\TextStyle.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\FontData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\FontData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleHyperlinkEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleHyperlinkEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTableEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTableEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleTableCellEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleTableCellEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT Accessibility\common\org\eclipse\swt\accessibility\AccessibleValueEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\accessibility\AccessibleValueEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\Rect.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\Rect.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\BitmapData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\BitmapData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\ColorPalette.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\ColorPalette.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Pattern.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Pattern.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\RectF.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\RectF.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\FontMetrics.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\FontMetrics.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\LineAttributes.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\LineAttributes.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\Transform.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\Transform.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\PointF.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\PointF.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\DisposeEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\DisposeEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Synchronizer.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Synchronizer.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TaskBar.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TaskBar.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\Tray.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\Tray.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\DeviceData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\DeviceData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TrayItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TrayItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\INPUT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\INPUT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TaskItem.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TaskItem.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TaskItem$1.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\gdip\GdiplusStartupInput.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\gdip\GdiplusStartupInput.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\graphics\TextLayout.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\TextLayout.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\TextLayout$1$MetaFileEnumProc.class"/>
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\TextLayout$StyleItem.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ShellEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ShellEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ArmListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ArmListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ArmEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ArmEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\TreeEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\TreeEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ExpandListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ExpandListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ExpandEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ExpandEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\MenuEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\MenuEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ModifyListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ModifyListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\ModifyEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\ModifyEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\VerifyEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\VerifyEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\events\VerifyListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\events\VerifyListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\SAFEARRAYBOUND.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\SAFEARRAYBOUND.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CRYPT_BIT_BLOB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CRYPT_BIT_BLOB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CRYPT_INTEGER_BLOB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CRYPT_INTEGER_BLOB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CRYPT_ALGORITHM_IDENTIFIER.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CRYPT_ALGORITHM_IDENTIFIER.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CERT_PUBLIC_KEY_INFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CERT_PUBLIC_KEY_INFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\EXTLOGFONTW.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\EXTLOGFONTW.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\TF_DA_COLOR.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\TF_DA_COLOR.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\PathData.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\PathData.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\win32\org\eclipse\swt\widgets\TableColumn.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\TableColumn.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\ImageDataLoader.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\ImageDataLoader.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\EXCEPINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\EXCEPINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\DVTARGETDEVICE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\DVTARGETDEVICE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\CAUUID.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\CAUUID.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\CONTROLINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\CONTROLINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\OLECMD.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\OLECMD.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\OLECMDTEXT.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\OLECMDTEXT.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\ole\win32\LICINFO.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\ole\win32\LICINFO.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\GlyphMetrics.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\GlyphMetrics.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\widgets\RunnableLock.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\widgets\RunnableLock.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\ImageLoader.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\ImageLoader.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\CRYPT_OBJID_BLOB.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\CRYPT_OBJID_BLOB.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT PI\win32\org\eclipse\swt\internal\win32\PANOSE.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\win32\PANOSE.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\ImageLoaderListener.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\ImageLoaderListener.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\graphics\ImageLoaderEvent.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\graphics\ImageLoaderEvent.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\internal\image\FileFormat.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\image\FileFormat.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\internal\image\LEDataInputStream.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\image\LEDataInputStream.class"/>
+		</source>
+		<source output="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\\bin" path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\Eclipse SWT\common\org\eclipse\swt\internal\image\LEDataOutputStream.java">
+			<classfile path="C:\Users\Felipe\git\eclipse.platform.swt\bundles\org.eclipse.swt\.build64\bin\org\eclipse\swt\internal\image\LEDataOutputStream.class"/>
+		</source>
+	</sources>
+	<stats>
+	</stats>
+</compiler>
