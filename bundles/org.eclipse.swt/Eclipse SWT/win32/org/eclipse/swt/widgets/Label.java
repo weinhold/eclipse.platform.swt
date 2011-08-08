@@ -51,7 +51,7 @@ public class Label extends Control {
 	String text = "";
 	Image image;
 	static final int MARGIN = 4;
-	static /*final*/ boolean IMAGE_AND_TEXT = false;
+	static /*final*/ boolean IMAGE_AND_TEXT = true;
 	static final int /*long*/ LabelProc;
 	static final TCHAR LabelClass = new TCHAR (0, "STATIC", true);
 	static {
@@ -226,7 +226,7 @@ public int getAlignment () {
 boolean getBufferredPaint() {
 	Shell shell = getShell ();
 	if ((shell.style & SWT.TRIM_FILL) != 0) {
-		if (image != null) return false;//note: can't be transparent for all images...
+		// if (image != null) return false;//note: can't be transparent for all images...
 		return true;//bad: should be transparent with custom draw
 	}
 	return false;
@@ -623,6 +623,12 @@ LRESULT WM_PAINT (int /*long*/ wParam, int /*long*/ lParam) {
 }
 
 LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
+	// AERO-GLASS TODO: this is a workaround that fixes the white backgrounds that are painted 
+	// when the Alt key is pressed
+	if (getBufferredPaint()) { //  && ((style & SWT.SEPARATOR) == 0)) {
+		return wmBufferedPaint(handle, 0, 0);
+	}
+	
 	DRAWITEMSTRUCT struct = new DRAWITEMSTRUCT ();
 	OS.MoveMemory (struct, lParam, DRAWITEMSTRUCT.sizeof);
 	drawBackground (struct.hDC);
@@ -700,6 +706,145 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 		}
 	}
 	return null;
+}
+
+int getThemeGlowSize() {
+	int hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
+	int [] glowSize = new int[1];
+	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
+	OS.CloseThemeData(hTheme);
+	
+	if (glowSize[0] > 0)
+		return glowSize[0];
+	else
+		return 12; // default value;
+}
+
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	int result = 0; 
+	
+	// BeginPaint ...
+	PAINTSTRUCT ps = new PAINTSTRUCT ();
+	int hDC = OS.BeginPaint (hWnd, ps);
+	
+	// copy the PAINTSTRUCT coordinates into a RECT structure
+	RECT rcPaintStruct = new RECT();
+	rcPaintStruct.left = ps.left;
+	rcPaintStruct.right = ps.right;
+	rcPaintStruct.top = ps.top;
+	rcPaintStruct.bottom = ps.bottom;
+
+	// calculate the client rectangle and coordinates
+	RECT rcClient = new RECT();
+	OS.GetClientRect(hWnd, rcClient);
+	int width = rcClient.right - rcClient.left;
+	int height = rcClient.bottom - rcClient.top;
+
+	// set up the buffered device context - the background is painted entirely black and its alpha 
+	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
+	// the glass background will just render through)
+	int [] hdcBuffered = new int[1];
+	int hBufferedPaint = OS.BeginBufferedPaint(hDC, rcClient, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	OS.PatBlt(hdcBuffered[0], 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, OS.BLACKNESS);
+	OS.BufferedPaintSetAlpha(hBufferedPaint, rcPaintStruct, (byte)0x00);
+
+	// determine if we are drawing text and/or images
+	boolean drawImage = image != null;
+	boolean drawText = text != null && text.length () != 0;
+	if (!IMAGE_AND_TEXT && drawImage) drawText = false;
+	
+	// if we are drawing image, calculate the margins and dimensions of the image that will be drawn
+	int margin = drawText && drawImage ? MARGIN : 0;
+	int imageWidth = 0, imageHeight = 0;
+	if (drawImage) {
+		Rectangle rect = image.getBounds ();
+		imageWidth = rect.width;
+		imageHeight = rect.height;
+	}
+	
+	// if we are drawing text, calculate the dimensions of the text that will be drawn
+	RECT rect = null;
+	int textWidth = 0, textHeight = 0;
+	if (drawText) {
+		rect = new RECT ();
+		int flags = OS.DT_CALCRECT | OS.DT_EDITCONTROL | OS.DT_EXPANDTABS;
+		if ((style & SWT.LEFT) != 0) flags |= OS.DT_LEFT;
+		if ((style & SWT.CENTER) != 0) flags |= OS.DT_CENTER;
+		if ((style & SWT.RIGHT) != 0) flags |= OS.DT_RIGHT;
+		if ((style & SWT.WRAP) != 0) {
+			flags |= OS.DT_WORDBREAK;
+			rect.right = Math.max (0, width - imageWidth - margin);
+		}
+		TCHAR buffer = new TCHAR (getCodePage (), text, true);
+		OS.DrawText (hDC, buffer, -1, rect, flags);
+		textWidth = rect.right - rect.left;
+		textHeight = rect.bottom - rect.top;
+	}
+	
+	// adjust the left x-coordinate based on the label's justification
+	int x = 0;
+	if ((style & SWT.CENTER) != 0) {
+		x = Math.max (0, (width - imageWidth - textWidth - margin) / 2);
+	} else {
+		if ((style & SWT.RIGHT) != 0) {
+			x = width - imageWidth - textWidth - margin;
+		}
+	}
+	
+	if (drawText) {
+		// setup the rectangle for drawing text
+		rect.left = x + imageWidth + margin;
+		rect.right += rect.left;
+		rect.top = Math.max (0, (height - textHeight) / 2);
+		rect.bottom += rect.top;
+		
+		// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
+		// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
+		DTTOPTS DttOpts = new DTTOPTS();
+		DttOpts.dwFlags = DTTOPTS.DTT_COMPOSITED; // 0x2000;
+		DttOpts.crText   = 0x00FFFFFF;
+		DttOpts.dwFlags |= DTTOPTS.DTT_GLOWSIZE; // 0x0800;
+		DttOpts.iGlowSize = getThemeGlowSize();
+
+		// select the window's font into the buffered device context
+		int hFont = OS.SendMessage(hWnd, OS.WM_GETFONT, 0, 0);
+		if (hFont != 0) {
+			hFont = OS.SelectObject(hdcBuffered[0], hFont);
+		}
+		
+		// draw the text using the special DrawThemeTextEx call 
+		int dwFlags = ((style & SWT.WRAP) != 0) ? OS.DT_WORDBREAK : 0;
+		TCHAR textBuffer = new TCHAR (getCodePage (), text, true);
+		int hTheme = OS.OpenThemeData(0, "ControlPanelStyle;".toCharArray());
+		// Aero-Glass TODO: add the OS.DrawThemeTextEx() API to swt.dll
+		OS.DrawThemeTextEx(hTheme, hdcBuffered[0], 0, 0, textBuffer.chars, textBuffer.length(), dwFlags, rect, DttOpts);
+//		TasktopOS.DrawThemeTextEx(hTheme, hdcBuffered[0], textBuffer.chars, dwFlags, rect, DttOpts.iGlowSize); // glowSize[0]); // this is our own JNI placeholder until swt.dll gets upgraded
+		OS.CloseThemeData(hTheme);
+
+		// restore the font
+		if (hFont != 0) {                        
+            OS.SelectObject(hdcBuffered[0], hFont);
+        }
+	}
+
+	// at this point, all drawing into the buffered device context is complete, so we can transfer its contents 
+	// into the target device context by calling EndBufferedPaint
+	OS.EndBufferedPaint(hBufferedPaint, true);
+
+	// draw the image against the regular device context - PNGs work great, but there are problems with GIFs and BMPs
+	if (drawImage) {
+		GCData data = new GCData();
+		data.device = display;
+		GC gc = GC.win32_new (hDC, data);
+		gc.drawImage (this.image, 0,0);
+		gc.dispose ();
+	}
+	
+	// EndPaint.
+	OS.EndPaint (hDC, ps);
+	
+	if (result == 0) return LRESULT.ZERO;
+	return new LRESULT (result);
 }
 
 }

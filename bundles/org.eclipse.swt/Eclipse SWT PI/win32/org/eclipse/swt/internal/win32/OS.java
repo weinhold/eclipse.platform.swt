@@ -1763,6 +1763,7 @@ public class OS extends C {
 	public static final int TME_LEAVE = 0x2;
 	public static final int TME_QUERY = 0x40000000;
 	public static final int TMPF_VECTOR = 0x2;
+	public static final int TMT_TEXTGLOWSIZE = 2425;
 	public static final int TMT_CONTENTMARGINS = 3602;
 	public static final int TOUCHEVENTF_MOVE = 0x0001;
 	public static final int TOUCHEVENTF_DOWN = 0x0002;
@@ -3954,6 +3955,8 @@ public static final native int DrawThemeIcon (int /*long*/ hTheme, int /*long*/ 
 public static final native int DrawThemeParentBackground (int /*long*/ hwnd, int /*long*/ hdc, RECT prc);
 /** @method flags=dynamic */
 public static final native int DrawThemeText (int /*long*/ hTheme, int /*long*/ hdc, int iPartId, int iStateId, char[] pszText, int iCharCount, int dwTextFlags, int dwTextFlags2, RECT pRect);
+/** @method flags=dynamic */
+public static final native int DrawThemeTextEx (int /*long*/ hTheme, int /*long*/ hdc, int iPartId, int iStateId, char[] pszText, int iCharCount, int dwFlags, RECT pRect, DTTOPTS pOptions);
 /**
  * @method flags=dynamic
  * @param hWnd cast=(HWND)
