@@ -2263,6 +2263,7 @@ public static final native int DOCHOSTUIINFO_sizeof ();
 public static final native int DOCINFO_sizeof ();
 public static final native int DRAWITEMSTRUCT_sizeof ();
 public static final native int DROPFILES_sizeof ();
+public static final native int DTTOPTS_sizeof ();
 public static final native int DWM_BLURBEHIND_sizeof ();
 public static final native int EMR_sizeof ();
 public static final native int EMREXTCREATEFONTINDIRECTW_sizeof ();

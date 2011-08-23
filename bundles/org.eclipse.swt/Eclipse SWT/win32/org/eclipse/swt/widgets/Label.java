@@ -797,6 +797,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 		// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
 		// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
 		DTTOPTS DttOpts = new DTTOPTS();
+		DttOpts.dwSize = DTTOPTS.sizeof;
 		DttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE;
 		DttOpts.crText   = 0x00FFFFFF;
 		DttOpts.iGlowSize = getThemeGlowSize ();

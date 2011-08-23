@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1055;
-int OS_nativeFunctionCallCount[1055];
+int OS_nativeFunctionCount = 1056;
+int OS_nativeFunctionCallCount[1056];
 char * OS_nativeFunctionNames[] = {
 	"ACCEL_1sizeof",
 	"ACTCTX_1sizeof",
@@ -165,6 +165,7 @@ char * OS_nativeFunctionNames[] = {
 	"DPtoLP",
 	"DRAWITEMSTRUCT_1sizeof",
 	"DROPFILES_1sizeof",
+	"DTTOPTS_1sizeof",
 	"DWM_1BLURBEHIND_1sizeof",
 	"DefFrameProcA",
 	"DefFrameProcW",

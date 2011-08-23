@@ -173,6 +173,7 @@ typedef enum {
 	DPtoLP_FUNC,
 	DRAWITEMSTRUCT_1sizeof_FUNC,
 	DROPFILES_1sizeof_FUNC,
+	DTTOPTS_1sizeof_FUNC,
 	DWM_1BLURBEHIND_1sizeof_FUNC,
 	DefFrameProcA_FUNC,
 	DefFrameProcW_FUNC,

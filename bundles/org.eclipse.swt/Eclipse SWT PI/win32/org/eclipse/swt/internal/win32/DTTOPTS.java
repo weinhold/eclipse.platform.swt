@@ -18,4 +18,5 @@ public class DTTOPTS {
 	/** @field cast=(DTT_CALLBACK_PROC) */
 	public int /*long*/ pfnDrawTextCallback;
 	public int /*long*/ lParam;
+	public static final int sizeof = OS.DTTOPTS_sizeof ();
 }

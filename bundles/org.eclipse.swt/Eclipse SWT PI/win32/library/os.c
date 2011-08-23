@@ -2032,6 +2032,18 @@ JNIEXPORT jint JNICALL OS_NATIVE(DROPFILES_1sizeof)
 }
 #endif
 
+#ifndef NO_DTTOPTS_1sizeof
+JNIEXPORT jint JNICALL OS_NATIVE(DTTOPTS_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, DTTOPTS_1sizeof_FUNC);
+	rc = (jint)DTTOPTS_sizeof();
+	OS_NATIVE_EXIT(env, that, DTTOPTS_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_DWM_1BLURBEHIND_1sizeof
 JNIEXPORT jint JNICALL OS_NATIVE(DWM_1BLURBEHIND_1sizeof)
 	(JNIEnv *env, jclass that)
