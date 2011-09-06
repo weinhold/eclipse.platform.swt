@@ -917,6 +917,10 @@ void drawBackground (int /*long*/ hDC) {
 }
 
 void drawBackground (int /*long*/ hDC, RECT rect) {
+	if ((this.style & SWT.TRIM_FILL) != 0) {
+		drawBackgroundBuffered(hDC, rect);
+		return;
+	}
 	drawBackground (hDC, rect, -1, 0, 0);
 }
 
@@ -942,6 +946,14 @@ void drawBackground (int /*long*/ hDC, RECT rect, int pixel, int tx, int ty) {
 	}
 	if (pixel == -1) pixel = getBackgroundPixel ();
 	fillBackground (hDC, pixel, rect);
+}
+
+void drawBackgroundBuffered (int /*long*/ hDC, RECT rect) {
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(hDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	OS.PatBlt(hdcBuffered[0], 0, 0, rect.right - rect.left, rect.bottom - rect.top, OS.BLACKNESS);
+	OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0x00);
+	OS.EndBufferedPaint(hBufferedPaint, true);
 }
 
 void drawImageBackground (int /*long*/ hDC, int /*long*/ hwnd, int /*long*/ hBitmap, RECT rect, int tx, int ty) {
