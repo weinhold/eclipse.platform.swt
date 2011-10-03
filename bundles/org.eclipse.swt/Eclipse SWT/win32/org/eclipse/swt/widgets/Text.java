@@ -2656,7 +2656,7 @@ boolean getBufferredPaint() {
 	return false;
 }
 
-// this flag is used to prevent the Text#wmColorChild method from endlessly triggering a series of repaints
+// this flag is used to prevent the Text#wmColorChild method from triggering a perpetual series of repaints
 private boolean bPrintingClient = false;
 
 LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
@@ -2667,7 +2667,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	RECT rect = new RECT();
 	OS.GetClientRect(hWnd, rect);
 
-	// set up the buffered device context - the alpha is set to 100%, making the device context entirely opaque
+	// set up the buffered device context - the alpha will be set to 100%, making the device context entirely opaque
 	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
 	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
 	
