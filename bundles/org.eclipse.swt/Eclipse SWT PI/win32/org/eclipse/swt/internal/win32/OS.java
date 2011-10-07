@@ -52,6 +52,7 @@ public class OS extends C {
 	public static final int SM_DBCSENABLED = 0x2A;
 	public static final int SM_IMMENABLED = 0x52;
 	public static final int LANG_KOREAN = 0x12;
+	public static final int LANG_JAPANESE = 0x11;
 	public static final int MAX_PATH = 260;
 	
 	/* Get the Windows version and the flags */
@@ -551,6 +552,7 @@ public class OS extends C {
 	public static final int DM_COPIES = 0x00000100;
 	public static final int DM_DUPLEX = 0x00001000;
 	public static final int DM_ORIENTATION = 0x00000001;
+	public static final int DM_OUT_BUFFER = 2;
 	public static final short DMORIENT_PORTRAIT = 1;
 	public static final short DMORIENT_LANDSCAPE = 2;
 	public static final short DMDUP_SIMPLEX = 1;
@@ -651,6 +653,7 @@ public class OS extends C {
 	public static final int EN_ALIGN_RTL_EC = 0x0701;
 	public static final int EN_CHANGE = 0x300;
 	public static final int EP_EDITTEXT = 1;
+	public static final int ERROR_FILE_NOT_FOUND = 0x2;
 	public static final int ERROR_NO_MORE_ITEMS = 0x103;
 	public static final int ESB_DISABLE_BOTH = 0x3;
 	public static final int ESB_ENABLE_BOTH = 0x0;
@@ -908,6 +911,7 @@ public class OS extends C {
 	public static final int KEY_NOTIFY = 0x10;
 	public static final int KEY_QUERY_VALUE = 0x1;
 	public static final int KEY_READ = 0x20019;
+	public static final int KEY_WRITE = 0x20006;
 	public static final int KEYEVENTF_EXTENDEDKEY = 0x0001;
 	public static final int KEYEVENTF_KEYUP = 0x0002;
 	public static final int L_MAX_URL_LENGTH = 2084;
@@ -1435,6 +1439,8 @@ public class OS extends C {
 	public static final int RDW_UPDATENOW = 0x100;
 	public static final int READ_CONTROL = 0x20000;
 	public static final String REBARCLASSNAME = "ReBarWindow32"; //$NON-NLS-1$
+	public static final int REG_DWORD = 4;
+	public static final int REG_OPTION_VOLATILE = 0x1;
 	public static final int RGN_AND = 0x1;
 	public static final int RGN_COPY = 5;
 	public static final int RGN_DIFF = 0x4;
@@ -2187,6 +2193,7 @@ public class OS extends C {
 	public static final int WM_VSCROLL = 0x115;
 	public static final int WM_WINDOWPOSCHANGED = 0x47;
 	public static final int WM_WINDOWPOSCHANGING = 0x46;
+	public static final int WPF_RESTORETOMAXIMIZED = 0x0002;
 	public static final int WS_BORDER = 0x800000;
 	public static final int WS_CAPTION = 0xc00000;
 	public static final int WS_CHILD = 0x40000000;
@@ -2529,6 +2536,15 @@ public static final int /*long*/ DefWindowProc (int /*long*/ hWnd, int Msg, int 
 public static final int /*long*/ DispatchMessage (MSG lpmsg) {
 	if (IsUnicode) return DispatchMessageW (lpmsg);
 	return DispatchMessageA (lpmsg);
+}
+
+public static final int DocumentProperties (int /*long*/ hWnd, int /*long*/ hPrinter, TCHAR pDeviceName, int /*long*/ pDevModeOutput, int /*long*/ pDevModeInput, int fMode) {
+	if (IsUnicode) {
+		char [] pDeviceName1 = pDeviceName == null ? null : pDeviceName.chars;
+		return DocumentPropertiesW (hWnd, hPrinter, pDeviceName1, pDevModeOutput, pDevModeInput, fMode);
+	}
+	byte [] pDeviceName1 = pDeviceName == null ? null : pDeviceName.bytes;
+	return DocumentPropertiesA (hWnd, hPrinter, pDeviceName1, pDevModeOutput, pDevModeInput, fMode);
 }
 
 public static final int DragQueryFile (int /*long*/ hDrop, int iFile, TCHAR lpszFile, int cch) {
@@ -3091,6 +3107,15 @@ public static final void MoveMemory (TEXTMETRIC Destination, int /*long*/ Source
 	}
 }
 
+public static final boolean OpenPrinter (TCHAR pPrinterName, int /*long*/ [] phPrinter, int /*long*/ pDefault) {
+	if (IsUnicode) {
+		char [] pPrinterName1 = pPrinterName == null ? null : pPrinterName.chars;
+		return OpenPrinterW (pPrinterName1, phPrinter, pDefault);
+	}
+	byte [] pPrinterName1 = pPrinterName == null ? null : pPrinterName.bytes;
+	return OpenPrinterA (pPrinterName1, phPrinter, pDefault);
+}
+
 public static final boolean PeekMessage (MSG lpMsg, int /*long*/ hWnd, int wMsgFilterMin, int wMsgFilterMax, int wRemoveMsg) {
 	if (IsUnicode) return PeekMessageW (lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
 	return PeekMessageA (lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
@@ -3109,6 +3134,26 @@ public static final boolean PostThreadMessage (int idThread, int Msg, int /*long
 public static final boolean PrintDlg (PRINTDLG lppd) {
 	if (IsUnicode) return PrintDlgW (lppd);
 	return PrintDlgA (lppd);
+}
+
+public static final int RegCreateKeyEx (int /*long*/ hKey, TCHAR lpSubKey, int Reserved, TCHAR lpClass, int dwOptions, int samDesired, int /*long*/ lpSecurityAttributes, int /*long*/[] phkResult, int /*long*/[] lpdwDisposition) {
+	if (IsUnicode) {
+		char [] lpClass1 = lpClass == null ? null : lpClass.chars;
+		char [] lpSubKey1 = lpSubKey == null ? null : lpSubKey.chars;
+		return RegCreateKeyExW (hKey, lpSubKey1, Reserved, lpClass1, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+	}
+	byte [] lpClass1 = lpClass == null ? null : lpClass.bytes;
+	byte [] lpSubKey1 = lpSubKey == null ? null : lpSubKey.bytes;
+	return RegCreateKeyExA (hKey, lpSubKey1, Reserved, lpClass1, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+}
+
+public static final int RegDeleteValue (int /*long*/ hKey, TCHAR lpValueName) {
+	if (IsUnicode) {
+		char [] lpValueName1 = lpValueName == null ? null : lpValueName.chars;
+		return RegDeleteValueW (hKey, lpValueName1);
+	}
+	byte [] lpValueName1 = lpValueName == null ? null : lpValueName.bytes;
+	return RegDeleteValueA (hKey, lpValueName1);
 }
 
 public static final int RegEnumKeyEx (int /*long*/ hKey, int dwIndex, TCHAR lpName, int [] lpcName, int [] lpReserved, TCHAR lpClass, int [] lpcClass, FILETIME lpftLastWriteTime) {
@@ -3177,6 +3222,15 @@ public static final int RegQueryValueEx (int /*long*/ hKey, TCHAR lpValueName, i
 	}
 	byte [] lpValueName1 = lpValueName == null ? null : lpValueName.bytes;
 	return RegQueryValueExA (hKey, lpValueName1, lpReserved, lpType, lpData, lpcbData);
+}
+
+public static final int RegSetValueEx (int /*long*/ hKey, TCHAR lpValueName, int Reserved, int dwType, int[] lpData, int cbData) {
+	if (IsUnicode) {
+		char [] lpValueName1 = lpValueName == null ? null : lpValueName.chars;
+		return RegSetValueExW (hKey, lpValueName1, Reserved, dwType, lpData, cbData);
+	}
+	byte [] lpValueName1 = lpValueName == null ? null : lpValueName.bytes;
+	return RegSetValueExA (hKey, lpValueName1, Reserved, dwType, lpData, cbData);
 }
 
 public static final int /*long*/ RemoveProp  (int /*long*/ hWnd, int /*long*/ lpString){
@@ -3614,6 +3668,8 @@ public static final native int /*long*/ CloseEnhMetaFile (int /*long*/ hdc);
 public static final native int /*long*/ CloseGestureInfoHandle (int /*long*/ hGesture);
 /** @param hObject cast=(HANDLE) */
 public static final native boolean CloseHandle (int /*long*/ hObject);
+/** @param hPrinter cast=(HANDLE) */
+public static final native boolean ClosePrinter (int /*long*/ hPrinter);
 /**
  * @method flags=dynamic
  * @param hTheme cast=(HTHEME)
@@ -3881,6 +3937,22 @@ public static final native boolean DestroyMenu (int /*long*/ hMenu);
 public static final native boolean DestroyWindow (int /*long*/ hWnd);
 public static final native int /*long*/ DispatchMessageW (MSG lpmsg);
 public static final native int /*long*/ DispatchMessageA (MSG lpmsg);
+/**
+ * @param hWnd cast=(HWND)
+ * @param hPrinter cast=(HANDLE)
+ * @param pDeviceName cast=(LPWSTR)
+ * @param pDevModeOutput cast=(PDEVMODEW)
+ * @param pDevModeInput cast=(PDEVMODEW)
+ */
+public static final native int DocumentPropertiesW (int /*long*/ hWnd, int /*long*/ hPrinter, char[] pDeviceName, int /*long*/ pDevModeOutput, int /*long*/ pDevModeInput, int fMode);
+/**
+ * @param hWnd cast=(HWND)
+ * @param hPrinter cast=(HANDLE)
+ * @param pDeviceName cast=(LPTSTR)
+ * @param pDevModeOutput cast=(PDEVMODE)
+ * @param pDevModeInput cast=(PDEVMODE)
+ */
+public static final native int DocumentPropertiesA (int /*long*/ hWnd, int /*long*/ hPrinter, byte[] pDeviceName, int /*long*/ pDevModeOutput, int /*long*/ pDevModeInput, int fMode);
 /** @param hdc cast=(HDC) */
 public static final native boolean DPtoLP (int /*long*/ hdc, POINT lpPoints, int nCount);
 /**
@@ -4486,6 +4558,18 @@ public static final native int /*long*/ GetParent (int /*long*/ hWnd);
 public static final native int GetPixel (int /*long*/ hdc, int x, int y);
 /** @param hdc cast=(HDC) */
 public static final native int GetPolyFillMode (int /*long*/ hdc);
+/**
+ * @param pPrinterName cast=(LPWSTR)
+ * @param phPrinter cast=(LPHANDLE)
+ * @param pDefault cast=(LPPRINTER_DEFAULTSW)
+ */
+public static final native boolean OpenPrinterW (char[] pPrinterName, int /*long*/ [] phPrinter, int /*long*/ pDefault);
+/**
+ * @param pPrinterName cast=(LPTSTR)
+ * @param phPrinter cast=(LPHANDLE)
+ * @param pDefault cast=(LPPRINTER_DEFAULTS)
+ */
+public static final native boolean OpenPrinterA (byte[] pPrinterName, int /*long*/ [] phPrinter, int /*long*/ pDefault);
 /**
  * @param hModule cast=(HMODULE)
  * @param lpProcName cast=(LPCTSTR)
@@ -5713,6 +5797,34 @@ public static final native boolean RedrawWindow (int /*long*/ hWnd, RECT lprcUpd
 public static final native int RegCloseKey (int /*long*/ hKey);
 /**
  * @param hKey cast=(HKEY)
+ * @param lpSubKey cast=(LPWSTR)
+ * @param lpClass cast=(LPWSTR)
+ * @param lpSecurityAttributes cast=(LPSECURITY_ATTRIBUTES)
+ * @param phkResult cast=(PHKEY)
+ * @param lpdwDisposition cast=(LPDWORD)
+ */
+public static final native int RegCreateKeyExW (int /*long*/ hKey, char[] lpSubKey, int Reserved, char[] lpClass, int dwOptions, int samDesired, int /*long*/ lpSecurityAttributes, int /*long*/[] phkResult, int /*long*/[] lpdwDisposition);
+/**
+ * @param hKey cast=(HKEY)
+ * @param lpSubKey cast=(LPSTR)
+ * @param lpClass cast=(LPTSTR)
+ * @param lpSecurityAttributes cast=(LPSECURITY_ATTRIBUTES)
+ * @param phkResult cast=(PHKEY)
+ * @param lpdwDisposition cast=(LPDWORD)
+ */
+public static final native int RegCreateKeyExA (int /*long*/ hKey, byte[] lpSubKey, int Reserved, byte[] lpClass, int dwOptions, int samDesired, int /*long*/ lpSecurityAttributes, int /*long*/[] phkResult, int /*long*/[] lpdwDisposition);
+/**
+ * @param hKey cast=(HKEY)
+ * @param lpValueName cast=(LPWSTR)
+ */
+public static final native int RegDeleteValueW (int /*long*/ hKey, char[] lpValueName);
+/**
+ * @param hKey cast=(HKEY)
+ * @param lpValueName cast=(LPSTR)
+ */
+public static final native int RegDeleteValueA (int /*long*/ hKey, byte[] lpValueName);
+/**
+ * @param hKey cast=(HKEY)
  * @param lpName cast=(LPWSTR)
  * @param lpcName cast=(LPDWORD)
  * @param lpReserved cast=(LPDWORD)
@@ -5815,6 +5927,18 @@ public static final native int RegQueryValueExW (int /*long*/ hKey, char[] lpVal
  * @param lpcbData cast=(LPDWORD)
  */
 public static final native int RegQueryValueExA (int /*long*/ hKey, byte[] lpValueName, int /*long*/ lpReserved, int[] lpType, byte [] lpData, int[] lpcbData);
+/**
+ * @param hKey cast=(HKEY)
+ * @param lpValueName cast=(LPWSTR)
+ * @param lpData cast=(const BYTE*)
+ */
+public static final native int RegSetValueExW (int /*long*/ hKey, char[] lpValueName, int Reserved, int dwType, int[] lpData, int cbData);
+/**
+ * @param hKey cast=(HKEY)
+ * @param lpValueName cast=(LPSTR)
+ * @param lpData cast=(const BYTE*)
+ */
+public static final native int RegSetValueExA (int /*long*/ hKey, byte[] lpValueName, int Reserved, int dwType, int[] lpData, int cbData);
 /**
  * @param hKey cast=(HKEY)
  * @param lpValueName cast=(LPSTR)

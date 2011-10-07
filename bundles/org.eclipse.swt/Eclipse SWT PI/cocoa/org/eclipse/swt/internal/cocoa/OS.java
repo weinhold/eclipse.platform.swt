@@ -143,6 +143,12 @@ public class OS extends C {
 	/** @method flags=const dynamic no_gen*/
 	public static final native int /*long*/ NSAccessibilityCellRole();
 	public static final NSString NSAccessibilityCellRole = new NSString(NSAccessibilityCellRole());
+	
+	/** 10.7 selectors and constants */
+	public static final int /*long*/ sel_isCompatibleWithOverlayScrollers = sel_registerName("isCompatibleWithOverlayScrollers");
+	public static final int /*long*/ sel_flashScrollers = sel_registerName("flashScrollers");
+	public static final int /*long*/ sel_frameSizeForContentSize_horizontalScrollerClass_verticalScrollerClass_borderType_controlSize_scrollerStyle_ = sel_registerName("frameSizeForContentSize:horizontalScrollerClass:verticalScrollerClass:borderType:controlSize:scrollerStyle:");
+	public static final int NSScrollerStyleLegacy = 0;
 
 	/* AWT application delegate. Remove these when JavaRuntimeSupport.framework has bridgesupport generated for it. */
 	public static final int /*long*/ class_JRSAppKitAWT = objc_getClass("JRSAppKitAWT");
@@ -364,6 +370,12 @@ public static final int kCGBitmapByteOrder32Host = __BIG_ENDIAN__() ? kCGBitmapB
  */
 public static final native void CGContextCopyWindowContentsToRect(int /*long*/ context, CGRect destRect, int /*long*/ contextID, int /*long*/ windowNumber, CGRect srcRect);
 
+/**
+ * @method flags=dynamic
+ * @param displayID cast=(CGDirectDisplayID)
+ */
+public static final native int /*long*/ CGDisplayCreateImage(int displayID);
+
 /** QuickDraw calls */
 
 /** @method flags=dynamic */
@@ -411,18 +423,6 @@ public static final int kQDParseRegionFromLeft = (1 << 2);
 public static final int kQDParseRegionFromRight = (1 << 3);
 public static final int kQDParseRegionFromTopLeft = kQDParseRegionFromTop | kQDParseRegionFromLeft;
 public static final int kQDRegionToRectsMsgParse = 2;
-
-/**
- * @method flags=dynamic
- * @param cgLocation cast=(HIPoint *)
- * @param inSpace cast=(HICoordinateSpace)
- * @param inStartWindow cast=(WindowRef)
- * @param inOptions cast=(OptionBits)
- * @param outWindow cast=(WindowRef *)
- * @param outWindowPart cast=(WindowPartCode *)
- * @param outWindowLocation cast=(HIPoint *)
- */
-public static final native int HIWindowFindAtLocation(int /*long*/ cgLocation, int inSpace, int inStartWindow, int inOptions, int /*long*/[] outWindow, int /*long*/ [] outWindowPart, int /*long*/ outWindowLocation);
 
 /**
  * @method flags=dynamic
@@ -588,6 +588,12 @@ public static final native int /*long*/ object_setInstanceVariable(int /*long*/ 
 public static final native int /*long*/ object_setClass(int /*long*/ obj, int /*long*/ clazz);
 public static final native int /*long*/ sel_registerName(String selectorName);
 public static final native int objc_super_sizeof();
+
+/**
+ * @method flags=cast
+ * @param arg0 flags=struct
+ */
+public static final native void objc_msgSend_stret(NSSize result, int /*long*/ id, int /*long*/ sel, NSSize arg0, int /*long*/ arg1, int /*long*/ arg2, int /*long*/ arg3, int /*long*/ arg4, int /*long*/ arg5);
 
 
 /** This section is auto generated */
@@ -831,6 +837,7 @@ public static final int /*long*/ protocol_NSComboBoxNotifications = objc_getProt
 public static final int /*long*/ protocol_NSDraggingDestination = objc_getProtocol("NSDraggingDestination");
 public static final int /*long*/ protocol_NSDraggingSource = objc_getProtocol("NSDraggingSource");
 public static final int /*long*/ protocol_NSFontManagerResponderMethod = objc_getProtocol("NSFontManagerResponderMethod");
+public static final int /*long*/ protocol_NSFontPanelValidationAdditions = objc_getProtocol("NSFontPanelValidationAdditions");
 public static final int /*long*/ protocol_NSMenuDelegate = objc_getProtocol("NSMenuDelegate");
 public static final int /*long*/ protocol_NSMenuValidation = objc_getProtocol("NSMenuValidation");
 public static final int /*long*/ protocol_NSOutlineViewDataSource = objc_getProtocol("NSOutlineViewDataSource");
@@ -1419,6 +1426,7 @@ public static final int /*long*/ sel_keyEquivalent = sel_registerName("keyEquiva
 public static final int /*long*/ sel_keyEquivalentModifierMask = sel_registerName("keyEquivalentModifierMask");
 public static final int /*long*/ sel_keyUp_ = sel_registerName("keyUp:");
 public static final int /*long*/ sel_keyWindow = sel_registerName("keyWindow");
+public static final int /*long*/ sel_knobProportion = sel_registerName("knobProportion");
 public static final int /*long*/ sel_knobThickness = sel_registerName("knobThickness");
 public static final int /*long*/ sel_lastPathComponent = sel_registerName("lastPathComponent");
 public static final int /*long*/ sel_layoutManager = sel_registerName("layoutManager");
@@ -1821,7 +1829,6 @@ public static final int /*long*/ sel_setFill = sel_registerName("setFill");
 public static final int /*long*/ sel_setFillColor_ = sel_registerName("setFillColor:");
 public static final int /*long*/ sel_setFireDate_ = sel_registerName("setFireDate:");
 public static final int /*long*/ sel_setFirstLineHeadIndent_ = sel_registerName("setFirstLineHeadIndent:");
-public static final int /*long*/ sel_setFloatValue_knobProportion_ = sel_registerName("setFloatValue:knobProportion:");
 public static final int /*long*/ sel_setFloatingPanel_ = sel_registerName("setFloatingPanel:");
 public static final int /*long*/ sel_setFocusRingType_ = sel_registerName("setFocusRingType:");
 public static final int /*long*/ sel_setFont_ = sel_registerName("setFont:");
@@ -1869,6 +1876,7 @@ public static final int /*long*/ sel_setJobDisposition_ = sel_registerName("setJ
 public static final int /*long*/ sel_setJobTitle_ = sel_registerName("setJobTitle:");
 public static final int /*long*/ sel_setKeyEquivalent_ = sel_registerName("setKeyEquivalent:");
 public static final int /*long*/ sel_setKeyEquivalentModifierMask_ = sel_registerName("setKeyEquivalentModifierMask:");
+public static final int /*long*/ sel_setKnobProportion_ = sel_registerName("setKnobProportion:");
 public static final int /*long*/ sel_setLabel_ = sel_registerName("setLabel:");
 public static final int /*long*/ sel_setLabel_forSegment_ = sel_registerName("setLabel:forSegment:");
 public static final int /*long*/ sel_setLeaf_ = sel_registerName("setLeaf:");
@@ -1980,6 +1988,7 @@ public static final int /*long*/ sel_setUsesThreadedAnimation_ = sel_registerNam
 public static final int /*long*/ sel_setValue_forHTTPHeaderField_ = sel_registerName("setValue:forHTTPHeaderField:");
 public static final int /*long*/ sel_setValue_forKey_ = sel_registerName("setValue:forKey:");
 public static final int /*long*/ sel_setValueWraps_ = sel_registerName("setValueWraps:");
+public static final int /*long*/ sel_setValues_forParameter_ = sel_registerName("setValues:forParameter:");
 public static final int /*long*/ sel_setVerticalScroller_ = sel_registerName("setVerticalScroller:");
 public static final int /*long*/ sel_setView_ = sel_registerName("setView:");
 public static final int /*long*/ sel_setVisible_ = sel_registerName("setVisible:");
@@ -2133,6 +2142,7 @@ public static final int /*long*/ sel_userInfo = sel_registerName("userInfo");
 public static final int /*long*/ sel_userSpaceScaleFactor = sel_registerName("userSpaceScaleFactor");
 public static final int /*long*/ sel_usesAlternatingRowBackgroundColors = sel_registerName("usesAlternatingRowBackgroundColors");
 public static final int /*long*/ sel_validAttributesForMarkedText = sel_registerName("validAttributesForMarkedText");
+public static final int /*long*/ sel_validModesForFontPanel_ = sel_registerName("validModesForFontPanel:");
 public static final int /*long*/ sel_validRequestorForSendType_returnType_ = sel_registerName("validRequestorForSendType:returnType:");
 public static final int /*long*/ sel_validateMenuItem_ = sel_registerName("validateMenuItem:");
 public static final int /*long*/ sel_validateVisibleColumns = sel_registerName("validateVisibleColumns");
@@ -2271,6 +2281,17 @@ public static final int NSEventTypeSwipe = 31;
 public static final int NSFileHandlingPanelOKButton = 1;
 public static final int NSFlagsChanged = 12;
 public static final int NSFocusRingTypeNone = 1;
+public static final int NSFontPanelFaceModeMask = 1 << 0;
+public static final int NSFontPanelSizeModeMask = 1 << 1;
+public static final int NSFontPanelCollectionModeMask = 1 << 2;
+public static final int NSFontPanelUnderlineEffectModeMask = 1<<8;
+public static final int NSFontPanelStrikethroughEffectModeMask = 1<<9;
+public static final int NSFontPanelTextColorEffectModeMask = 1<< 10;
+public static final int NSFontPanelDocumentColorEffectModeMask = 1<<11;
+public static final int NSFontPanelShadowEffectModeMask = 1<<12;
+public static final int NSFontPanelAllEffectsModeMask = 0XFFF00;
+public static final int NSFontPanelStandardModesMask = 0xFFFF;
+public static final int NSFontPanelAllModesMask = 0xFFFFFFFF;
 public static final int NSHelpFunctionKey = 63302;
 public static final int NSHelpKeyMask = 4194304;
 public static final int NSHourMinuteDatePickerElementFlag = 12;
@@ -2325,6 +2346,8 @@ public static final int NSNonactivatingPanelMask = 128;
 public static final int NSNormalWindowLevel = 0;
 public static final int NSOffState = 0;
 public static final int NSOnState = 1;
+public static final int NSOpenGLCPSurfaceOrder = 235;
+public static final int NSOpenGLCPSwapInterval = 222;
 public static final int NSOpenGLPFAAccumSize = 14;
 public static final int NSOpenGLPFAAlphaSize = 11;
 public static final int NSOpenGLPFAColorSize = 8;
@@ -2372,6 +2395,7 @@ public static final int NSShadowlessSquareBezelStyle = 6;
 public static final int NSShiftKeyMask = 131072;
 public static final int NSSmallControlSize = 1;
 public static final int NSSquareLineCapStyle = 2;
+public static final int NSSquareStatusItemLength = -2;
 public static final int NSStatusWindowLevel = 25;
 public static final int NSStringDrawingUsesLineFragmentOrigin = 1;
 public static final int NSSubmenuWindowLevel = 3;
@@ -3769,6 +3793,8 @@ public static final native double objc_msgSend_fpret(int /*long*/ id, int /*long
 /** @method flags=cast */
 public static final native double objc_msgSend_fpret(int /*long*/ id, int /*long*/ sel, int /*long*/ arg0, int /*long*/ arg1);
 /** @method flags=cast */
+public static final native float objc_msgSend_floatret(int /*long*/ id, int /*long*/ sel);
+/** @method flags=cast */
 public static final native int /*long*/ objc_msgSend(int /*long*/ id, int /*long*/ sel);
 /**
  * @method flags=cast
@@ -4037,9 +4063,9 @@ public static final native int /*long*/ objc_msgSend(int /*long*/ id, int /*long
 /** @method flags=cast */
 public static final native int /*long*/ objc_msgSend(int /*long*/ id, int /*long*/ sel, int[] /*long[]*/ arg0, int arg1, int arg2);
 /** @method flags=cast */
-public static final native int objc_msgSend(int id, int sel, float arg0);
+public static final native int /*long*/ objc_msgSend(int /*long*/ id, int /*long*/ sel, int[] arg0, int arg1);
 /** @method flags=cast */
-public static final native long objc_msgSend(long id, long sel, float arg0, double arg1);
+public static final native int objc_msgSend(int id, int sel, float arg0);
 /** @method flags=cast */
 public static final native long objc_msgSend(long id, long sel, int arg0);
 /** @method flags=cast */

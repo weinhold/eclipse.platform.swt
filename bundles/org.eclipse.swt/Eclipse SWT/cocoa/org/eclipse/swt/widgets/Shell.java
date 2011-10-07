@@ -492,14 +492,15 @@ public void addShellListener(ShellListener listener) {
 
 void attachObserversToWindow(NSWindow newWindow) {
 	if (newWindow == null || newWindow.id == 0) return;
+	int /*long*/ newHostWindowClass = OS.object_getClass(newWindow.id);
+	int /*long*/ sendEventImpl = OS.class_getMethodImplementation(newHostWindowClass, OS.sel_sendEvent_);
+	if (sendEventImpl == Display.windowCallback3.getAddress()) return;
 	hostWindow = newWindow;
 	hostWindow.retain();
-	int /*long*/ newHostWindowClass = OS.object_getClass(newWindow.id);
 	int /*long*/ embeddedSubclass = display.createWindowSubclass(newHostWindowClass, "SWTAWTWindow", true);
-	if (newHostWindowClass != embeddedSubclass) {
-		OS.object_setClass(hostWindow.id, embeddedSubclass);
-		hostWindowClass = newHostWindowClass;
-	}
+	OS.object_setClass(hostWindow.id, embeddedSubclass);
+	display.addWidget (hostWindow, this);
+	hostWindowClass = newHostWindowClass;
 	
 	if (windowEmbedCounts == null) windowEmbedCounts = new HashMap();
 	Integer embedCount = (Integer) windowEmbedCounts.get(hostWindow);
@@ -548,7 +549,7 @@ boolean canBecomeKeyWindow (int /*long*/ id, int /*long*/ sel) {
 	// Only answer if SWT created the window.
 	if (window != null) {
 		int /*long*/ styleMask = window.styleMask();
-		if (styleMask == OS.NSBorderlessWindowMask || (styleMask & (OS.NSNonactivatingPanelMask | OS.NSDocModalWindowMask)) != 0) return true;
+		if (styleMask == OS.NSBorderlessWindowMask || (styleMask & (OS.NSNonactivatingPanelMask | OS.NSDocModalWindowMask | OS.NSResizableWindowMask)) != 0) return true;
 	}
 	return super.canBecomeKeyWindow (id, sel);
 }
@@ -731,8 +732,8 @@ void createHandle () {
 
 	if (OS.VERSION < 0x1060) {
 		// Force a WindowRef to be created for this window so we can use
-		// HIWindowFindAtLocation (see Display.findControl())
-		window.windowRef();
+		// FindWindow() (see Display.findControl())
+		if (window != null) window.windowRef();
 	}
 	
 	NSWindow fieldEditorWindow = window;
@@ -752,7 +753,6 @@ void deferFlushing () {
 void deregister () {
 	super.deregister ();
 	if (window != null) display.removeWidget (window);
-	if (hostWindow != null)	display.removeWidget (hostWindow);
 	if (windowDelegate != null) display.removeWidget (windowDelegate);
 }
 
@@ -1041,7 +1041,8 @@ Shell getModalShell () {
 /**
  * Gets the receiver's modified state.
  *
- * </ul>
+ * @return <code>true</code> if the receiver is marked as modified, or <code>false</code> otherwise
+ * 
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
@@ -1085,9 +1086,9 @@ public Point getMinimumSize () {
 
 /** 
  * Returns the region that defines the shape of the shell,
- * or null if the shell has the default shape.
+ * or <code>null</code> if the shell has the default shape.
  *
- * @return the region that defines the shape of the shell (or null)
+ * @return the region that defines the shape of the shell, or <code>null</code>
  *	
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
@@ -1159,13 +1160,13 @@ float getThemeAlpha () {
 }
 
 /**
- * Returns the instance of the ToolBar object representing the tool bar that can appear on the
- * trim of the shell. This will return <code>null</code> if the platform does not support tool bars that
- * not part of the content area of the shell, or if the style of the shell does not support a 
- * tool bar. 
+ * Returns a ToolBar object representing the tool bar that can be shown in the receiver's
+ * trim. This will return <code>null</code> if the platform does not support tool bars that
+ * are not part of the content area of the shell, or if the Shell's style does not support 
+ * having a tool bar. 
  * <p>
  * 
- * @return a ToolBar object representing the window's tool bar or null.
+ * @return a ToolBar object representing the Shell's tool bar, or <ocde>null</code>.
  *
  * @exception SWTException <ul>
  *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
@@ -1356,7 +1357,6 @@ void register () {
 	 */
 	super.register ();
 	if (window != null) display.addWidget (window, this);
-	if (hostWindow != null)	display.addWidget (hostWindow, this);
 	if (windowDelegate != null) display.addWidget (windowDelegate, this);
 }
 
@@ -1410,7 +1410,7 @@ void removeObserversFromWindow () {
 
 		if (embedCount.intValue() <= 0) {
 			windowEmbedCounts.remove(hostWindow);
-			OS.object_setClass(hostWindow.id, hostWindowClass);
+			if (hostWindowClass != 0) OS.object_setClass(hostWindow.id, hostWindowClass);
 			display.removeWidget(hostWindow);
 			hostWindow.release();
 			hostWindow = null;
@@ -2087,11 +2087,9 @@ void viewWillMoveToWindow(int /*long*/ id, int /*long*/ sel, int /*long*/ newWin
 		int /*long*/ currentWindow = hostWindow != null ? hostWindow.id : 0;
 		if (currentWindow != 0) {
 			removeObserversFromWindow();
-			display.removeWidget(hostWindow);
 		}
 		if (newWindow != 0) {
 			attachObserversToWindow(new NSWindow(newWindow));
-			display.addWidget(hostWindow, this);
 		}
 	}
 }

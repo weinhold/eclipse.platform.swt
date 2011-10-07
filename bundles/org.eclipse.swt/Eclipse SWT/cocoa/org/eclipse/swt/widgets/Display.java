@@ -1950,10 +1950,10 @@ public Image getSystemImage (int id) {
 }
 
 /**
- * Returns the single instance of the application menu bar or null
- * when there is no application menu bar for the platform.
+ * Returns the single instance of the application menu bar, or
+ * <code>null</code> if there is no application menu bar for the platform.
  *
- * @return the application menu bar or <code>null</code>
+ * @return the application menu bar, or <code>null</code>
  * 
  * @exception SWTException <ul>
  *    <li>ERROR_DEVICE_DISPOSED - if the receiver has been disposed</li>
@@ -1974,10 +1974,10 @@ public Menu getMenuBar () {
 }
 
 /**
- * Returns the single instance of the system-provided menu for the application.
- * On platforms where no menu is provided for the application this method returns null.
+ * Returns the single instance of the system-provided menu for the application, or
+ * <code>null</code> on platforms where no menu is provided for the application.
  *
- * @return the system menu or <code>null</code>
+ * @return the system menu, or <code>null</code>
  * 
  * @exception SWTException <ul>
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
@@ -2057,8 +2057,10 @@ public Thread getThread () {
 }
 
 /**	 
- * Returns true if a touch-aware input device is attached to the system,
- * enabled, and ready for use.
+ * Returns a boolean indicating whether a touch-aware input device is
+ * attached to the system and is ready for use.
+ *
+ * @return <code>true</code> if a touch-aware input device is detected, or <code>false</code> otherwise
  *
  * @exception SWTException <ul>
  *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
@@ -2594,7 +2596,6 @@ void initClasses () {
 	OS.class_addMethod(cls, OS.sel_collapseItem_collapseChildren_, proc4, "@:@Z");
 	OS.class_addMethod(cls, OS.sel_drawBackgroundInClipRect_, drawBackgroundInClipRectProc, "@:{NSRect}");
 	addEventMethods(cls, proc2, proc3, drawRectProc, hitTestProc, setNeedsDisplayInRectProc);
-	addFrameMethods(cls, setFrameOriginProc, setFrameSizeProc);
 	addAccessibilityMethods(cls, proc2, proc3, proc4, accessibilityHitTestProc);
 	OS.objc_registerClassPair(cls);
 
@@ -2605,6 +2606,7 @@ void initClasses () {
 	OS.class_addMethod(cls, OS.sel_changeColor_, dialogProc3, "@:@");
 	OS.class_addMethod(cls, OS.sel_setColor_forAttribute_, dialogProc4, "@:@@");
 	OS.class_addMethod(cls, OS.sel_changeFont_, dialogProc3, "@:@");
+	OS.class_addMethod(cls, OS.sel_validModesForFontPanel_, dialogProc3, "@:@");
 	OS.class_addMethod(cls, OS.sel_sendSelection_, dialogProc3, "@:@");
 	OS.class_addMethod(cls, OS.sel_panel_shouldShowFilename_, dialogProc4, "@:@@");
 	OS.class_addMethod(cls, OS.sel_panelDidEnd_returnCode_contextInfo_, dialogProc5, "@:@i@");
@@ -2643,6 +2645,11 @@ void initClasses () {
 	addFrameMethods(cls, setFrameOriginProc, setFrameSizeProc);
 	addAccessibilityMethods(cls, proc2, proc3, proc4, accessibilityHitTestProc);
 	OS.objc_registerClassPair(cls);
+	if (OS.VERSION >= 0x1070) {
+		/* Note that isFlippedProc is used for performance and convenience */
+		int /*long*/ metaClass = OS.objc_getMetaClass(className);
+		OS.class_addMethod(metaClass, OS.sel_isCompatibleWithOverlayScrollers, isFlippedProc, "@:");
+	}
 	
 	className = "SWTScrollView";
 	cls = OS.objc_allocateClassPair(OS.class_NSScrollView, className, 0);
@@ -2768,7 +2775,6 @@ void initClasses () {
 	OS.class_addMethod(cls, OS.sel_tableView_writeRowsWithIndexes_toPasteboard_, proc5, "@:@@@");
 	OS.class_addMethod(cls, OS.sel_drawBackgroundInClipRect_, drawBackgroundInClipRectProc, "@:{NSRect}");
 	addEventMethods(cls, proc2, proc3, drawRectProc, hitTestProc, setNeedsDisplayInRectProc);
-	addFrameMethods(cls, setFrameOriginProc, setFrameSizeProc);
 	addAccessibilityMethods(cls, proc2, proc3, proc4, accessibilityHitTestProc);
 	OS.objc_registerClassPair(cls);
 
@@ -5235,6 +5241,10 @@ static int /*long*/ dialogProc(int /*long*/ id, int /*long*/ sel, int /*long*/ a
 		FontDialog dialog = (FontDialog)OS.JNIGetObject(jniRef[0]);
 		if (dialog == null) return 0;
 		dialog.changeFont(id, sel, arg0);
+	} else if (sel == OS.sel_validModesForFontPanel_) {
+		FontDialog dialog = (FontDialog)OS.JNIGetObject(jniRef[0]);
+		if (dialog == null) return 0;
+		return dialog.validModesForFontPanel(id, sel, arg0);
 	} else if (sel == OS.sel_sendSelection_) {
 		FileDialog dialog = (FileDialog)OS.JNIGetObject(jniRef[0]);
 		if (dialog == null) return 0;

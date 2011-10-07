@@ -1666,7 +1666,10 @@ void setImage (int /*long*/ id, int /*long*/ sel, int /*long*/ arg0) {
 }
 
 boolean setInputState (Event event, NSEvent nsEvent, int type) {
-	if (nsEvent == null) return true;
+	if (nsEvent == null) {
+		nsEvent = NSApplication.sharedApplication().currentEvent();
+		if (nsEvent == null) return true;
+	}
 	int /*long*/ modifierFlags = nsEvent.modifierFlags();
 	if ((modifierFlags & OS.NSAlternateKeyMask) != 0) event.stateMask |= SWT.ALT;
 	if ((modifierFlags & OS.NSShiftKeyMask) != 0) event.stateMask |= SWT.SHIFT;
@@ -1737,7 +1740,7 @@ boolean setKeyState (Event event, int type, NSEvent nsEvent) {
 		default:
 			if (event.keyCode == 0 || (SWT.KEYPAD_MULTIPLY <= event.keyCode && event.keyCode <= SWT.KEYPAD_CR)) {
 				NSString chars = nsEvent.characters ();
-				if (chars.length() > 0) event.character = (char)chars.characterAtIndex (0);
+				if (chars != null && chars.length() > 0) event.character = (char)chars.characterAtIndex (0);
 			}
 			if (event.keyCode == 0) {
 				int /*long*/ uchrPtr = 0;

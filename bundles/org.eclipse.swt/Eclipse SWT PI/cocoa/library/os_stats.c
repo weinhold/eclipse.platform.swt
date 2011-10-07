@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 628;
-int OS_nativeFunctionCallCount[628];
+int OS_nativeFunctionCount = 630;
+int OS_nativeFunctionCallCount[630];
 char * OS_nativeFunctionNames[] = {
 	"ATSFontActivateFromFileReference",
 	"AcquireRootMenu",
@@ -117,6 +117,7 @@ char * OS_nativeFunctionNames[] = {
 	"CGDisplayBitsPerSample",
 	"CGDisplayBounds",
 	"CGDisplayBytesPerRow",
+	"CGDisplayCreateImage",
 	"CGDisplayPixelsHigh",
 	"CGDisplayPixelsWide",
 	"CGEventCreateKeyboardEvent",
@@ -179,7 +180,6 @@ char * OS_nativeFunctionNames[] = {
 	"GetSystemUIMode",
 	"GetThemeMetric",
 	"HIThemeDrawFocusRect",
-	"HIWindowFindAtLocation",
 	"HIWindowGetCGWindowID",
 	"JNIGetObject",
 	"JSEvaluateScript",
@@ -940,11 +940,15 @@ char * OS_nativeFunctionNames[] = {
 	"objc_1msgSend__JJ_3J",
 #endif
 #ifndef JNI64
+	"objc_1msgSend__II_3II",
+#else
+	"objc_1msgSend__JJ_3II",
+#endif
+#ifndef JNI64
 	"objc_1msgSend__II_3III",
 #else
 	"objc_1msgSend__JJ_3JII",
 #endif
-	"objc_1msgSend__JJFD",
 	"objc_1msgSend__JJI",
 	"objc_1msgSend__JJ_3I",
 	"objc_1msgSend__JJ_3JJJ",
@@ -1133,6 +1137,7 @@ char * OS_nativeFunctionNames[] = {
 #else
 	"objc_1msgSend_1bool__JJS",
 #endif
+	"objc_1msgSend_1floatret",
 #ifndef JNI64
 	"objc_1msgSend_1fpret__II",
 #else
@@ -1257,6 +1262,11 @@ char * OS_nativeFunctionNames[] = {
 	"objc_1msgSend_1stret__Lorg_eclipse_swt_internal_cocoa_NSSize_2IILorg_eclipse_swt_internal_cocoa_NSSize_2I",
 #else
 	"objc_1msgSend_1stret__Lorg_eclipse_swt_internal_cocoa_NSSize_2JJLorg_eclipse_swt_internal_cocoa_NSSize_2J",
+#endif
+#ifndef JNI64
+	"objc_1msgSend_1stret__Lorg_eclipse_swt_internal_cocoa_NSSize_2IILorg_eclipse_swt_internal_cocoa_NSSize_2IIIII",
+#else
+	"objc_1msgSend_1stret__Lorg_eclipse_swt_internal_cocoa_NSSize_2JJLorg_eclipse_swt_internal_cocoa_NSSize_2JJJJJ",
 #endif
 #ifndef JNI64
 	"objc_1msgSend_1stret__Lorg_eclipse_swt_internal_cocoa_NSSize_2IILorg_eclipse_swt_internal_cocoa_NSSize_2ZZI",

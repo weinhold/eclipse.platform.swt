@@ -2119,6 +2119,11 @@
 		<method selector="makeCurrentContext" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
+		<method selector="setValues:forParameter:" swt_gen="true">
+			<arg swt_gen="true" swt_java_type="int[]"></arg>
+			<arg swt_gen="true"></arg>
+			<retval swt_gen="true"></retval>
+		</method>
 		<method selector="setView:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
@@ -2860,6 +2865,9 @@
 		<method selector="hitPart" swt_gen="true">
 			<retval swt_gen="true"></retval>
 		</method>
+		<method selector="knobProportion" swt_gen="true">
+			<retval swt_gen="true"></retval>
+		</method>
 		<method selector="rectForPart:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
@@ -2875,8 +2883,7 @@
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
-		<method selector="setFloatValue:knobProportion:" swt_gen="true">
-			<arg swt_gen="true"></arg>
+		<method selector="setKnobProportion:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 			<retval swt_gen="true"></retval>
 		</method>
@@ -4798,6 +4805,8 @@
 	<enum name="NSNormalWindowLevel" swt_gen="true"></enum>
 	<enum name="NSOffState" swt_gen="true"></enum>
 	<enum name="NSOnState" swt_gen="true"></enum>
+	<enum name="NSOpenGLCPSurfaceOrder" swt_gen="true"></enum>
+	<enum name="NSOpenGLCPSwapInterval" swt_gen="true"></enum>
 	<enum name="NSOpenGLPFAAccumSize" swt_gen="true"></enum>
 	<enum name="NSOpenGLPFAAlphaSize" swt_gen="true"></enum>
 	<enum name="NSOpenGLPFAColorSize" swt_gen="true"></enum>
@@ -4845,6 +4854,7 @@
 	<enum name="NSShiftKeyMask" swt_gen="true"></enum>
 	<enum name="NSSmallControlSize" swt_gen="true"></enum>
 	<enum name="NSSquareLineCapStyle" swt_gen="true"></enum>
+	<enum name="NSSquareStatusItemLength" swt_gen="true"></enum>
 	<enum name="NSStatusWindowLevel" swt_gen="true"></enum>
 	<enum name="NSStringDrawingUsesLineFragmentOrigin" swt_gen="true"></enum>
 	<enum name="NSSubmenuWindowLevel" swt_gen="true"></enum>
@@ -5081,6 +5091,11 @@
 	</informal_protocol>
 	<informal_protocol name="NSFontManagerResponderMethod" swt_gen="true">
 		<method selector="changeFont:" swt_gen="true">
+			<arg swt_gen="true"></arg>
+		</method>
+	</informal_protocol>
+	<informal_protocol name="NSFontPanelValidationAdditions" swt_gen="true">
+		<method selector="validModesForFontPanel:" swt_gen="true">
 			<arg swt_gen="true"></arg>
 		</method>
 	</informal_protocol>

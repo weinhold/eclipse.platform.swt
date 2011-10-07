@@ -718,6 +718,11 @@ public class SWT {
 	/**
 	 * The touch event type (value is 47).
 	 * 
+	 * <p>
+	 * This event is sent when a touch has been performed
+	 * on a touch-based input source.
+	 * </p>
+	 *
      * @see org.eclipse.swt.widgets.Display#addListener
      * @see org.eclipse.swt.widgets.Event
      * 
@@ -1216,6 +1221,7 @@ public class SWT {
 	/**
 	 * Style constant for automatic line wrap behavior (value is 1&lt;&lt;6).
 	 * <p><b>Used By:</b><ul>
+	 * <li><code>Button</code></li>
 	 * <li><code>Label</code></li>
 	 * <li><code>Text</code></li>
 	 * <li><code>ToolBar</code></li>

@@ -61,7 +61,7 @@ ATKLIBS = `pkg-config --libs-only-L atk gtk+-2.0` -latk-1.0 -lgtk-x11-2.0
 GNOMECFLAGS = `pkg-config --cflags gnome-vfs-module-2.0 libgnome-2.0 libgnomeui-2.0`
 GNOMELIBS = `pkg-config --libs-only-L gnome-vfs-module-2.0 libgnome-2.0 libgnomeui-2.0` -lgnomevfs-2 -lgnome-2 -lgnomeui-2
 
-GLXLIBS = -L/usr/X11R6/lib -lGL -lGLU -lm
+GLXLIBS = -lGL -lGLU -lm
 
 # Uncomment for Native Stats tool
 #NATIVE_STATS = -DNATIVE_STATS
@@ -91,8 +91,7 @@ MOZILLAEXCLUDES = -DNO__1XPCOMGlueShutdown \
 	-DNO_nsDynamicFunctionLoad
 XULRUNNEREXCLUDES = -DNO__1NS_1InitXPCOM2
 
-WEBKITCFLAGS = `pkg-config --cflags webkit-1.0`
-WEBKITLIBS = `pkg-config --libs webkit-1.0`
+WEBKITCFLAGS = `pkg-config --cflags glib-2.0`
 
 SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 CDE_OBJECTS = swt.o cde.o cde_structs.o cde_stats.o
@@ -279,7 +278,7 @@ xpcominit_stats.o: xpcominit_stats.cpp
 make_webkit: $(WEBKIT_LIB)
 
 $(WEBKIT_LIB): $(WEBKIT_OBJECTS)
-	$(CC) $(LFLAGS) -o $(WEBKIT_LIB) $(WEBKIT_OBJECTS) $(WEBKITLIBS)
+	$(CC) $(LFLAGS) -o $(WEBKIT_LIB) $(WEBKIT_OBJECTS)
 
 webkit.o: webkitgtk.c 
 	$(CC) $(CFLAGS) $(WEBKITCFLAGS) -c webkitgtk.c -o webkit.o

@@ -181,6 +181,7 @@
 #define pango_cairo_font_map_new_LIB LIB_PANGOCAIRO
 #define pango_cairo_font_map_get_default_LIB LIB_PANGOCAIRO
 #define pango_cairo_font_map_set_resolution_LIB LIB_PANGOCAIRO
+#define gdk_cairo_reset_clip_LIB LIB_GDK
 #define gdk_cairo_set_source_color_LIB LIB_GDK
 #define gdk_cairo_region_LIB LIB_GDK
 #define gdk_cairo_create_LIB LIB_GDK
@@ -353,7 +354,7 @@
 #define localeconv_decimal_point() localeconv()->decimal_point
 
 #define gtk_status_icon_position_menu_func() 0; \
-LOAD_FUNCTION(fp, gtk_status_icon_position_menu) \
+OS_LOAD_FUNCTION(fp, gtk_status_icon_position_menu) \
 rc = (jintLong)fp;
 
 glong g_utf16_pointer_to_offset(const gchar*, const gchar*);

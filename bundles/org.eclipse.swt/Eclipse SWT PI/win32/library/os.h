@@ -50,6 +50,8 @@
 /* Optional custom definitions to exclude some types */
 #include "defines.h"
 
+#define OS_LOAD_FUNCTION LOAD_FUNCTION
+
 /* Structs excludes */
 #ifdef _WIN32_WCE
 #define NO_ACTCTX
@@ -196,6 +198,7 @@
 #define NO_ChooseFontW
 #define NO_CloseEnhMetaFile
 #define NO_CloseGestureInfoHandle
+#define NO_ClosePrinter
 #define NO_CloseThemeData
 #define NO_CloseTouchInputHandle
 #define NO_CoCreateInstance
@@ -225,6 +228,8 @@
 #define NO_DeleteEnhMetaFile
 #define NO_DestroyCursor
 #define NO_DispatchMessageA
+#define NO_DocumentPropertiesA
+#define NO_DocumentPropertiesW
 #define NO_DPtoLP
 #define NO_DragDetect
 #define NO_DragFinish
@@ -447,6 +452,8 @@
 #define NO_NotifyWinEvent
 #define NO_OleInitialize
 #define NO_OleUninitialize
+#define NO_OpenPrinterA
+#define NO_OpenPrinterW
 #define NO_OpenThemeData
 #define NO_PathIsExe
 #define NO_PeekMessageA
@@ -460,11 +467,14 @@
 #define NO_PROPVARIANT_1sizeof
 #define NO_PSPropertyKeyFromString
 #define NO_RedrawWindow
+#define NO_RegCreateKeyExA
+#define NO_RegDeleteValueA
 #define NO_RegEnumKeyExA
 #define NO_RegOpenKeyExA
 #define NO_RegQueryInfoKeyA
 #define NO_RegQueryValueExA__I_3BI_3I_3B_3I
 #define NO_RegQueryValueExA__I_3BI_3I_3I_3I
+#define NO_RegSetValueExA
 #define NO_RegisterClassA
 #define NO_RegisterClipboardFormatA
 #define NO_RegisterTouchWindow

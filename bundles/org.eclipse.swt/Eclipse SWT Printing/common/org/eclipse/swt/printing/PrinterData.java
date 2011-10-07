@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -127,7 +127,7 @@ public final class PrinterData extends DeviceData {
 	 * <dd>double-sided printing as if bound on the short edge</dd>
 	 * </dl>
 	 * <p>
-	 * The default value is SWT.DEFAULT, meaning do not set a value;
+	 * The default value is <code>SWT.DEFAULT</code>, meaning do not set a value;
 	 * use the printer's default duplex setting.
 	 * A printer's default value is typically single-sided,
 	 * however it can default to double-sided in order to save paper.
