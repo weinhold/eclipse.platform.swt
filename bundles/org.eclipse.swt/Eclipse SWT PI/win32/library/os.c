@@ -2720,7 +2720,7 @@ JNIEXPORT jint JNICALL OS_NATIVE(DrawThemeTextEx)
 	rc = (jint)DrawThemeTextEx(arg0, arg1, arg2, arg3, lparg4, arg5, arg6, lparg7, lparg8);
 */
 	{
-		LOAD_FUNCTION(fp, DrawThemeTextEx)
+		OS_LOAD_FUNCTION(fp, DrawThemeTextEx)
 		if (fp) {
 			rc = (jint)((jint (CALLING_CONVENTION*)(jintLong, jintLong, jint, jint, jchar *, jint, jint, RECT *, DTTOPTS *))fp)(arg0, arg1, arg2, arg3, lparg4, arg5, arg6, lparg7, lparg8);
 		}
