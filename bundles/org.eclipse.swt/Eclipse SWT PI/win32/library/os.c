@@ -2810,7 +2810,7 @@ JNIEXPORT jint JNICALL OS_NATIVE(DwmIsCompositionEnabled)
 	rc = (jint)DwmIsCompositionEnabled(lparg0);
 */
 	{
-		LOAD_FUNCTION(fp, DwmIsCompositionEnabled)
+		OS_LOAD_FUNCTION(fp, DwmIsCompositionEnabled)
 		if (fp) {
 			rc = (jint)((jint (CALLING_CONVENTION*)(jboolean *))fp)(lparg0);
 		}

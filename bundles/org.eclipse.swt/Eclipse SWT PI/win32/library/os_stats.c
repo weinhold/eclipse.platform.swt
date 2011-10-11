@@ -14,8 +14,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1064;
-int OS_nativeFunctionCallCount[1064];
+int OS_nativeFunctionCount = 1065;
+int OS_nativeFunctionCallCount[1065];
 char * OS_nativeFunctionNames[] = {
 	"ACCEL_1sizeof",
 	"ACTCTX_1sizeof",
