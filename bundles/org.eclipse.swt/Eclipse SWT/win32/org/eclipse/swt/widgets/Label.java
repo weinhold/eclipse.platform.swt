@@ -696,11 +696,10 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 				rect.right += rect.left;
 				rect.top = Math.max (0, (height - textHeight) / 2);
 				rect.bottom += rect.top;
-				
 				if ((this.style & SWT.TRIM_FILL) == 0) {
 					OS.DrawText (struct.hDC, buffer, -1, rect, flags);
 				} else {
-					drawBufferredText(struct.hDC, buffer, rect, flags);
+					drawBufferredText (struct.hDC, buffer, rect, flags);
 				}
 			}
 		}
@@ -721,7 +720,7 @@ int getThemeGlowSize () {
 	return glowSize[0] > 0 ? glowSize[0] : 12;
 }
 
-void drawBufferredText(int targetDC, TCHAR textBuffer, RECT rect, int dwFlags) {
+void drawBufferredText (int /*long*/ targetDC, TCHAR textBuffer, RECT rect, int dwFlags) {
 	// set up the buffered device context - the background is painted entirely black and its alpha 
 	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
 	// the glass background will just render through)
