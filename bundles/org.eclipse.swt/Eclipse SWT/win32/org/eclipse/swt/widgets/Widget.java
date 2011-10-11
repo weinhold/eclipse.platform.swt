@@ -2234,7 +2234,6 @@ LRESULT wmBufferedPaint (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lP
 		int /*long*/ [] phdc = new int /*long*/ [1];
 		int /*long*/ hBufferedPaint = OS.BeginBufferedPaint (hDC, prcTarget, OS.BPBF_TOPDOWNDIB, null, phdc);
 		result = callWindowProc (hwnd, OS.WM_PAINT, phdc [0], lParam);
-		System.out.println("HERE " + this);
 		if (hooks (SWT.Paint) || filters (SWT.Paint)) {
 			//badness
 			GCData data = new GCData ();
