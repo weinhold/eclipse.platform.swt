@@ -445,4 +445,42 @@ LRESULT WM_TIMER (int /*long*/ wParam, int /*long*/ lParam) {
 	return result;
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)) {
+		return true;
+	}
+	return false;
+}
+
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	int /*long*/ paintDC = 0;
+	PAINTSTRUCT ps = new PAINTSTRUCT ();
+	paintDC = OS.BeginPaint (hWnd, ps);
+	
+	RECT rect = new RECT();
+	OS.GetClientRect(hWnd, rect);
+
+	// set up the buffered device context - the alpha will be set to 100%, making the device context entirely opaque
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	
+	if (hdcBuffered[0] != 0) {
+		// ask the ProgressBar control to render itself into the buffered device context, entirely opaquely
+		OS.SendMessage(this.handle, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
+		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF); // 100% opaque
+		
+		// round off the corners by drawing them as transparent single pixels
+		OS.SetPixel(hdcBuffered[0], 0, 0, 0x00);
+		OS.SetPixel(hdcBuffered[0], 0, rect.bottom-1, 0x00);
+		OS.SetPixel(hdcBuffered[0], rect.right-1, 0, 0x00);
+		OS.SetPixel(hdcBuffered[0], rect.right-1, rect.bottom-1, 0x00);
+		
+		OS.EndBufferedPaint(hBufferedPaint, true);
+	}
+
+	OS.EndPaint (handle, ps);
+	return LRESULT.ZERO;
+}
+
 }
