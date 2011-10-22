@@ -958,8 +958,12 @@ void drawBackground (int /*long*/ hDC, RECT rect, int pixel, int tx, int ty) {
 }
 
 void drawBackgroundBuffered (int /*long*/ hDC, RECT rect) {
+	BP_PAINTPARAMS params = new BP_PAINTPARAMS();
+	params.cbSize = BP_PAINTPARAMS.sizeof;
+	params.dwFlags = OS.BPPF_ERASE;
+	
 	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(hDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(hDC, rect, OS.BPBF_TOPDOWNDIB, params, hdcBuffered);
 	OS.PatBlt(hdcBuffered[0], 0, 0, rect.right - rect.left, rect.bottom - rect.top, OS.BLACKNESS);
 	OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0x00);
 	OS.EndBufferedPaint(hBufferedPaint, true);
