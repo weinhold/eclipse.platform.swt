@@ -46,6 +46,9 @@ public class ToolItem extends Item {
 	int id;
 	short cx;
 
+	// added to support the owner-draw operations performed in an Aero/Glass environment
+	static final int MARGIN = 4;
+	
 /**
  * Constructs a new instance of this class given its parent
  * (which must be a <code>ToolBar</code>) and a style value
@@ -1016,6 +1019,167 @@ LRESULT wmCommandChild (int /*long*/ wParam, int /*long*/ lParam) {
 	}
 	sendSelectionEvent (SWT.Selection);
 	return null;
+}
+
+/**
+ * Owner-draw painting of the ToolItem. Used in a shell where Aero/Glass painting has been turned on.
+ */
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	// cast the lParam into a NMCUSTOMDRAW structure
+	NMCUSTOMDRAW nmcd = new NMCUSTOMDRAW ();
+	OS.MoveMemory (nmcd, lParam, NMCUSTOMDRAW.sizeof);
+	int hDC = nmcd.hdc;
+	RECT rectClient = new RECT ();
+	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
+	
+	// setup the constants that are used during drawing
+	final boolean drawImage = image != null;
+	final boolean drawText = text.length () != 0;
+	final boolean drawTextBelow = (parent.style & SWT.RIGHT) == 0;
+	final boolean drawDepressed = this.determineButtonState(nmcd) == OS.TS_HOTCHECKED || this.determineButtonState(nmcd) == OS.TS_CHECKED || this.determineButtonState(nmcd) == OS.TS_PRESSED; 
+	final int margin = drawText && drawImage && !drawTextBelow ? MARGIN : 0;
+	final int width = rectClient.right - rectClient.left;
+	final int height = rectClient.bottom - rectClient.top;
+	final TCHAR textBuffer = new TCHAR (parent.getCodePage (), text, true);
+
+	// determine the image width and height
+	int imageWidth = 0, imageHeight = 0;
+	if (drawImage) {
+		Rectangle imageRect = image.getBounds ();
+		imageWidth = imageRect.width;
+		imageHeight = imageRect.height;
+	}
+	
+	// determine the text width and height
+	int textWidth = 0, textHeight = 0, flags = 0;
+	if (drawText) {
+		RECT rect2 = new RECT ();
+		flags = OS.DT_CALCRECT | OS.DT_EDITCONTROL | OS.DT_EXPANDTABS;
+		if ((style & SWT.LEFT) != 0) flags |= OS.DT_LEFT;
+		if ((style & SWT.CENTER) != 0) flags |= OS.DT_CENTER;
+		if ((style & SWT.RIGHT) != 0) flags |= OS.DT_RIGHT;
+		if ((style & SWT.WRAP) != 0) {
+			flags |= OS.DT_WORDBREAK;
+			rect2.right = Math.max (0, width - imageWidth - margin);
+		}
+		
+		OS.DrawText (hDC, textBuffer, -1, rect2, flags);
+		textWidth = rect2.right - rect2.left;
+		textHeight = rect2.bottom - rect2.top;
+	}
+	
+	// calculate the image (x,y) coordinate
+	int x = rectClient.left;
+	int y = rectClient.top;
+	if (drawTextBelow) {
+		x += Math.max (0, (width - imageWidth) / 2);
+		y += Math.max (0, (height - imageHeight - textHeight) / 2);
+	} else if ((style & SWT.CENTER) != 0) {
+		x += Math.max (0, (width - imageWidth - textWidth - margin) / 2);
+		y += Math.max (0, (height - imageHeight) / 2);
+	} else if ((style & SWT.RIGHT) != 0) {
+		x += width - imageWidth - textWidth - margin;
+		y += Math.max (0, (height - imageHeight) / 2);
+	} else {
+		x += margin;
+		y += Math.max (0, (height - imageHeight) / 2);
+	}
+	if (drawDepressed) {
+		x++;
+		y--;
+	}
+	
+	// draw the image, if needed
+	if (drawImage) {
+		GCData data = new GCData();
+		data.device = display;
+		GC gc = GC.win32_new (hDC, data);
+		Image image = getEnabled () ? this.image : (this.disabledImage != null) ? this.disabledImage : this.image;
+		gc.drawImage (image, x, y);
+		gc.dispose ();
+	}
+
+	// calculate the text (x,y) coordinate
+	if (drawTextBelow) {
+		x = rectClient.left + MARGIN;
+		y = height - textHeight - MARGIN;
+	} else {
+		x += imageWidth + MARGIN;
+		y = rectClient.top + Math.max (0, (height - textHeight) / 2);
+	}
+	if (drawDepressed) {
+		x++;
+		y--;
+	}
+	
+	// draw the text, if needed
+	if (drawText) {
+		flags &= ~OS.DT_CALCRECT;
+		rectClient.left = x;
+		rectClient.right += rectClient.left;
+		rectClient.top = y;
+		rectClient.bottom += rectClient.top;
+
+		int color = 0x000000;
+		int /*long*/ hFont = OS.SendMessage(parent.handle, OS.WM_GETFONT, 0, 0);
+		this.drawBufferredText(hDC, textBuffer, rectClient, hFont, color, flags);
+	}
+	
+	// draw the outline of the tool item
+	drawItemOutline(hDC, nmcd);
+	
+	return LRESULT.ZERO;
+}
+
+/**
+ * Draws the outline of the ToolItem. This will make the ToolItem appear as pressed, checked, hot or normal depending
+ * on the UI state of the toolbar item.
+ * @param hDC - device context to paint in
+ * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
+ */
+void drawItemOutline(int hDC, NMCUSTOMDRAW nmcd) {
+	RECT rectClient = new RECT();
+	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
+	
+	// setup the theme parameters
+	int /*long*/ hTheme = OS.OpenThemeData(0, "Toolbar;".toCharArray()); 
+	int btnState = determineButtonState(nmcd);
+
+	// draw the button outline, depending on if it's a regular button or a drop-down button
+	if ((style & SWT.DROP_DOWN) != 0) {
+		// drop-down button: left half is a button with a right edge that is not rounded
+		int dropDownWidth = OS.GetSystemMetrics(OS.SM_CXVSCROLL);
+		rectClient.right -= dropDownWidth;
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTON, btnState, rectClient, null);
+		
+		// drop-down button: right half is where the arrow is drawn
+		rectClient.left = rectClient.right;
+		rectClient.right += dropDownWidth;
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTONDROPDOWN, btnState, rectClient, null);
+	} else {
+		// regular button
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_BUTTON, btnState, rectClient, null);
+	}
+	
+	OS.CloseThemeData(hTheme);
+}
+
+/**
+ * Translates the item state into the equivalent button state.
+ * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
+ * @return
+ */
+int determineButtonState(NMCUSTOMDRAW nmcd) {
+	int btnState = OS.TS_NORMAL;
+	
+	// translate the button state depending on the incoming item state
+	if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_HOTCHECKED; }
+	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_SELECTED) != 0) {btnState = OS.TS_PRESSED; }
+	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) { btnState = OS.TS_HOT; }
+	else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) { btnState = OS.TS_PRESSED; }
+	else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_CHECKED; }
+	
+	return btnState;
 }
 
 }

@@ -1531,6 +1531,14 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 //			}
 			switch (nmcd.dwDrawStage) {
 				case OS.CDDS_PREERASE: {
+					if (this.getBufferredPaint()) {
+						// if buffered painting is on, erase the background the Aero/Glass way
+						RECT rect = new RECT ();
+						OS.SetRect (rect, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
+						drawBackground (nmcd.hdc, rect);
+						return new LRESULT (OS.CDRF_SKIPDEFAULT);
+					}
+					
 					/*
 					* Bug in Windows.  When a tool bar does not have the style
 					* TBSTYLE_FLAT, the rectangle to be erased in CDDS_PREERASE
@@ -1545,6 +1553,25 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 						drawBackground (nmcd.hdc, rect);
 					}
 					return new LRESULT (OS.CDRF_SKIPDEFAULT);
+				}
+				case OS.CDDS_PREPAINT: {
+					if (this.getBufferredPaint()) {
+						// this will trigger the CDDS_ITEMPREPAINT notifications so that we can draw each
+						// ToolItem individually
+						return new LRESULT (OS.CDRF_NOTIFYITEMDRAW);
+					}
+					break;
+				}
+				case OS.CDDS_ITEMPREPAINT: {
+					if (this.getBufferredPaint()) {
+						// each ToolItem knows how to draw themself in an Aero/Glass friendly manner
+						ToolItem childItem = items[nmcd.dwItemSpec];
+						if (childItem != null) {
+							childItem.wmBufferedPaint(this.handle, wParam, lParam);
+						}
+						return new LRESULT (OS.CDRF_SKIPDEFAULT);
+					}
+					break;
 				}
 			}
 			break;
@@ -1588,6 +1615,19 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 			break;
 	}
 	return super.wmNotifyChild (hdr, wParam, lParam);
+}
+
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)) {
+		return true;
+	}
+	return false;
+}
+
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	// toolbar items are owner-draw during buffered painting
+	return null; 
 }
 
 }
