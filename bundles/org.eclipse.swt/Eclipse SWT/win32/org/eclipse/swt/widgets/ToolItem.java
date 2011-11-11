@@ -1028,7 +1028,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	// cast the lParam into a NMCUSTOMDRAW structure
 	NMCUSTOMDRAW nmcd = new NMCUSTOMDRAW ();
 	OS.MoveMemory (nmcd, lParam, NMCUSTOMDRAW.sizeof);
-	int hDC = nmcd.hdc;
+	int /*long*/ hDC = nmcd.hdc;
 	RECT rectClient = new RECT ();
 	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
 	
@@ -1062,7 +1062,6 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 			flags |= OS.DT_WORDBREAK;
 			rect2.right = Math.max (0, width - imageWidth - margin);
 		}
-		
 		OS.DrawText (hDC, textBuffer, -1, rect2, flags);
 		textWidth = rect2.right - rect2.left;
 		textHeight = rect2.bottom - rect2.top;
@@ -1122,7 +1121,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 
 		int color = 0x000000;
 		int /*long*/ hFont = OS.SendMessage(parent.handle, OS.WM_GETFONT, 0, 0);
-		this.drawBufferredText(hDC, textBuffer, rectClient, hFont, color, flags);
+		drawBufferredText(hDC, textBuffer, rectClient, hFont, color, flags);
 	}
 	
 	// draw the outline of the tool item
@@ -1131,13 +1130,13 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	return LRESULT.ZERO;
 }
 
-/**
+/*
  * Draws the outline of the ToolItem. This will make the ToolItem appear as pressed, checked, hot or normal depending
  * on the UI state of the toolbar item.
  * @param hDC - device context to paint in
  * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
  */
-void drawItemOutline(int hDC, NMCUSTOMDRAW nmcd) {
+void drawItemOutline (int /*long*/ hDC, NMCUSTOMDRAW nmcd) {
 	RECT rectClient = new RECT();
 	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
 	
@@ -1164,12 +1163,12 @@ void drawItemOutline(int hDC, NMCUSTOMDRAW nmcd) {
 	OS.CloseThemeData(hTheme);
 }
 
-/**
+/*
  * Translates the item state into the equivalent button state.
  * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
  * @return
  */
-int determineButtonState(NMCUSTOMDRAW nmcd) {
+int determineButtonState (NMCUSTOMDRAW nmcd) {
 	int btnState = OS.TS_NORMAL;
 	
 	// translate the button state depending on the incoming item state
@@ -1178,7 +1177,6 @@ int determineButtonState(NMCUSTOMDRAW nmcd) {
 	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) { btnState = OS.TS_HOT; }
 	else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) { btnState = OS.TS_PRESSED; }
 	else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_CHECKED; }
-	
 	return btnState;
 }
 

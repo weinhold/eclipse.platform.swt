@@ -2683,7 +2683,7 @@ LRESULT wmXButtonUp (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam
 	return result;
 }
 
-public int getThemeGlowSize () {
+int getThemeGlowSize () {
 	int /*long*/ hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
 	int [] glowSize = new int[1];
 	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
@@ -2691,14 +2691,14 @@ public int getThemeGlowSize () {
 	return glowSize[0] > 0 ? glowSize[0] : 12;
 }
 
-public void drawBufferredText(int targetDC, TCHAR textBuffer, RECT rect, int hFont, int color, int dwFlags) {
+void drawBufferredText (int /*long*/ targetDC, TCHAR textBuffer, RECT rect, int /*long*/ hFont, int color, int dwFlags) {
 	// set up the buffered device context - the background is painted entirely black and its alpha 
 	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
 	// the glass background will just render through)
 	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
 	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(targetDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
-	OS.PatBlt(hdcBuffered[0], 0, 0, rect.right /* - rect.left */, rect.bottom /* - rect.top */, OS.BLACKNESS);
-	OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0x00);
+	OS.PatBlt (hdcBuffered [0], 0, 0, rect.right /* - rect.left */, rect.bottom /* - rect.top */, OS.BLACKNESS);
+	OS.BufferedPaintSetAlpha (hBufferedPaint, rect, (byte)0x00);
 	
 	// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
 	// to apply a glow around the text we are drawing to enhance readability of the text against a glass background

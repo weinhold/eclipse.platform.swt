@@ -592,6 +592,7 @@ public class OS extends C {
 	public static final int DTS_SHORTDATEFORMAT = 0x0000;
 	public static final int DTS_TIMEFORMAT = 0x0009;
 	public static final int DTS_UPDOWN = 0x0001;
+	public static final int DTT_TEXTCOLOR = 1 << 0;
 	public static final int DTT_GLOWSIZE = 1 << 11;
 	public static final int DTT_COMPOSITED = 1 << 13;
 	public static final int DWM_BB_ENABLE = 0x1;

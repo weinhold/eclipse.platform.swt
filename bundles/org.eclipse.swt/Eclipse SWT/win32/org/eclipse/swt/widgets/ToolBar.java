@@ -1531,7 +1531,7 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 //			}
 			switch (nmcd.dwDrawStage) {
 				case OS.CDDS_PREERASE: {
-					if (this.getBufferredPaint()) {
+					if (getBufferredPaint ()) {
 						// if buffered painting is on, erase the background the Aero/Glass way
 						RECT rect = new RECT ();
 						OS.SetRect (rect, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
@@ -1555,7 +1555,7 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 					return new LRESULT (OS.CDRF_SKIPDEFAULT);
 				}
 				case OS.CDDS_PREPAINT: {
-					if (this.getBufferredPaint()) {
+					if (getBufferredPaint ()) {
 						// this will trigger the CDDS_ITEMPREPAINT notifications so that we can draw each
 						// ToolItem individually
 						return new LRESULT (OS.CDRF_NOTIFYITEMDRAW);
@@ -1563,11 +1563,11 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 					break;
 				}
 				case OS.CDDS_ITEMPREPAINT: {
-					if (this.getBufferredPaint()) {
+					if (getBufferredPaint ()) {
 						// each ToolItem knows how to draw themself in an Aero/Glass friendly manner
-						ToolItem childItem = items[nmcd.dwItemSpec];
+						ToolItem childItem = items [(int)/*64*/nmcd.dwItemSpec];
 						if (childItem != null) {
-							childItem.wmBufferedPaint(this.handle, wParam, lParam);
+							childItem.wmBufferedPaint (handle, wParam, lParam);
 						}
 						return new LRESULT (OS.CDRF_SKIPDEFAULT);
 					}

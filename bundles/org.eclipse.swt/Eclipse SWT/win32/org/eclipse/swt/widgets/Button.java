@@ -1434,7 +1434,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	paintDC = OS.BeginPaint (hWnd, ps);
 	
 	RECT rcClient = new RECT();
-	OS.GetClientRect(hWnd, rcClient);
+	OS.GetClientRect (hWnd, rcClient);
 
 	// setup the theme parameters
 	int /*long*/ hTheme = OS.OpenThemeData(0, "Button;".toCharArray()); 
@@ -1446,7 +1446,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	params.cbSize = BP_PAINTPARAMS.sizeof;
 	params.dwFlags = OS.BPPF_ERASE;
 	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int hBufferedPaint = OS.BeginBufferedPaint(paintDC, rcClient, OS.BPBF_TOPDOWNDIB, params, hdcBuffered);
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rcClient, OS.BPBF_TOPDOWNDIB, params, hdcBuffered);
 	OS.PatBlt(hdcBuffered[0], 0, 0, rcClient.right, rcClient.bottom, OS.BLACKNESS);
 	OS.BufferedPaintSetAlpha(hdcBuffered[0], rcClient, (byte)0x00);
 	
@@ -1468,12 +1468,12 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 
 	// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
 	// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
-    DTTOPTS dttOpts =new DTTOPTS();
-    dttOpts.dwSize = DTTOPTS.sizeof;
-    dttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE;
-    dttOpts.iGlowSize = BufferedPainter.getThemeGlowSize();
+	DTTOPTS dttOpts =new DTTOPTS();
+	dttOpts.dwSize = DTTOPTS.sizeof;
+	dttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE;
+	dttOpts.iGlowSize = getThemeGlowSize();
 	
-    // set font before drawing the text
+	// set font before drawing the text
 	int /*long*/ hFont = OS.SendMessage(this.handle, OS.WM_GETFONT, 0, 0);
 	if (hFont != 0) {
 		hFont = OS.SelectObject(hdcBuffered[0], hFont);
@@ -1481,7 +1481,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 
 	// draw the button text in an aero/glass friendly manner
 	rcContent.left += bitmapWidth; // adjust the drawing rectangle to accomodate for the bitmap in case of radio or checkbox
-    int dwFlags = OS.DT_SINGLELINE | OS.DT_CENTER | OS.DT_VCENTER;
+	int dwFlags = OS.DT_SINGLELINE | OS.DT_CENTER | OS.DT_VCENTER;
 	TCHAR buffer = new TCHAR (getCodePage (), text, true);
 	OS.DrawThemeTextEx(hTheme, hdcBuffered[0], iPartId, iState, buffer.chars, buffer.length()-1, dwFlags, rcContent, dttOpts);
 	
@@ -1508,17 +1508,16 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
  * and normal.
  * 
  */
-int determineStateOfPushButton()
-{
-	POINT ptCursor = new POINT();
-	RECT rectWindow = new RECT();
-	OS.GetWindowRect(this.handle, rectWindow);
-	OS.GetCursorPos(ptCursor);
-	boolean hovering = OS.PtInRect(rectWindow, ptCursor); 
-	boolean captured = (OS.GetCapture() == this.handle);
+int determineStateOfPushButton () {
+	POINT ptCursor = new POINT ();
+	RECT rectWindow = new RECT ();
+	OS.GetWindowRect (handle, rectWindow);
+	OS.GetCursorPos (ptCursor);
+	boolean hovering = OS.PtInRect (rectWindow, ptCursor); 
+	boolean captured = OS.GetCapture () == handle;
 
 	// see if the button is in a disabled state
-	if (this.getEnabled() == false) {
+	if (!getEnabled ()) {
 		return OS.PBS_DISABLED;
 	}
 	
@@ -1533,13 +1532,13 @@ int determineStateOfPushButton()
 	}
 	
 	// is the button toggled on?
-	int dwCheckState = OS.SendMessage(this.handle, OS.BM_GETCHECK, 0, 0);
+	int /*long*/ dwCheckState = OS.SendMessage(this.handle, OS.BM_GETCHECK, 0, 0);
 	if (dwCheckState == OS.BST_CHECKED) {
 		return OS.PBS_PRESSED;
 	}
 	
 	// is this the default button?
-	if (this.getDefault()) {
+	if (getDefault ()) {
 		return OS.PBS_DEFAULTED;
 	}
 	
@@ -1556,47 +1555,45 @@ int determineStateOfPushButton()
  * a 3rd checked state of indeterminate), yielding the final button state that is returned.
  * 
  */
-int determineStateOfRadioOrCheck()
-{
-	POINT ptCursor = new POINT();
-	RECT rectWindow = new RECT();
-	OS.GetWindowRect(this.handle, rectWindow);
-	OS.GetCursorPos(ptCursor);
-	boolean hovering = OS.PtInRect(rectWindow, ptCursor); 
-	boolean captured = (OS.GetCapture() == this.handle);
-	int dwCheckState = OS.SendMessage(this.handle, OS.BM_GETCHECK, 0, 0);
+int determineStateOfRadioOrCheck () {
+	POINT ptCursor = new POINT ();
+	RECT rectWindow = new RECT ();
+	OS.GetWindowRect (handle, rectWindow);
+	OS.GetCursorPos (ptCursor);
+	boolean hovering = OS.PtInRect (rectWindow, ptCursor); 
+	boolean captured = OS.GetCapture () == handle;
+	int /*long*/ dwCheckState = OS.SendMessage (handle, OS.BM_GETCHECK, 0, 0);
 
-	// see if the button is in a disabled state
-	if (this.getEnabled() == false) {
-		if ((style & SWT.RADIO) != 0) { // radio button
+	if (!getEnabled ()) {
+		if ((style & SWT.RADIO) != 0) {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.RBS_CHECKEDDISABLED : OS.RBS_UNCHECKEDDISABLED;
-		} else { // checkbox button
+		} else {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.CBS_CHECKEDDISABLED : (dwCheckState == OS.BST_UNCHECKED) ? OS.CBS_UNCHECKEDDISABLED : OS.CBS_MIXEDDISABLED;
 		}
 	}
 	
 	// is the button pressed?
 	if (hovering && captured) {
-		if ((style & SWT.RADIO) != 0) { // radio button
+		if ((style & SWT.RADIO) != 0) {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.RBS_CHECKEDPRESSED : OS.RBS_UNCHECKEDPRESSED;
-		} else { // checkbox button
+		} else {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.CBS_CHECKEDPRESSED : (dwCheckState == OS.BST_UNCHECKED) ? OS.CBS_UNCHECKEDPRESSED : OS.CBS_MIXEDPRESSED;
 		}
 	}
 
 	// does the button have focus?
 	if (hovering || captured) {
-		if ((style & SWT.RADIO) != 0) { // radio button
+		if ((style & SWT.RADIO) != 0) {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.RBS_CHECKEDHOT : OS.RBS_UNCHECKEDHOT;
-		} else { // checkbox button
+		} else {
 			return (dwCheckState == OS.BST_CHECKED) ? OS.CBS_CHECKEDHOT : (dwCheckState == OS.BST_UNCHECKED) ? OS.CBS_UNCHECKEDHOT : OS.CBS_MIXEDHOT;
 		}
 	}
 	
 	// normal button
-	if ((style & SWT.RADIO) != 0) { // radio button
+	if ((style & SWT.RADIO) != 0) {
 		return (dwCheckState == OS.BST_CHECKED) ? OS.RBS_CHECKEDNORMAL : OS.RBS_UNCHECKEDNORMAL;
-	} else { // checkbox button
+	} else {
 		return (dwCheckState == OS.BST_CHECKED) ? OS.CBS_CHECKEDNORMAL : (dwCheckState == OS.BST_UNCHECKED) ? OS.CBS_UNCHECKEDNORMAL : OS.CBS_MIXEDNORMAL;
 	}
 }
@@ -1604,11 +1601,11 @@ int determineStateOfRadioOrCheck()
 /*
  * Return the width of the bitmap that is drawn in the background for the radio or checkbox.
  */
-int getThemeBitmapWidth(int hTheme, int iPartId, int iState) {
-	BITMAP bm = new BITMAP();
-	int [] hBitmap = new int [1];
-	OS.GetThemeBitmap(hTheme, iPartId, iState, 0, OS.GBF_DIRECT, hBitmap);
-	OS.GetObject(hBitmap[0], BITMAP.sizeof, bm);
+int getThemeBitmapWidth (int /*long*/ hTheme, int iPartId, int iState) {
+	BITMAP bm = new BITMAP ();
+	int /*long*/ [] hBitmap = new int /*long*/ [1];
+	OS.GetThemeBitmap (hTheme, iPartId, iState, 0, OS.GBF_DIRECT, hBitmap);
+	OS.GetObject (hBitmap[0], BITMAP.sizeof, bm);
 	return bm.bmWidth;
 }
 
