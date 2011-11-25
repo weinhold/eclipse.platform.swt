@@ -646,6 +646,16 @@ void createHandle () {
 	}
 }
 
+public void setData (String key, Object value) {
+	super.setData(key, value);
+	if (key.equals(SWT.GLASS_MARGINS)) { 
+		Object marginData = getData(SWT.GLASS_MARGINS);
+		if (marginData != null && marginData instanceof MARGINS) {
+			OS.DwmExtendFrameIntoClientArea (handle, (MARGINS) marginData);
+		}
+	}
+}
+
 void createToolTip (ToolTip toolTip) {
 	int id = 0;
 	if (toolTips == null) toolTips = new ToolTip [4];

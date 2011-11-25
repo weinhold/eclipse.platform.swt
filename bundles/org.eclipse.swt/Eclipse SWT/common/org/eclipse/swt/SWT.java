@@ -4072,6 +4072,14 @@ public class SWT {
 	 */
 	public static final String SKIN_ID = "org.eclipse.swt.skin.id";
 
+	/**
+	 * Key value for setting and getting the MARGINS that define the area of the glass region on a Shell.
+	 * 
+	 * @see org.eclipse.swt.widgets.Widget#getData(String)
+	 * @see org.eclipse.swt.widgets.Widget#setData(String, Object)
+	 * 
+	 */
+	public static final String GLASS_MARGINS = "GlassMargins"; //$NON-NLS-1$
 	
 /**
  * Answers a concise, human readable description of the error code.
