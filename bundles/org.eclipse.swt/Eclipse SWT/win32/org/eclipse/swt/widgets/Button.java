@@ -638,7 +638,7 @@ public int getAlignment () {
 
 boolean getBufferredPaint() {
 	Shell shell = getShell ();
-	if ((shell.style & SWT.TRIM_FILL) != 0) {
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (this.style & SWT.TRIM_FILL) != 0) {
 		if ((style & SWT.PUSH) != 0) return true;
 		if ((style & SWT.TOGGLE) != 0) return true;
 		if ((style & SWT.RADIO) != 0) return true;
