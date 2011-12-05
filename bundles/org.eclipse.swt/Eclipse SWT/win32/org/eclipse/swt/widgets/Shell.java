@@ -145,6 +145,7 @@ public class Shell extends Decorations {
 		OS.GetClassInfo (0, DialogClass, lpWndClass);
 		DialogProc = lpWndClass.lpfnWndProc;
 	}
+	static final String GLASS_MARGINS = "GlassMargins"; //$NON-NLS-1$
 
 /**
  * Constructs a new instance of this class. This is equivalent
@@ -643,16 +644,6 @@ void createHandle () {
 	if (OS.IsDBLocale) {
 		hIMC = OS.ImmCreateContext ();
 		if (hIMC != 0) OS.ImmAssociateContext (handle, hIMC);
-	}
-}
-
-public void setData (String key, Object value) {
-	super.setData(key, value);
-	if (key.equals(SWT.GLASS_MARGINS)) { 
-		Object marginData = getData(SWT.GLASS_MARGINS);
-		if (marginData != null && marginData instanceof MARGINS) {
-			OS.DwmExtendFrameIntoClientArea (handle, (MARGINS) marginData);
-		}
 	}
 }
 
@@ -1528,6 +1519,15 @@ void setBounds (int x, int y, int width, int height, int flags, boolean defer) {
 		flags &= ~OS.SWP_DRAWFRAME;
 	}
 	super.setBounds (x, y, width, height, flags, false);
+}
+
+public void setData (String key, Object value) {
+	super.setData (key, value);
+	if (key.equals (GLASS_MARGINS)) {
+		if (value != null && value instanceof MARGINS) {
+			OS.DwmExtendFrameIntoClientArea (handle, (MARGINS) value);
+		}
+	}
 }
 
 public void setEnabled (boolean enabled) {
