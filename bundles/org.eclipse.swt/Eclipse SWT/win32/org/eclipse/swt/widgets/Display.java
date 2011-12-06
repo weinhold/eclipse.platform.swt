@@ -155,14 +155,17 @@ public class Display extends Device {
 	}
 	
 	/* XP Themes */
-	int /*long*/ hButtonTheme, hEditTheme, hExplorerBarTheme, hScrollBarTheme, hTabTheme;
+	int /*long*/ hButtonTheme, hCompositedWindowTheme, hControlPanelStyleTheme, hEditTheme, hExplorerBarTheme, hScrollBarTheme, hTabTheme, hToolbarTheme;
 	static final char [] BUTTON = new char [] {'B', 'U', 'T', 'T', 'O', 'N', 0};
+	static final char [] COMPOSITEDWINDOW = new char [] {'C', 'O', 'M', 'P', 'O', 'S', 'I', 'T', 'E', 'D', 'W', 'I', 'N', 'D', 'O', 'W', ':', ':', 'W', 'I', 'N', 'D', 'O', 'W', 0};
+	static final char [] CONTROLPANELSTYLE = new char [] {'C', 'O', 'N', 'T', 'R', 'O', 'L', 'P', 'A', 'N', 'E', 'L', 'S', 'T', 'Y', 'L', 'E', 0};
 	static final char [] EDIT = new char [] {'E', 'D', 'I', 'T', 0};
 	static final char [] EXPLORER = new char [] {'E', 'X', 'P', 'L', 'O', 'R', 'E', 'R', 0};
 	static final char [] EXPLORERBAR = new char [] {'E', 'X', 'P', 'L', 'O', 'R', 'E', 'R', 'B', 'A', 'R', 0};
 	static final char [] SCROLLBAR = new char [] {'S', 'C', 'R', 'O', 'L', 'L', 'B', 'A', 'R', 0};
 	static final char [] LISTVIEW = new char [] {'L', 'I', 'S', 'T', 'V', 'I', 'E', 'W', 0};
 	static final char [] TAB = new char [] {'T', 'A', 'B', 0};
+	static final char [] TOOLBAR = new char [] {'T', 'O', 'O', 'L', 'B', 'A', 'R', 0};
 	static final char [] TREEVIEW = new char [] {'T', 'R', 'E', 'E', 'V', 'I', 'E', 'W', 0};
 	
 	/* Focus */
@@ -2625,6 +2628,16 @@ int /*long*/ hButtonTheme () {
 	return hButtonTheme = OS.OpenThemeData (hwndMessage, BUTTON);
 }
 
+int /*long*/ hControlPanelStyleTheme () {
+	if (hControlPanelStyleTheme != 0) return hControlPanelStyleTheme;
+	return hControlPanelStyleTheme = OS.OpenThemeData (hwndMessage, CONTROLPANELSTYLE);
+}
+
+int /*long*/ hCompositedWindowTheme () {
+	if (hCompositedWindowTheme != 0) return hCompositedWindowTheme;
+	return hCompositedWindowTheme = OS.OpenThemeData (hwndMessage, COMPOSITEDWINDOW);
+}
+
 int /*long*/ hEditTheme () {
 	if (hEditTheme != 0) return hEditTheme;
 	return hEditTheme = OS.OpenThemeData (hwndMessage, EDIT);
@@ -2643,6 +2656,11 @@ int /*long*/ hScrollBarTheme () {
 int /*long*/ hTabTheme () {
 	if (hTabTheme != 0) return hTabTheme;
 	return hTabTheme = OS.OpenThemeData (hwndMessage, TAB);
+}
+
+int /*long*/ hToolbarTheme () {
+	if (hToolbarTheme != 0) return hToolbarTheme;
+	return hToolbarTheme = OS.OpenThemeData (hwndMessage, TOOLBAR);
 }
 
 /**	 
@@ -3336,11 +3354,14 @@ int /*long*/ messageProc (int /*long*/ hwnd, int /*long*/ msg, int /*long*/ wPar
 		case OS.WM_THEMECHANGED: {
 			if (OS.COMCTL32_MAJOR >= 6) {
 				if (hButtonTheme != 0) OS.CloseThemeData (hButtonTheme);
+				if (hControlPanelStyleTheme != 0) OS.CloseThemeData (hControlPanelStyleTheme);
+				if (hCompositedWindowTheme != 0) OS.CloseThemeData (hCompositedWindowTheme);
 				if (hEditTheme != 0) OS.CloseThemeData (hEditTheme);
 				if (hExplorerBarTheme != 0) OS.CloseThemeData (hExplorerBarTheme);
 				if (hScrollBarTheme != 0) OS.CloseThemeData (hScrollBarTheme);
 				if (hTabTheme != 0) OS.CloseThemeData (hTabTheme);
-				hButtonTheme = hEditTheme = hExplorerBarTheme = hScrollBarTheme = hTabTheme = 0;
+				if (hToolbarTheme != 0) OS.CloseThemeData (hToolbarTheme);
+				hButtonTheme = hControlPanelStyleTheme = hCompositedWindowTheme = hEditTheme = hExplorerBarTheme = hScrollBarTheme = hTabTheme = hToolbarTheme = 0;
 			}
 			break;
 		}
@@ -3828,11 +3849,14 @@ void releaseDisplay () {
 	/* Release XP Themes */
 	if (OS.COMCTL32_MAJOR >= 6) {
 		if (hButtonTheme != 0) OS.CloseThemeData (hButtonTheme);
+		if (hControlPanelStyleTheme != 0) OS.CloseThemeData (hControlPanelStyleTheme);
+		if (hCompositedWindowTheme != 0) OS.CloseThemeData (hCompositedWindowTheme);
 		if (hEditTheme != 0) OS.CloseThemeData (hEditTheme);
 		if (hExplorerBarTheme != 0) OS.CloseThemeData (hExplorerBarTheme);
 		if (hScrollBarTheme != 0) OS.CloseThemeData (hScrollBarTheme);
 		if (hTabTheme != 0) OS.CloseThemeData (hTabTheme);
-		hButtonTheme = hEditTheme = hExplorerBarTheme = hScrollBarTheme = hTabTheme = 0;
+		if (hToolbarTheme != 0) OS.CloseThemeData (hToolbarTheme);
+		hButtonTheme = hControlPanelStyleTheme = hCompositedWindowTheme = hEditTheme = hExplorerBarTheme = hScrollBarTheme = hTabTheme = hToolbarTheme = 0;
 	}
 	
 	/* Unhook the message hook */

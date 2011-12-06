@@ -456,6 +456,39 @@ boolean dragDetect (int /*long*/ hwnd, int x, int y, boolean filter, boolean [] 
 	return OS.DragDetect (hwnd, pt);
 }
 
+void drawBufferredText (int /*long*/ targetDC, TCHAR textBuffer, RECT rect, int /*long*/ hFont, int color, int dwFlags) {
+	// set up the buffered device context - the background is painted entirely black and its alpha 
+	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
+	// the glass background will just render through)
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(targetDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	OS.PatBlt (hdcBuffered [0], 0, 0, rect.right /* - rect.left */, rect.bottom /* - rect.top */, OS.BLACKNESS);
+	OS.BufferedPaintSetAlpha (hBufferedPaint, rect, (byte)0x00);
+	
+	// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
+	// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
+	DTTOPTS dttOpts = new DTTOPTS();
+	dttOpts.dwSize = DTTOPTS.sizeof;
+	dttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE | OS.DTT_TEXTCOLOR;
+	dttOpts.crText   = color;
+	dttOpts.iGlowSize = getThemeGlowSize ();
+
+	OS.SetTextColor(hdcBuffered[0], color);
+	if (hFont != 0) {
+		hFont = OS.SelectObject(hdcBuffered[0], hFont);
+	}
+	
+	// draw the text using the special DrawThemeTextEx call 
+	int /*long*/ hTheme = display.hControlPanelStyleTheme();
+	OS.DrawThemeTextEx(hTheme, hdcBuffered[0], 0, 0, textBuffer.chars, textBuffer.length(), dwFlags, rect, dttOpts);
+
+	if (hFont != 0) {
+		OS.SelectObject(hdcBuffered[0], hFont);
+	}
+	OS.EndBufferedPaint(hBufferedPaint, true);
+	
+}
+
 /**
  * Does whatever widget specific cleanup is required, and then
  * uses the code in <code>SWTError.error</code> to handle the error.
@@ -639,6 +672,13 @@ String getName () {
  */
 String getNameText () {
 	return ""; //$NON-NLS-1$
+}
+
+int getThemeGlowSize () {
+	int /*long*/ hTheme = display.hCompositedWindowTheme(); 
+	int [] glowSize = new int[1];
+	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
+	return glowSize[0] > 0 ? glowSize[0] : 12;
 }
 
 /**
@@ -2681,47 +2721,5 @@ LRESULT wmXButtonUp (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lParam
 		if (OS.GetCapture () == hwnd) OS.ReleaseCapture ();
 	}
 	return result;
-}
-
-int getThemeGlowSize () {
-	int /*long*/ hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
-	int [] glowSize = new int[1];
-	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
-	OS.CloseThemeData(hTheme);
-	return glowSize[0] > 0 ? glowSize[0] : 12;
-}
-
-void drawBufferredText (int /*long*/ targetDC, TCHAR textBuffer, RECT rect, int /*long*/ hFont, int color, int dwFlags) {
-	// set up the buffered device context - the background is painted entirely black and its alpha 
-	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
-	// the glass background will just render through)
-	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(targetDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
-	OS.PatBlt (hdcBuffered [0], 0, 0, rect.right /* - rect.left */, rect.bottom /* - rect.top */, OS.BLACKNESS);
-	OS.BufferedPaintSetAlpha (hBufferedPaint, rect, (byte)0x00);
-	
-	// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
-	// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
-	DTTOPTS dttOpts = new DTTOPTS();
-	dttOpts.dwSize = DTTOPTS.sizeof;
-	dttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE | OS.DTT_TEXTCOLOR;
-	dttOpts.crText   = color;
-	dttOpts.iGlowSize = getThemeGlowSize ();
-
-	OS.SetTextColor(hdcBuffered[0], color);
-	if (hFont != 0) {
-		hFont = OS.SelectObject(hdcBuffered[0], hFont);
-	}
-	
-	// draw the text using the special DrawThemeTextEx call 
-	int /*long*/ hTheme = OS.OpenThemeData(0, "ControlPanelStyle;".toCharArray());
-	OS.DrawThemeTextEx(hTheme, hdcBuffered[0], 0, 0, textBuffer.chars, textBuffer.length(), dwFlags, rect, dttOpts);
-	OS.CloseThemeData(hTheme);
-
-	if (hFont != 0) {
-		OS.SelectObject(hdcBuffered[0], hFont);
-	}
-	OS.EndBufferedPaint(hBufferedPaint, true);
-	
 }
 }

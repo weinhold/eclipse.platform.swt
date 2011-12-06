@@ -47,7 +47,7 @@ public class ToolItem extends Item {
 	short cx;
 
 	// added to support the owner-draw operations performed in an Aero/Glass environment
-	static final int MARGIN = 4;
+	static final int OWNERDRAW_MARGIN = 4;
 	
 /**
  * Constructs a new instance of this class given its parent
@@ -221,6 +221,54 @@ Widget [] computeTabList () {
 void destroyWidget () {
 	parent.destroyItem (this);
 	releaseHandle ();
+}
+
+/*
+ * Translates the item state into the equivalent button state.
+ * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
+ * @return
+ */
+int determineButtonState (NMCUSTOMDRAW nmcd) {
+	int btnState = OS.TS_NORMAL;
+	
+	// translate the button state depending on the incoming item state
+	if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_HOTCHECKED; }
+	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_SELECTED) != 0) {btnState = OS.TS_PRESSED; }
+	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) { btnState = OS.TS_HOT; }
+	else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) { btnState = OS.TS_PRESSED; }
+	else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_CHECKED; }
+	return btnState;
+}
+
+/*
+ * Draws the outline of the ToolItem. This will make the ToolItem appear as pressed, checked, hot or normal depending
+ * on the UI state of the toolbar item.
+ * @param hDC - device context to paint in
+ * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
+ */
+void drawItemOutline (int /*long*/ hDC, NMCUSTOMDRAW nmcd) {
+	RECT rectClient = new RECT();
+	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
+	
+	// setup the theme parameters
+	int /*long*/ hTheme = display.hToolbarTheme(); 
+	int btnState = determineButtonState(nmcd);
+
+	// draw the button outline, depending on if it's a regular button or a drop-down button
+	if ((style & SWT.DROP_DOWN) != 0) {
+		// drop-down button: left half is a button with a right edge that is not rounded
+		int dropDownWidth = OS.GetSystemMetrics(OS.SM_CXVSCROLL);
+		rectClient.right -= dropDownWidth;
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTON, btnState, rectClient, null);
+		
+		// drop-down button: right half is where the arrow is drawn
+		rectClient.left = rectClient.right;
+		rectClient.right += dropDownWidth;
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTONDROPDOWN, btnState, rectClient, null);
+	} else {
+		// regular button
+		OS.DrawThemeBackground(hTheme, hDC, OS.TP_BUTTON, btnState, rectClient, null);
+	}
 }
 
 /**
@@ -1011,17 +1059,7 @@ int widgetStyle () {
 	return OS.BTNS_BUTTON;
 }
 
-LRESULT wmCommandChild (int /*long*/ wParam, int /*long*/ lParam) {
-	if ((style & SWT.RADIO) != 0) {
-		if ((parent.getStyle () & SWT.NO_RADIO_GROUP) == 0) {
-			selectRadio ();
-		}
-	}
-	sendSelectionEvent (SWT.Selection);
-	return null;
-}
-
-/**
+/*
  * Owner-draw painting of the ToolItem. Used in a shell where Aero/Glass painting has been turned on.
  */
 LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
@@ -1036,8 +1074,8 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	final boolean drawImage = image != null;
 	final boolean drawText = text.length () != 0;
 	final boolean drawTextBelow = (parent.style & SWT.RIGHT) == 0;
-	final boolean drawDepressed = this.determineButtonState(nmcd) == OS.TS_HOTCHECKED || this.determineButtonState(nmcd) == OS.TS_CHECKED || this.determineButtonState(nmcd) == OS.TS_PRESSED; 
-	final int margin = drawText && drawImage && !drawTextBelow ? MARGIN : 0;
+	final boolean drawDepressed = determineButtonState(nmcd) == OS.TS_HOTCHECKED || determineButtonState(nmcd) == OS.TS_CHECKED || determineButtonState(nmcd) == OS.TS_PRESSED; 
+	final int margin = drawText && drawImage && !drawTextBelow ? OWNERDRAW_MARGIN : 0;
 	final int width = rectClient.right - rectClient.left;
 	final int height = rectClient.bottom - rectClient.top;
 	final TCHAR textBuffer = new TCHAR (parent.getCodePage (), text, true);
@@ -1093,17 +1131,17 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 		GCData data = new GCData();
 		data.device = display;
 		GC gc = GC.win32_new (hDC, data);
-		Image image = getEnabled () ? this.image : (this.disabledImage != null) ? this.disabledImage : this.image;
+		Image image = getEnabled () ? this.image : (disabledImage != null) ? disabledImage : this.image;
 		gc.drawImage (image, x, y);
 		gc.dispose ();
 	}
 
 	// calculate the text (x,y) coordinate
 	if (drawTextBelow) {
-		x = rectClient.left + MARGIN;
-		y = height - textHeight - MARGIN;
+		x = rectClient.left + OWNERDRAW_MARGIN;
+		y = height - textHeight - OWNERDRAW_MARGIN;
 	} else {
-		x += imageWidth + MARGIN;
+		x += imageWidth + OWNERDRAW_MARGIN;
 		y = rectClient.top + Math.max (0, (height - textHeight) / 2);
 	}
 	if (drawDepressed) {
@@ -1130,54 +1168,13 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	return LRESULT.ZERO;
 }
 
-/*
- * Draws the outline of the ToolItem. This will make the ToolItem appear as pressed, checked, hot or normal depending
- * on the UI state of the toolbar item.
- * @param hDC - device context to paint in
- * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
- */
-void drawItemOutline (int /*long*/ hDC, NMCUSTOMDRAW nmcd) {
-	RECT rectClient = new RECT();
-	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
-	
-	// setup the theme parameters
-	int /*long*/ hTheme = OS.OpenThemeData(0, "Toolbar;".toCharArray()); 
-	int btnState = determineButtonState(nmcd);
-
-	// draw the button outline, depending on if it's a regular button or a drop-down button
-	if ((style & SWT.DROP_DOWN) != 0) {
-		// drop-down button: left half is a button with a right edge that is not rounded
-		int dropDownWidth = OS.GetSystemMetrics(OS.SM_CXVSCROLL);
-		rectClient.right -= dropDownWidth;
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTON, btnState, rectClient, null);
-		
-		// drop-down button: right half is where the arrow is drawn
-		rectClient.left = rectClient.right;
-		rectClient.right += dropDownWidth;
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTONDROPDOWN, btnState, rectClient, null);
-	} else {
-		// regular button
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_BUTTON, btnState, rectClient, null);
+LRESULT wmCommandChild (int /*long*/ wParam, int /*long*/ lParam) {
+	if ((style & SWT.RADIO) != 0) {
+		if ((parent.getStyle () & SWT.NO_RADIO_GROUP) == 0) {
+			selectRadio ();
+		}
 	}
-	
-	OS.CloseThemeData(hTheme);
+	sendSelectionEvent (SWT.Selection);
+	return null;
 }
-
-/*
- * Translates the item state into the equivalent button state.
- * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
- * @return
- */
-int determineButtonState (NMCUSTOMDRAW nmcd) {
-	int btnState = OS.TS_NORMAL;
-	
-	// translate the button state depending on the incoming item state
-	if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_HOTCHECKED; }
-	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_SELECTED) != 0) {btnState = OS.TS_PRESSED; }
-	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) { btnState = OS.TS_HOT; }
-	else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) { btnState = OS.TS_PRESSED; }
-	else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_CHECKED; }
-	return btnState;
-}
-
 }

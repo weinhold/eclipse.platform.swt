@@ -51,7 +51,7 @@ public class Label extends Control {
 	String text = "";
 	Image image;
 	static final int MARGIN = 4;
-	static /*final*/ boolean IMAGE_AND_TEXT = true;
+	static /*final*/ boolean IMAGE_AND_TEXT = false;
 	static final int /*long*/ LabelProc;
 	static final TCHAR LabelClass = new TCHAR (0, "STATIC", true);
 	static {
@@ -225,7 +225,7 @@ public int getAlignment () {
 
 boolean getBufferredPaint() {
 	Shell shell = getShell ();
-	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)){
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
 		// if (image != null) return false;//note: can't be transparent for all images...
 		return true;//bad: should be transparent with custom draw
 	}
@@ -537,6 +537,11 @@ LRESULT WM_UPDATEUISTATE (int /*long*/ wParam, int /*long*/ lParam) {
 	return result;
 }
 
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	// Label widgets are owner-drawn, so this is a no-op
+	return null; // return null so that wmDrawChild gets invoked
+}
+
 LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
 	/*
 	* Bug in Windows.  For some reason, the HBRUSH that
@@ -646,7 +651,7 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 		int height = struct.bottom - struct.top;
 		if (width != 0 && height != 0) {
 			boolean drawImage = image != null;
-			boolean drawText = IMAGE_AND_TEXT && text.length () != 0;
+			boolean drawText = text.length () != 0 && (image == null || IMAGE_AND_TEXT);
 			int margin = drawText && drawImage ? MARGIN : 0;
 			int imageWidth = 0, imageHeight = 0;
 			if (drawImage) {
@@ -696,10 +701,13 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 				rect.right += rect.left;
 				rect.top = Math.max (0, (height - textHeight) / 2);
 				rect.bottom += rect.top;
-				if ((this.style & SWT.TRIM_FILL) == 0) {
+				if ((style & SWT.TRIM_FILL) == 0) {
 					OS.DrawText (struct.hDC, buffer, -1, rect, flags);
 				} else {
-					drawBufferredText (struct.hDC, buffer, rect, flags);
+					int /*long*/ hFont = OS.SendMessage(this.handle, OS.WM_GETFONT, 0, 0);
+					int color = 0x000000;
+					int dwFlags = 0;
+					drawBufferredText(struct.hDC, buffer, rect, hFont, color, dwFlags);				
 				}
 			}
 		}
@@ -707,53 +715,4 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 	return null;
 }
 
-LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
-	// Label widgets are owner-drawn, so this is a no-op
-	return null; // return null so that wmDrawChild gets invoked
-}
-
-int getThemeGlowSize () {
-	int /*long*/ hTheme = OS.OpenThemeData(0, "CompositedWindow::Window;".toCharArray()); 
-	int [] glowSize = new int[1];
-	OS.GetThemeInt(hTheme, 0, 0, OS.TMT_TEXTGLOWSIZE, glowSize);
-	OS.CloseThemeData(hTheme);
-	return glowSize[0] > 0 ? glowSize[0] : 12;
-}
-
-void drawBufferredText (int /*long*/ targetDC, TCHAR textBuffer, RECT rect, int dwFlags) {
-	// set up the buffered device context - the background is painted entirely black and its alpha 
-	// is set to zero, resulting in a device context that is 100% transparent (if nothing is drawn to this DC,
-	// the glass background will just render through)
-	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(targetDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
-	OS.PatBlt(hdcBuffered[0], 0, 0, rect.right /* - rect.left */, rect.bottom /* - rect.top */, OS.BLACKNESS);
-	OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0x00);
-	
-	// setup the DTTOPTS structure for calling into DrawThemeTextEx - note how we call getThemeGlowSize()
-	// to apply a glow around the text we are drawing to enhance readability of the text against a glass background
-	DTTOPTS dttOpts = new DTTOPTS();
-	dttOpts.dwSize = DTTOPTS.sizeof;
-	dttOpts.dwFlags = OS.DTT_COMPOSITED | OS.DTT_GLOWSIZE;
-	dttOpts.crText   = 0x00FFFFFF;
-	dttOpts.iGlowSize = getThemeGlowSize ();
-
-	// select the window's font into the buffered device context
-	int /*long*/ hFont = OS.SendMessage(this.handle, OS.WM_GETFONT, 0, 0);
-	if (hFont != 0) {
-		hFont = OS.SelectObject(hdcBuffered[0], hFont);
-	}
-
-	// draw the text using the special DrawThemeTextEx call 
-	int /*long*/ hTheme = OS.OpenThemeData(0, "ControlPanelStyle;".toCharArray());
-	OS.DrawThemeTextEx(hTheme, hdcBuffered[0], 0, 0, textBuffer.chars, textBuffer.length(), dwFlags, rect, dttOpts);
-	OS.CloseThemeData(hTheme);
-
-	// restore the font
-	if (hFont != 0) {                        
-        OS.SelectObject(hdcBuffered[0], hFont);
-    }
-	
-	OS.EndBufferedPaint(hBufferedPaint, true);
-	
-}
 }

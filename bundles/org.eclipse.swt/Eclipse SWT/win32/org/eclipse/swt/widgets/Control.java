@@ -926,7 +926,7 @@ void drawBackground (int /*long*/ hDC) {
 }
 
 void drawBackground (int /*long*/ hDC, RECT rect) {
-	if ((this.style & SWT.TRIM_FILL) != 0) {
+	if ((style & SWT.TRIM_FILL) != 0) {
 		drawBackgroundBuffered(hDC, rect);
 		return;
 	}

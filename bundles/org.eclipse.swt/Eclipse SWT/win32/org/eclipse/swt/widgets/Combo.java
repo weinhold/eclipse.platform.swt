@@ -97,6 +97,9 @@ public class Combo extends Composite {
 		ComboProc = lpWndClass.lpfnWndProc;
 	}
 	
+	// this flag is used to prevent the Text#wmColorChild method from triggering a perpetual series of repaints
+	private boolean bPrintingClient = false;
+
 /**
  * Constructs a new instance of this class given its parent
  * and a style value describing its behavior and appearance.
@@ -657,9 +660,38 @@ boolean dragDetect (int /*long*/ hwnd, int x, int y, boolean filter, boolean [] 
 	return super.dragDetect (hwnd, x, y, filter, detect, consume);
 }
 
+LRESULT drawBufferedText (int /*long*/ hWnd) {
+	int /*long*/ paintDC = 0;
+	PAINTSTRUCT ps = new PAINTSTRUCT ();
+	paintDC = OS.BeginPaint (hWnd, ps);
+	
+	RECT rect = new RECT();
+	OS.GetClientRect(hWnd, rect);
+
+	// set up the buffered device context - the alpha will be set to 100%, making the device context entirely opaque
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	
+	if (hdcBuffered[0] != 0) {
+		// ask the Edit control to render itself into the buffered device context; note that this will result in
+		// the Edit control issuing a WM_CTLCOLOREDIT message and we need to set the 'bPrintingClient' flag to prevent
+		// a perpetual paint sequence from being triggered
+		bPrintingClient = true;
+		OS.SendMessage(hWnd, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
+		bPrintingClient = false;
+
+		// entirely opaque
+		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF);
+		OS.EndBufferedPaint(hBufferedPaint, true);
+	}
+
+	OS.EndPaint (handle, ps);
+	return LRESULT.ZERO;
+}
+
 boolean getBufferredPaint() {
 	Shell shell = getShell ();
-	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)) return true;
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) return true;
 	return false;
 }
 
@@ -2551,6 +2583,22 @@ LRESULT wmClipboard (int /*long*/ hwndText, int msg, int /*long*/ wParam, int /*
 	return null;
 }
 
+LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
+	int /*long*/ hwndEdit = OS.GetDlgItem (handle, CBID_EDIT);
+	if (lParam == hwndEdit) {
+		// a WM_CTLCOLOREDIT message is issued by the Win32 Edit control whenever it's about to be redrawn; the 
+		// Control#windowProc routes that message into here, and if glass is turned on we invalidate the window to 
+		// trigger a glass-aware repaint of the control
+		if (getBufferredPaint() && !bPrintingClient) {
+			RECT lpRect = new RECT();
+			OS.GetClientRect(hwndEdit, lpRect);
+			OS.InvalidateRect(hwndEdit, lpRect, false);
+		}
+	}
+	
+	return super.wmColorChild (wParam, lParam);
+}
+
 LRESULT wmCommandChild (int /*long*/ wParam, int /*long*/ lParam) {
 	int code = OS.HIWORD (wParam);
 	switch (code) {
@@ -2714,54 +2762,6 @@ LRESULT wmSysKeyDown (int /*long*/ hwnd, int /*long*/ wParam, int /*long*/ lPara
 		}
 	}
 	return result;
-}
-
-LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
-	int /*long*/ hwndEdit = OS.GetDlgItem (handle, CBID_EDIT);
-	if (lParam == hwndEdit) { // is this from the Edit control?
-		// a WM_CTLCOLOREDIT message is issued by the Win32 Edit control whenever it's about to be redrawn; the 
-		// Control#windowProc routes that message into here, and if glass is turned on we invalidate the window to 
-		// trigger a glass-aware repaint of the control
-		if (this.getBufferredPaint() && !bPrintingClient) {
-			RECT lpRect = new RECT();
-			OS.GetClientRect(hwndEdit, lpRect);
-			OS.InvalidateRect(hwndEdit, lpRect, false);
-		}
-	}
-	
-	return super.wmColorChild (wParam, lParam);
-}
-
-// this flag is used to prevent the Text#wmColorChild method from triggering a perpetual series of repaints
-private boolean bPrintingClient = false;
-
-LRESULT drawBufferedText (int /*long*/ hWnd) {
-	int /*long*/ paintDC = 0;
-	PAINTSTRUCT ps = new PAINTSTRUCT ();
-	paintDC = OS.BeginPaint (hWnd, ps);
-	
-	RECT rect = new RECT();
-	OS.GetClientRect(hWnd, rect);
-
-	// set up the buffered device context - the alpha will be set to 100%, making the device context entirely opaque
-	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
-	
-	if (hdcBuffered[0] != 0) {
-		// ask the Edit control to render itself into the buffered device context; note that this will result in
-		// the Edit control issuing a WM_CTLCOLOREDIT message and we need to set the 'bPrintingClient' flag to prevent
-		// a perpetual paint sequence from being triggered
-		bPrintingClient = true;
-		OS.SendMessage(hWnd, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
-		bPrintingClient = false;
-
-		// entirely opaque
-		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF);
-		OS.EndBufferedPaint(hBufferedPaint, true);
-	}
-
-	OS.EndPaint (handle, ps);
-	return LRESULT.ZERO;
 }
 
 }

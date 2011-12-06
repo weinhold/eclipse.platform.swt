@@ -478,6 +478,14 @@ void enableWidget (boolean enabled) {
 	}
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
+		return true;
+	}
+	return false;
+}
+
 ImageList getDisabledImageList () {
 	return disabledImageList;
 }
@@ -1493,6 +1501,11 @@ LRESULT WM_WINDOWPOSCHANGING (int /*long*/ wParam, int /*long*/ lParam) {
 	return result;
 }
 
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	// toolbar items are owner-draw during buffered painting
+	return null; 
+}
+
 LRESULT wmCommandChild (int /*long*/ wParam, int /*long*/ lParam) {
 	ToolItem child = items [OS.LOWORD (wParam)];
 	if (child == null) return null;
@@ -1564,7 +1577,7 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 				}
 				case OS.CDDS_ITEMPREPAINT: {
 					if (getBufferredPaint ()) {
-						// each ToolItem knows how to draw themself in an Aero/Glass friendly manner
+						// each ToolItem knows how to draw itself in an Aero/Glass friendly manner
 						ToolItem childItem = items [(int)/*64*/nmcd.dwItemSpec];
 						if (childItem != null) {
 							childItem.wmBufferedPaint (handle, wParam, lParam);
@@ -1615,19 +1628,6 @@ LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
 			break;
 	}
 	return super.wmNotifyChild (hdr, wParam, lParam);
-}
-
-boolean getBufferredPaint() {
-	Shell shell = getShell ();
-	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)) {
-		return true;
-	}
-	return false;
-}
-
-LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
-	// toolbar items are owner-draw during buffered painting
-	return null; 
 }
 
 }

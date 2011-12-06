@@ -146,6 +146,14 @@ int defaultForeground () {
 	return OS.GetSysColor (OS.COLOR_HIGHLIGHT);
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
+		return true;
+	}
+	return false;
+}
+
 /**
  * Returns the maximum value which the receiver will allow.
  *
@@ -445,14 +453,6 @@ LRESULT WM_TIMER (int /*long*/ wParam, int /*long*/ lParam) {
 	return result;
 }
 
-boolean getBufferredPaint() {
-	Shell shell = getShell ();
-	if (((shell.style & SWT.TRIM_FILL) != 0) && ((this.style & SWT.TRIM_FILL) != 0)) {
-		return true;
-	}
-	return false;
-}
-
 LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
 	int /*long*/ paintDC = 0;
 	PAINTSTRUCT ps = new PAINTSTRUCT ();
@@ -467,7 +467,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	
 	if (hdcBuffered[0] != 0) {
 		// ask the ProgressBar control to render itself into the buffered device context, entirely opaquely
-		OS.SendMessage(this.handle, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
+		OS.SendMessage(handle, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
 		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF); // 100% opaque
 		
 		// round off the corners by drawing them as transparent single pixels
