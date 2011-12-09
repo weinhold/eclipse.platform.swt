@@ -224,50 +224,33 @@ void destroyWidget () {
 }
 
 /*
- * Translates the item state into the equivalent button state.
- * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
- * @return
- */
-int determineButtonState (NMCUSTOMDRAW nmcd) {
-	int btnState = OS.TS_NORMAL;
-	
-	// translate the button state depending on the incoming item state
-	if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_HOTCHECKED; }
-	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_SELECTED) != 0) {btnState = OS.TS_PRESSED; }
-	else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) { btnState = OS.TS_HOT; }
-	else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) { btnState = OS.TS_PRESSED; }
-	else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) { btnState = OS.TS_CHECKED; }
-	return btnState;
-}
-
-/*
  * Draws the outline of the ToolItem. This will make the ToolItem appear as pressed, checked, hot or normal depending
  * on the UI state of the toolbar item.
  * @param hDC - device context to paint in
  * @param nmcd - the NMCUSTOMDRAW structure passed into owner-draw toolbar items
  */
 void drawItemOutline (int /*long*/ hDC, NMCUSTOMDRAW nmcd) {
-	RECT rectClient = new RECT();
+	RECT rectClient = new RECT ();
 	OS.SetRect (rectClient, nmcd.left, nmcd.top, nmcd.right, nmcd.bottom);
 	
 	// setup the theme parameters
-	int /*long*/ hTheme = display.hToolbarTheme(); 
-	int btnState = determineButtonState(nmcd);
+	int /*long*/ hTheme = display.hToolbarTheme (); 
+	int btnState = getButtonState (nmcd);
 
 	// draw the button outline, depending on if it's a regular button or a drop-down button
 	if ((style & SWT.DROP_DOWN) != 0) {
 		// drop-down button: left half is a button with a right edge that is not rounded
-		int dropDownWidth = OS.GetSystemMetrics(OS.SM_CXVSCROLL);
+		int dropDownWidth = OS.GetSystemMetrics (OS.SM_CXVSCROLL);
 		rectClient.right -= dropDownWidth;
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTON, btnState, rectClient, null);
+		OS.DrawThemeBackground (hTheme, hDC, OS.TP_SPLITBUTTON, btnState, rectClient, null);
 		
 		// drop-down button: right half is where the arrow is drawn
 		rectClient.left = rectClient.right;
 		rectClient.right += dropDownWidth;
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_SPLITBUTTONDROPDOWN, btnState, rectClient, null);
+		OS.DrawThemeBackground (hTheme, hDC, OS.TP_SPLITBUTTONDROPDOWN, btnState, rectClient, null);
 	} else {
 		// regular button
-		OS.DrawThemeBackground(hTheme, hDC, OS.TP_BUTTON, btnState, rectClient, null);
+		OS.DrawThemeBackground (hTheme, hDC, OS.TP_BUTTON, btnState, rectClient, null);
 	}
 }
 
@@ -291,6 +274,24 @@ public Rectangle getBounds () {
 	int width = rect.right - rect.left;
 	int height = rect.bottom - rect.top;
 	return new Rectangle (rect.left, rect.top, width, height);
+}
+
+int getButtonState (NMCUSTOMDRAW nmcd) {
+	int btnState = OS.TS_NORMAL;
+	
+	// translate the button state depending on the incoming item state
+	if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_CHECKED) != 0) {
+		btnState = OS.TS_HOTCHECKED; 
+	} else if ((nmcd.uItemState & OS.CDIS_HOT) != 0 && (nmcd.uItemState & OS.CDIS_SELECTED) != 0) {
+		btnState = OS.TS_PRESSED; 
+	} else if ((nmcd.uItemState & OS.CDIS_HOT) != 0) {
+		btnState = OS.TS_HOT;
+	} else if ((nmcd.uItemState & OS.CDIS_SELECTED) != 0) {
+		btnState = OS.TS_PRESSED;
+	} else if ((nmcd.uItemState & OS.CDIS_CHECKED) != 0) {
+		btnState = OS.TS_CHECKED;
+	}
+	return btnState;
 }
 
 /**
@@ -1074,7 +1075,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	final boolean drawImage = image != null;
 	final boolean drawText = text.length () != 0;
 	final boolean drawTextBelow = (parent.style & SWT.RIGHT) == 0;
-	final boolean drawDepressed = determineButtonState(nmcd) == OS.TS_HOTCHECKED || determineButtonState(nmcd) == OS.TS_CHECKED || determineButtonState(nmcd) == OS.TS_PRESSED; 
+	final boolean drawDepressed = getButtonState(nmcd) == OS.TS_HOTCHECKED || getButtonState(nmcd) == OS.TS_CHECKED || getButtonState(nmcd) == OS.TS_PRESSED; 
 	final int margin = drawText && drawImage && !drawTextBelow ? OWNERDRAW_MARGIN : 0;
 	final int width = rectClient.right - rectClient.left;
 	final int height = rectClient.bottom - rectClient.top;

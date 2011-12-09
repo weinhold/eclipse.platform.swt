@@ -56,7 +56,7 @@ import org.eclipse.swt.events.*;
  */
 public class Text extends Scrollable {
 	int tabs, oldStart, oldEnd;
-	boolean doubleClick, ignoreModify, ignoreVerify, ignoreCharacter, allowPasswordChar;
+	boolean doubleClick, ignoreModify, ignoreVerify, ignoreCharacter, ignoreColorChild, allowPasswordChar;
 	String message;
 	
 	/**
@@ -114,8 +114,7 @@ public class Text extends Scrollable {
 //		PASSWORD = echo != 0 ? echo : '*';
 	}
 
-	// this flag is used to prevent the Text#wmColorChild method from triggering a perpetual series of repaints
-	private boolean bPrintingClient = false;
+	boolean bPrintingClient = false;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -663,12 +662,9 @@ public int getBorderWidth () {
 	return super.getBorderWidth ();
 }
 
-boolean getBufferredPaint() {
+boolean getBufferredPaint () {
 	Shell shell = getShell ();
-	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
-		return true;
-	}
-	return false;
+	return (shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0;
 }
 
 /**
@@ -2505,23 +2501,23 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 	paintDC = OS.BeginPaint (hWnd, ps);
 	
 	RECT rect = new RECT();
-	OS.GetClientRect(hWnd, rect);
+	OS.GetClientRect (hWnd, rect);
 
 	// set up the buffered device context - the alpha will be set to 100%, making the device context entirely opaque
 	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
-	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint (paintDC, rect, OS.BPBF_TOPDOWNDIB, null, hdcBuffered);
 	
 	if (hdcBuffered[0] != 0) {
 		// ask the Edit control to render itself into the buffered device context; note that this will result in
 		// the Edit control issuing a WM_CTLCOLOREDIT message and we need to set the 'bPrintingClient' flag to prevent
 		// a perpetual paint sequence from being triggered
-		bPrintingClient = true;
-		OS.SendMessage(handle, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
-		bPrintingClient = false;
+		ignoreColorChild = true;
+		OS.SendMessage (handle, OS.WM_PRINTCLIENT, hdcBuffered [0], OS.PRF_CLIENT);
+		ignoreColorChild = false;
 
 		// entirely opaque
-		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF);
-		OS.EndBufferedPaint(hBufferedPaint, true);
+		OS.BufferedPaintSetAlpha (hBufferedPaint, rect, (byte)0xFF);
+		OS.EndBufferedPaint (hBufferedPaint, true);
 	}
 
 	OS.EndPaint (handle, ps);
@@ -2630,10 +2626,10 @@ LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
 	// a WM_CTLCOLOREDIT message is issued by the Win32 Edit control whenever it's about to be redrawn; the 
 	// Control#windowProc routes that message into here, and if glass is turned on we invalidate the window to 
 	// trigger a glass-aware repaint of the control
-	if (getBufferredPaint() && !bPrintingClient) {
-		RECT lpRect = new RECT();
-		OS.GetClientRect(handle, lpRect);
-		OS.InvalidateRect(handle, lpRect, false);
+	if (!ignoreColorChild && getBufferredPaint ()) {
+		RECT lpRect = new RECT ();
+		OS.GetClientRect (handle, lpRect);
+		OS.InvalidateRect (handle, lpRect, false);
 	}
 	
 	return super.wmColorChild (wParam, lParam);

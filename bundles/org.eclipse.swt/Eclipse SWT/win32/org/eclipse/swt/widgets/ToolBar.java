@@ -478,12 +478,9 @@ void enableWidget (boolean enabled) {
 	}
 }
 
-boolean getBufferredPaint() {
+boolean getBufferredPaint () {
 	Shell shell = getShell ();
-	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
-		return true;
-	}
-	return false;
+	return (shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0;
 }
 
 ImageList getDisabledImageList () {

@@ -58,7 +58,7 @@ import org.eclipse.swt.events.*;
  */
 
 public class Combo extends Composite {
-	boolean noSelection, ignoreDefaultSelection, ignoreCharacter, ignoreModify, ignoreResize, lockText;
+	boolean noSelection, ignoreDefaultSelection, ignoreCharacter, ignoreModify, ignoreResize, ignoreColorChild, lockText;
 	int scrollWidth, visibleCount;
 	int /*long*/ cbtHook;
 
@@ -97,8 +97,6 @@ public class Combo extends Composite {
 		ComboProc = lpWndClass.lpfnWndProc;
 	}
 	
-	// this flag is used to prevent the Text#wmColorChild method from triggering a perpetual series of repaints
-	private boolean bPrintingClient = false;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -676,9 +674,9 @@ LRESULT drawBufferedText (int /*long*/ hWnd) {
 		// ask the Edit control to render itself into the buffered device context; note that this will result in
 		// the Edit control issuing a WM_CTLCOLOREDIT message and we need to set the 'bPrintingClient' flag to prevent
 		// a perpetual paint sequence from being triggered
-		bPrintingClient = true;
-		OS.SendMessage(hWnd, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
-		bPrintingClient = false;
+		ignoreColorChild = true;
+		OS.SendMessage (hWnd, OS.WM_PRINTCLIENT, hdcBuffered[0], OS.PRF_CLIENT);
+		ignoreColorChild = false;
 
 		// entirely opaque
 		OS.BufferedPaintSetAlpha(hBufferedPaint, rect, (byte)0xFF);
@@ -689,10 +687,9 @@ LRESULT drawBufferedText (int /*long*/ hWnd) {
 	return LRESULT.ZERO;
 }
 
-boolean getBufferredPaint() {
+boolean getBufferredPaint () {
 	Shell shell = getShell ();
-	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) return true;
-	return false;
+	return (shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0; 
 }
 
 /**
@@ -2584,18 +2581,19 @@ LRESULT wmClipboard (int /*long*/ hwndText, int msg, int /*long*/ wParam, int /*
 }
 
 LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
-	int /*long*/ hwndEdit = OS.GetDlgItem (handle, CBID_EDIT);
-	if (lParam == hwndEdit) {
-		// a WM_CTLCOLOREDIT message is issued by the Win32 Edit control whenever it's about to be redrawn; the 
-		// Control#windowProc routes that message into here, and if glass is turned on we invalidate the window to 
-		// trigger a glass-aware repaint of the control
-		if (getBufferredPaint() && !bPrintingClient) {
-			RECT lpRect = new RECT();
-			OS.GetClientRect(hwndEdit, lpRect);
-			OS.InvalidateRect(hwndEdit, lpRect, false);
+	if (!ignoreColorChild) {
+		int /*long*/ hwndEdit = OS.GetDlgItem (handle, CBID_EDIT);
+		if (lParam == hwndEdit) {
+			// a WM_CTLCOLOREDIT message is issued by the Win32 Edit control whenever it's about to be redrawn; the 
+			// Control#windowProc routes that message into here, and if glass is turned on we invalidate the window to 
+			// trigger a glass-aware repaint of the control
+			if (getBufferredPaint ()) {
+				RECT lpRect = new RECT ();
+				OS.GetClientRect (hwndEdit, lpRect);
+				OS.InvalidateRect (hwndEdit, lpRect, false);
+			}
 		}
 	}
-	
 	return super.wmColorChild (wParam, lParam);
 }
 
