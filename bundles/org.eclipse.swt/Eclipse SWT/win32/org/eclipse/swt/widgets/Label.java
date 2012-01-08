@@ -706,8 +706,7 @@ LRESULT wmDrawChild (int /*long*/ wParam, int /*long*/ lParam) {
 				} else {
 					int /*long*/ hFont = OS.SendMessage(this.handle, OS.WM_GETFONT, 0, 0);
 					int color = 0x000000;
-					int dwFlags = 0;
-					drawBufferredText(struct.hDC, buffer, rect, hFont, color, dwFlags);				
+					drawBufferredText(struct.hDC, buffer, rect, hFont, color, flags);				
 				}
 			}
 		}
