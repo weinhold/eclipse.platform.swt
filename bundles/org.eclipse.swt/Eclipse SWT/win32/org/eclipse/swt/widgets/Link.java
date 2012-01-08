@@ -154,7 +154,7 @@ public void addSelectionListener (SelectionListener listener) {
 
 int /*long*/ callWindowProc (int /*long*/ hwnd, int msg, int /*long*/ wParam, int /*long*/ lParam) {
 	if (handle == 0) return 0;
-	if (LinkProc != 0) {
+	if (LinkProc != 0 && !getBufferredPaint()) {
 		/*
 		* Feature in Windows.  By convention, native Windows controls
 		* check for a non-NULL wParam, assume that it is an HDC and
@@ -179,7 +179,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
 	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
 	int width, height;
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		int /*long*/ hDC = OS.GetDC (handle);
 		int /*long*/ newFont = OS.SendMessage (handle, OS.WM_GETFONT, 0, 0);
 		int /*long*/ oldFont = OS.SelectObject (hDC, newFont);
@@ -229,7 +229,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 void createHandle () {
 	super.createHandle ();
 	state |= THEME_BACKGROUND;
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		layout = new TextLayout (display);
 		if (!OS.IsWinCE && OS.WIN32_VERSION >= OS.VERSION (4, 10)) {
 			linkColor = Color.win32_new (display, OS.GetSysColor (OS.COLOR_HOTLIGHT));
@@ -248,11 +248,44 @@ void createHandle () {
 void createWidget () {
 	super.createWidget ();
 	text = "";
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		if ((style & SWT.MIRRORED) != 0) {
 			layout.setOrientation (SWT.RIGHT_TO_LEFT);
 		}
 		initAccessible ();
+	}
+}
+
+void drawBufferredTextRun(int /*long*/ targetDC, String parsedText, int runStart, int runEnd, int /*long*/ hFont) {
+	if (runStart >=  runEnd)
+		return;
+	
+	int color = 0x000000;
+	boolean underline = false;
+	TextStyle style = layout.getStyle(runStart);
+	if (style != null) {
+		color = (style.foreground.getBlue() << 16) + (style.foreground.getGreen() << 8) + style.foreground.getRed();
+		underline = style.underline;
+	}
+	
+	Rectangle bounds = layout.getBounds(runStart, runEnd-1);
+	String runText = parsedText.substring(runStart, runEnd);
+	TCHAR runBuffer = new TCHAR (getCodePage (), runText, true);
+	
+	RECT drawRect = new RECT();
+	drawRect.left = bounds.x;
+	drawRect.top = bounds.y;
+	drawRect.right = bounds.x + bounds.width;
+	drawRect.bottom = bounds.y + bounds.height;
+	drawBufferredText(targetDC, runBuffer, drawRect, hFont, color, 0);
+
+	if (underline) {
+		TEXTMETRIC tm = OS.IsUnicode ? (TEXTMETRIC)new TEXTMETRICW() : new TEXTMETRICA();
+		OS.GetTextMetrics(targetDC, tm);
+		int underlineY = drawRect.bottom - tm.tmDescent;
+		
+		OS.MoveToEx(targetDC, drawRect.left, underlineY, 0);
+		OS.LineTo(targetDC, drawRect.right, underlineY);
 	}
 }
 
@@ -288,7 +321,7 @@ void drawWidget (GC gc, RECT rect) {
 }
 
 void enableWidget (boolean enabled) {
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		LITEM item = new LITEM ();
 		item.mask = OS.LIF_ITEMINDEX | OS.LIF_STATE;
 		item.stateMask = OS.LIS_ENABLED;
@@ -363,6 +396,14 @@ void initAccessible () {
 	});
 }
 
+boolean getBufferredPaint() {
+	Shell shell = getShell ();
+	if ((shell.style & SWT.TRIM_FILL) != 0 && (style & SWT.TRIM_FILL) != 0) {
+		return true;
+	}
+	return false;
+}
+
 String getNameText () {
 	return getText ();
 }
@@ -421,7 +462,7 @@ boolean mnemonicHit (char key) {
 				char mnemonic = parsedText.charAt(mnemonics[i]);
 				if (uckey == Character.toUpperCase (mnemonic)) {
 					if (!setFocus ()) return false;
-					if (OS.COMCTL32_MAJOR >= 6) {
+					if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 						int bits = OS.GetWindowLong (handle, OS.GWL_STYLE);
 						LITEM item = new LITEM ();
 						item.mask = OS.LIF_ITEMINDEX | OS.LIF_STATE;
@@ -695,7 +736,7 @@ public void setText (String string) {
 	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (string.equals (text)) return;
 	text = string;	
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		boolean enabled = OS.IsWindowEnabled (handle);
 		/*
 		* Bug in Windows.  For some reason, when SetWindowText()
@@ -744,17 +785,17 @@ int widgetStyle () {
 }
 
 TCHAR windowClass () {
-	return OS.COMCTL32_MAJOR >= 6 ? LinkClass : display.windowClass;
+	return OS.COMCTL32_MAJOR >= 6  && !getBufferredPaint() ? LinkClass : display.windowClass;
 }
 
 int /*long*/ windowProc () {
-	return LinkProc != 0 ? LinkProc : display.windowProc;
+	return LinkProc != 0  && !getBufferredPaint() ? LinkProc : display.windowProc;
 }
 
 LRESULT WM_CHAR (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_CHAR (wParam, lParam);
 	if (result != null) return result;
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		if (focusIndex == -1) return result;
 		switch ((int)/*64*/wParam) {
 			case ' ':
@@ -802,7 +843,7 @@ LRESULT WM_GETDLGCODE (int /*long*/ wParam, int /*long*/ lParam) {
 	if (result != null) return result;
 	int index, count;
 	int /*long*/ code = 0;
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		LITEM item = new LITEM ();
 		item.mask = OS.LIF_ITEMINDEX | OS.LIF_STATE;
 		item.stateMask = OS.LIS_FOCUSED;
@@ -844,7 +885,7 @@ LRESULT WM_GETFONT (int /*long*/ wParam, int /*long*/ lParam) {
 LRESULT WM_KEYDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_KEYDOWN (wParam, lParam);
 	if (result != null) return result;
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		switch ((int)/*64*/wParam) {
 			case OS.VK_SPACE:
 			case OS.VK_RETURN:
@@ -863,14 +904,14 @@ LRESULT WM_KEYDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 
 LRESULT WM_KILLFOCUS (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_KILLFOCUS (wParam, lParam);
-	if (OS.COMCTL32_MAJOR < 6) redraw ();
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) redraw ();
 	return result;
 }
 
 LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_LBUTTONDOWN (wParam, lParam);
 	if (result == LRESULT.ZERO) return result;
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		if (focusIndex != -1) setFocus ();
 		int x = OS.GET_X_LPARAM (lParam);
 		int y = OS.GET_Y_LPARAM (lParam);
@@ -908,7 +949,7 @@ LRESULT WM_LBUTTONDOWN (int /*long*/ wParam, int /*long*/ lParam) {
 LRESULT WM_LBUTTONUP (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_LBUTTONUP (wParam, lParam);
 	if (result == LRESULT.ZERO) return result;
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		if (mouseDownIndex == -1) return result;
 		int x = OS.GET_X_LPARAM (lParam);
 		int y = OS.GET_Y_LPARAM (lParam);
@@ -936,14 +977,14 @@ LRESULT WM_NCHITTEST (int /*long*/ wParam, int /*long*/ lParam) {
 	* returns HTTRANSPARENT when mouse is over plain text. The fix is
 	* to always return HTCLIENT.
 	*/
-	if (OS.COMCTL32_MAJOR >= 6) return new LRESULT (OS.HTCLIENT);
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) return new LRESULT (OS.HTCLIENT);
 	
 	return result;
 }
 
 LRESULT WM_MOUSEMOVE (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_MOUSEMOVE (wParam, lParam);
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		int x = OS.GET_X_LPARAM (lParam);
 		int y = OS.GET_Y_LPARAM (lParam);
 		if (OS.GetKeyState (OS.VK_LBUTTON) < 0) {
@@ -1000,7 +1041,7 @@ LRESULT WM_PAINT (int /*long*/ wParam, int /*long*/ lParam) {
 
 LRESULT WM_PRINTCLIENT (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_PRINTCLIENT (wParam, lParam);
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		GCData data = new GCData ();
@@ -1015,12 +1056,12 @@ LRESULT WM_PRINTCLIENT (int /*long*/ wParam, int /*long*/ lParam) {
 
 LRESULT WM_SETFOCUS (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_SETFOCUS (wParam, lParam);
-	if (OS.COMCTL32_MAJOR < 6) redraw ();
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) redraw ();
 	return result;
 }
 
 LRESULT WM_SETFONT (int /*long*/ wParam, int /*long*/ lParam) {
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		layout.setFont (Font.win32_new (display, wParam));
 	}
 	if (lParam != 0) OS.InvalidateRect (handle, null, true);
@@ -1029,13 +1070,82 @@ LRESULT WM_SETFONT (int /*long*/ wParam, int /*long*/ lParam) {
 
 LRESULT WM_SIZE (int /*long*/ wParam, int /*long*/ lParam) {
 	LRESULT result = super.WM_SIZE (wParam, lParam);
-	if (OS.COMCTL32_MAJOR < 6) {
+	if (OS.COMCTL32_MAJOR < 6 || getBufferredPaint()) {
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		layout.setWidth (rect.right > 0 ? rect.right : -1);
 		redraw ();
 	}
 	return result;
+}
+
+LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lParam) {
+	PAINTSTRUCT ps = new PAINTSTRUCT ();
+	int /*long*/ paintDC = OS.BeginPaint (hWnd, ps);
+	
+	RECT rect = new RECT();
+	OS.GetClientRect(hWnd, rect);
+
+	BP_PAINTPARAMS params = new BP_PAINTPARAMS();
+	params.cbSize = BP_PAINTPARAMS.sizeof;
+	params.dwFlags = OS.BPPF_ERASE;
+	int /*long*/ [] hdcBuffered = new int /*long*/ [1];
+	int /*long*/ hBufferedPaint = OS.BeginBufferedPaint(paintDC, rect, OS.BPBF_TOPDOWNDIB, params, hdcBuffered);
+	
+	if (hdcBuffered[0] != 0) {
+		String parsedText = parse (text);
+		int /*long*/ hFont = OS.SendMessage(this.handle, OS.WM_GETFONT, 0, 0);
+		int /*long*/ prevFont = OS.SelectObject(hdcBuffered[0], hFont);
+		
+		int [] styleOffsets = layout.getRanges();
+		int [] lineOffsets = layout.getLineOffsets();
+		for (int i=1; i<styleOffsets.length; i+=2) {
+			styleOffsets[i]++; // every other offset in incremented by 1 
+		}
+		
+		int nextLine = 1;
+		for (int i=0; i<=styleOffsets.length; i++) {
+			int runStart = (i > 0) ? styleOffsets [i-1] : 0;
+			int runEnd = (i < styleOffsets.length) ? styleOffsets[i] : parsedText.length();
+			
+			// skip leading whitespace characters since the lineOffsets from TextLayout have already done likewise
+			while(Character.isWhitespace(parsedText.charAt(runStart)) && runStart < runEnd) {
+				runStart++;
+			}
+			
+			// see if we have exceeeded the extents of the current line, and if so draw the truncated text run
+			if (nextLine < lineOffsets.length && lineOffsets[nextLine] < runEnd) {
+				int truncated = lineOffsets[nextLine];
+				drawBufferredTextRun(hdcBuffered[0], parsedText, runStart, truncated, hFont);
+				
+				// move to the beginning of the next line
+				runStart = lineOffsets[nextLine];
+				nextLine++;
+			}
+			
+			drawBufferredTextRun(hdcBuffered[0], parsedText, runStart, runEnd, hFont);
+		}
+		
+		if (hasFocus () && focusIndex != -1) {
+			Rectangle [] rects = getRectangles (focusIndex);
+			for (int i = 0; i < rects.length; i++) {
+				Rectangle rectangle = rects [i];
+				RECT focusRect = new RECT();
+				focusRect.left = rectangle.x;
+				focusRect.top = rectangle.y;
+				focusRect.right = rectangle.x + rectangle.width;
+				focusRect.bottom = rectangle.y + rectangle.height;
+				
+				OS.DrawFocusRect (hdcBuffered[0], focusRect);					
+			}
+		}
+		
+		OS.SelectObject(hdcBuffered[0], prevFont);
+		OS.EndBufferedPaint(hBufferedPaint, true);
+	}
+
+	OS.EndPaint (handle, ps);
+	return LRESULT.ZERO;
 }
 
 LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
@@ -1045,7 +1155,7 @@ LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
 	* not gray out the non-link portion of the text.  The fix
 	* is to set the text color to the system gray color.
 	*/
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		if (!OS.IsWindowEnabled (handle)) {
 			OS.SetTextColor (wParam, OS.GetSysColor (OS.COLOR_GRAYTEXT));
 			if (result == null) {
@@ -1060,7 +1170,7 @@ LRESULT wmColorChild (int /*long*/ wParam, int /*long*/ lParam) {
 }
 
 LRESULT wmNotifyChild (NMHDR hdr, int /*long*/ wParam, int /*long*/ lParam) {
-	if (OS.COMCTL32_MAJOR >= 6) {
+	if (OS.COMCTL32_MAJOR >= 6 && !getBufferredPaint()) {
 		switch (hdr.code) {
 			case OS.NM_RETURN:
 			case OS.NM_CLICK:
