@@ -264,7 +264,7 @@ void drawBufferredTextRun(int /*long*/ targetDC, String parsedText, int runStart
 	boolean underline = false;
 	TextStyle style = layout.getStyle(runStart);
 	if (style != null) {
-		color = (style.foreground.getBlue() << 16) + (style.foreground.getGreen() << 8) + style.foreground.getRed();
+		color = style.foreground.handle;
 		underline = style.underline;
 	}
 	
@@ -1109,7 +1109,7 @@ LRESULT wmBufferedPaint (int /*long*/ hWnd, int /*long*/ wParam, int /*long*/ lP
 			int runEnd = (i < styleOffsets.length) ? styleOffsets[i] : parsedText.length();
 			
 			// skip leading whitespace characters since the lineOffsets from TextLayout have already done likewise
-			while(Character.isWhitespace(parsedText.charAt(runStart)) && runStart < runEnd) {
+			while(runStart < runEnd && Character.isWhitespace(parsedText.charAt(runStart))) {
 				runStart++;
 			}
 			
