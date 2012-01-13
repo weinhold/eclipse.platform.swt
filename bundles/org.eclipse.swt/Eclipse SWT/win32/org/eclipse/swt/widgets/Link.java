@@ -264,8 +264,17 @@ void drawBufferredTextRun(int /*long*/ targetDC, String parsedText, int runStart
 	boolean underline = false;
 	TextStyle style = layout.getStyle(runStart);
 	if (style != null) {
-		color = style.foreground.handle;
+		if (style.foreground != null) {
+			color = style.foreground.handle;
+		}
 		underline = style.underline;
+	}
+	
+	if (underline) {
+		LOGFONT logFont = OS.IsUnicode ? (LOGFONT)new LOGFONTW () : new LOGFONTA ();
+		OS.GetObject(hFont, LOGFONT.sizeof, logFont);
+		logFont.lfUnderline = 0x01;
+		hFont = OS.CreateFontIndirect(logFont);
 	}
 	
 	Rectangle bounds = layout.getBounds(runStart, runEnd-1);
@@ -280,12 +289,7 @@ void drawBufferredTextRun(int /*long*/ targetDC, String parsedText, int runStart
 	drawBufferredText(targetDC, runBuffer, drawRect, hFont, color, 0);
 
 	if (underline) {
-		TEXTMETRIC tm = OS.IsUnicode ? (TEXTMETRIC)new TEXTMETRICW() : new TEXTMETRICA();
-		OS.GetTextMetrics(targetDC, tm);
-		int underlineY = drawRect.bottom - tm.tmDescent;
-		
-		OS.MoveToEx(targetDC, drawRect.left, underlineY, 0);
-		OS.LineTo(targetDC, drawRect.right, underlineY);
+		OS.DeleteObject(hFont);
 	}
 }
 
