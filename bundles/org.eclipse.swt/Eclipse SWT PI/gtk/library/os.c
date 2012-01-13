@@ -267,6 +267,18 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(GTK_1TEXTVIEW_1IM_1CONTEXT)
 }
 #endif
 
+#ifndef NO_GTK_1TOOLTIPS_1GET_1TIP_1TEXT
+JNIEXPORT jintLong JNICALL OS_NATIVE(GTK_1TOOLTIPS_1GET_1TIP_1TEXT)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	jintLong rc = 0;
+	OS_NATIVE_ENTER(env, that, GTK_1TOOLTIPS_1GET_1TIP_1TEXT_FUNC);
+	rc = (jintLong)GTK_TOOLTIPS_GET_TIP_TEXT((GtkTooltipsData *)arg0);
+	OS_NATIVE_EXIT(env, that, GTK_1TOOLTIPS_1GET_1TIP_1TEXT_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_GTK_1TOOLTIPS_1SET_1ACTIVE
 JNIEXPORT void JNICALL OS_NATIVE(GTK_1TOOLTIPS_1SET_1ACTIVE)
 	(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
@@ -5011,6 +5023,16 @@ JNIEXPORT void JNICALL OS_NATIVE(_1gdk_1cairo_1set_1source_1color)
 fail:
 	if (arg1 && lparg1) setGdkColorFields(env, arg1, lparg1);
 	OS_NATIVE_EXIT(env, that, _1gdk_1cairo_1set_1source_1color_FUNC);
+}
+#endif
+
+#ifndef NO__1gdk_1color_1free
+JNIEXPORT void JNICALL OS_NATIVE(_1gdk_1color_1free)
+	(JNIEnv *env, jclass that, jintLong arg0)
+{
+	OS_NATIVE_ENTER(env, that, _1gdk_1color_1free_FUNC);
+	gdk_color_free((GdkColor *)arg0);
+	OS_NATIVE_EXIT(env, that, _1gdk_1color_1free_FUNC);
 }
 #endif
 
