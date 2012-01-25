@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2000, 2012 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -18,8 +18,8 @@
 
 #ifdef NATIVE_STATS
 
-int OS_nativeFunctionCount = 1381;
-int OS_nativeFunctionCallCount[1381];
+int OS_nativeFunctionCount = 1380;
+int OS_nativeFunctionCallCount[1380];
 char * OS_nativeFunctionNames[] = {
 #ifndef JNI64
 	"Call__IIII",
@@ -430,6 +430,7 @@ char * OS_nativeFunctionNames[] = {
 	"_1gdk_1cairo_1region",
 	"_1gdk_1cairo_1reset_1clip",
 	"_1gdk_1cairo_1set_1source_1color",
+	"_1gdk_1cairo_1set_1source_1window",
 	"_1gdk_1color_1free",
 	"_1gdk_1color_1white",
 	"_1gdk_1colormap_1alloc_1color",
@@ -473,7 +474,6 @@ char * OS_nativeFunctionNames[] = {
 	"_1gdk_1event_1peek",
 	"_1gdk_1event_1put",
 	"_1gdk_1flush",
-	"_1gdk_1free_1text_1list",
 	"_1gdk_1gc_1get_1values",
 	"_1gdk_1gc_1new",
 	"_1gdk_1gc_1set_1background",
@@ -516,7 +516,6 @@ char * OS_nativeFunctionNames[] = {
 	"_1gdk_1pixbuf_1new_1from_1file",
 	"_1gdk_1pixbuf_1render_1pixmap_1and_1mask",
 	"_1gdk_1pixbuf_1render_1to_1drawable",
-	"_1gdk_1pixbuf_1render_1to_1drawable_1alpha",
 	"_1gdk_1pixbuf_1save_1to_1bufferv",
 	"_1gdk_1pixbuf_1scale",
 	"_1gdk_1pixbuf_1scale_1simple",
@@ -540,7 +539,6 @@ char * OS_nativeFunctionNames[] = {
 	"_1gdk_1region_1subtract",
 	"_1gdk_1region_1union",
 	"_1gdk_1region_1union_1with_1rect",
-	"_1gdk_1rgb_1init",
 	"_1gdk_1screen_1get_1default",
 	"_1gdk_1screen_1get_1monitor_1at_1point",
 	"_1gdk_1screen_1get_1monitor_1at_1window",
@@ -560,6 +558,7 @@ char * OS_nativeFunctionNames[] = {
 	"_1gdk_1window_1at_1pointer",
 	"_1gdk_1window_1begin_1paint_1rect",
 	"_1gdk_1window_1clear_1area",
+	"_1gdk_1window_1create_1similar_1surface",
 	"_1gdk_1window_1destroy",
 	"_1gdk_1window_1end_1paint",
 	"_1gdk_1window_1focus",

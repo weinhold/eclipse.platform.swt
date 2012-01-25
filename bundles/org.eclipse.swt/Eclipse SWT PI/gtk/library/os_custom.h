@@ -126,9 +126,14 @@
 #define gtk_menu_item_remove_submenu_LIB LIB_GTK
 #define gtk_menu_shell_set_take_focus_LIB LIB_GTK
 #define gtk_window_set_keep_below_LIB LIB_GTK
+#define gtk_set_locale_LIB LIB_GTK
 #define gtk_toolbar_set_orientation_LIB LIB_GTK
 #define gtk_tooltip_trigger_tooltip_query_LIB LIB_GTK
 #define gtk_tooltips_set_tip_LIB LIB_GTK
+#define gtk_tooltips_enable_LIB LIB_GTK
+#define gtk_tooltips_disable_LIB LIB_GTK
+#define gtk_tooltips_data_get_LIB LIB_GTK
+#define gtk_tooltips_force_window_LIB LIB_GTK
 #define gtk_tree_selection_count_selected_rows_LIB LIB_GTK
 #define gtk_tree_selection_get_selected_rows_LIB LIB_GTK
 #define gtk_tree_view_column_get_cell_renderers_LIB LIB_GTK
@@ -159,6 +164,7 @@
 #define gtk_status_icon_position_menu_LIB LIB_GTK
 #define gtk_window_get_group_LIB LIB_GTK
 #define gtk_window_get_opacity_LIB LIB_GTK
+#define gdk_window_create_similar_surface_LIB LIB_GDK
 #define gdk_window_restack_LIB LIB_GDK
 #define gdk_window_set_keep_above_LIB LIB_GDK
 #define gdk_window_set_accept_focus_LIB LIB_GDK
@@ -191,6 +197,7 @@
 #define pango_cairo_font_map_set_resolution_LIB LIB_PANGOCAIRO
 #define gdk_cairo_reset_clip_LIB LIB_GDK
 #define gdk_cairo_set_source_color_LIB LIB_GDK
+#define gdk_cairo_set_source_window_LIB LIB_GDK
 #define gdk_cairo_region_LIB LIB_GDK
 #define gdk_cairo_create_LIB LIB_GDK
 #define gtk_enumerate_printers_LIB LIB_GTK

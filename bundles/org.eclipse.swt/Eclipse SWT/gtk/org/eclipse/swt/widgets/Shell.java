@@ -725,7 +725,9 @@ int /*long*/ filterProc (int /*long*/ xEvent, int /*long*/ gdkEvent, int /*long*
 					case OS.NotifyNonlinear:
 					case OS.NotifyNonlinearVirtual:
 					case OS.NotifyAncestor:
-						if (tooltipsHandle != 0) OS.gtk_tooltips_enable (tooltipsHandle);
+						if (tooltipsHandle != 0 && OS.GTK_VERSION < OS.VERSION (2, 12, 0)) {
+						    OS.gtk_tooltips_enable (tooltipsHandle);
+						}
 						display.activeShell = this;
 						display.activePending = false;
 						sendEvent (SWT.Activate);
@@ -743,7 +745,9 @@ int /*long*/ filterProc (int /*long*/ xEvent, int /*long*/ gdkEvent, int /*long*
 					case OS.NotifyNonlinear:
 					case OS.NotifyNonlinearVirtual:
 					case OS.NotifyVirtual:
-						if (tooltipsHandle != 0) OS.gtk_tooltips_disable (tooltipsHandle);
+						if (tooltipsHandle != 0 && OS.GTK_VERSION < OS.VERSION (2, 12, 0)) {
+							OS.gtk_tooltips_disable (tooltipsHandle);
+						}
 						Display display = this.display;
 						sendEvent (SWT.Deactivate);
 						setActiveControl (null);
@@ -2470,6 +2474,8 @@ void setToolTipText (int /*long*/ rootWidget, int /*long*/ tipWidget, String str
 		* Bug in Solaris-GTK.  Invoking gtk_tooltips_force_window()
 		* can cause a crash in older versions of GTK.  The fix is
 		* to avoid this call if the GTK version is older than 2.2.x.
+		* The call is to be avoided on GTK versions newer than 2.12.0
+		* where it's deprecated.
 		*/
 		if (OS.GTK_VERSION >= OS.VERSION (2, 2, 1)) {
 			OS.gtk_tooltips_force_window (tooltipsHandle);

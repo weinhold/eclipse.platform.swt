@@ -577,12 +577,6 @@ public String [] getSelection () {
 public int getSelectionCount () {
 	checkWidget();
 	int /*long*/ selection = OS.gtk_tree_view_get_selection (handle);
-	if (OS.GTK_VERSION < OS.VERSION (2, 2, 0)) {
-		display.treeSelectionLength = 0;
-		display.treeSelection = null;
-		OS.gtk_tree_selection_selected_foreach (selection, display.treeSelectionProc, handle);
-		return display.treeSelectionLength;
-	}
 	return OS.gtk_tree_selection_count_selected_rows (selection);
 }
 
@@ -600,21 +594,7 @@ public int getSelectionCount () {
 public int getSelectionIndex () {
 	checkWidget();
 	int /*long*/ selection = OS.gtk_tree_view_get_selection (handle);
-	if (OS.GTK_VERSION < OS.VERSION (2, 2, 0)) {
-		int itemCount = OS.gtk_tree_model_iter_n_children (modelHandle, 0);
-		display.treeSelectionLength  = 0;
-		display.treeSelection = new int [itemCount];
-		OS.gtk_tree_selection_selected_foreach (selection, display.treeSelectionProc, handle);
-		if (display.treeSelectionLength == 0) return -1;
-		return display.treeSelection [0];
-	}
-	/*
-	* Bug in GTK.  gtk_tree_selection_get_selected_rows() segmentation faults
-	* in versions smaller than 2.2.4 if the model is NULL.  The fix is
-	* to give a valid pointer instead.
-	*/
-	int /*long*/ [] model = OS.GTK_VERSION < OS.VERSION (2, 2, 4) ? new int /*long*/ [1] : null;
-	int /*long*/ list = OS.gtk_tree_selection_get_selected_rows (selection, model);
+	int /*long*/ list = OS.gtk_tree_selection_get_selected_rows (selection, null);
 	if (list != 0) {
 		int count = OS.g_list_length (list);
 		int [] index = new int [1];
@@ -656,23 +636,7 @@ public int getSelectionIndex () {
 public int [] getSelectionIndices () {
 	checkWidget();
 	int /*long*/ selection = OS.gtk_tree_view_get_selection (handle);
-	if (OS.GTK_VERSION < OS.VERSION (2, 2, 0)) {
-		int itemCount = OS.gtk_tree_model_iter_n_children (modelHandle, 0);
-		display.treeSelectionLength  = 0;
-		display.treeSelection = new int [itemCount];
-		OS.gtk_tree_selection_selected_foreach (selection, display.treeSelectionProc, handle);
-		if (display.treeSelectionLength == display.treeSelection.length) return display.treeSelection;
-		int [] result = new int [display.treeSelectionLength];
-		System.arraycopy (display.treeSelection, 0, result, 0, display.treeSelectionLength);
-		return result;
-	}
-	/*
-	* Bug in GTK.  gtk_tree_selection_get_selected_rows() segmentation faults
-	* in versions smaller than 2.2.4 if the model is NULL.  The fix is
-	* to give a valid pointer instead.
-	*/
-	int /*long*/ [] model = OS.GTK_VERSION < OS.VERSION (2, 2, 4) ? new int /*long*/ [1] : null;
-	int /*long*/ list = OS.gtk_tree_selection_get_selected_rows (selection, model);
+	int /*long*/ list = OS.gtk_tree_selection_get_selected_rows (selection, null);
 	if (list != 0) {
 		int count = OS.g_list_length (list);
 		int [] treeSelection = new int [count];
@@ -797,29 +761,6 @@ int /*long*/ gtk_button_press_event (int /*long*/ widget, int /*long*/ event) {
 	*/
 	if (!OS.GTK_WIDGET_HAS_FOCUS (handle)) {
 		OS.gtk_widget_grab_focus (handle);
-	}
-	return result;
-}
-
-int /*long*/ gtk_key_press_event (int /*long*/ widget, int /*long*/ event) {
-	int /*long*/ result = super.gtk_key_press_event (widget, event);
-	if (result != 0) return result;
-	if (OS.GTK_VERSION < OS.VERSION (2, 2 ,0)) {
-		/*
-		* Feature in GTK 2.0.x.  When an item is default selected using
-		* the return key, GTK does not issue notification. The fix is
-		* to issue this notification when the return key is pressed.
-		*/
-		GdkEventKey keyEvent = new GdkEventKey ();
-		OS.memmove (keyEvent, event, GdkEventKey.sizeof);
-		int key = keyEvent.keyval;
-		switch (key) {
-			case OS.GDK_Return:
-			case OS.GDK_KP_Enter: {
-				sendSelectionEvent (SWT.DefaultSelection);
-				break;
-			}
-		}
 	}
 	return result;
 }
@@ -1607,18 +1548,6 @@ public void showSelection () {
 	}
 	OS.gtk_tree_path_free (path);
 	OS.g_free (iter);
-}
-
-int /*long*/ treeSelectionProc (int /*long*/ model, int /*long*/ path, int /*long*/ iter, int[] selection, int length) {
-	if (selection != null) { 
-		int /*long*/ indices = OS.gtk_tree_path_get_indices (path);
-		if (indices != 0) {
-			int [] index = new int [1];
-			OS.memmove (index, indices, 4);
-			selection [length] = index [0];
-		}
-	}
-	return 0;
 }
 
 }
