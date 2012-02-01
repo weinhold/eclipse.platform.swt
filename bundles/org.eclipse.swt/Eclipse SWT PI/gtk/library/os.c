@@ -5966,7 +5966,15 @@ JNIEXPORT void JNICALL OS_NATIVE(_1gdk_1pango_1context_1set_1colormap)
 	(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
 {
 	OS_NATIVE_ENTER(env, that, _1gdk_1pango_1context_1set_1colormap_FUNC);
+/*
 	gdk_pango_context_set_colormap((PangoContext *)arg0, (GdkColormap *)arg1);
+*/
+	{
+		OS_LOAD_FUNCTION(fp, gdk_pango_context_set_colormap)
+		if (fp) {
+			((void (CALLING_CONVENTION*)(PangoContext *, GdkColormap *))fp)((PangoContext *)arg0, (GdkColormap *)arg1);
+		}
+	}
 	OS_NATIVE_EXIT(env, that, _1gdk_1pango_1context_1set_1colormap_FUNC);
 }
 #endif
@@ -7699,24 +7707,6 @@ JNIEXPORT void JNICALL OS_NATIVE(_1gtk_1calendar_1clear_1marks)
 		}
 	}
 	OS_NATIVE_EXIT(env, that, _1gtk_1calendar_1clear_1marks_FUNC);
-}
-#endif
-
-#ifndef NO__1gtk_1calendar_1display_1options
-JNIEXPORT void JNICALL OS_NATIVE(_1gtk_1calendar_1display_1options)
-	(JNIEnv *env, jclass that, jintLong arg0, jint arg1)
-{
-	OS_NATIVE_ENTER(env, that, _1gtk_1calendar_1display_1options_FUNC);
-/*
-	gtk_calendar_display_options((GtkCalendar *)arg0, (GtkCalendarDisplayOptions)arg1);
-*/
-	{
-		OS_LOAD_FUNCTION(fp, gtk_calendar_display_options)
-		if (fp) {
-			((void (CALLING_CONVENTION*)(GtkCalendar *, GtkCalendarDisplayOptions))fp)((GtkCalendar *)arg0, (GtkCalendarDisplayOptions)arg1);
-		}
-	}
-	OS_NATIVE_EXIT(env, that, _1gtk_1calendar_1display_1options_FUNC);
 }
 #endif
 

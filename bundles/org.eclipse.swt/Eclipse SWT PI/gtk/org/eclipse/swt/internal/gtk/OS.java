@@ -4538,6 +4538,7 @@ public static final int /*long*/ gdk_pango_context_get() {
 	}
 }
 /**
+ * @method flags=dynamic 
  * @param context cast=(PangoContext *)
  * @param colormap cast=(GdkColormap *)
  */
@@ -6077,20 +6078,6 @@ public static final void gtk_calendar_set_display_options(int /*long*/ calendar,
 	lock.lock();
 	try {
 		_gtk_calendar_set_display_options(calendar, flags);
-	} finally {
-		lock.unlock();
-	}
-}
-/**
- * @method flags=dynamic
- * @param calendar cast=(GtkCalendar *)
- * @param flags cast=(GtkCalendarDisplayOptions)
- */
-public static final native void _gtk_calendar_display_options(int /*long*/ calendar, int flags);
-public static final void gtk_calendar_display_options(int /*long*/ calendar, int flags) {
-	lock.lock();
-	try {
-		_gtk_calendar_display_options(calendar, flags);
 	} finally {
 		lock.unlock();
 	}
