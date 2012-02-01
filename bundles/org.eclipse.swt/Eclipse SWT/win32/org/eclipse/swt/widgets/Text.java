@@ -114,8 +114,6 @@ public class Text extends Scrollable {
 //		PASSWORD = echo != 0 ? echo : '*';
 	}
 
-	boolean bPrintingClient = false;
-
 /**
  * Constructs a new instance of this class given its parent
  * and a style value describing its behavior and appearance.
