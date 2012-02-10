@@ -23,7 +23,7 @@ public class OS extends C {
 	}
 	
 	/** OS Constants */
-	public static final boolean IsAIX, IsSunOS, IsLinux, IsHPUX;
+	public static final boolean IsAIX, IsSunOS, IsLinux, IsHPUX, BIG_ENDIAN;
 	static {
 		
 		/* Initialize the OS flags and locale constants */
@@ -35,6 +35,13 @@ public class OS extends C {
 		if (osName.equals ("SunOS")) isSunOS = true;
 		if (osName.equals ("HP-UX")) isHPUX = true;
 		IsAIX = isAIX;  IsSunOS = isSunOS;  IsLinux = isLinux;  IsHPUX = isHPUX;
+		
+		byte[] buffer = new byte[4];
+		int /*long*/ ptr = OS.malloc(4);
+		OS.memmove(ptr, new int[]{1}, 4);
+		OS.memmove(buffer, ptr, 1);
+		OS.free(ptr);
+		BIG_ENDIAN = buffer[0] == 0;
 	}
 
 	/** Constants */
@@ -559,6 +566,19 @@ public class OS extends C {
 	public static final byte[] GTK_STOCK_CLEAR = ascii("gtk-clear");
 	
 	public static final int GTK_VERSION = VERSION(gtk_major_version(), gtk_minor_version(), gtk_micro_version()); 
+	public static final boolean USE_CAIRO, INIT_CAIRO;
+	static {
+		boolean useCairo = false;
+		if ("true".equals(System.getProperty("org.eclipse.swt.internal.gtk.cairoGraphics"))) {
+			useCairo  = GTK_VERSION >= VERSION(2, 24, 0);
+		}
+		USE_CAIRO = useCairo;
+		boolean initCairo = false;
+		if (!"false".equals(System.getProperty("org.eclipse.swt.internal.gtk.useCairo"))) {
+			initCairo  = GTK_VERSION >= VERSION(2, 17, 0);
+		}
+		INIT_CAIRO = initCairo;
+	}
 	
 protected static byte [] ascii (String name) {
 	int length = name.length ();
@@ -699,6 +719,10 @@ public static final native int /*long*/ GTK_TOOLTIPS_TIP_WINDOW(int /*long*/ wid
  * @param data cast=(GtkTooltipsData *)
  */
 public static final native void GTK_TOOLTIPS_SET_ACTIVE(int /*long*/ widget, int /*long*/ data);
+/**
+ * @param data cast=(GtkTooltipsData *)
+ */
+public static final native int /*long*/ GTK_TOOLTIPS_GET_TIP_TEXT(int /*long*/ data);
 /** @param widget cast=(GtkWidget *) */
 public static final native void GTK_WIDGET_SET_HEIGHT(int /*long*/ widget, int height);
 /** @param widget cast=(GtkWidget *) */
@@ -3647,6 +3671,20 @@ public static final void gdk_color_free(int /*long*/ color) {
 	}
 }
 /**
+ * @method flags=dynamic
+ * @param window cast=(GdkWindow *)
+ */
+public static final native void _gdk_cairo_set_source_window(int /*long*/ cairo, int /*long*/ window, int x, int y);
+public static final void gdk_cairo_set_source_window(int /*long*/ cairo, int /*long*/ window, int x, int y) {
+        lock.lock();
+        try {
+                _gdk_cairo_set_source_window(cairo, window, x, y);
+        }
+        finally {
+                lock.unlock();
+        }
+}
+/**
  * @param colormap cast=(GdkColormap *)
  * @param color cast=(GdkColor *),flags=no_in
  */
@@ -4193,16 +4231,6 @@ public static final void gdk_flush() {
 		lock.unlock();
 	}
 }
-/** @param list cast=(gchar **) */
-public static final native void _gdk_free_text_list(int /*long*/ list);
-public static final void gdk_free_text_list(int /*long*/ list) {
-	lock.lock();
-	try {
-		_gdk_free_text_list(list);
-	} finally {
-		lock.unlock();
-	}
-}
 /**
  * @param gc cast=(GdkGC *)
  * @param values cast=(GdkGCValues *),flags=no_in
@@ -4510,6 +4538,7 @@ public static final int /*long*/ gdk_pango_context_get() {
 	}
 }
 /**
+ * @method flags=dynamic 
  * @param context cast=(PangoContext *)
  * @param colormap cast=(GdkColormap *)
  */
@@ -4693,21 +4722,6 @@ public static final void gdk_pixbuf_render_to_drawable(int /*long*/ pixbuf, int 
 	lock.lock();
 	try {
 		_gdk_pixbuf_render_to_drawable(pixbuf, drawable, gc, src_x, src_y, dest_x, dest_y, width, height, dither, x_dither, y_dither);
-	} finally {
-		lock.unlock();
-	}
-}
-/**
- * @param pixbuf cast=(GdkPixbuf *)
- * @param drawable cast=(GdkDrawable *)
- * @param alpha_mode cast=(GdkPixbufAlphaMode)
- * @param dither cast=(GdkRgbDither)
- */
-public static final native void _gdk_pixbuf_render_to_drawable_alpha(int /*long*/ pixbuf, int /*long*/ drawable, int src_x, int src_y, int dest_x, int dest_y, int width, int height, int alpha_mode, int alpha_threshold, int dither, int x_dither, int y_dither);
-public static final void gdk_pixbuf_render_to_drawable_alpha(int /*long*/ pixbuf, int /*long*/ drawable, int src_x, int src_y, int dest_x, int dest_y, int width, int height, int alpha_mode, int alpha_threshold, int dither, int x_dither, int y_dither) {
-	lock.lock();
-	try {
-		_gdk_pixbuf_render_to_drawable_alpha(pixbuf, drawable, src_x, src_y, dest_x, dest_y, width, height, alpha_mode, alpha_threshold, dither, x_dither, y_dither);
 	} finally {
 		lock.unlock();
 	}
@@ -5016,15 +5030,6 @@ public static final void gdk_region_union_with_rect(int /*long*/ region, GdkRect
 		lock.unlock();
 	}
 }
-public static final native void _gdk_rgb_init();
-public static final void gdk_rgb_init() {
-	lock.lock();
-	try {
-		_gdk_rgb_init();
-	} finally {
-		lock.unlock();
-	}
-}
 /** @method flags=dynamic */
 public static final native int /*long*/ _gdk_screen_get_default();
 public static final int /*long*/ gdk_screen_get_default() {
@@ -5252,6 +5257,19 @@ public static final void gdk_window_clear_area(int /*long*/ window, int x, int y
 	lock.lock();
 	try {
 		_gdk_window_clear_area(window, x, y, width, height);
+	} finally {
+		lock.unlock();
+	}
+}
+/**
+ * @method flags=dynamic 
+ * @param window cast=(GdkWindow *)
+ */
+public static final native int /*long*/ _gdk_window_create_similar_surface(int /*long*/ window, int content, int width, int height);
+public static final int /*long*/ gdk_window_create_similar_surface(int /*long*/ window, int content, int width, int height) {
+	lock.lock();
+	try {
+		return _gdk_window_create_similar_surface(window, content, width, height);
 	} finally {
 		lock.unlock();
 	}
@@ -6060,20 +6078,6 @@ public static final void gtk_calendar_set_display_options(int /*long*/ calendar,
 	lock.lock();
 	try {
 		_gtk_calendar_set_display_options(calendar, flags);
-	} finally {
-		lock.unlock();
-	}
-}
-/**
- * @method flags=dynamic
- * @param calendar cast=(GtkCalendar *)
- * @param flags cast=(GtkCalendarDisplayOptions)
- */
-public static final native void _gtk_calendar_display_options(int /*long*/ calendar, int flags);
-public static final void gtk_calendar_display_options(int /*long*/ calendar, int flags) {
-	lock.lock();
-	try {
-		_gtk_calendar_display_options(calendar, flags);
 	} finally {
 		lock.unlock();
 	}
@@ -10026,6 +10030,7 @@ public static final int /*long*/ gtk_separator_menu_item_new() {
 		lock.unlock();
 	}
 }
+/** @method flags=dynamic */
 public static final native int /*long*/ _gtk_set_locale();
 public static final int /*long*/ gtk_set_locale() {
 	lock.lock();
@@ -11119,7 +11124,7 @@ public static final void gtk_toolbar_set_orientation(int /*long*/ toolbar, int o
 		lock.unlock();
 	}
 }
-/** @param widget cast=(GtkWidget *) */
+/** @method flags=dynamic */
 public static final native int /*long*/ _gtk_tooltips_data_get(int /*long*/ widget);
 public static final int /*long*/ gtk_tooltips_data_get(int /*long*/ widget) {
 	lock.lock();
@@ -11129,7 +11134,7 @@ public static final int /*long*/ gtk_tooltips_data_get(int /*long*/ widget) {
 		lock.unlock();
 	}
 }
-/** @param tooltips cast=(GtkTooltips *) */
+/** @method flags=dynamic */
 public static final native void _gtk_tooltips_disable(int /*long*/ tooltips);
 public static final void gtk_tooltips_disable(int /*long*/ tooltips) {
 	lock.lock();
@@ -11139,7 +11144,7 @@ public static final void gtk_tooltips_disable(int /*long*/ tooltips) {
 		lock.unlock();
 	}
 }
-/** @param tooltips cast=(GtkTooltips *) */
+/** @method flags=dynamic */
 public static final native void _gtk_tooltips_enable(int /*long*/ tooltips);
 public static final void gtk_tooltips_enable(int /*long*/ tooltips) {
 	lock.lock();
@@ -11158,7 +11163,7 @@ public static final int /*long*/ gtk_tooltips_new() {
 		lock.unlock();
 	}
 }
-/** @param tooltips cast=(GtkTooltips *) */
+/** @method flags=dynamic */
 public static final native void _gtk_tooltips_force_window(int /*long*/ tooltips);
 public static final void gtk_tooltips_force_window(int /*long*/ tooltips) {
 	lock.lock();
