@@ -52,7 +52,7 @@ static String getSWTInitLibraryName () {
 static void loadAdditionalLibraries (String mozillaPath) {
 	String utilsPath = mozillaPath + Mozilla.SEPARATOR_OS + "libmozutils.dylib"; //$NON-NLS-1$
 	byte[] bytes = MozillaDelegate.wcsToMbcs (null, utilsPath, true);
-	OS.dlopen (bytes, OS.RTLD_NOW | OS.RTLD_GLOBAL);
+	OS.NSAddImage (bytes, OS.NSADDIMAGE_OPTION_RETURN_ON_ERROR | OS.NSADDIMAGE_OPTION_MATCH_FILENAME_BY_INSTALLNAME);
 }
 
 static char[] mbcsToWcs (String codePage, byte [] buffer) {
