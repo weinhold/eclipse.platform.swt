@@ -8,7 +8,7 @@
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *******************************************************************************/
-
+ 
 #ifdef NATIVE_STATS
 extern int XPCOM_nativeFunctionCount;
 extern int XPCOM_nativeFunctionCallCount[];

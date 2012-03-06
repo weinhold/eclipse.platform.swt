@@ -11,7 +11,7 @@
 
 #include "swt.h"
 #include "xpcom_stats.h"
-
+ 
 #ifdef NATIVE_STATS
 
 int XPCOM_nativeFunctionCount = 247;
