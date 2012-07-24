@@ -220,7 +220,7 @@ void generateCacheFunction(JNIClass clazz) {
 	output(clazzName);
 	outputln("Fc.cached) return;");
 	JNIClass superclazz = clazz.getSuperclass();
-	if (!superclazz.getName().equals("java.lang.Object")) {
+	if (!superclazz.getName().equals("java.lang.Object") && !superclazz.getName().endsWith(".struct")) {
 		String superName = superclazz.getSimpleName();
 		output("\tcache");
 		output(superName);
@@ -276,7 +276,7 @@ void generateGetFields(JNIClass clazz) {
 	JNIClass superclazz = clazz.getSuperclass();
 	String clazzName = clazz.getSimpleName();
 	String superName = superclazz.getSimpleName();
-	if (!superclazz.getName().equals("java.lang.Object")) {
+	if (!superclazz.getName().equals("java.lang.Object") && !superclazz.getName().endsWith(".struct")) {
 		/* Windows exception - cannot call get/set function of super class in this case */
 		if (!(clazzName.equals(superName + "A") || clazzName.equals(superName + "W"))) {
 			output("\tget");
@@ -430,7 +430,7 @@ void generateSetFields(JNIClass clazz) {
 	JNIClass superclazz = clazz.getSuperclass();
 	String clazzName = clazz.getSimpleName();
 	String superName = superclazz.getSimpleName();
-	if (!superclazz.getName().equals("java.lang.Object")) {
+	if (!superclazz.getName().equals("java.lang.Object") && !superclazz.getName().endsWith(".struct")) {
 		/* Windows exception - cannot call get/set function of super class in this case */
 		if (!(clazzName.equals(superName + "A") || clazzName.equals(superName + "W"))) {
 			output("\tset");

@@ -28,6 +28,8 @@ public class MacGenerator {
 	public static boolean BUILD_C_SOURCE = true;
 	public static boolean GENERATE_ALLOC = true;
 	public static boolean GENERATE_STRUCTS = false;
+	public static boolean CAST_ID = false;
+	public static boolean INTERN_OBJECTS = false;
 	public static boolean USE_SYSTEM_BRIDGE_FILES = false;
 
 public MacGenerator() {
@@ -348,19 +350,66 @@ void generateMethods(String className, ArrayList methods) {
 		outln();
 		if (returnNode != null && isObject(returnNode)) {
 			if (!isStatic && returnType.equals(className)) {
-				out("\treturn result == this.id ? this : (result != 0 ? new ");
-				out(returnType);
-				out("(result) : null);");
+				boolean generated = false;
+				if (CAST_ID) {
+					if (className.equals("id")) {
+						generated = true;
+						out("\treturn result == this.id ? this : (result != 0 ? new_id(result) : null);");
+					} else {
+						if (INTERN_OBJECTS) {
+							generated = true;
+							out("\treturn result == this.id ? this : (" + returnType + ")(result != 0 ? new");
+							out("_id(result, " + returnType + ".class) : null);");
+						}
+					}
+				}
+				if (!generated) {
+					out("\treturn result == this.id ? this : (result != 0 ? new ");
+					out(returnType);
+					out("(result) : null);");
+				}
 			} else {
-				out("\treturn result != 0 ? new ");
 				NamedNodeMap attributes = returnNode.getAttributes();
 				Node swt_alloc = attributes.getNamedItem("swt_alloc");
 				if (swt_alloc != null && swt_alloc.getNodeValue().equals("true")) {
-					out(className);
+					boolean generated = false;
+					if (CAST_ID) {
+						if (className.equals("id")) {
+							generated = true;
+							out("\treturn result != 0 ? new_id(result) : null);");
+						} else {
+							if (INTERN_OBJECTS) {
+								generated = true;
+								out("\treturn result != 0 ? (" + className + ") new");
+								out("_id(result, " + className + ".class) : null);");
+							}
+						}
+					}
+					if (!generated) {
+						out("\treturn result != 0 ? new ");
+						out(className);
+						out("(result) : null;");
+					}
 				} else {
-					out(returnType);
+					boolean generated = false;
+					if (CAST_ID) {
+						if (className.equals("id")) {
+							generated = true;
+							out("\treturn result != 0 ? new_id(result) : null);");
+						} else {
+							if (INTERN_OBJECTS) {
+								generated = true;
+								out("\treturn result != 0 ? (" + returnType + ") new");
+								out("_id(result, " + returnType + ".class) : null;");
+							}
+						}
+					}
+					if (!generated) {
+						out("\treturn result != 0 ? new ");
+						out(returnType);
+						out("(result) : null;");
+					}
 				}
-				out("(result) : null;");
 			}
 			outln();
 		} else if (returnNode != null && isStruct(returnNode)) {
@@ -377,6 +426,46 @@ void generateExtraFields(String className) {
 	/* sizeof field */
 	out("\t");
 	out("public static int sizeof = OS." + className + "_sizeof();");
+	outln();
+	outln();
+	/* copyFrom method */
+	out("\t");
+	out("public void copyFrom(int /*long*/ ptr) {");
+	outln();
+	out("\t\tOS.memmove(this, ptr, sizeof);");
+	outln();
+	out("\t}");
+	outln();
+	outln();
+	/* copyTo method */
+	out("\t");
+	out("public void copyTo(int /*long*/ ptr) {");
+	outln();
+	out("\t\tOS.memmove(ptr, this, sizeof);");
+	outln();
+	out("\t}");
+	outln();
+	outln();
+	/* malloc method */
+	out("\t");
+	out("public int /*long*/ malloc() {");
+	outln();
+	out("\t\tint /*long*/ ptr = OS.malloc(sizeof);");
+	outln();
+	out("\t\tOS.memmove(ptr, this, sizeof);");
+	outln();
+	out("\t\treturn ptr;");
+	outln();
+	out("\t}");
+	outln();
+	outln();
+	/* sizeof method */
+	out("\t");
+	out("public int sizeof() {");
+	outln();
+	out("\t\treturn sizeof;");
+	outln();
+	out("\t}");
 	outln();
 	if ("CGSize".equals(className)) {
 		outln();
@@ -668,8 +757,11 @@ void generateStructs() {
 		out(";");
 		outln();
 		outln();
+		out("/** @jniclass flags=m */");
+		outln();
 		out("public class ");
 		out(className);
+		out(" extends struct");
 		out(" {");
 		outln();		
 		generateFields(className, methods);		
@@ -1405,7 +1497,9 @@ String buildSend(Node method, boolean tags, boolean only64, boolean superCall) {
 
 String getCType (Node node) {
 	NamedNodeMap attributes = node.getAttributes();
-	return attributes.getNamedItem("declared_type").getNodeValue();
+	String type = attributes.getNamedItem("declared_type").getNodeValue();
+	if ("CGFloat".equals(type)) return "float";
+	return type;
 }
 
 Node findNSObjectMethod(Node method) {
