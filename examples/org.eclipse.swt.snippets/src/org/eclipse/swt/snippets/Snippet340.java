@@ -55,11 +55,13 @@ public static void main(String[] args) {
 				}
 			} catch (NumberFormatException ex) {}
 			liveLabel.setText(message);
-			textField.getAccessible().sendEvent(ACC.EVENT_DESCRIPTION_CHANGED, null);
-			textField.setSelection(0, textField.getCharCount());
+//			textField.getAccessible().sendEvent(ACC.EVENT_DESCRIPTION_CHANGED, null);
+			textField.getAccessible().sendEvent(ACC.EVENT_NAME_CHANGED, null);
+//			textField.setSelection(0, textField.getCharCount());
 		}
 	});
-	textField.getAccessible().addRelation(ACC.RELATION_DESCRIBED_BY, liveLabel.getAccessible());
+//	textField.getAccessible().addRelation(ACC.RELATION_DESCRIBED_BY, liveLabel.getAccessible());
+	textField.getAccessible().addRelation(ACC.RELATION_LABELLED_BY, liveLabel.getAccessible());
 
 	shell.pack();
 	shell.open();

@@ -150,6 +150,8 @@ char * COM_nativeFunctionNames[] = {
 	"SysStringLen",
 	"TYPEATTR_1sizeof",
 	"TYPEDESC_1sizeof",
+	"UiaHostProviderFromHwnd",
+	"UiaReturnRawElementProvider",
 	"VARDESC_1sizeof",
 	"VARIANT_1sizeof",
 	"VariantChangeType",

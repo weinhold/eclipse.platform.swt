@@ -150,6 +150,10 @@ public class COM extends OS {
 	public static final GUID IIDIAccessibleApplication = IIDFromString("{D49DED83-5B25-43F4-9B95-93B44595979E}"); //$NON-NLS-1$
 	public static final GUID IIDIAccessibleContext = IIDFromString("{77A123E4-5794-44e0-B8BF-DE600C9D29BD}"); //$NON-NLS-1$
 
+	// UIA related GUIDS
+	public static final GUID IID_IAccessibleEx = IIDFromString("{f8b80ada-2c44-48d0-89be-5ff23c9cd875}"); //$NON-NLS-1$
+	public static final GUID IID_IRawElementProviderSimple = IIDFromString("{d6dd68d1-86fd-4332-8666-9abedea2d24c}"); //$NON-NLS-1$
+	
 	/** Constants */
 	//public static final int ADVF_DATAONSTOP = 64;
 	//public static final int ADVF_NODATA = 1;
@@ -420,6 +424,8 @@ public class COM extends OS {
 	public static final short VT_UI4 = 19;
 	public static final short VT_UNKNOWN = 13;
 	public static final short VT_VARIANT = 12;
+	
+	public static final int UiaRootObjectId = -25;
 
 	public static boolean FreeUnusedLibraries = true;
 
@@ -942,6 +948,144 @@ public static final int IA2_SCROLL_TYPE_LEFT_EDGE = 		4;
 public static final int IA2_SCROLL_TYPE_RIGHT_EDGE = 		5;
 public static final int IA2_SCROLL_TYPE_ANYWHERE = 			6;
 
+/* UIA Constants */
+public static final int ProviderOptions_ServerSideProvider	= 0x2;
+
+public static final int UIA_InvokePatternId	=	10000;
+public static final int UIA_SelectionPatternId	=	10001;
+public static final int UIA_ValuePatternId	=	10002;
+public static final int UIA_RangeValuePatternId	=	10003;
+public static final int UIA_ScrollPatternId	=	10004;
+public static final int UIA_ExpandCollapsePatternId	=	10005;
+public static final int UIA_GridPatternId	=	10006;
+public static final int UIA_GridItemPatternId	=	10007;
+public static final int UIA_MultipleViewPatternId	=	10008;
+public static final int UIA_WindowPatternId	=	10009;
+public static final int UIA_SelectionItemPatternId	=	10010;
+public static final int UIA_DockPatternId	=	10011;
+public static final int UIA_TablePatternId	=	10012;
+public static final int UIA_TableItemPatternId	=	10013;
+public static final int UIA_TextPatternId	=	10014;
+public static final int UIA_TogglePatternId	=	10015;
+public static final int UIA_TransformPatternId	=	10016;
+public static final int UIA_ScrollItemPatternId	=	10017;
+public static final int UIA_LegacyIAccessiblePatternId	=	10018;
+public static final int UIA_ItemContainerPatternId	=	10019;
+public static final int UIA_VirtualizedItemPatternId	=	10020;
+public static final int UIA_SynchronizedInputPatternId	=	10021;
+
+public static final int UIA_RuntimeIdPropertyId	=	30000;
+public static final int UIA_BoundingRectanglePropertyId	=	30001;
+public static final int UIA_ProcessIdPropertyId	=	30002;
+public static final int UIA_ControlTypePropertyId	=	30003;
+public static final int UIA_LocalizedControlTypePropertyId	=	30004;
+public static final int UIA_NamePropertyId	=	30005;
+public static final int UIA_AcceleratorKeyPropertyId	=	30006;
+public static final int UIA_AccessKeyPropertyId	=	30007;
+public static final int UIA_HasKeyboardFocusPropertyId	=	30008;
+public static final int UIA_IsKeyboardFocusablePropertyId	=	30009;
+public static final int UIA_IsEnabledPropertyId	=	30010;
+public static final int UIA_AutomationIdPropertyId	=	30011;
+public static final int UIA_ClassNamePropertyId	=	30012;
+public static final int UIA_HelpTextPropertyId	=	30013;
+public static final int UIA_ClickablePointPropertyId	=	30014;
+public static final int UIA_CulturePropertyId	=	30015;
+public static final int UIA_IsControlElementPropertyId	=	30016;
+public static final int UIA_IsContentElementPropertyId	=	30017;
+public static final int UIA_LabeledByPropertyId	=	30018;
+public static final int UIA_IsPasswordPropertyId	=	30019;
+public static final int UIA_NativeWindowHandlePropertyId	=	30020;
+public static final int UIA_ItemTypePropertyId	=	30021;
+public static final int UIA_IsOffscreenPropertyId	=	30022;
+public static final int UIA_OrientationPropertyId	=	30023;
+public static final int UIA_FrameworkIdPropertyId	=	30024;
+public static final int UIA_IsRequiredForFormPropertyId	=	30025;
+public static final int UIA_ItemStatusPropertyId	=	30026;
+public static final int UIA_IsDockPatternAvailablePropertyId	=	30027;
+public static final int UIA_IsExpandCollapsePatternAvailablePropertyId	=	30028;
+public static final int UIA_IsGridItemPatternAvailablePropertyId	=	30029;
+public static final int UIA_IsGridPatternAvailablePropertyId	=	30030;
+public static final int UIA_IsInvokePatternAvailablePropertyId	=	30031;
+public static final int UIA_IsMultipleViewPatternAvailablePropertyId	=	30032;
+public static final int UIA_IsRangeValuePatternAvailablePropertyId	=	30033;
+public static final int UIA_IsScrollPatternAvailablePropertyId	=	30034;
+public static final int UIA_IsScrollItemPatternAvailablePropertyId	=	30035;
+public static final int UIA_IsSelectionItemPatternAvailablePropertyId	=	30036;
+public static final int UIA_IsSelectionPatternAvailablePropertyId	=	30037;
+public static final int UIA_IsTablePatternAvailablePropertyId	=	30038;
+public static final int UIA_IsTableItemPatternAvailablePropertyId	=	30039;
+public static final int UIA_IsTextPatternAvailablePropertyId	=	30040;
+public static final int UIA_IsTogglePatternAvailablePropertyId	=	30041;
+public static final int UIA_IsTransformPatternAvailablePropertyId	=	30042;
+public static final int UIA_IsValuePatternAvailablePropertyId	=	30043;
+public static final int UIA_IsWindowPatternAvailablePropertyId	=	30044;
+public static final int UIA_ValueValuePropertyId	=	30045;
+public static final int UIA_ValueIsReadOnlyPropertyId	=	30046;
+public static final int UIA_RangeValueValuePropertyId	=	30047;
+public static final int UIA_RangeValueIsReadOnlyPropertyId	=	30048;
+public static final int UIA_RangeValueMinimumPropertyId	=	30049;
+public static final int UIA_RangeValueMaximumPropertyId	=	30050;
+public static final int UIA_RangeValueLargeChangePropertyId	=	30051;
+public static final int UIA_RangeValueSmallChangePropertyId	=	30052;
+public static final int UIA_ScrollHorizontalScrollPercentPropertyId	=	30053;
+public static final int UIA_ScrollHorizontalViewSizePropertyId	=	30054;
+public static final int UIA_ScrollVerticalScrollPercentPropertyId	=	30055;
+public static final int UIA_ScrollVerticalViewSizePropertyId	=	30056;
+public static final int UIA_ScrollHorizontallyScrollablePropertyId	=	30057;
+public static final int UIA_ScrollVerticallyScrollablePropertyId	=	30058;
+public static final int UIA_SelectionSelectionPropertyId	=	30059;
+public static final int UIA_SelectionCanSelectMultiplePropertyId	=	30060;
+public static final int UIA_SelectionIsSelectionRequiredPropertyId	=	30061;
+public static final int UIA_GridRowCountPropertyId	=	30062;
+public static final int UIA_GridColumnCountPropertyId	=	30063;
+public static final int UIA_GridItemRowPropertyId	=	30064;
+public static final int UIA_GridItemColumnPropertyId	=	30065;
+public static final int UIA_GridItemRowSpanPropertyId	=	30066;
+public static final int UIA_GridItemColumnSpanPropertyId	=	30067;
+public static final int UIA_GridItemContainingGridPropertyId	=	30068;
+public static final int UIA_DockDockPositionPropertyId	=	30069;
+public static final int UIA_ExpandCollapseExpandCollapseStatePropertyId	=	30070;
+public static final int UIA_MultipleViewCurrentViewPropertyId	=	30071;
+public static final int UIA_MultipleViewSupportedViewsPropertyId	=	30072;
+public static final int UIA_WindowCanMaximizePropertyId	=	30073;
+public static final int UIA_WindowCanMinimizePropertyId	=	30074;
+public static final int UIA_WindowWindowVisualStatePropertyId	=	30075;
+public static final int UIA_WindowWindowInteractionStatePropertyId	=	30076;
+public static final int UIA_WindowIsModalPropertyId	=	30077;
+public static final int UIA_WindowIsTopmostPropertyId	=	30078;
+public static final int UIA_SelectionItemIsSelectedPropertyId	=	30079;
+public static final int UIA_SelectionItemSelectionContainerPropertyId	=	30080;
+public static final int UIA_TableRowHeadersPropertyId	=	30081;
+public static final int UIA_TableColumnHeadersPropertyId	=	30082;
+public static final int UIA_TableRowOrColumnMajorPropertyId	=	30083;
+public static final int UIA_TableItemRowHeaderItemsPropertyId	=	30084;
+public static final int UIA_TableItemColumnHeaderItemsPropertyId	=	30085;
+public static final int UIA_ToggleToggleStatePropertyId	=	30086;
+public static final int UIA_TransformCanMovePropertyId	=	30087;
+public static final int UIA_TransformCanResizePropertyId	=	30088;
+public static final int UIA_TransformCanRotatePropertyId	=	30089;
+public static final int UIA_IsLegacyIAccessiblePatternAvailablePropertyId	=	30090;
+public static final int UIA_LegacyIAccessibleChildIdPropertyId	=	30091;
+public static final int UIA_LegacyIAccessibleNamePropertyId	=	30092;
+public static final int UIA_LegacyIAccessibleValuePropertyId	=	30093;
+public static final int UIA_LegacyIAccessibleDescriptionPropertyId	=	30094;
+public static final int UIA_LegacyIAccessibleRolePropertyId	=	30095;
+public static final int UIA_LegacyIAccessibleStatePropertyId	=	30096;
+public static final int UIA_LegacyIAccessibleHelpPropertyId	=	30097;
+public static final int UIA_LegacyIAccessibleKeyboardShortcutPropertyId	=	30098;
+public static final int UIA_LegacyIAccessibleSelectionPropertyId	=	30099;
+public static final int UIA_LegacyIAccessibleDefaultActionPropertyId	=	30100;
+public static final int UIA_AriaRolePropertyId	=	30101;
+public static final int UIA_AriaPropertiesPropertyId	=	30102;
+public static final int UIA_IsDataValidForFormPropertyId	=	30103;
+public static final int UIA_ControllerForPropertyId	=	30104;
+public static final int UIA_DescribedByPropertyId	=	30105;
+public static final int UIA_FlowsToPropertyId	=	30106;
+public static final int UIA_ProviderDescriptionPropertyId	=	30107;
+public static final int UIA_IsItemContainerPatternAvailablePropertyId	=	30108;
+public static final int UIA_IsVirtualizedItemPatternAvailablePropertyId	=	30109;
+public static final int UIA_IsSynchronizedInputPatternAvailablePropertyId	=	30110;
+
 /** Accessibility natives */
 
 /**
@@ -959,9 +1103,22 @@ public static final native int AccessibleObjectFromWindow (long /*int*/ hwnd, in
 public static final native int CreateStdAccessibleObject (long /*int*/ hwnd, int idObject, GUID riidInterface, long /*int*/[] ppvObject);
 /**
  * @method flags=dynamic
+ * @param wParam cast=(WPARAM)
  * @param pAcc cast=(LPUNKNOWN)
  */
 public static final native long /*int*/ LresultFromObject (GUID riid, long /*int*/ wParam, long /*int*/ pAcc);
+/**
+ * @method flags=dynamic
+ * @param hwnd cast=(HWND)
+ * @param wParam cast=(WPARAM)
+ * @param lParam cast=(LPARAM)
+ */
+public static final native long /*int*/ UiaReturnRawElementProvider (long /*int*/ hwnd, long /*int*/ wParam, long /*int*/ lParam, long /*int*/ el);
+/**
+ * @method flags=dynamic
+ * @param hwnd cast=(HWND)
+ */
+public static final native int UiaHostProviderFromHwnd(long /*int*/ hwnd, long /*int*/[] pProvider);
 /**
  * @method flags=dynamic
  * @param paccContainer cast=(IAccessible *)
@@ -1048,4 +1205,5 @@ public static final native int TYPEATTR_sizeof();
 public static final native int TYPEDESC_sizeof();
 public static final native int VARDESC_sizeof();
 public static final native int VARIANT_sizeof();
+
 }

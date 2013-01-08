@@ -413,12 +413,12 @@ JNIEXPORT jintLong JNICALL COM_NATIVE(LresultFromObject)
 	COM_NATIVE_ENTER(env, that, LresultFromObject_FUNC);
 	if (arg0) if ((lparg0 = getGUIDFields(env, arg0, &_arg0)) == NULL) goto fail;
 /*
-	rc = (jintLong)LresultFromObject(lparg0, arg1, (LPUNKNOWN)arg2);
+	rc = (jintLong)LresultFromObject(lparg0, (WPARAM)arg1, (LPUNKNOWN)arg2);
 */
 	{
 		COM_LOAD_FUNCTION(fp, LresultFromObject)
 		if (fp) {
-			rc = (jintLong)((jintLong (CALLING_CONVENTION*)(GUID *, jintLong, LPUNKNOWN))fp)(lparg0, arg1, (LPUNKNOWN)arg2);
+			rc = (jintLong)((jintLong (CALLING_CONVENTION*)(GUID *, WPARAM, LPUNKNOWN))fp)(lparg0, (WPARAM)arg1, (LPUNKNOWN)arg2);
 		}
 	}
 fail:
@@ -1289,6 +1289,50 @@ JNIEXPORT jint JNICALL COM_NATIVE(TYPEDESC_1sizeof)
 	COM_NATIVE_ENTER(env, that, TYPEDESC_1sizeof_FUNC);
 	rc = (jint)TYPEDESC_sizeof();
 	COM_NATIVE_EXIT(env, that, TYPEDESC_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_UiaHostProviderFromHwnd
+JNIEXPORT jint JNICALL COM_NATIVE(UiaHostProviderFromHwnd)
+	(JNIEnv *env, jclass that, jintLong arg0, jintLongArray arg1)
+{
+	jintLong *lparg1=NULL;
+	jint rc = 0;
+	COM_NATIVE_ENTER(env, that, UiaHostProviderFromHwnd_FUNC);
+	if (arg1) if ((lparg1 = (*env)->GetIntLongArrayElements(env, arg1, NULL)) == NULL) goto fail;
+/*
+	rc = (jint)UiaHostProviderFromHwnd((HWND)arg0, lparg1);
+*/
+	{
+		COM_LOAD_FUNCTION(fp, UiaHostProviderFromHwnd)
+		if (fp) {
+			rc = (jint)((jint (CALLING_CONVENTION*)(HWND, jintLong *))fp)((HWND)arg0, lparg1);
+		}
+	}
+fail:
+	if (arg1 && lparg1) (*env)->ReleaseIntLongArrayElements(env, arg1, lparg1, 0);
+	COM_NATIVE_EXIT(env, that, UiaHostProviderFromHwnd_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_UiaReturnRawElementProvider
+JNIEXPORT jintLong JNICALL COM_NATIVE(UiaReturnRawElementProvider)
+	(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3)
+{
+	jintLong rc = 0;
+	COM_NATIVE_ENTER(env, that, UiaReturnRawElementProvider_FUNC);
+/*
+	rc = (jintLong)UiaReturnRawElementProvider((HWND)arg0, (WPARAM)arg1, (LPARAM)arg2, arg3);
+*/
+	{
+		COM_LOAD_FUNCTION(fp, UiaReturnRawElementProvider)
+		if (fp) {
+			rc = (jintLong)((jintLong (CALLING_CONVENTION*)(HWND, WPARAM, LPARAM, jintLong))fp)((HWND)arg0, (WPARAM)arg1, (LPARAM)arg2, arg3);
+		}
+	}
+	COM_NATIVE_EXIT(env, that, UiaReturnRawElementProvider_FUNC);
 	return rc;
 }
 #endif

@@ -18,3 +18,5 @@
 #define AccessibleObjectFromWindow_LIB "oleacc.dll"
 #define CreateStdAccessibleObject_LIB "oleacc.dll"
 #define LresultFromObject_LIB "oleacc.dll"
+#define UiaReturnRawElementProvider_LIB "uiautomationcore.dll"
+#define UiaHostProviderFromHwnd_LIB "uiautomationcore.dll"

@@ -46,15 +46,18 @@ public class Accessible {
 	static final int MAX_RELATION_TYPES = 15;
 	static final int TABLE_MODEL_CHANGE_SIZE = 5;
 	static final int TEXT_CHANGE_SIZE = 4;
-	static final boolean DEBUG = false;
+	static final boolean DEBUG = true;
 	static final String PROPERTY_USEIA2 = "org.eclipse.swt.accessibility.UseIA2"; //$NON-NLS-1$
 	static boolean UseIA2 = true;
+	static boolean UseUIA = false;
 	static int UniqueID = -0x10;
 	int refCount = 0, enumIndex = 0;
 	COMObject objIAccessible, objIEnumVARIANT, objIServiceProvider, objIAccessible2, objIAccessibleAction,
 		objIAccessibleApplication, /*objIAccessibleComponent,*/ objIAccessibleEditableText, objIAccessibleHyperlink,
 		objIAccessibleHypertext, /*objIAccessibleImage,*/ objIAccessibleTable2, objIAccessibleTableCell,
-		objIAccessibleText, objIAccessibleValue; /* objIAccessibleRelation is defined in Relation class */
+		objIAccessibleText, objIAccessibleValue, /* objIAccessibleRelation is defined in Relation class */
+		/* UIA */
+		objIAccessibleEx, objIRawElementProviderSimple;
 	IAccessible iaccessible;
 	Vector accessibleListeners = new Vector();
 	Vector accessibleControlListeners = new Vector();
@@ -516,6 +519,31 @@ public class Accessible {
 		};
 	}
 
+	void createIAccessibleEx() {
+		objIAccessibleEx = new COMObject(new int[] {2,0,0,2,2,1,2}) {
+			public long /*int*/ method0(long /*int*/[] args) {return QueryInterface(args[0], args[1]);}
+			public long /*int*/ method1(long /*int*/[] args) {return AddRef();}
+			public long /*int*/ method2(long /*int*/[] args) {return Release();}
+			public long /*int*/ method3(long /*int*/[] args) {return GetObjectForChild (args[0], args[1]);}
+			public long /*int*/ method4(long /*int*/[] args) {return GetIAccessiblePair(args[0], args[1]);}
+			public long /*int*/ method5(long /*int*/[] args) {return GetRuntimeId (args[0]);}
+			public long /*int*/ method6(long /*int*/[] args) {return ConvertReturnedElement (args[0], args[1]);}
+		};
+	}
+	
+	void createIRawElementProviderSimple() {
+		objIRawElementProviderSimple = new COMObject(new int[] {2,0,0,1,2,2,1}) {
+			public long /*int*/ method0(long /*int*/[] args) {return QueryInterface(args[0], args[1]);}
+			public long /*int*/ method1(long /*int*/[] args) {return AddRef();}
+			public long /*int*/ method2(long /*int*/[] args) {return Release();}
+			public long /*int*/ method3(long /*int*/[] args) {return ProviderOptions (args[0]);}
+			public long /*int*/ method4(long /*int*/[] args) {return GetPatternProvider (args[0], args[1]);}
+			public long /*int*/ method5(long /*int*/[] args) {return GetPropertyValue (args[0], args[1]);}
+			public long /*int*/ method6(long /*int*/[] args) {return HostRawElementProvider (args[0]);}
+		};
+	}
+	
+
 	/**
 	 * Invokes platform specific functionality to allocate a new accessible object.
 	 * <p>
@@ -890,6 +918,7 @@ public class Accessible {
 			Accessible child = (Accessible) children.elementAt(i);
 			child.dispose();
 		}
+		// TODO: UiaReturnRawElementProvider(hwnd, 0, 0, NULL)
 	}
 	
 	/**
@@ -905,6 +934,7 @@ public class Accessible {
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public long /*int*/ internal_WM_GETOBJECT (long /*int*/ wParam, long /*int*/ lParam) {
+		if (DEBUG) print(this + ".WM_GETOBJECT(wParam=" + wParam + ", lParam=" + lParam + (lParam == COM.OBJID_CLIENT ? " (OBJID_CLIENT)" : lParam == COM.UiaRootObjectId ? " (UiaRootObjectId)" : " (other)") + ", objIAccessible=" + objIAccessible);
 		if (objIAccessible == null) return 0;
 		if ((int)/*64*/lParam == COM.OBJID_CLIENT) {
 			/* LresultFromObject([in] riid, [in] wParam, [in] pAcc)
@@ -912,6 +942,10 @@ public class Accessible {
 			 * need to be incremented.
 			 */
 			return COM.LresultFromObject(COM.IIDIAccessible, wParam, objIAccessible.getAddress());
+		} else if ((int)/*64*/lParam == COM.UiaRootObjectId) {
+			if (objIRawElementProviderSimple == null) createIRawElementProviderSimple();
+			//TODO: AddRef(); or not (like above) ?
+			return COM.UiaReturnRawElementProvider(control.handle, wParam, lParam, objIRawElementProviderSimple.getAddress());
 		}
 		return 0;
 	}
@@ -1553,23 +1587,39 @@ public class Accessible {
 			return COM.S_OK;
 		}
 		
+		if (COM.IsEqualGUID(guid, COM.IID_IAccessibleEx))  {
+			if (objIAccessibleEx == null) createIAccessibleEx();
+			COM.MoveMemory(ppvObject, new long /*int*/[] { objIAccessibleEx.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			if (DEBUG) print(this + ".QueryInterface guid=" + guidString(guid) + " returning " + objIAccessibleEx.getAddress() + hresult(COM.S_OK));
+			return COM.S_OK;
+		}
+		
+		if (COM.IsEqualGUID(guid, COM.IID_IRawElementProviderSimple)) {
+			//TODO: NOTE that this was not called - maybe the AT will never use QI to get the IRawElementProviderSimple - only WM_GETOBJECT?
+			System.out.println("**** NOTE: QueryInterface for IID_IRawElementProviderSimple ****");
+//			return COM.E_NOINTERFACE;
+		}
+
 		if (COM.IsEqualGUID(guid, COM.IIDIServiceProvider)) {
-			if (!UseIA2) return COM.E_NOINTERFACE;
-			if (accessibleActionListeners.size() > 0 || accessibleAttributeListeners.size() > 0 ||
-				accessibleHyperlinkListeners.size() > 0 || accessibleTableListeners.size() > 0 ||
-				accessibleTableCellListeners.size() > 0 || accessibleTextExtendedListeners.size() > 0 ||
-				accessibleValueListeners.size() > 0 || getRelationCount() > 0
-				|| (control instanceof Button && ((control.getStyle() & SWT.RADIO) != 0))) {
-				if (objIServiceProvider == null) createIServiceProvider();
-				COM.MoveMemory(ppvObject, new long /*int*/[] { objIServiceProvider.getAddress() }, OS.PTR_SIZEOF);
-				AddRef();
-				if (DEBUG) print(this + ".QueryInterface guid=" + guidString(guid) + " returning " + objIServiceProvider.getAddress() + hresult(COM.S_OK));
-				return COM.S_OK;
+			if (UseIA2 || UseUIA) {
+				//TODO: Maybe this should be done every time (i.e. true) and just check for listeners in QS?
+				if (true || accessibleActionListeners.size() > 0 || accessibleAttributeListeners.size() > 0 ||
+					accessibleHyperlinkListeners.size() > 0 || accessibleTableListeners.size() > 0 ||
+					accessibleTableCellListeners.size() > 0 || accessibleTextExtendedListeners.size() > 0 ||
+					accessibleValueListeners.size() > 0 || getRelationCount() > 0
+					|| (control instanceof Button && ((control.getStyle() & SWT.RADIO) != 0))) {
+					if (objIServiceProvider == null) createIServiceProvider();
+					COM.MoveMemory(ppvObject, new long /*int*/[] { objIServiceProvider.getAddress() }, OS.PTR_SIZEOF);
+					AddRef();
+					if (DEBUG) print(this + ".QueryInterface guid=" + guidString(guid) + " returning " + objIServiceProvider.getAddress() + hresult(COM.S_OK));
+					return COM.S_OK;
+				}
 			}
 			if (DEBUG) if (interesting(guid)) print("QueryInterface guid=" + guidString(guid) + " returning" + hresult(COM.E_NOINTERFACE));
 			return COM.E_NOINTERFACE;
 		}
-
+		
 		int code = queryAccessible2Interfaces(guid, ppvObject);
 		if (code != COM.S_FALSE) {
 			if (DEBUG) print(this + ".QueryInterface guid=" + guidString(guid) + " returning" + hresult(code));
@@ -1689,6 +1739,24 @@ public class Accessible {
 				if (DEBUG) print(this + ".QueryService service=" + guidString(service) + " guid=" + guidString(guid) + " returning" + hresult(code));
 				return code;
 			}
+		}
+
+		if (COM.IsEqualGUID(service, COM.IID_IAccessibleEx) || COM.IsEqualGUID(guid, COM.IID_IAccessibleEx))  { // TODO: not sure if this check is correct
+			if (objIAccessibleEx == null) createIAccessibleEx();
+			if (DEBUG) print(this + ".QueryService service=" + guidString(service) + " guid=" + guidString(guid) + " returning " + objIAccessibleEx.getAddress() + hresult(COM.S_OK));
+			COM.MoveMemory(ppvObject, new long /*int*/[] { objIAccessibleEx.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			return COM.S_OK;
+		}
+		
+		if (COM.IsEqualGUID(guid, COM.IID_IRawElementProviderSimple)) {
+			//TODO: NOT sure if this will ever be called - maybe the AT will never use QS to get the IRawElementProviderSimple - only WM_GETOBJECT?
+			System.out.println("**** Note: QueryService for IID_IRawElementProviderSimple ****");
+			if (objIRawElementProviderSimple == null) createIRawElementProviderSimple();
+			if (DEBUG) print(this + ".QueryService service=" + guidString(service) + " guid=" + guidString(guid) + " returning " + objIRawElementProviderSimple.getAddress() + hresult(COM.S_OK));
+			COM.MoveMemory(ppvObject, new long /*int*/[] { objIRawElementProviderSimple.getAddress() }, OS.PTR_SIZEOF);
+			AddRef();
+			return COM.S_OK;
 		}
 
 		if (COM.IsEqualGUID(service, COM.IIDIAccessible2)) {
@@ -4665,7 +4733,1180 @@ public class Accessible {
 		setNumberVARIANT(pMinimumValue, event.value);
 		return COM.S_OK;
 	}
+	
+	/* IAccessibleEx::GetObjectForChild([in] long idChild, [out, retval] IAccessibleEx **pRetVal)
+	 * TODO: Verify: Ownership of pRetVal transfers from callee to caller so reference count on pRetVal 
+	 * must be incremented before returning.  The caller is responsible for releasing pRetVal.
+	 */
+	int GetObjectForChild(long /*int*/ idChild, long /*int*/ pRetVal) {
+		System.out.println("****IAccessibleEx::GetObjectForChild " + idChild);
+		// AddRef();
+		return COM.S_OK;
+	}
+	
+	/* IAccessibleEx::GetIAccessiblePair([out] IAccessible **ppAcc, [out] long *pidChild )
+	 * TODO: Verify: Ownership of ppAcc transfers from callee to caller so reference count on ppAcc 
+	 * must be incremented before returning.  The caller is responsible for releasing ppAcc.
+	 */
+	int GetIAccessiblePair(long /*int*/ ppAcc, long /*int*/ pidChild) {
+		System.out.println("****IAccessibleEx::GetIAccessiblePair ");
+		// AddRef();
+		return COM.S_OK;
+	}
+	
+	/* IAccessibleEx::GetRuntimeId ([out,retval] SAFEARRAY(int) *pRetVal )
+	 * TODO: refcount comment?
+	 */
+	int GetRuntimeId(long /*int*/ pRetVal) {
+		System.out.println("****IAccessibleEx::GetRuntimeId ");
+		// AddRef();
+		return COM.S_OK;
+	}
+	
+	/* IAccessibleEx::ConvertReturnedElement ([in] IRawElementProviderSimple *pIn, [out] IAccessibleEx **ppRetValOut)
+	 * TODO: Verify: Ownership of ppRetValOut transfers from callee to caller so reference count on ppRetValOut 
+	 * must be incremented before returning.  The caller is responsible for releasing ppRetValOut.
+	 */
+	int ConvertReturnedElement(long /*int*/ pIn, long /*int*/ ppRetValOut) {
+		System.out.println("****IAccessibleEx::ConvertReturnedElement ");
+		// AddRef();
+		return COM.S_OK;
+	}
+	
+	/* IRawElementProviderSimple::ProviderOptions ([out, retval] enum ProviderOptions *pRetVal)
+	 * TODO: refcount comment?
+	 */
+	int ProviderOptions(long /*int*/ pRetVal) {
+		COM.MoveMemory(pRetVal, new int[] { COM.ProviderOptions_ServerSideProvider }, 4);
+//		if (DEBUG) print(this + ".IRawElementProviderSimple::ProviderOptions returning " + "ProviderOptions_ServerSideProvider (" + COM.ProviderOptions_ServerSideProvider + ")" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+	
+	/* IRawElementProviderSimple::GetPatternProvider ([in] PATTERNID patternId, [out, retval] IUnknown **pRetVal)
+	 * TODO: refcount comment?
+	 */
+	int GetPatternProvider(long /*int*/ patternId, long /*int*/ pRetVal) {
+		switch ((int)/*64*/patternId) {
+			case COM.UIA_InvokePatternId: return GetInvokePattern(pRetVal);
+			case COM.UIA_SelectionPatternId: return GetSelectionPattern(pRetVal);
+			case COM.UIA_ValuePatternId: return GetValuePattern(pRetVal);
+			case COM.UIA_RangeValuePatternId: return GetRangeValuePattern(pRetVal);
+			case COM.UIA_ScrollPatternId: return GetScrollPattern(pRetVal);
+			case COM.UIA_ExpandCollapsePatternId: return GetExpandCollapsePattern(pRetVal);
+			case COM.UIA_GridPatternId: return GetGridPattern(pRetVal);
+			case COM.UIA_GridItemPatternId: return GetGridItemPattern(pRetVal);
+			case COM.UIA_MultipleViewPatternId: return GetMultipleViewPattern(pRetVal);
+			case COM.UIA_WindowPatternId: return GetWindowPattern(pRetVal);
+			case COM.UIA_SelectionItemPatternId: return GetSelectionItemPattern(pRetVal);
+			case COM.UIA_DockPatternId: return GetDockPattern(pRetVal);
+			case COM.UIA_TablePatternId: return GetTablePattern(pRetVal);
+			case COM.UIA_TableItemPatternId: return GetTableItemPattern(pRetVal);
+			case COM.UIA_TextPatternId: return GetTextPattern(pRetVal);
+			case COM.UIA_TogglePatternId: return GetTogglePattern(pRetVal);
+			case COM.UIA_TransformPatternId: return GetTransformPattern(pRetVal);
+			case COM.UIA_ScrollItemPatternId: return GetScrollItemPattern(pRetVal);
+			case COM.UIA_LegacyIAccessiblePatternId: return GetLegacyIAccessiblePattern(pRetVal);
+			case COM.UIA_ItemContainerPatternId: return GetItemContainerPattern(pRetVal);
+			case COM.UIA_VirtualizedItemPatternId: return GetVirtualizedItemPattern(pRetVal);
+			case COM.UIA_SynchronizedInputPatternId: return GetSynchronizedInputPattern(pRetVal);
+		}
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0); // TODO: Is this necessary for invalid arg?
+		return COM.E_INVALIDARG;
+	}
+	
+	int GetInvokePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_InvokePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
 
+	int GetSelectionPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_SelectionPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetValuePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_ValuePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValuePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_RangeValuePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_ScrollPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetExpandCollapsePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_ExpandCollapsePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_GridPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_GridItemPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetMultipleViewPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_MultipleViewPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_WindowPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionItemPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_SelectionItemPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetDockPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_DockPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTablePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_TablePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableItemPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_TableItemPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTextPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_TextPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTogglePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_TogglePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTransformPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_TransformPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollItemPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_ScrollItemPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessiblePattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_LegacyIAccessiblePatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetItemContainerPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_ItemContainerPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetVirtualizedItemPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_VirtualizedItemPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSynchronizedInputPattern(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		AddRef();
+		COM.MoveMemory(pRetVal, new long /*int*/[] { getAddress() }, OS.PTR_SIZEOF); // cheat for now and return "this"
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPatternProvider(UIA_SynchronizedInputPatternId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	/* IRawElementProviderSimple::GetPropertyValue ([in] PROPERTYID propertyId, [out, retval] VARIANT *pRetVal)
+	 * TODO: refcount comment?
+	 */
+	int GetPropertyValue(long /*int*/ propertyId, long /*int*/ pRetVal) {
+		switch ((int)/*64*/propertyId) {
+			case COM.UIA_RuntimeIdPropertyId: return GetRuntimeIdProperty(pRetVal);
+			case COM.UIA_BoundingRectanglePropertyId: return GetBoundingRectangleProperty(pRetVal);
+			case COM.UIA_ProcessIdPropertyId: return GetProcessIdProperty(pRetVal);
+			case COM.UIA_ControlTypePropertyId: return GetControlTypeProperty(pRetVal);
+			case COM.UIA_LocalizedControlTypePropertyId: return GetLocalizedControlTypeProperty(pRetVal);
+			case COM.UIA_NamePropertyId: return GetNameProperty(pRetVal);
+			case COM.UIA_AcceleratorKeyPropertyId: return GetAcceleratorKeyProperty(pRetVal);
+			case COM.UIA_AccessKeyPropertyId: return GetAccessKeyProperty(pRetVal);
+			case COM.UIA_HasKeyboardFocusPropertyId: return GetHasKeyboardFocusProperty(pRetVal);
+			case COM.UIA_IsKeyboardFocusablePropertyId: return GetIsKeyboardFocusableProperty(pRetVal);
+			case COM.UIA_IsEnabledPropertyId: return GetIsEnabledProperty(pRetVal);
+			case COM.UIA_AutomationIdPropertyId: return GetAutomationIdProperty(pRetVal);
+			case COM.UIA_ClassNamePropertyId: return GetClassNameProperty(pRetVal);
+			case COM.UIA_HelpTextPropertyId: return GetHelpTextProperty(pRetVal);
+			case COM.UIA_ClickablePointPropertyId: return GetClickablePointProperty(pRetVal);
+			case COM.UIA_CulturePropertyId: return GetCultureProperty(pRetVal);
+			case COM.UIA_IsControlElementPropertyId: return GetIsControlElementProperty(pRetVal);
+			case COM.UIA_IsContentElementPropertyId: return GetIsContentElementProperty(pRetVal);
+			case COM.UIA_LabeledByPropertyId: return GetLabeledByProperty(pRetVal);
+			case COM.UIA_IsPasswordPropertyId: return GetIsPasswordProperty(pRetVal);
+			case COM.UIA_NativeWindowHandlePropertyId: return GetNativeWindowHandleProperty(pRetVal);
+			case COM.UIA_ItemTypePropertyId: return GetItemTypeProperty(pRetVal);
+			case COM.UIA_IsOffscreenPropertyId: return GetIsOffscreenProperty(pRetVal);
+			case COM.UIA_OrientationPropertyId: return GetOrientationProperty(pRetVal);
+			case COM.UIA_FrameworkIdPropertyId: return GetFrameworkIdProperty(pRetVal);
+			case COM.UIA_IsRequiredForFormPropertyId: return GetIsRequiredForFormProperty(pRetVal);
+			case COM.UIA_ItemStatusPropertyId: return GetItemStatusProperty(pRetVal);
+			case COM.UIA_IsDockPatternAvailablePropertyId: return GetIsDockPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsExpandCollapsePatternAvailablePropertyId: return GetIsExpandCollapsePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsGridItemPatternAvailablePropertyId: return GetIsGridItemPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsGridPatternAvailablePropertyId: return GetIsGridPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsInvokePatternAvailablePropertyId: return GetIsInvokePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsMultipleViewPatternAvailablePropertyId: return GetIsMultipleViewPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsRangeValuePatternAvailablePropertyId: return GetIsRangeValuePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsScrollPatternAvailablePropertyId: return GetIsScrollPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsScrollItemPatternAvailablePropertyId: return GetIsScrollItemPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsSelectionItemPatternAvailablePropertyId: return GetIsSelectionItemPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsSelectionPatternAvailablePropertyId: return GetIsSelectionPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsTablePatternAvailablePropertyId: return GetIsTablePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsTableItemPatternAvailablePropertyId: return GetIsTableItemPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsTextPatternAvailablePropertyId: return GetIsTextPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsTogglePatternAvailablePropertyId: return GetIsTogglePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsTransformPatternAvailablePropertyId: return GetIsTransformPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsValuePatternAvailablePropertyId: return GetIsValuePatternAvailableProperty(pRetVal);
+			case COM.UIA_IsWindowPatternAvailablePropertyId: return GetIsWindowPatternAvailableProperty(pRetVal);
+			case COM.UIA_ValueValuePropertyId: return GetValueValueProperty(pRetVal);
+			case COM.UIA_ValueIsReadOnlyPropertyId: return GetValueIsReadOnlyProperty(pRetVal);
+			case COM.UIA_RangeValueValuePropertyId: return GetRangeValueValueProperty(pRetVal);
+			case COM.UIA_RangeValueIsReadOnlyPropertyId: return GetRangeValueIsReadOnlyProperty(pRetVal);
+			case COM.UIA_RangeValueMinimumPropertyId: return GetRangeValueMinimumProperty(pRetVal);
+			case COM.UIA_RangeValueMaximumPropertyId: return GetRangeValueMaximumProperty(pRetVal);
+			case COM.UIA_RangeValueLargeChangePropertyId: return GetRangeValueLargeChangeProperty(pRetVal);
+			case COM.UIA_RangeValueSmallChangePropertyId: return GetRangeValueSmallChangeProperty(pRetVal);
+			case COM.UIA_ScrollHorizontalScrollPercentPropertyId: return GetScrollHorizontalScrollPercentProperty(pRetVal);
+			case COM.UIA_ScrollHorizontalViewSizePropertyId: return GetScrollHorizontalViewSizeProperty(pRetVal);
+			case COM.UIA_ScrollVerticalScrollPercentPropertyId: return GetScrollVerticalScrollPercentProperty(pRetVal);
+			case COM.UIA_ScrollVerticalViewSizePropertyId: return GetScrollVerticalViewSizeProperty(pRetVal);
+			case COM.UIA_ScrollHorizontallyScrollablePropertyId: return GetScrollHorizontallyScrollableProperty(pRetVal);
+			case COM.UIA_ScrollVerticallyScrollablePropertyId: return GetScrollVerticallyScrollableProperty(pRetVal);
+			case COM.UIA_SelectionSelectionPropertyId: return GetSelectionSelectionProperty(pRetVal);
+			case COM.UIA_SelectionCanSelectMultiplePropertyId: return GetSelectionCanSelectMultipleProperty(pRetVal);
+			case COM.UIA_SelectionIsSelectionRequiredPropertyId: return GetSelectionIsSelectionRequiredProperty(pRetVal);
+			case COM.UIA_GridRowCountPropertyId: return GetGridRowCountProperty(pRetVal);
+			case COM.UIA_GridColumnCountPropertyId: return GetGridColumnCountProperty(pRetVal);
+			case COM.UIA_GridItemRowPropertyId: return GetGridItemRowProperty(pRetVal);
+			case COM.UIA_GridItemColumnPropertyId: return GetGridItemColumnProperty(pRetVal);
+			case COM.UIA_GridItemRowSpanPropertyId: return GetGridItemRowSpanProperty(pRetVal);
+			case COM.UIA_GridItemColumnSpanPropertyId: return GetGridItemColumnSpanProperty(pRetVal);
+			case COM.UIA_GridItemContainingGridPropertyId: return GetGridItemContainingGridProperty(pRetVal);
+			case COM.UIA_DockDockPositionPropertyId: return GetDockDockPositionProperty(pRetVal);
+			case COM.UIA_ExpandCollapseExpandCollapseStatePropertyId: return GetExpandCollapseExpandCollapseStateProperty(pRetVal);
+			case COM.UIA_MultipleViewCurrentViewPropertyId: return GetMultipleViewCurrentViewProperty(pRetVal);
+			case COM.UIA_MultipleViewSupportedViewsPropertyId: return GetMultipleViewSupportedViewsProperty(pRetVal);
+			case COM.UIA_WindowCanMaximizePropertyId: return GetWindowCanMaximizeProperty(pRetVal);
+			case COM.UIA_WindowCanMinimizePropertyId: return GetWindowCanMinimizeProperty(pRetVal);
+			case COM.UIA_WindowWindowVisualStatePropertyId: return GetWindowWindowVisualStateProperty(pRetVal);
+			case COM.UIA_WindowWindowInteractionStatePropertyId: return GetWindowWindowInteractionStateProperty(pRetVal);
+			case COM.UIA_WindowIsModalPropertyId: return GetWindowIsModalProperty(pRetVal);
+			case COM.UIA_WindowIsTopmostPropertyId: return GetWindowIsTopmostProperty(pRetVal);
+			case COM.UIA_SelectionItemIsSelectedPropertyId: return GetSelectionItemIsSelectedProperty(pRetVal);
+			case COM.UIA_SelectionItemSelectionContainerPropertyId: return GetSelectionItemSelectionContainerProperty(pRetVal);
+			case COM.UIA_TableRowHeadersPropertyId: return GetTableRowHeadersProperty(pRetVal);
+			case COM.UIA_TableColumnHeadersPropertyId: return GetTableColumnHeadersProperty(pRetVal);
+			case COM.UIA_TableRowOrColumnMajorPropertyId: return GetTableRowOrColumnMajorProperty(pRetVal);
+			case COM.UIA_TableItemRowHeaderItemsPropertyId: return GetTableItemRowHeaderItemsProperty(pRetVal);
+			case COM.UIA_TableItemColumnHeaderItemsPropertyId: return GetTableItemColumnHeaderItemsProperty(pRetVal);
+			case COM.UIA_ToggleToggleStatePropertyId: return GetToggleToggleStateProperty(pRetVal);
+			case COM.UIA_TransformCanMovePropertyId: return GetTransformCanMoveProperty(pRetVal);
+			case COM.UIA_TransformCanResizePropertyId: return GetTransformCanResizeProperty(pRetVal);
+			case COM.UIA_TransformCanRotatePropertyId: return GetTransformCanRotateProperty(pRetVal);
+			case COM.UIA_IsLegacyIAccessiblePatternAvailablePropertyId: return GetIsLegacyIAccessiblePatternAvailableProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleChildIdPropertyId: return GetLegacyIAccessibleChildIdProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleNamePropertyId: return GetLegacyIAccessibleNameProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleValuePropertyId: return GetLegacyIAccessibleValueProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleDescriptionPropertyId: return GetLegacyIAccessibleDescriptionProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleRolePropertyId: return GetLegacyIAccessibleRoleProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleStatePropertyId: return GetLegacyIAccessibleStateProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleHelpPropertyId: return GetLegacyIAccessibleHelpProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleKeyboardShortcutPropertyId: return GetLegacyIAccessibleKeyboardShortcutProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleSelectionPropertyId: return GetLegacyIAccessibleSelectionProperty(pRetVal);
+			case COM.UIA_LegacyIAccessibleDefaultActionPropertyId: return GetLegacyIAccessibleDefaultActionProperty(pRetVal);
+			case COM.UIA_AriaRolePropertyId: return GetAriaRoleProperty(pRetVal);
+			case COM.UIA_AriaPropertiesPropertyId: return GetAriaPropertiesProperty(pRetVal);
+			case COM.UIA_IsDataValidForFormPropertyId: return GetIsDataValidForFormProperty(pRetVal);
+			case COM.UIA_ControllerForPropertyId: return GetControllerForProperty(pRetVal);
+			case COM.UIA_DescribedByPropertyId: return GetDescribedByProperty(pRetVal);
+			case COM.UIA_FlowsToPropertyId: return GetFlowsToProperty(pRetVal);
+			case COM.UIA_ProviderDescriptionPropertyId: return GetProviderDescriptionProperty(pRetVal);
+			case COM.UIA_IsItemContainerPatternAvailablePropertyId: return GetIsItemContainerPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsVirtualizedItemPatternAvailablePropertyId: return GetIsVirtualizedItemPatternAvailableProperty(pRetVal);
+			case COM.UIA_IsSynchronizedInputPatternAvailablePropertyId: return GetIsSynchronizedInputPatternAvailableProperty(pRetVal);
+		}
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0); // TODO: Is this necessary for invalid arg?
+		return COM.E_INVALIDARG;
+	}
+	
+	int GetRuntimeIdProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RuntimeIdPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetBoundingRectangleProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_BoundingRectanglePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetProcessIdProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ProcessIdPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetControlTypeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ControlTypePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLocalizedControlTypeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LocalizedControlTypePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetNameProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_NamePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetAcceleratorKeyProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_AcceleratorKeyPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetAccessKeyProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_AccessKeyPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetHasKeyboardFocusProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_HasKeyboardFocusPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsKeyboardFocusableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsKeyboardFocusablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsEnabledProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsEnabledPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetAutomationIdProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_AutomationIdPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetClassNameProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ClassNamePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetHelpTextProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_HelpTextPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetClickablePointProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ClickablePointPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetCultureProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_CulturePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsControlElementProperty(long /*int*/ pRetVal) {
+		// TODO not yet finished!!!!
+		boolean isControlElement = true;
+		setBooleanVARIANT(pRetVal, isControlElement);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsControlElementPropertyId) returning " + isControlElement + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsContentElementProperty(long /*int*/ pRetVal) {
+		// TODO not yet finished!!!!
+		boolean isContentElement = true;
+		setBooleanVARIANT(pRetVal, isContentElement);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsContentElementPropertyId) returning " + isContentElement + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLabeledByProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LabeledByPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsPasswordProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsPasswordPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetNativeWindowHandleProperty(long /*int*/ pRetVal) {
+		// TODO should I return 0 if (parent != null) ??
+		COM.MoveMemory(pRetVal, new short[] { COM.VT_I4 }, 2);
+		COM.MoveMemory(pRetVal + 8, new long /*int*/ [] { control.handle }, OS.PTR_SIZEOF);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_NativeWindowHandlePropertyId) returning " + control.handle + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetItemTypeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ItemTypePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsOffscreenProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsOffscreenPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetOrientationProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_OrientationPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetFrameworkIdProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_FrameworkIdPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsRequiredForFormProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsRequiredForFormPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetItemStatusProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ItemStatusPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsDockPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsDockPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsExpandCollapsePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsExpandCollapsePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsGridItemPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsGridItemPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsGridPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsGridPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsInvokePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsInvokePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsMultipleViewPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsMultipleViewPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsRangeValuePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsRangeValuePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsScrollPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsScrollPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsScrollItemPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsScrollItemPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsSelectionItemPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsSelectionItemPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsSelectionPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsSelectionPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsTablePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsTablePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsTableItemPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsTableItemPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsTextPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsTextPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsTogglePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsTogglePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsTransformPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsTransformPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsValuePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsValuePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsWindowPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsWindowPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetValueValueProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ValueValuePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetValueIsReadOnlyProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ValueIsReadOnlyPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueValueProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueValuePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueIsReadOnlyProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueIsReadOnlyPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueMinimumProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueMinimumPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueMaximumProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueMaximumPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueLargeChangeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueLargeChangePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetRangeValueSmallChangeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_RangeValueSmallChangePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollHorizontalScrollPercentProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollHorizontalScrollPercentPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollHorizontalViewSizeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollHorizontalViewSizePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollVerticalScrollPercentProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollVerticalScrollPercentPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollVerticalViewSizeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollVerticalViewSizePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollHorizontallyScrollableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollHorizontallyScrollablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetScrollVerticallyScrollableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ScrollVerticallyScrollablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionSelectionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_SelectionSelectionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionCanSelectMultipleProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_SelectionCanSelectMultiplePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionIsSelectionRequiredProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_SelectionIsSelectionRequiredPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridRowCountProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridRowCountPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridColumnCountProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridColumnCountPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemRowProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridItemRowPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemColumnProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridItemColumnPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemRowSpanProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridItemRowSpanPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemColumnSpanProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridItemColumnSpanPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetGridItemContainingGridProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_GridItemContainingGridPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetDockDockPositionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_DockDockPositionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetExpandCollapseExpandCollapseStateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ExpandCollapseExpandCollapseStatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetMultipleViewCurrentViewProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_MultipleViewCurrentViewPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetMultipleViewSupportedViewsProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_MultipleViewSupportedViewsPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowCanMaximizeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowCanMaximizePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowCanMinimizeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowCanMinimizePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowWindowVisualStateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowWindowVisualStatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowWindowInteractionStateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowWindowInteractionStatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowIsModalProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowIsModalPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetWindowIsTopmostProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_WindowIsTopmostPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionItemIsSelectedProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_SelectionItemIsSelectedPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetSelectionItemSelectionContainerProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_SelectionItemSelectionContainerPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableRowHeadersProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TableRowHeadersPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableColumnHeadersProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TableColumnHeadersPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableRowOrColumnMajorProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TableRowOrColumnMajorPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableItemRowHeaderItemsProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TableItemRowHeaderItemsPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTableItemColumnHeaderItemsProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TableItemColumnHeaderItemsPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetToggleToggleStateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ToggleToggleStatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTransformCanMoveProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TransformCanMovePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTransformCanResizeProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TransformCanResizePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetTransformCanRotateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_TransformCanRotatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsLegacyIAccessiblePatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsLegacyIAccessiblePatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleChildIdProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleChildIdPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleNameProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleNamePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleValueProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleValuePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleDescriptionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleDescriptionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleRoleProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleRolePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleStateProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleStatePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleHelpProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleHelpPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleKeyboardShortcutProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleKeyboardShortcutPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleSelectionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleSelectionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetLegacyIAccessibleDefaultActionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_LegacyIAccessibleDefaultActionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetAriaRoleProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_AriaRolePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetAriaPropertiesProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_AriaPropertiesPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsDataValidForFormProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsDataValidForFormPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetControllerForProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ControllerForPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetDescribedByProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_DescribedByPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetFlowsToProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_FlowsToPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetProviderDescriptionProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_ProviderDescriptionPropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsItemContainerPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsItemContainerPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsVirtualizedItemPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsVirtualizedItemPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	int GetIsSynchronizedInputPatternAvailableProperty(long /*int*/ pRetVal) {
+		// TODO not yet implemented
+		setIntVARIANT(pRetVal, COM.VT_EMPTY, 0);
+		if (DEBUG) print(this + ".IRawElementProviderSimple::GetPropertyValue(UIA_IsSynchronizedInputPatternAvailablePropertyId) returning " + "<not yet implemented>" + hresult(COM.S_OK));
+		return COM.S_OK;
+	}
+
+	/* IRawElementProviderSimple::HostRawElementProvider ([out, retval] IRawElementProviderSimple **pRetVal)
+	 * TODO: refcount comment?
+	 */
+	int HostRawElementProvider(long /*int*/ pRetVal) {
+		int code = COM.S_OK;
+		// TODO: the commented-out code crashes. Can I just return OK and be done?
+//		long /*int*/[] pProvider = new long /*int*/[1];
+//		int code = COM.UiaHostProviderFromHwnd(control.handle, pProvider);
+//		if (code == COM.S_OK) {
+//			COM.MoveMemory(pRetVal, pProvider[0], OS.PTR_SIZEOF);
+//			// TODO: AddRef();  ?
+//		}
+		if (DEBUG) print(this + ".IRawElementProviderSimple::HostRawElementProvider" + " returning" + hresult(code));
+		return code;
+	}
+	
 	int eventChildID() {
 		if (parent == null) return COM.CHILDID_SELF;
 		if (uniqueID == -1) uniqueID = UniqueID--;
@@ -4990,6 +6231,11 @@ public class Accessible {
 		return new Integer(v.lVal);
 	}
 
+	void setBooleanVARIANT(long /*int*/ variant, boolean bool) {
+		COM.MoveMemory(variant, new short[] { COM.VT_BOOL }, 2);
+		COM.MoveMemory(variant + 8, new int[] { bool ? 1 : 0 }, 4);
+	}
+
 	void setIntVARIANT(long /*int*/ variant, short vt, int lVal) {
 		if (vt == COM.VT_I4 || vt == COM.VT_EMPTY) {
 			COM.MoveMemory(variant, new short[] { vt }, 2);
@@ -5232,6 +6478,8 @@ public class Accessible {
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleImage)) return true;
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleApplication)) return true;
 		if (COM.IsEqualGUID(guid, COM.IIDIAccessibleContext)) return true;
+		if (COM.IsEqualGUID(guid, COM.IID_IAccessibleEx)) return true;
+		if (COM.IsEqualGUID(guid, COM.IID_IRawElementProviderSimple)) return true;
 		}
 		return false;
 	}
@@ -5434,6 +6682,9 @@ public class Accessible {
 		if (COM.IsEqualGUID(guid, IIDIAccIdentity)) return "IIDIAccIdentity";
 		if (COM.IsEqualGUID(guid, IIDIAccPropServer)) return "IIDIAccPropServer";
 		if (COM.IsEqualGUID(guid, IIDIAccPropServices)) return "IIDIAccPropServices";
+		if (COM.IsEqualGUID(guid, COM.IID_IAccessibleEx)) return "IID_IAccessibleEx";
+		if (COM.IsEqualGUID(guid, COM.IID_IRawElementProviderSimple)) return "IID_IRawElementProviderSimple";
+		
 		}
 		return guid.toString();
 	}
