@@ -23,7 +23,7 @@ WebBrowser createWebBrowser (int style) {
 		return new Mozilla ();
 	}
 	if ((style & SWT.WEBKIT) != 0) {
-		return new WebKit ();
+		return new CEF (); // TODO
 	}
 	return new IE ();
 }

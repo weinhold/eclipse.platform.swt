@@ -125,6 +125,7 @@ static Composite checkParent (Composite parent) {
 }
 
 static int checkStyle(int style) {
+	style |= SWT.EMBEDDED; // TODO
 	String platform = SWT.getPlatform ();
 	if (DefaultType == SWT.DEFAULT) {
 		/*

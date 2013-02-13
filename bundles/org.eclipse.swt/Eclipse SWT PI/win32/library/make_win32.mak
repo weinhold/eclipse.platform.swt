@@ -44,6 +44,14 @@ WEBKIT_LIB    = $(WEBKIT_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 WEBKIT_LIBS   = $(WEBKIT_DIR)\lib\webkit.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CFNetwork.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CoreFoundation.lib
 WEBKIT_OBJS   = webkit_win32.obj webkit_win32_stats.obj webkit_win32_custom.obj webkit_win32_structs.obj
 
+# CEF3_DIR 	 = S:\swt-builddir\cef_3.1180.823_windows
+CEF3_DIR 	 = C:\cef3-1180\chromium\src\cef
+CEF3_PREFIX  = swt-cef3
+CEF3_LIB     = $(CEF3_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
+# CEF3_LIBS    = $(CEF3_DIR)\lib\Release\libcef.lib
+CEF3_LIBS    = $(CEF3_DIR)\binary_distrib\cef_binary_3.1180.None_windows\lib\Debug\libcef.lib
+CEF3_OBJS    = cef3.obj cef3_structs.obj cef3_stats.obj cef3_custom.obj
+
 WGL_PREFIX = swt-wgl
 WGL_LIB    = $(WGL_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 WGL_LIBS   = opengl32.lib
@@ -78,6 +86,13 @@ WEBKITCFLAGS = -c -O1\
 	-I"$(WEBKIT_DIR)\JavaScriptCore\ForwardingHeaders" \
 	-I"$(WEBKIT_SUPPORT_DIR)\win\include"
 
+CEF3CFLAGS = -O1 -DNDEBUG $(cflags) $(cvarsmt) $(CFLAGS) \
+	-DSWT_VERSION=$(SWT_VERSION) $(NATIVE_STATS) -DUSE_ASSEMBLER \
+	/I"$(JAVA_HOME)\include" /I"$(JAVA_HOME)\include\win32" /I. \
+	-I"$(CEF3_DIR)" \
+	-I"$(CEF3_DIR)\include\internal" \
+	-I"$(CEF3_DIR)\include\capi"
+
 #CFLAGS = $(cdebug) $(cflags) $(cvarsmt) $(CFLAGS) \
 CFLAGS = -O1 -DNDEBUG $(cflags) $(cvarsmt) $(CFLAGS) \
 	-DSWT_VERSION=$(SWT_VERSION) $(NATIVE_STATS) -DUSE_ASSEMBLER \
@@ -85,6 +100,15 @@ CFLAGS = -O1 -DNDEBUG $(cflags) $(cvarsmt) $(CFLAGS) \
 RCFLAGS = $(rcflags) $(rcvars) $(RCFLAGS) -DSWT_FILE_VERSION=\"$(maj_ver).$(min_ver)\" -DSWT_COMMA_VERSION=$(comma_ver)
 
 all: make_swt make_awt make_gdip make_wgl
+
+cef3_custom.obj: cef3_custom.c
+	cl $(CEF3CFLAGS) cef3_custom.c
+cef3_stats.obj: cef3_stats.c
+	cl $(CEF3CFLAGS) cef3_stats.c
+cef3_structs.obj: cef3_structs.c
+	cl $(CEF3CFLAGS) cef3_structs.c
+cef3.obj: cef3.c
+	cl $(CEF3CFLAGS) cef3.c
 
 webkit_win32_custom.obj: webkit_win32_custom.cpp
 	cl $(WEBKITCFLAGS) webkit_win32_custom.cpp
@@ -143,6 +167,27 @@ make_awt: $(AWT_OBJS) swt_awt.res
 	link @templrf
 	del templrf
 
+make_cef3: $(CEF3_OBJS) swt_cef3.res
+	echo $(ldebug) $(dlllflags) >templrf
+	echo $(CEF3_LIBS) >>templrf
+	echo $(CEF3_OBJS) >>templrf
+	echo swt_cef3.res >>templrf
+	echo -out:$(CEF3_LIB) >>templrf
+	link @templrf
+	del templrf
+
+cef3_subprocess.obj: cef3_subprocess.c
+	cl $(CEF3CFLAGS) cef3_subprocess.c
+	
+make_cef3_subprocess: cef3_subprocess.obj swt_cef3.res
+	echo $(ldebug) >templrf
+	echo $(CEF3_LIBS) User32.lib >>templrf
+	echo cef3_subprocess.obj >>templrf
+	echo swt_cef3.res >>templrf
+	echo -out:cef3_subprocess.exe >>templrf
+	link @templrf
+	del templrf
+
 make_webkit: $(WEBKIT_OBJS) swt_webkit.res
 	echo $(ldebug) $(dlllflags) >templrf
 	echo $(WEBKIT_LIBS) >>templrf
@@ -178,6 +223,9 @@ swt_gdip.res:
 
 swt_awt.res:
 	rc $(RCFLAGS) -DSWT_ORG_FILENAME=\"$(AWT_LIB)\" -r -fo swt_awt.res swt_awt.rc
+
+swt_cef3.res:
+	rc $(RCFLAGS) -DSWT_ORG_FILENAME=\"$(CEF3_LIB)\" -r -fo swt_cef3.res swt_cef3.rc
 
 swt_webkit.res:
 	rc $(RCFLAGS) -DSWT_ORG_FILENAME=\"$(WEBKIT_LIB)\" -r -fo swt_webkit.res swt_webkit.rc
