@@ -19,13 +19,15 @@ package org.eclipse.swt.snippets;
  * @since 3.0
  */
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.browser.*;
 
 public class Snippet128 {
 	public static void main(String [] args) {
-		Display display = new Display();
+		Device.DEBUG = true;
+		final Display display = new Display();
 		final Shell shell = new Shell(display);
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 3;
@@ -58,7 +60,7 @@ public class Snippet128 {
 
 		final Browser browser;
 		try {
-			browser = new Browser(shell, SWT.NONE);
+			browser = new Browser(shell, SWT.WEBKIT);
 		} catch (SWTError e) {
 			System.out.println("Could not instantiate Browser: " + e.getMessage());
 			display.dispose();
@@ -72,6 +74,22 @@ public class Snippet128 {
 		data.grabExcessVerticalSpace = true;
 		browser.setLayoutData(data);
 
+		final Browser browser2;
+		try {
+			browser2 = new Browser(shell, SWT.WEBKIT);
+		} catch (SWTError e) {
+			System.out.println("Could not instantiate Browser: " + e.getMessage());
+			display.dispose();
+			return;
+		}
+		data = new GridData();
+		data.horizontalAlignment = GridData.FILL;
+		data.verticalAlignment = GridData.FILL;
+		data.horizontalSpan = 3;
+		data.grabExcessHorizontalSpace = true;
+		data.grabExcessVerticalSpace = true;
+		browser2.setLayoutData(data);
+		
 		final Label status = new Label(shell, SWT.NONE);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
@@ -128,7 +146,14 @@ public class Snippet128 {
 		});
 		
 		shell.open();
-		browser.setUrl("http://eclipse.org");
+		/* delay for 2 seconds because creation of the underlying CEF browser is asynchronous */
+		display.timerExec(2000, new Runnable() {
+			public void run() {
+				browser.setUrl("http://www.eclipse.org");
+				browser2.setUrl("http://www.google.com");
+			}
+		});
+		
 		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
