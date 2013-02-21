@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,52 +11,6 @@
 
 #include "swt.h"
 #include "cef3_structs.h"
-
-#ifndef NO_cef_app_t
-typedef struct cef_app_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_before_command_line_processing, on_register_custom_schemes, get_resource_bundle_handler, get_browser_process_handler, get_render_process_handler;
-} cef_app_t_FID_CACHE;
-
-cef_app_t_FID_CACHE cef_app_tFc;
-
-void cachecef_app_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_app_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_app_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_app_tFc.on_before_command_line_processing = (*env)->GetFieldID(env, cef_app_tFc.clazz, "on_before_command_line_processing", I_J);
-	cef_app_tFc.on_register_custom_schemes = (*env)->GetFieldID(env, cef_app_tFc.clazz, "on_register_custom_schemes", I_J);
-	cef_app_tFc.get_resource_bundle_handler = (*env)->GetFieldID(env, cef_app_tFc.clazz, "get_resource_bundle_handler", I_J);
-	cef_app_tFc.get_browser_process_handler = (*env)->GetFieldID(env, cef_app_tFc.clazz, "get_browser_process_handler", I_J);
-	cef_app_tFc.get_render_process_handler = (*env)->GetFieldID(env, cef_app_tFc.clazz, "get_render_process_handler", I_J);
-	cef_app_tFc.cached = 1;
-}
-
-cef_app_t *getcef_app_tFields(JNIEnv *env, jobject lpObject, cef_app_t *lpStruct)
-{
-	if (!cef_app_tFc.cached) cachecef_app_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_before_command_line_processing = (*env)->GetIntLongField(env, lpObject, cef_app_tFc.on_before_command_line_processing);
-	lpStruct->on_register_custom_schemes = (*env)->GetIntLongField(env, lpObject, cef_app_tFc.on_register_custom_schemes);
-	lpStruct->get_resource_bundle_handler = (*env)->GetIntLongField(env, lpObject, cef_app_tFc.get_resource_bundle_handler);
-	lpStruct->get_browser_process_handler = (*env)->GetIntLongField(env, lpObject, cef_app_tFc.get_browser_process_handler);
-	lpStruct->get_render_process_handler = (*env)->GetIntLongField(env, lpObject, cef_app_tFc.get_render_process_handler);
-	return lpStruct;
-}
-
-void setcef_app_tFields(JNIEnv *env, jobject lpObject, cef_app_t *lpStruct)
-{
-	if (!cef_app_tFc.cached) cachecef_app_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_app_tFc.on_before_command_line_processing, (jintLong)lpStruct->on_before_command_line_processing);
-	(*env)->SetIntLongField(env, lpObject, cef_app_tFc.on_register_custom_schemes, (jintLong)lpStruct->on_register_custom_schemes);
-	(*env)->SetIntLongField(env, lpObject, cef_app_tFc.get_resource_bundle_handler, (jintLong)lpStruct->get_resource_bundle_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_app_tFc.get_browser_process_handler, (jintLong)lpStruct->get_browser_process_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_app_tFc.get_render_process_handler, (jintLong)lpStruct->get_render_process_handler);
-}
-#endif
 
 #ifndef NO_cef_base_t
 typedef struct cef_base_t_FID_CACHE {
@@ -81,10 +35,10 @@ void cachecef_base_tFields(JNIEnv *env, jobject lpObject)
 cef_base_t *getcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct)
 {
 	if (!cef_base_tFc.cached) cachecef_base_tFields(env, lpObject);
-	lpStruct->size = (size_t)(*env)->GetIntLongField(env, lpObject, cef_base_tFc.size);
-	lpStruct->add_ref = (*env)->GetIntLongField(env, lpObject, cef_base_tFc.add_ref);
-	lpStruct->release = (*env)->GetIntLongField(env, lpObject, cef_base_tFc.release);
-	lpStruct->get_refct = (*env)->GetIntLongField(env, lpObject, cef_base_tFc.get_refct);
+	lpStruct->size = (*env)->GetIntLongField(env, lpObject, cef_base_tFc.size);
+	lpStruct->add_ref = (int (CEF_CALLBACK *)(struct _cef_base_t* self))(*env)->GetIntLongField(env, lpObject, cef_base_tFc.add_ref);
+	lpStruct->release = (int (CEF_CALLBACK *)(struct _cef_base_t* self))(*env)->GetIntLongField(env, lpObject, cef_base_tFc.release);
+	lpStruct->get_refct = (int (CEF_CALLBACK *)(struct _cef_base_t* self))(*env)->GetIntLongField(env, lpObject, cef_base_tFc.get_refct);
 	return lpStruct;
 }
 
@@ -95,49 +49,6 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct)
 	(*env)->SetIntLongField(env, lpObject, cef_base_tFc.add_ref, (jintLong)lpStruct->add_ref);
 	(*env)->SetIntLongField(env, lpObject, cef_base_tFc.release, (jintLong)lpStruct->release);
 	(*env)->SetIntLongField(env, lpObject, cef_base_tFc.get_refct, (jintLong)lpStruct->get_refct);
-}
-#endif
-
-#ifndef NO_cef_browser_process_handler_t
-typedef struct cef_browser_process_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID get_proxy_handler, on_context_initialized, on_before_child_process_launch, on_render_process_thread_created;
-} cef_browser_process_handler_t_FID_CACHE;
-
-cef_browser_process_handler_t_FID_CACHE cef_browser_process_handler_tFc;
-
-void cachecef_browser_process_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_browser_process_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_browser_process_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_browser_process_handler_tFc.get_proxy_handler = (*env)->GetFieldID(env, cef_browser_process_handler_tFc.clazz, "get_proxy_handler", I_J);
-	cef_browser_process_handler_tFc.on_context_initialized = (*env)->GetFieldID(env, cef_browser_process_handler_tFc.clazz, "on_context_initialized", I_J);
-	cef_browser_process_handler_tFc.on_before_child_process_launch = (*env)->GetFieldID(env, cef_browser_process_handler_tFc.clazz, "on_before_child_process_launch", I_J);
-	cef_browser_process_handler_tFc.on_render_process_thread_created = (*env)->GetFieldID(env, cef_browser_process_handler_tFc.clazz, "on_render_process_thread_created", I_J);
-	cef_browser_process_handler_tFc.cached = 1;
-}
-
-cef_browser_process_handler_t *getcef_browser_process_handler_tFields(JNIEnv *env, jobject lpObject, cef_browser_process_handler_t *lpStruct)
-{
-	if (!cef_browser_process_handler_tFc.cached) cachecef_browser_process_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->get_proxy_handler = (*env)->GetIntLongField(env, lpObject, cef_browser_process_handler_tFc.get_proxy_handler);
-	lpStruct->on_context_initialized = (*env)->GetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_context_initialized);
-	lpStruct->on_before_child_process_launch = (*env)->GetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_before_child_process_launch);
-	lpStruct->on_render_process_thread_created = (*env)->GetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_render_process_thread_created);
-	return lpStruct;
-}
-
-void setcef_browser_process_handler_tFields(JNIEnv *env, jobject lpObject, cef_browser_process_handler_t *lpStruct)
-{
-	if (!cef_browser_process_handler_tFc.cached) cachecef_browser_process_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_browser_process_handler_tFc.get_proxy_handler, (jintLong)lpStruct->get_proxy_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_context_initialized, (jintLong)lpStruct->on_context_initialized);
-	(*env)->SetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_before_child_process_launch, (jintLong)lpStruct->on_before_child_process_launch);
-	(*env)->SetIntLongField(env, lpObject, cef_browser_process_handler_tFc.on_render_process_thread_created, (jintLong)lpStruct->on_render_process_thread_created);
 }
 #endif
 
@@ -364,376 +275,200 @@ void setcef_browser_settings_tFields(JNIEnv *env, jobject lpObject, cef_browser_
 }
 #endif
 
-#ifndef NO_cef_client_t
-typedef struct cef_client_t_FID_CACHE {
+#ifndef NO_cef_browser_t
+typedef struct cef_browser_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_context_menu_handler, get_dialog_handler, get_display_handler, get_download_handler, get_focus_handler, get_geolocation_handler, get_jsdialog_handler, get_keyboard_handler, get_life_span_handler, get_load_handler, get_request_handler, on_process_message_received;
-} cef_client_t_FID_CACHE;
+	jfieldID get_host, can_go_back, go_back, can_go_forward, go_forward, is_loading, reload, reload_ignore_cache, stop_load, get_identifier, is_same, is_popup, has_document, get_main_frame, get_focused_frame, get_frame_byident, get_frame, get_frame_count, get_frame_identifiers, get_frame_names, send_process_message;
+} cef_browser_t_FID_CACHE;
 
-cef_client_t_FID_CACHE cef_client_tFc;
+cef_browser_t_FID_CACHE cef_browser_tFc;
 
-void cachecef_client_tFields(JNIEnv *env, jobject lpObject)
+void cachecef_browser_tFields(JNIEnv *env, jobject lpObject)
 {
-	if (cef_client_tFc.cached) return;
+	if (cef_browser_tFc.cached) return;
 	cachecef_base_tFields(env, lpObject);
-	cef_client_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_client_tFc.get_context_menu_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_context_menu_handler", I_J);
-	cef_client_tFc.get_dialog_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_dialog_handler", I_J);
-	cef_client_tFc.get_display_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_display_handler", I_J);
-	cef_client_tFc.get_download_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_download_handler", I_J);
-	cef_client_tFc.get_focus_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_focus_handler", I_J);
-	cef_client_tFc.get_geolocation_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_geolocation_handler", I_J);
-	cef_client_tFc.get_jsdialog_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_jsdialog_handler", I_J);
-	cef_client_tFc.get_keyboard_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_keyboard_handler", I_J);
-	cef_client_tFc.get_life_span_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_life_span_handler", I_J);
-	cef_client_tFc.get_load_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_load_handler", I_J);
-	cef_client_tFc.get_request_handler = (*env)->GetFieldID(env, cef_client_tFc.clazz, "get_request_handler", I_J);
-	cef_client_tFc.on_process_message_received = (*env)->GetFieldID(env, cef_client_tFc.clazz, "on_process_message_received", I_J);
-	cef_client_tFc.cached = 1;
+	cef_browser_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_browser_tFc.get_host = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_host", I_J);
+	cef_browser_tFc.can_go_back = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "can_go_back", I_J);
+	cef_browser_tFc.go_back = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "go_back", I_J);
+	cef_browser_tFc.can_go_forward = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "can_go_forward", I_J);
+	cef_browser_tFc.go_forward = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "go_forward", I_J);
+	cef_browser_tFc.is_loading = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_loading", I_J);
+	cef_browser_tFc.reload = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "reload", I_J);
+	cef_browser_tFc.reload_ignore_cache = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "reload_ignore_cache", I_J);
+	cef_browser_tFc.stop_load = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "stop_load", I_J);
+	cef_browser_tFc.get_identifier = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_identifier", I_J);
+	cef_browser_tFc.is_same = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_same", I_J);
+	cef_browser_tFc.is_popup = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_popup", I_J);
+	cef_browser_tFc.has_document = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "has_document", I_J);
+	cef_browser_tFc.get_main_frame = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_main_frame", I_J);
+	cef_browser_tFc.get_focused_frame = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_focused_frame", I_J);
+	cef_browser_tFc.get_frame_byident = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_frame_byident", I_J);
+	cef_browser_tFc.get_frame = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_frame", I_J);
+	cef_browser_tFc.get_frame_count = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_frame_count", I_J);
+	cef_browser_tFc.get_frame_identifiers = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_frame_identifiers", I_J);
+	cef_browser_tFc.get_frame_names = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_frame_names", I_J);
+	cef_browser_tFc.send_process_message = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "send_process_message", I_J);
+	cef_browser_tFc.cached = 1;
 }
 
-cef_client_t *getcef_client_tFields(JNIEnv *env, jobject lpObject, cef_client_t *lpStruct)
+cef_browser_t *getcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStruct)
 {
-	if (!cef_client_tFc.cached) cachecef_client_tFields(env, lpObject);
+	if (!cef_browser_tFc.cached) cachecef_browser_tFields(env, lpObject);
 	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->get_context_menu_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_context_menu_handler);
-	lpStruct->get_dialog_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_dialog_handler);
-	lpStruct->get_display_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_display_handler);
-	lpStruct->get_download_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_download_handler);
-	lpStruct->get_focus_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_focus_handler);
-	lpStruct->get_geolocation_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_geolocation_handler);
-	lpStruct->get_jsdialog_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_jsdialog_handler);
-	lpStruct->get_keyboard_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_keyboard_handler);
-	lpStruct->get_life_span_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_life_span_handler);
-	lpStruct->get_load_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_load_handler);
-	lpStruct->get_request_handler = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.get_request_handler);
-	lpStruct->on_process_message_received = (*env)->GetIntLongField(env, lpObject, cef_client_tFc.on_process_message_received);
+	lpStruct->get_host = (struct _cef_browser_host_t* (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_host);
+	lpStruct->can_go_back = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.can_go_back);
+	lpStruct->go_back = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.go_back);
+	lpStruct->can_go_forward = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.can_go_forward);
+	lpStruct->go_forward = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.go_forward);
+	lpStruct->is_loading = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_loading);
+	lpStruct->reload = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.reload);
+	lpStruct->reload_ignore_cache = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache);
+	lpStruct->stop_load = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.stop_load);
+	lpStruct->get_identifier = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_identifier);
+	lpStruct->is_same = (int (CEF_CALLBACK *)(struct _cef_browser_t* self, struct _cef_browser_t* that))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_same);
+	lpStruct->is_popup = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_popup);
+	lpStruct->has_document = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.has_document);
+	lpStruct->get_main_frame = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame);
+	lpStruct->get_focused_frame = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_focused_frame);
+	lpStruct->get_frame_byident = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self, int64 identifier))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_frame_byident);
+	lpStruct->get_frame = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self, const cef_string_t* name))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_frame);
+	lpStruct->get_frame_count = (size_t (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_frame_count);
+	lpStruct->get_frame_identifiers = (void (CEF_CALLBACK *)(struct _cef_browser_t* self, size_t* identifiersCount, int64* identifiers))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_frame_identifiers);
+	lpStruct->get_frame_names = (void (CEF_CALLBACK *)(struct _cef_browser_t* self, cef_string_list_t names))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_frame_names);
+	lpStruct->send_process_message = (int (CEF_CALLBACK *)(struct _cef_browser_t* self, enum cef_process_id_t target_process, struct _cef_process_message_t* message))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.send_process_message);
 	return lpStruct;
 }
 
-void setcef_client_tFields(JNIEnv *env, jobject lpObject, cef_client_t *lpStruct)
+void setcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStruct)
 {
-	if (!cef_client_tFc.cached) cachecef_client_tFields(env, lpObject);
+	if (!cef_browser_tFc.cached) cachecef_browser_tFields(env, lpObject);
 	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_context_menu_handler, (jintLong)lpStruct->get_context_menu_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_dialog_handler, (jintLong)lpStruct->get_dialog_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_display_handler, (jintLong)lpStruct->get_display_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_download_handler, (jintLong)lpStruct->get_download_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_focus_handler, (jintLong)lpStruct->get_focus_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_geolocation_handler, (jintLong)lpStruct->get_geolocation_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_jsdialog_handler, (jintLong)lpStruct->get_jsdialog_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_keyboard_handler, (jintLong)lpStruct->get_keyboard_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_life_span_handler, (jintLong)lpStruct->get_life_span_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_load_handler, (jintLong)lpStruct->get_load_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.get_request_handler, (jintLong)lpStruct->get_request_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_client_tFc.on_process_message_received, (jintLong)lpStruct->on_process_message_received);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_host, (jintLong)lpStruct->get_host);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.can_go_back, (jintLong)lpStruct->can_go_back);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.go_back, (jintLong)lpStruct->go_back);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.can_go_forward, (jintLong)lpStruct->can_go_forward);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.go_forward, (jintLong)lpStruct->go_forward);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_loading, (jintLong)lpStruct->is_loading);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.reload, (jintLong)lpStruct->reload);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache, (jintLong)lpStruct->reload_ignore_cache);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.stop_load, (jintLong)lpStruct->stop_load);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_identifier, (jintLong)lpStruct->get_identifier);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_same, (jintLong)lpStruct->is_same);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_popup, (jintLong)lpStruct->is_popup);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.has_document, (jintLong)lpStruct->has_document);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame, (jintLong)lpStruct->get_main_frame);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_focused_frame, (jintLong)lpStruct->get_focused_frame);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_byident, (jintLong)lpStruct->get_frame_byident);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame, (jintLong)lpStruct->get_frame);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_count, (jintLong)lpStruct->get_frame_count);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_identifiers, (jintLong)lpStruct->get_frame_identifiers);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_names, (jintLong)lpStruct->get_frame_names);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.send_process_message, (jintLong)lpStruct->send_process_message);
 }
 #endif
 
-#ifndef NO_cef_command_line_t
-typedef struct cef_command_line_t_FID_CACHE {
+#ifndef NO_cef_frame_t
+typedef struct cef_frame_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID is_valid, is_read_only, copy, init_from_argv, init_from_string, reset, get_command_line_string, get_program, set_program, has_switch, get_switch_value, get_switches, append_switch, append_switch_with_value, has_arguments, get_arguments, append_argument, prepend_wrapper;
-} cef_command_line_t_FID_CACHE;
+	jfieldID is_valid, undo, redo, cut, copy, paste, del, select_all, view_source, get_source, get_text, load_request, load_url, load_string, execute_java_script, is_main, is_focused, get_name, get_identifier, get_parent, get_url, get_browser, get_v8context, visit_dom;
+} cef_frame_t_FID_CACHE;
 
-cef_command_line_t_FID_CACHE cef_command_line_tFc;
+cef_frame_t_FID_CACHE cef_frame_tFc;
 
-void cachecef_command_line_tFields(JNIEnv *env, jobject lpObject)
+void cachecef_frame_tFields(JNIEnv *env, jobject lpObject)
 {
-	if (cef_command_line_tFc.cached) return;
+	if (cef_frame_tFc.cached) return;
 	cachecef_base_tFields(env, lpObject);
-	cef_command_line_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_command_line_tFc.is_valid = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "is_valid", I_J);
-	cef_command_line_tFc.is_read_only = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "is_read_only", I_J);
-	cef_command_line_tFc.copy = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "copy", I_J);
-	cef_command_line_tFc.init_from_argv = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "init_from_argv", I_J);
-	cef_command_line_tFc.init_from_string = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "init_from_string", I_J);
-	cef_command_line_tFc.reset = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "reset", I_J);
-	cef_command_line_tFc.get_command_line_string = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "get_command_line_string", I_J);
-	cef_command_line_tFc.get_program = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "get_program", I_J);
-	cef_command_line_tFc.set_program = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "set_program", I_J);
-	cef_command_line_tFc.has_switch = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "has_switch", I_J);
-	cef_command_line_tFc.get_switch_value = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "get_switch_value", I_J);
-	cef_command_line_tFc.get_switches = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "get_switches", I_J);
-	cef_command_line_tFc.append_switch = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "append_switch", I_J);
-	cef_command_line_tFc.append_switch_with_value = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "append_switch_with_value", I_J);
-	cef_command_line_tFc.has_arguments = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "has_arguments", I_J);
-	cef_command_line_tFc.get_arguments = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "get_arguments", I_J);
-	cef_command_line_tFc.append_argument = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "append_argument", I_J);
-	cef_command_line_tFc.prepend_wrapper = (*env)->GetFieldID(env, cef_command_line_tFc.clazz, "prepend_wrapper", I_J);
-	cef_command_line_tFc.cached = 1;
+	cef_frame_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_frame_tFc.is_valid = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "is_valid", I_J);
+	cef_frame_tFc.undo = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "undo", I_J);
+	cef_frame_tFc.redo = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "redo", I_J);
+	cef_frame_tFc.cut = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "cut", I_J);
+	cef_frame_tFc.copy = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "copy", I_J);
+	cef_frame_tFc.paste = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "paste", I_J);
+	cef_frame_tFc.del = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "del", I_J);
+	cef_frame_tFc.select_all = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "select_all", I_J);
+	cef_frame_tFc.view_source = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "view_source", I_J);
+	cef_frame_tFc.get_source = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_source", I_J);
+	cef_frame_tFc.get_text = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_text", I_J);
+	cef_frame_tFc.load_request = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "load_request", I_J);
+	cef_frame_tFc.load_url = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "load_url", I_J);
+	cef_frame_tFc.load_string = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "load_string", I_J);
+	cef_frame_tFc.execute_java_script = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "execute_java_script", I_J);
+	cef_frame_tFc.is_main = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "is_main", I_J);
+	cef_frame_tFc.is_focused = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "is_focused", I_J);
+	cef_frame_tFc.get_name = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_name", I_J);
+	cef_frame_tFc.get_identifier = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_identifier", I_J);
+	cef_frame_tFc.get_parent = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_parent", I_J);
+	cef_frame_tFc.get_url = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_url", I_J);
+	cef_frame_tFc.get_browser = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_browser", I_J);
+	cef_frame_tFc.get_v8context = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "get_v8context", I_J);
+	cef_frame_tFc.visit_dom = (*env)->GetFieldID(env, cef_frame_tFc.clazz, "visit_dom", I_J);
+	cef_frame_tFc.cached = 1;
 }
 
-cef_command_line_t *getcef_command_line_tFields(JNIEnv *env, jobject lpObject, cef_command_line_t *lpStruct)
+cef_frame_t *getcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct)
 {
-	if (!cef_command_line_tFc.cached) cachecef_command_line_tFields(env, lpObject);
+	if (!cef_frame_tFc.cached) cachecef_frame_tFields(env, lpObject);
 	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->is_valid = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.is_valid);
-	lpStruct->is_read_only = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.is_read_only);
-	lpStruct->copy = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.copy);
-	lpStruct->init_from_argv = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.init_from_argv);
-	lpStruct->init_from_string = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.init_from_string);
-	lpStruct->reset = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.reset);
-	lpStruct->get_command_line_string = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.get_command_line_string);
-	lpStruct->get_program = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.get_program);
-	lpStruct->set_program = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.set_program);
-	lpStruct->has_switch = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.has_switch);
-	lpStruct->get_switch_value = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.get_switch_value);
-	lpStruct->get_switches = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.get_switches);
-	lpStruct->append_switch = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.append_switch);
-	lpStruct->append_switch_with_value = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.append_switch_with_value);
-	lpStruct->has_arguments = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.has_arguments);
-	lpStruct->get_arguments = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.get_arguments);
-	lpStruct->append_argument = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.append_argument);
-	lpStruct->prepend_wrapper = (*env)->GetIntLongField(env, lpObject, cef_command_line_tFc.prepend_wrapper);
+	lpStruct->is_valid = (int (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.is_valid);
+	lpStruct->undo = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.undo);
+	lpStruct->redo = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.redo);
+	lpStruct->cut = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.cut);
+	lpStruct->copy = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.copy);
+	lpStruct->paste = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.paste);
+	lpStruct->del = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.del);
+	lpStruct->select_all = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.select_all);
+	lpStruct->view_source = (void (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.view_source);
+	lpStruct->get_source = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, struct _cef_string_visitor_t* visitor))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_source);
+	lpStruct->get_text = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, struct _cef_string_visitor_t* visitor))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_text);
+	lpStruct->load_request = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, struct _cef_request_t* request))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.load_request);
+	lpStruct->load_url = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, const cef_string_t* url))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.load_url);
+	lpStruct->load_string = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, const cef_string_t* string_val, const cef_string_t* url))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.load_string);
+	lpStruct->execute_java_script = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, const cef_string_t* code, const cef_string_t* script_url, int start_line))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.execute_java_script);
+	lpStruct->is_main = (int (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.is_main);
+	lpStruct->is_focused = (int (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.is_focused);
+	lpStruct->get_name = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_name);
+	lpStruct->get_identifier = (int64 (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_identifier);
+	lpStruct->get_parent = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_parent);
+	lpStruct->get_url = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_url);
+	lpStruct->get_browser = (struct _cef_browser_t* (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_browser);
+	lpStruct->get_v8context = (struct _cef_v8context_t* (CEF_CALLBACK *)(struct _cef_frame_t* self))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.get_v8context);
+	lpStruct->visit_dom = (void (CEF_CALLBACK *)(struct _cef_frame_t* self, struct _cef_domvisitor_t* visitor))(*env)->GetIntLongField(env, lpObject, cef_frame_tFc.visit_dom);
 	return lpStruct;
 }
 
-void setcef_command_line_tFields(JNIEnv *env, jobject lpObject, cef_command_line_t *lpStruct)
+void setcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct)
 {
-	if (!cef_command_line_tFc.cached) cachecef_command_line_tFields(env, lpObject);
+	if (!cef_frame_tFc.cached) cachecef_frame_tFields(env, lpObject);
 	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.is_valid, (jintLong)lpStruct->is_valid);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.is_read_only, (jintLong)lpStruct->is_read_only);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.copy, (jintLong)lpStruct->copy);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.init_from_argv, (jintLong)lpStruct->init_from_argv);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.init_from_string, (jintLong)lpStruct->init_from_string);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.reset, (jintLong)lpStruct->reset);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.get_command_line_string, (jintLong)lpStruct->get_command_line_string);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.get_program, (jintLong)lpStruct->get_program);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.set_program, (jintLong)lpStruct->set_program);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.has_switch, (jintLong)lpStruct->has_switch);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.get_switch_value, (jintLong)lpStruct->get_switch_value);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.get_switches, (jintLong)lpStruct->get_switches);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.append_switch, (jintLong)lpStruct->append_switch);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.append_switch_with_value, (jintLong)lpStruct->append_switch_with_value);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.has_arguments, (jintLong)lpStruct->has_arguments);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.get_arguments, (jintLong)lpStruct->get_arguments);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.append_argument, (jintLong)lpStruct->append_argument);
-	(*env)->SetIntLongField(env, lpObject, cef_command_line_tFc.prepend_wrapper, (jintLong)lpStruct->prepend_wrapper);
-}
-#endif
-
-#ifndef NO_cef_context_menu_handler_t
-typedef struct cef_context_menu_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_before_context_menu, on_context_menu_command, on_context_menu_dismissed;
-} cef_context_menu_handler_t_FID_CACHE;
-
-cef_context_menu_handler_t_FID_CACHE cef_context_menu_handler_tFc;
-
-void cachecef_context_menu_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_context_menu_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_context_menu_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_context_menu_handler_tFc.on_before_context_menu = (*env)->GetFieldID(env, cef_context_menu_handler_tFc.clazz, "on_before_context_menu", I_J);
-	cef_context_menu_handler_tFc.on_context_menu_command = (*env)->GetFieldID(env, cef_context_menu_handler_tFc.clazz, "on_context_menu_command", I_J);
-	cef_context_menu_handler_tFc.on_context_menu_dismissed = (*env)->GetFieldID(env, cef_context_menu_handler_tFc.clazz, "on_context_menu_dismissed", I_J);
-	cef_context_menu_handler_tFc.cached = 1;
-}
-
-cef_context_menu_handler_t *getcef_context_menu_handler_tFields(JNIEnv *env, jobject lpObject, cef_context_menu_handler_t *lpStruct)
-{
-	if (!cef_context_menu_handler_tFc.cached) cachecef_context_menu_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_before_context_menu = (*env)->GetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_before_context_menu);
-	lpStruct->on_context_menu_command = (*env)->GetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_context_menu_command);
-	lpStruct->on_context_menu_dismissed = (*env)->GetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_context_menu_dismissed);
-	return lpStruct;
-}
-
-void setcef_context_menu_handler_tFields(JNIEnv *env, jobject lpObject, cef_context_menu_handler_t *lpStruct)
-{
-	if (!cef_context_menu_handler_tFc.cached) cachecef_context_menu_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_before_context_menu, (jintLong)lpStruct->on_before_context_menu);
-	(*env)->SetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_context_menu_command, (jintLong)lpStruct->on_context_menu_command);
-	(*env)->SetIntLongField(env, lpObject, cef_context_menu_handler_tFc.on_context_menu_dismissed, (jintLong)lpStruct->on_context_menu_dismissed);
-}
-#endif
-
-#ifndef NO_cef_display_handler_t
-typedef struct cef_display_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_loading_state_change, on_address_change, on_title_change, on_tooltip, on_status_message, on_console_message;
-} cef_display_handler_t_FID_CACHE;
-
-cef_display_handler_t_FID_CACHE cef_display_handler_tFc;
-
-void cachecef_display_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_display_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_display_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_display_handler_tFc.on_loading_state_change = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_loading_state_change", I_J);
-	cef_display_handler_tFc.on_address_change = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_address_change", I_J);
-	cef_display_handler_tFc.on_title_change = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_title_change", I_J);
-	cef_display_handler_tFc.on_tooltip = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_tooltip", I_J);
-	cef_display_handler_tFc.on_status_message = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_status_message", I_J);
-	cef_display_handler_tFc.on_console_message = (*env)->GetFieldID(env, cef_display_handler_tFc.clazz, "on_console_message", I_J);
-	cef_display_handler_tFc.cached = 1;
-}
-
-cef_display_handler_t *getcef_display_handler_tFields(JNIEnv *env, jobject lpObject, cef_display_handler_t *lpStruct)
-{
-	if (!cef_display_handler_tFc.cached) cachecef_display_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_loading_state_change = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_loading_state_change);
-	lpStruct->on_address_change = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_address_change);
-	lpStruct->on_title_change = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_title_change);
-	lpStruct->on_tooltip = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_tooltip);
-	lpStruct->on_status_message = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_status_message);
-	lpStruct->on_console_message = (*env)->GetIntLongField(env, lpObject, cef_display_handler_tFc.on_console_message);
-	return lpStruct;
-}
-
-void setcef_display_handler_tFields(JNIEnv *env, jobject lpObject, cef_display_handler_t *lpStruct)
-{
-	if (!cef_display_handler_tFc.cached) cachecef_display_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_loading_state_change, (jintLong)lpStruct->on_loading_state_change);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_address_change, (jintLong)lpStruct->on_address_change);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_title_change, (jintLong)lpStruct->on_title_change);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_tooltip, (jintLong)lpStruct->on_tooltip);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_status_message, (jintLong)lpStruct->on_status_message);
-	(*env)->SetIntLongField(env, lpObject, cef_display_handler_tFc.on_console_message, (jintLong)lpStruct->on_console_message);
-}
-#endif
-
-#ifndef NO_cef_focus_handler_t
-typedef struct cef_focus_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_take_focus, on_set_focus, on_got_focus;
-} cef_focus_handler_t_FID_CACHE;
-
-cef_focus_handler_t_FID_CACHE cef_focus_handler_tFc;
-
-void cachecef_focus_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_focus_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_focus_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_focus_handler_tFc.on_take_focus = (*env)->GetFieldID(env, cef_focus_handler_tFc.clazz, "on_take_focus", I_J);
-	cef_focus_handler_tFc.on_set_focus = (*env)->GetFieldID(env, cef_focus_handler_tFc.clazz, "on_set_focus", I_J);
-	cef_focus_handler_tFc.on_got_focus = (*env)->GetFieldID(env, cef_focus_handler_tFc.clazz, "on_got_focus", I_J);
-	cef_focus_handler_tFc.cached = 1;
-}
-
-cef_focus_handler_t *getcef_focus_handler_tFields(JNIEnv *env, jobject lpObject, cef_focus_handler_t *lpStruct)
-{
-	if (!cef_focus_handler_tFc.cached) cachecef_focus_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_take_focus = (*env)->GetIntLongField(env, lpObject, cef_focus_handler_tFc.on_take_focus);
-	lpStruct->on_set_focus = (*env)->GetIntLongField(env, lpObject, cef_focus_handler_tFc.on_set_focus);
-	lpStruct->on_got_focus = (*env)->GetIntLongField(env, lpObject, cef_focus_handler_tFc.on_got_focus);
-	return lpStruct;
-}
-
-void setcef_focus_handler_tFields(JNIEnv *env, jobject lpObject, cef_focus_handler_t *lpStruct)
-{
-	if (!cef_focus_handler_tFc.cached) cachecef_focus_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_focus_handler_tFc.on_take_focus, (jintLong)lpStruct->on_take_focus);
-	(*env)->SetIntLongField(env, lpObject, cef_focus_handler_tFc.on_set_focus, (jintLong)lpStruct->on_set_focus);
-	(*env)->SetIntLongField(env, lpObject, cef_focus_handler_tFc.on_got_focus, (jintLong)lpStruct->on_got_focus);
-}
-#endif
-
-#ifndef NO_cef_life_span_handler_t
-typedef struct cef_life_span_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_before_popup, on_after_created, run_modal, do_close, on_before_close;
-} cef_life_span_handler_t_FID_CACHE;
-
-cef_life_span_handler_t_FID_CACHE cef_life_span_handler_tFc;
-
-void cachecef_life_span_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_life_span_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_life_span_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_life_span_handler_tFc.on_before_popup = (*env)->GetFieldID(env, cef_life_span_handler_tFc.clazz, "on_before_popup", I_J);
-	cef_life_span_handler_tFc.on_after_created = (*env)->GetFieldID(env, cef_life_span_handler_tFc.clazz, "on_after_created", I_J);
-	cef_life_span_handler_tFc.run_modal = (*env)->GetFieldID(env, cef_life_span_handler_tFc.clazz, "run_modal", I_J);
-	cef_life_span_handler_tFc.do_close = (*env)->GetFieldID(env, cef_life_span_handler_tFc.clazz, "do_close", I_J);
-	cef_life_span_handler_tFc.on_before_close = (*env)->GetFieldID(env, cef_life_span_handler_tFc.clazz, "on_before_close", I_J);
-	cef_life_span_handler_tFc.cached = 1;
-}
-
-cef_life_span_handler_t *getcef_life_span_handler_tFields(JNIEnv *env, jobject lpObject, cef_life_span_handler_t *lpStruct)
-{
-	if (!cef_life_span_handler_tFc.cached) cachecef_life_span_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_before_popup = (*env)->GetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_before_popup);
-	lpStruct->on_after_created = (*env)->GetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_after_created);
-	lpStruct->run_modal = (*env)->GetIntLongField(env, lpObject, cef_life_span_handler_tFc.run_modal);
-	lpStruct->do_close = (*env)->GetIntLongField(env, lpObject, cef_life_span_handler_tFc.do_close);
-	lpStruct->on_before_close = (*env)->GetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_before_close);
-	return lpStruct;
-}
-
-void setcef_life_span_handler_tFields(JNIEnv *env, jobject lpObject, cef_life_span_handler_t *lpStruct)
-{
-	if (!cef_life_span_handler_tFc.cached) cachecef_life_span_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_before_popup, (jintLong)lpStruct->on_before_popup);
-	(*env)->SetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_after_created, (jintLong)lpStruct->on_after_created);
-	(*env)->SetIntLongField(env, lpObject, cef_life_span_handler_tFc.run_modal, (jintLong)lpStruct->run_modal);
-	(*env)->SetIntLongField(env, lpObject, cef_life_span_handler_tFc.do_close, (jintLong)lpStruct->do_close);
-	(*env)->SetIntLongField(env, lpObject, cef_life_span_handler_tFc.on_before_close, (jintLong)lpStruct->on_before_close);
-}
-#endif
-
-#ifndef NO_cef_load_handler_t
-typedef struct cef_load_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_load_start, on_load_end, on_load_error, on_render_process_terminated, on_plugin_crashed;
-} cef_load_handler_t_FID_CACHE;
-
-cef_load_handler_t_FID_CACHE cef_load_handler_tFc;
-
-void cachecef_load_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_load_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_load_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_load_handler_tFc.on_load_start = (*env)->GetFieldID(env, cef_load_handler_tFc.clazz, "on_load_start", I_J);
-	cef_load_handler_tFc.on_load_end = (*env)->GetFieldID(env, cef_load_handler_tFc.clazz, "on_load_end", I_J);
-	cef_load_handler_tFc.on_load_error = (*env)->GetFieldID(env, cef_load_handler_tFc.clazz, "on_load_error", I_J);
-	cef_load_handler_tFc.on_render_process_terminated = (*env)->GetFieldID(env, cef_load_handler_tFc.clazz, "on_render_process_terminated", I_J);
-	cef_load_handler_tFc.on_plugin_crashed = (*env)->GetFieldID(env, cef_load_handler_tFc.clazz, "on_plugin_crashed", I_J);
-	cef_load_handler_tFc.cached = 1;
-}
-
-cef_load_handler_t *getcef_load_handler_tFields(JNIEnv *env, jobject lpObject, cef_load_handler_t *lpStruct)
-{
-	if (!cef_load_handler_tFc.cached) cachecef_load_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_load_start = (*env)->GetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_start);
-	lpStruct->on_load_end = (*env)->GetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_end);
-	lpStruct->on_load_error = (*env)->GetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_error);
-	lpStruct->on_render_process_terminated = (*env)->GetIntLongField(env, lpObject, cef_load_handler_tFc.on_render_process_terminated);
-	lpStruct->on_plugin_crashed = (*env)->GetIntLongField(env, lpObject, cef_load_handler_tFc.on_plugin_crashed);
-	return lpStruct;
-}
-
-void setcef_load_handler_tFields(JNIEnv *env, jobject lpObject, cef_load_handler_t *lpStruct)
-{
-	if (!cef_load_handler_tFc.cached) cachecef_load_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_start, (jintLong)lpStruct->on_load_start);
-	(*env)->SetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_end, (jintLong)lpStruct->on_load_end);
-	(*env)->SetIntLongField(env, lpObject, cef_load_handler_tFc.on_load_error, (jintLong)lpStruct->on_load_error);
-	(*env)->SetIntLongField(env, lpObject, cef_load_handler_tFc.on_render_process_terminated, (jintLong)lpStruct->on_render_process_terminated);
-	(*env)->SetIntLongField(env, lpObject, cef_load_handler_tFc.on_plugin_crashed, (jintLong)lpStruct->on_plugin_crashed);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.is_valid, (jintLong)lpStruct->is_valid);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.undo, (jintLong)lpStruct->undo);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.redo, (jintLong)lpStruct->redo);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.cut, (jintLong)lpStruct->cut);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.copy, (jintLong)lpStruct->copy);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.paste, (jintLong)lpStruct->paste);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.del, (jintLong)lpStruct->del);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.select_all, (jintLong)lpStruct->select_all);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.view_source, (jintLong)lpStruct->view_source);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_source, (jintLong)lpStruct->get_source);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_text, (jintLong)lpStruct->get_text);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.load_request, (jintLong)lpStruct->load_request);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.load_url, (jintLong)lpStruct->load_url);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.load_string, (jintLong)lpStruct->load_string);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.execute_java_script, (jintLong)lpStruct->execute_java_script);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.is_main, (jintLong)lpStruct->is_main);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.is_focused, (jintLong)lpStruct->is_focused);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_name, (jintLong)lpStruct->get_name);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_identifier, (jintLong)lpStruct->get_identifier);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_parent, (jintLong)lpStruct->get_parent);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_url, (jintLong)lpStruct->get_url);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_browser, (jintLong)lpStruct->get_browser);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.get_v8context, (jintLong)lpStruct->get_v8context);
+	(*env)->SetIntLongField(env, lpObject, cef_frame_tFc.visit_dom, (jintLong)lpStruct->visit_dom);
 }
 #endif
 
@@ -765,132 +500,6 @@ void setcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lp
 {
 	if (!cef_main_args_tFc.cached) cachecef_main_args_tFields(env, lpObject);
 	(*env)->SetIntLongField(env, lpObject, cef_main_args_tFc.instance, (jintLong)lpStruct->instance);
-}
-#endif
-
-#ifndef NO_cef_proxy_handler_t
-typedef struct cef_proxy_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID get_proxy_for_url;
-} cef_proxy_handler_t_FID_CACHE;
-
-cef_proxy_handler_t_FID_CACHE cef_proxy_handler_tFc;
-
-void cachecef_proxy_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_proxy_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_proxy_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_proxy_handler_tFc.get_proxy_for_url = (*env)->GetFieldID(env, cef_proxy_handler_tFc.clazz, "get_proxy_for_url", I_J);
-	cef_proxy_handler_tFc.cached = 1;
-}
-
-cef_proxy_handler_t *getcef_proxy_handler_tFields(JNIEnv *env, jobject lpObject, cef_proxy_handler_t *lpStruct)
-{
-	if (!cef_proxy_handler_tFc.cached) cachecef_proxy_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->get_proxy_for_url = (*env)->GetIntLongField(env, lpObject, cef_proxy_handler_tFc.get_proxy_for_url);
-	return lpStruct;
-}
-
-void setcef_proxy_handler_tFields(JNIEnv *env, jobject lpObject, cef_proxy_handler_t *lpStruct)
-{
-	if (!cef_proxy_handler_tFc.cached) cachecef_proxy_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_proxy_handler_tFc.get_proxy_for_url, (jintLong)lpStruct->get_proxy_for_url);
-}
-#endif
-
-#ifndef NO_cef_request_handler_t
-typedef struct cef_request_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID on_before_resource_load, get_resource_handler, on_resource_redirect, get_auth_credentials, on_quota_request, get_cookie_manager, on_protocol_execution, on_before_plugin_load;
-} cef_request_handler_t_FID_CACHE;
-
-cef_request_handler_t_FID_CACHE cef_request_handler_tFc;
-
-void cachecef_request_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_request_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_request_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_request_handler_tFc.on_before_resource_load = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "on_before_resource_load", I_J);
-	cef_request_handler_tFc.get_resource_handler = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "get_resource_handler", I_J);
-	cef_request_handler_tFc.on_resource_redirect = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "on_resource_redirect", I_J);
-	cef_request_handler_tFc.get_auth_credentials = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "get_auth_credentials", I_J);
-	cef_request_handler_tFc.on_quota_request = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "on_quota_request", I_J);
-	cef_request_handler_tFc.get_cookie_manager = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "get_cookie_manager", I_J);
-	cef_request_handler_tFc.on_protocol_execution = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "on_protocol_execution", I_J);
-	cef_request_handler_tFc.on_before_plugin_load = (*env)->GetFieldID(env, cef_request_handler_tFc.clazz, "on_before_plugin_load", I_J);
-	cef_request_handler_tFc.cached = 1;
-}
-
-cef_request_handler_t *getcef_request_handler_tFields(JNIEnv *env, jobject lpObject, cef_request_handler_t *lpStruct)
-{
-	if (!cef_request_handler_tFc.cached) cachecef_request_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->on_before_resource_load = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.on_before_resource_load);
-	lpStruct->get_resource_handler = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.get_resource_handler);
-	lpStruct->on_resource_redirect = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.on_resource_redirect);
-	lpStruct->get_auth_credentials = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.get_auth_credentials);
-	lpStruct->on_quota_request = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.on_quota_request);
-	lpStruct->get_cookie_manager = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.get_cookie_manager);
-	lpStruct->on_protocol_execution = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.on_protocol_execution);
-	lpStruct->on_before_plugin_load = (*env)->GetIntLongField(env, lpObject, cef_request_handler_tFc.on_before_plugin_load);
-	return lpStruct;
-}
-
-void setcef_request_handler_tFields(JNIEnv *env, jobject lpObject, cef_request_handler_t *lpStruct)
-{
-	if (!cef_request_handler_tFc.cached) cachecef_request_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.on_before_resource_load, (jintLong)lpStruct->on_before_resource_load);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.get_resource_handler, (jintLong)lpStruct->get_resource_handler);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.on_resource_redirect, (jintLong)lpStruct->on_resource_redirect);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.get_auth_credentials, (jintLong)lpStruct->get_auth_credentials);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.on_quota_request, (jintLong)lpStruct->on_quota_request);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.get_cookie_manager, (jintLong)lpStruct->get_cookie_manager);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.on_protocol_execution, (jintLong)lpStruct->on_protocol_execution);
-	(*env)->SetIntLongField(env, lpObject, cef_request_handler_tFc.on_before_plugin_load, (jintLong)lpStruct->on_before_plugin_load);
-}
-#endif
-
-#ifndef NO_cef_resource_bundle_handler_t
-typedef struct cef_resource_bundle_handler_t_FID_CACHE {
-	int cached;
-	jclass clazz;
-	jfieldID get_localized_string, get_data_resource;
-} cef_resource_bundle_handler_t_FID_CACHE;
-
-cef_resource_bundle_handler_t_FID_CACHE cef_resource_bundle_handler_tFc;
-
-void cachecef_resource_bundle_handler_tFields(JNIEnv *env, jobject lpObject)
-{
-	if (cef_resource_bundle_handler_tFc.cached) return;
-	cachecef_base_tFields(env, lpObject);
-	cef_resource_bundle_handler_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
-	cef_resource_bundle_handler_tFc.get_localized_string = (*env)->GetFieldID(env, cef_resource_bundle_handler_tFc.clazz, "get_localized_string", I_J);
-	cef_resource_bundle_handler_tFc.get_data_resource = (*env)->GetFieldID(env, cef_resource_bundle_handler_tFc.clazz, "get_data_resource", I_J);
-	cef_resource_bundle_handler_tFc.cached = 1;
-}
-
-cef_resource_bundle_handler_t *getcef_resource_bundle_handler_tFields(JNIEnv *env, jobject lpObject, cef_resource_bundle_handler_t *lpStruct)
-{
-	if (!cef_resource_bundle_handler_tFc.cached) cachecef_resource_bundle_handler_tFields(env, lpObject);
-	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->get_localized_string = (*env)->GetIntLongField(env, lpObject, cef_resource_bundle_handler_tFc.get_localized_string);
-	lpStruct->get_data_resource = (*env)->GetIntLongField(env, lpObject, cef_resource_bundle_handler_tFc.get_data_resource);
-	return lpStruct;
-}
-
-void setcef_resource_bundle_handler_tFields(JNIEnv *env, jobject lpObject, cef_resource_bundle_handler_t *lpStruct)
-{
-	if (!cef_resource_bundle_handler_tFc.cached) cachecef_resource_bundle_handler_tFields(env, lpObject);
-	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	(*env)->SetIntLongField(env, lpObject, cef_resource_bundle_handler_tFc.get_localized_string, (jintLong)lpStruct->get_localized_string);
-	(*env)->SetIntLongField(env, lpObject, cef_resource_bundle_handler_tFc.get_data_resource, (jintLong)lpStruct->get_data_resource);
 }
 #endif
 
@@ -933,14 +542,14 @@ void cachecef_settings_tFields(JNIEnv *env, jobject lpObject)
 cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_settings_t *lpStruct)
 {
 	if (!cef_settings_tFc.cached) cachecef_settings_tFields(env, lpObject);
-	lpStruct->size = (size_t)(*env)->GetIntLongField(env, lpObject, cef_settings_tFc.size);
-	lpStruct->single_process = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.single_process);
+	lpStruct->size = (*env)->GetIntLongField(env, lpObject, cef_settings_tFc.size);
+	lpStruct->single_process = (*env)->GetIntField(env, lpObject, cef_settings_tFc.single_process);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.browser_subprocess_path);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->browser_subprocess_path);
 	}
-	lpStruct->multi_threaded_message_loop = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.multi_threaded_message_loop);
-	lpStruct->command_line_args_disabled = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.command_line_args_disabled);
+	lpStruct->multi_threaded_message_loop = (*env)->GetIntField(env, lpObject, cef_settings_tFc.multi_threaded_message_loop);
+	lpStruct->command_line_args_disabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.command_line_args_disabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.cache_path);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->cache_path);
@@ -961,13 +570,13 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.log_file);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->log_file);
 	}
-	lpStruct->log_severity = (int)(*env)->GetIntField(env, lpObject, cef_settings_tFc.log_severity);
-	lpStruct->release_dcheck_enabled = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled);
+	lpStruct->log_severity = (*env)->GetIntField(env, lpObject, cef_settings_tFc.log_severity);
+	lpStruct->release_dcheck_enabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.javascript_flags);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->javascript_flags);
 	}
-	lpStruct->auto_detect_proxy_settings_enabled = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.auto_detect_proxy_settings_enabled);
+	lpStruct->auto_detect_proxy_settings_enabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.auto_detect_proxy_settings_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.resources_dir_path);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->resources_dir_path);
@@ -976,8 +585,8 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.locales_dir_path);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->locales_dir_path);
 	}
-	lpStruct->pack_loading_disabled = (bool)(*env)->GetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled);
-	lpStruct->remote_debugging_port = (int)(*env)->GetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port);
+	lpStruct->pack_loading_disabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled);
+	lpStruct->remote_debugging_port = (*env)->GetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port);
 	lpStruct->uncaught_exception_stack_size = (*env)->GetIntField(env, lpObject, cef_settings_tFc.uncaught_exception_stack_size);
 	lpStruct->context_safety_implementation = (*env)->GetIntField(env, lpObject, cef_settings_tFc.context_safety_implementation);
 	return lpStruct;
@@ -1059,7 +668,7 @@ cef_string_t *getcef_string_tFields(JNIEnv *env, jobject lpObject, cef_string_t 
 {
 	if (!cef_string_tFc.cached) cachecef_string_tFields(env, lpObject);
 	lpStruct->str = (void *)(*env)->GetIntLongField(env, lpObject, cef_string_tFc.str);
-	lpStruct->length = (size_t)(*env)->GetIntLongField(env, lpObject, cef_string_tFc.length);
+	lpStruct->length = (*env)->GetIntLongField(env, lpObject, cef_string_tFc.length);
 	lpStruct->dtor = (void (__cdecl *)(void *))(*env)->GetIntLongField(env, lpObject, cef_string_tFc.dtor);
 	return lpStruct;
 }
@@ -1103,19 +712,19 @@ void cachecef_window_info_tFields(JNIEnv *env, jobject lpObject)
 cef_window_info_t *getcef_window_info_tFields(JNIEnv *env, jobject lpObject, cef_window_info_t *lpStruct)
 {
 	if (!cef_window_info_tFc.cached) cachecef_window_info_tFields(env, lpObject);
-	lpStruct->ex_style = (DWORD)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.ex_style);
+	lpStruct->ex_style = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.ex_style);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_window_info_tFc.window_name);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->window_name);
 	}
-	lpStruct->style = (DWORD)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.style);
-	lpStruct->x = (int)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.x);
-	lpStruct->y = (int)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.y);
-	lpStruct->width = (int)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.width);
-	lpStruct->height = (int)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.height);
+	lpStruct->style = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.style);
+	lpStruct->x = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.x);
+	lpStruct->y = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.y);
+	lpStruct->width = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.width);
+	lpStruct->height = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.height);
 	lpStruct->parent_window = (cef_window_handle_t)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.parent_window);
 	lpStruct->menu = (HMENU)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.menu);
-	lpStruct->transparent_painting = (BOOL)(*env)->GetIntField(env, lpObject, cef_window_info_tFc.transparent_painting);
+	lpStruct->transparent_painting = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.transparent_painting);
 	lpStruct->window = (cef_window_handle_t)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.window);
 	return lpStruct;
 }

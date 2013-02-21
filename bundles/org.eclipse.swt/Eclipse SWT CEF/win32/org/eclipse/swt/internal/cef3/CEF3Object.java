@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.swt.internal.cef3;
 
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 
 public class CEF3Object extends OSObject {

@@ -35,17 +35,18 @@ long /*int*/ getAddress () {
 
 /* cef_base_t */
 
-int add_ref() {
+synchronized int add_ref() {
 	refCount++;
 	return refCount;
 }
 
-int get_refct() {
+synchronized int get_refct() {
 	return refCount;
 }
 
-int release() {
+synchronized int release() {
 	if (--refCount == 0) {
+System.out.println("!!!!!!!!!!!release: CEFBrowserProcessHandler");
 		if (object != null) {
 			object.dispose ();
 		}
@@ -56,19 +57,24 @@ int release() {
 
 /* cef_browser_process_handler_t */
 
-static long /*int*/ get_proxy_handler() {
+long /*int*/ get_proxy_handler() {
+	/* possibly useful if custom proxy info needs to be set */
 	if (Device.DEBUG) System.out.println("get_proxy_handler");
 	return 0;
 }
-static long /*int*/ on_context_initialized() {
+
+long /*int*/ on_context_initialized() {
 	if (Device.DEBUG) System.out.println("on_context_initialized");
 	return 0;
 }
-static long /*int*/ on_before_child_process_launch(long /*int*/ arg0) {
-	if (Device.DEBUG) System.out.println("on_before_child_process_launch");
+
+long /*int*/ on_before_child_process_launch(long /*int*/ command_line) {
+	/* opportunity to view/modify command line before it is used by subprocess */
+	if (Device.DEBUG) System.out.println("on_before_child_process_launch (TODO)");
 	return 0;
 }
-static long /*int*/ on_render_process_thread_created(long /*int*/ arg0) {
+
+long /*int*/ on_render_process_thread_created(long /*int*/ extra_info) {
 	if (Device.DEBUG) System.out.println("on_render_process_thread_created");
 	return 0;
 }

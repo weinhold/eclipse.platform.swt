@@ -1031,13 +1031,15 @@
 			<arg line="${targets}"/>
 			<arg line="${clean}"/>
 		</exec>
-		<condition property="should_build_xulrunner" value="true">
-			<and>
-				<equals arg1="${swt.ws}" arg2="win32"/>
-				<equals arg1="${swt.arch}" arg2="x86"/>
-			</and>
-		</condition>
-		<antcall target="build_local_win_xulrunner"/>
+<!--
+	<condition property="should_build_xulrunner" value="true">
+		<and>
+			<equals arg1="${swt.ws}" arg2="win32"/>
+			<equals arg1="${swt.arch}" arg2="x86"/>
+		</and>
+	</condition>
+	<antcall target="build_local_win_xulrunner"/>
+-->
 	</target>
 
 	<target name="build_local_win_xulrunner" if="should_build_xulrunner">

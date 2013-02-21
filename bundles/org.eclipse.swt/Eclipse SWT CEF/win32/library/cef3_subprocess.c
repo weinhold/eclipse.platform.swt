@@ -9,17 +9,13 @@
  *    IBM Corporation - initial API and implementation
  *******************************************************************************/
  
- //#include <windows.h>
-//#include <stdio.h>
 #include "swt.h"
 #include "cef3_structs.h"
 #include "cef3_stats.h"
 #include <cef_app_capi.h>
 
-
-int main(int argc, char **argv, char **envp) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
  	cef_main_args_t args;
- 	args.instance = GetModuleHandle("cef3_subprocess.exe");
-// 	MessageBox(0, "in main(void)", 0, MB_OK);
+ 	args.instance = hInstance;
 	return cef_execute_process(&args, NULL);
 }

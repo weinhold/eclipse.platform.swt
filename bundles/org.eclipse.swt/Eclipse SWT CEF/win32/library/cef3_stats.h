@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,23 +25,25 @@ extern char* CEF3_nativeFunctionNames[];
 #endif
 
 typedef enum {
-	cef_1app_1t_1sizeof_FUNC,
+	callFuncInt_FUNC,
+	callFuncPtr_FUNC,
+#ifndef JNI64
+	callFuncVoid__II_FUNC,
+#else
+	callFuncVoid__JJ_FUNC,
+#endif
+#ifndef JNI64
+	callFuncVoid__III_FUNC,
+#else
+	callFuncVoid__JJJ_FUNC,
+#endif
+	cef_1base_1t_1sizeof_FUNC,
 	cef_1browser_1host_1create_1browser_FUNC,
-	cef_1browser_1host_1create_1browser_1sync_FUNC,
-	cef_1browser_1process_1handler_1t_1sizeof_FUNC,
 	cef_1browser_1settings_1t_1sizeof_FUNC,
-	cef_1client_1t_1sizeof_FUNC,
-	cef_1command_1line_1t_1sizeof_FUNC,
-	cef_1context_1menu_1handler_1t_1sizeof_FUNC,
-	cef_1display_1handler_1t_1sizeof_FUNC,
+	cef_1browser_1t_1sizeof_FUNC,
 	cef_1execute_1process_FUNC,
-	cef_1focus_1handler_1t_1sizeof_FUNC,
+	cef_1frame_1t_1sizeof_FUNC,
 	cef_1initialize_FUNC,
-	cef_1life_1span_1handler_1t_1sizeof_FUNC,
-	cef_1load_1handler_1t_1sizeof_FUNC,
-	cef_1proxy_1handler_1t_1sizeof_FUNC,
-	cef_1request_1handler_1t_1sizeof_FUNC,
-	cef_1resource_1bundle_1handler_1t_1sizeof_FUNC,
 	cef_1settings_1t_1sizeof_FUNC,
 	cef_1string_1clear_FUNC,
 	cef_1string_1set_FUNC,
@@ -49,59 +51,19 @@ typedef enum {
 	cef_1string_1userfree_1alloc_FUNC,
 	cef_1string_1userfree_1free_FUNC,
 #ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1app_1t_2I_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II_FUNC,
 #else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1app_1t_2J_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1browser_1process_1handler_1t_2I_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2II_FUNC,
 #else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1browser_1process_1handler_1t_2J_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1client_1t_2I_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2II_FUNC,
 #else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1client_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1display_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1display_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1focus_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1focus_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1life_1span_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1life_1span_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1load_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1load_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1proxy_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1proxy_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1request_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1request_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__ILorg_eclipse_swt_internal_cef3_cef_1resource_1bundle_1handler_1t_2I_FUNC,
-#else
-	memmove__JLorg_eclipse_swt_internal_cef3_cef_1resource_1bundle_1handler_1t_2J_FUNC,
-#endif
-#ifndef JNI64
-	memmove__Lorg_eclipse_swt_internal_cef3_cef_1command_1line_1t_2II_FUNC,
-#else
-	memmove__Lorg_eclipse_swt_internal_cef3_cef_1command_1line_1t_2JJ_FUNC,
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2II_FUNC,

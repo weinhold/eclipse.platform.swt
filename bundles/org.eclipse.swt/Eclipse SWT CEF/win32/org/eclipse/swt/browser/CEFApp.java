@@ -11,15 +11,13 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.C;
-import org.eclipse.swt.internal.Callback;
-import org.eclipse.swt.internal.cef3.CEF3;
 import org.eclipse.swt.internal.cef3.CEF3Object;
-import org.eclipse.swt.internal.cef3.cef_browser_process_handler_t;
 
 public class CEFApp {
 	CEF3Object object;
 	CEFBrowserProcessHandler browserProcessHandler;
+	CEFRenderProcessHandler renderProcessHandler;
+	CEFResourceBundleHandler resourceBundleHandler;
 	int refCount = 1;
 
 public CEFApp() {
@@ -41,20 +39,29 @@ long /*int*/ getAddress () {
 
 /* cef_base_t */
 
-int add_ref() {
+synchronized int add_ref() {
 	refCount++;
 	return refCount;
 }
 
-int get_refct() {
+synchronized int get_refct() {
 	return refCount;
 }
 
-int release() {
+synchronized int release() {
 	if (--refCount == 0) {
+System.out.println("!!!!!!!!!!!release: CEFApp");
 		if (browserProcessHandler != null) {
 			browserProcessHandler.release();
 			browserProcessHandler = null;
+		}
+		if (renderProcessHandler != null) {
+			renderProcessHandler.release();
+			renderProcessHandler = null;
+		}
+		if (resourceBundleHandler != null) {
+			resourceBundleHandler.release();
+			resourceBundleHandler = null;
 		}
 		if (object != null) {
 			object.dispose ();
@@ -66,28 +73,43 @@ int release() {
 
 /* cef_app_t */
 
-long /*int*/ get_browser_process_handler() {
-	if (Device.DEBUG) System.out.println("get_browser_process_handler");
+synchronized long /*int*/ get_browser_process_handler() {
+	if (Device.DEBUG) System.out.println("get_browser_process_handler (impl)");
 	if (browserProcessHandler == null) {
 		browserProcessHandler = new CEFBrowserProcessHandler();
-		browserProcessHandler.add_ref();
 	}
+	browserProcessHandler.add_ref();
 	return browserProcessHandler.getAddress();
 }
-long /*int*/ get_render_process_handler() {
-	if (Device.DEBUG) System.out.println("**get_render_process_handler");
-	return 0;
+
+synchronized long /*int*/ get_render_process_handler() {
+	if (Device.DEBUG) System.out.println("get_render_process_handler (impl)");
+	if (renderProcessHandler == null) {
+		renderProcessHandler = new CEFRenderProcessHandler();
+	}
+	renderProcessHandler.add_ref();
+	return renderProcessHandler.getAddress();
 }
+
 long /*int*/ get_resource_bundle_handler() {
-	if (Device.DEBUG) System.out.println("**get_resource_bundle_handler");
-	return 0;
+	if (Device.DEBUG) System.out.println("get_resource_bundle_handler (impl)");
+	if (resourceBundleHandler == null) {
+		resourceBundleHandler = new CEFResourceBundleHandler();
+	}
+	resourceBundleHandler.add_ref();
+	return resourceBundleHandler.getAddress();
 }
-long /*int*/ on_before_command_line_processing(long /*int*/ self, long /*int*/ arg1) {
-	/* opportunity to view/modify command line before it is used by subprocess */
+
+long /*int*/ on_before_command_line_processing(long /*int*/ process_type, long /*int*/ command_line) {
+	/* 
+	 * CEFBrowserProcessHandler.on_before_child_process_launch() appears to be the
+	 * appropriate place to do this for our purposes.
+	 */
 	if (Device.DEBUG) System.out.println("on_before_command_line_processing");
 	return 0;
 }
-long /*int*/ on_register_custom_schemes(long /*int*/ self) {
+
+long /*int*/ on_register_custom_schemes(long /*int*/ registrar) {
 	if (Device.DEBUG) System.out.println("on_register_custom_schemes");
 	return 0;
 }
