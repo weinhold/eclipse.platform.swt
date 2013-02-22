@@ -23,7 +23,7 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt)
 {
 	jint rc = 0;
 	CEF3_NATIVE_ENTER(env, that, callFuncInt_FUNC);
-	rc = (jint)((jint(CEF_CALLBACK*)())arg0)(arg1);
+	rc = (jint)((jint (CEF_CALLBACK*)())arg0)(arg1);
 	CEF3_NATIVE_EXIT(env, that, callFuncInt_FUNC);
 	return rc;
 }
@@ -35,7 +35,7 @@ JNIEXPORT jintLong JNICALL CEF3_NATIVE(callFuncPtr)
 {
 	jintLong rc = 0;
 	CEF3_NATIVE_ENTER(env, that, callFuncPtr_FUNC);
-	rc = (jintLong)((jintLong(CEF_CALLBACK*)())arg0)(arg1);
+	rc = (jintLong)((jintLong (CEF_CALLBACK*)())arg0)(arg1);
 	CEF3_NATIVE_EXIT(env, that, callFuncPtr_FUNC);
 	return rc;
 }
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJ)(JNIEnv *env, jclass that, j
 #else
 	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJ_FUNC);
 #endif
-	((void(CEF_CALLBACK*)())arg0)(arg1);
+	((void (CEF_CALLBACK*)())arg0)(arg1);
 #ifndef JNI64
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__II_FUNC);
 #else
@@ -74,7 +74,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJ)(JNIEnv *env, jclass that, 
 #else
 	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJJ_FUNC);
 #endif
-	((void(CEF_CALLBACK*)())arg0)(arg1, arg2);
+	((void (CEF_CALLBACK*)())arg0)(arg1, arg2);
 #ifndef JNI64
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__III_FUNC);
 #else
@@ -270,7 +270,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1
 #else
 	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ_FUNC);
 #endif
-	if (arg0) if ((lparg0 = getcef_base_tFields(env, arg0, &_arg0)) == NULL) goto fail;
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
 	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
 fail:
 	if (arg0 && lparg0) setcef_base_tFields(env, arg0, lparg0);
@@ -295,7 +295,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1
 #else
 	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2JJ_FUNC);
 #endif
-	if (arg0) if ((lparg0 = getcef_browser_tFields(env, arg0, &_arg0)) == NULL) goto fail;
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
 	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
 fail:
 	if (arg0 && lparg0) setcef_browser_tFields(env, arg0, lparg0);
@@ -320,7 +320,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1
 #else
 	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ_FUNC);
 #endif
-	if (arg0) if ((lparg0 = getcef_frame_tFields(env, arg0, &_arg0)) == NULL) goto fail;
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
 	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
 fail:
 	if (arg0 && lparg0) setcef_frame_tFields(env, arg0, lparg0);
@@ -345,7 +345,7 @@ JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1
 #else
 	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2JJ_FUNC);
 #endif
-	if (arg0) if ((lparg0 = getcef_string_tFields(env, arg0, &_arg0)) == NULL) goto fail;
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
 	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
 fail:
 	if (arg0 && lparg0) setcef_string_tFields(env, arg0, lparg0);

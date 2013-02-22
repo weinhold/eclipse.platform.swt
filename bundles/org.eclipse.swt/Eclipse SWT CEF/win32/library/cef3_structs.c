@@ -279,7 +279,7 @@ void setcef_browser_settings_tFields(JNIEnv *env, jobject lpObject, cef_browser_
 typedef struct cef_browser_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_host, can_go_back, go_back, can_go_forward, go_forward, is_loading, reload, reload_ignore_cache, stop_load, get_identifier, is_same, is_popup, has_document, get_main_frame, get_focused_frame, get_frame_byident, get_frame, get_frame_count, get_frame_identifiers, get_frame_names, send_process_message;
+	jfieldID get_host, can_go_back, go_back, can_go_forward, go_forward, is_loading, reload, reload_ignore_cache, stop_load, get_identifier, is_popup, has_document, get_main_frame, get_focused_frame, get_frame_byident, get_frame, get_frame_count, get_frame_identifiers, get_frame_names, send_process_message;
 } cef_browser_t_FID_CACHE;
 
 cef_browser_t_FID_CACHE cef_browser_tFc;
@@ -299,7 +299,6 @@ void cachecef_browser_tFields(JNIEnv *env, jobject lpObject)
 	cef_browser_tFc.reload_ignore_cache = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "reload_ignore_cache", I_J);
 	cef_browser_tFc.stop_load = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "stop_load", I_J);
 	cef_browser_tFc.get_identifier = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_identifier", I_J);
-	cef_browser_tFc.is_same = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_same", I_J);
 	cef_browser_tFc.is_popup = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_popup", I_J);
 	cef_browser_tFc.has_document = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "has_document", I_J);
 	cef_browser_tFc.get_main_frame = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_main_frame", I_J);
@@ -327,7 +326,6 @@ cef_browser_t *getcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser
 	lpStruct->reload_ignore_cache = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache);
 	lpStruct->stop_load = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.stop_load);
 	lpStruct->get_identifier = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_identifier);
-	lpStruct->is_same = (int (CEF_CALLBACK *)(struct _cef_browser_t* self, struct _cef_browser_t* that))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_same);
 	lpStruct->is_popup = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_popup);
 	lpStruct->has_document = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.has_document);
 	lpStruct->get_main_frame = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame);
@@ -355,7 +353,6 @@ void setcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStru
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache, (jintLong)lpStruct->reload_ignore_cache);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.stop_load, (jintLong)lpStruct->stop_load);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_identifier, (jintLong)lpStruct->get_identifier);
-	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_same, (jintLong)lpStruct->is_same);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_popup, (jintLong)lpStruct->is_popup);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.has_document, (jintLong)lpStruct->has_document);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame, (jintLong)lpStruct->get_main_frame);
@@ -507,7 +504,7 @@ void setcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lp
 typedef struct cef_settings_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID size, single_process, browser_subprocess_path, multi_threaded_message_loop, command_line_args_disabled, cache_path, user_agent, product_version, locale, log_file, log_severity, release_dcheck_enabled, javascript_flags, auto_detect_proxy_settings_enabled, resources_dir_path, locales_dir_path, pack_loading_disabled, remote_debugging_port, uncaught_exception_stack_size, context_safety_implementation;
+	jfieldID size, single_process, browser_subprocess_path, multi_threaded_message_loop, command_line_args_disabled, cache_path, user_agent, product_version, locale, log_file, log_severity, javascript_flags, auto_detect_proxy_settings_enabled, resources_dir_path, locales_dir_path, pack_loading_disabled, remote_debugging_port;
 } cef_settings_t_FID_CACHE;
 
 cef_settings_t_FID_CACHE cef_settings_tFc;
@@ -527,15 +524,12 @@ void cachecef_settings_tFields(JNIEnv *env, jobject lpObject)
 	cef_settings_tFc.locale = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "locale", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.log_file = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "log_file", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.log_severity = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "log_severity", "I");
-	cef_settings_tFc.release_dcheck_enabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "release_dcheck_enabled", "I");
 	cef_settings_tFc.javascript_flags = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "javascript_flags", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.auto_detect_proxy_settings_enabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "auto_detect_proxy_settings_enabled", "I");
 	cef_settings_tFc.resources_dir_path = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "resources_dir_path", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.locales_dir_path = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "locales_dir_path", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.pack_loading_disabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "pack_loading_disabled", "I");
 	cef_settings_tFc.remote_debugging_port = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "remote_debugging_port", "I");
-	cef_settings_tFc.uncaught_exception_stack_size = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "uncaught_exception_stack_size", "I");
-	cef_settings_tFc.context_safety_implementation = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "context_safety_implementation", "I");
 	cef_settings_tFc.cached = 1;
 }
 
@@ -571,7 +565,6 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->log_file);
 	}
 	lpStruct->log_severity = (*env)->GetIntField(env, lpObject, cef_settings_tFc.log_severity);
-	lpStruct->release_dcheck_enabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.javascript_flags);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->javascript_flags);
@@ -587,8 +580,6 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	}
 	lpStruct->pack_loading_disabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled);
 	lpStruct->remote_debugging_port = (*env)->GetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port);
-	lpStruct->uncaught_exception_stack_size = (*env)->GetIntField(env, lpObject, cef_settings_tFc.uncaught_exception_stack_size);
-	lpStruct->context_safety_implementation = (*env)->GetIntField(env, lpObject, cef_settings_tFc.context_safety_implementation);
 	return lpStruct;
 }
 
@@ -624,7 +615,6 @@ void setcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_settings_t *lpSt
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->log_file);
 	}
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.log_severity, (jint)lpStruct->log_severity);
-	(*env)->SetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled, (jint)lpStruct->release_dcheck_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.javascript_flags);
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->javascript_flags);
@@ -640,8 +630,6 @@ void setcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_settings_t *lpSt
 	}
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled, (jint)lpStruct->pack_loading_disabled);
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port, (jint)lpStruct->remote_debugging_port);
-	(*env)->SetIntField(env, lpObject, cef_settings_tFc.uncaught_exception_stack_size, (jint)lpStruct->uncaught_exception_stack_size);
-	(*env)->SetIntField(env, lpObject, cef_settings_tFc.context_safety_implementation, (jint)lpStruct->context_safety_implementation);
 }
 #endif
 

@@ -43,9 +43,6 @@ public class cef_browser_t extends cef_base_t {
 	/** @field cast=(int (CEF_CALLBACK *)(struct _cef_browser_t* self)) */
 	public long /*int*/ get_identifier;
 	
-	/** @field cast="(int (CEF_CALLBACK *)(struct _cef_browser_t* self, struct _cef_browser_t* that))" */
-	public long /*int*/ is_same;
-	
 	/** @field cast=(int (CEF_CALLBACK *)(struct _cef_browser_t* self)) */
 	public long /*int*/ is_popup;
 	
