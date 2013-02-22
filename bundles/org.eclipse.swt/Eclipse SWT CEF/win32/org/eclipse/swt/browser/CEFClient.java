@@ -63,7 +63,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
-System.out.println("!!!!!!!!!!!release: CEFClient");
+		if (Device.DEBUG) System.out.println("release: CEFClient");
 		if (contextMenuHandler != null) {
 			contextMenuHandler.release();
 			contextMenuHandler = null;

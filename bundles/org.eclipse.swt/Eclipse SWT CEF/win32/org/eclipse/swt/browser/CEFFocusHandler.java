@@ -45,6 +45,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
+		if (Device.DEBUG) System.out.println("release: CEFFocusHandler");
 		if (object != null) {
 			object.dispose ();
 		}

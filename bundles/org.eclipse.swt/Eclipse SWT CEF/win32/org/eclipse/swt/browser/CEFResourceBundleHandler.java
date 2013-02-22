@@ -44,7 +44,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
-System.out.println("!!!!!!!!!!!release: CEFResourceBundleHandler");
+		if (Device.DEBUG) System.out.println("release: CEFResourceBundleHandler");
 		if (object != null) {
 			object.dispose ();
 		}

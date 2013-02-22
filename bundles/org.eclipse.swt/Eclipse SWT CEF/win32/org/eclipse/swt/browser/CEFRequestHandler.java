@@ -50,7 +50,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
-System.out.println("!!!!!!!!!!!release: CEFequestHandler");
+		if (Device.DEBUG) System.out.println("release: CEFRequestHandler");
 		if (object != null) {
 			object.dispose ();
 		}

@@ -50,7 +50,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
-System.out.println("!!!!!!!!!!!release: CEFApp");
+		if (Device.DEBUG) System.out.println("release: CEFApp");
 		if (browserProcessHandler != null) {
 			browserProcessHandler.release();
 			browserProcessHandler = null;

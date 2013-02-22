@@ -46,7 +46,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
-System.out.println("!!!!!!!!!!!release: CEFBrowserProcessHandler");
+		if (Device.DEBUG) System.out.println("release: CEFBrowserProcessHandler");
 		if (object != null) {
 			object.dispose ();
 		}

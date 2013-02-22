@@ -48,6 +48,7 @@ synchronized int get_refct() {
 
 synchronized int release() {
 	if (--refCount == 0) {
+		if (Device.DEBUG) System.out.println("release: CEFDisplayHandler");
 		if (object != null) {
 			object.dispose ();
 		}
