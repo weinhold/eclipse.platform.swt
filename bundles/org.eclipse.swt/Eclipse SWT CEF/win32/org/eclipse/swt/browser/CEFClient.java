@@ -11,7 +11,6 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3;
 import org.eclipse.swt.internal.cef3.CEF3Object;
 
 public class CEFClient {

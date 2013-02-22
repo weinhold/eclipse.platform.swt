@@ -51,7 +51,7 @@ public class CEF extends WebBrowser {
 				settings.release_dcheck_enabled = 1; // TODO remove this before release to master
 				// TODO extract cef3_subprocess.exe from the jar appropriately, point at its extracted location
 			//	long /*int*/ subprocessPath = createCEFString("C:\\cef3-1180\\chromium\\src\\cef\\binary_distrib\\cef_binary_3.1180.None_windows\\Release\\cef3_subprocess.exe");
-				long /*int*/ subprocessPath = createCEFString("S:\\swt-builddir\\cef_3.1180.823_windows\\Release\\cef3_subprocess.exe");
+				long /*int*/ subprocessPath = createCEFString("C:\\cef3bin-1180\\cef_binary_3.1180.823_windows\\Release\\cef3_subprocess.exe");
 				settings.browser_subprocess_path = new cef_string_t();
 				CEF3.memmove(settings.browser_subprocess_path, subprocessPath, cef_string_t.sizeof);
 
