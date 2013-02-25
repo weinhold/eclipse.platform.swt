@@ -26,12 +26,14 @@ public class cef_settings_t {
 	public cef_string_t locale = CEF.STRING_EMPTY;
 	public cef_string_t log_file = CEF.STRING_EMPTY;
 	public int log_severity;
+	public int release_dcheck_enabled;
 	public cef_string_t javascript_flags = CEF.STRING_EMPTY;
-	public int auto_detect_proxy_settings_enabled;
 	public cef_string_t resources_dir_path = CEF.STRING_EMPTY;
 	public cef_string_t locales_dir_path = CEF.STRING_EMPTY;
 	public int pack_loading_disabled;
 	public int remote_debugging_port;
+	public int uncaught_exception_stack_size;
+	public int context_safety_implementation;
 	  
 	public static final int sizeof = CEF3.cef_settings_t_sizeof ();
 }

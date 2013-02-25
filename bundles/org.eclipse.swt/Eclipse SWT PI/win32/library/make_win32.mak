@@ -44,8 +44,8 @@ WEBKIT_LIB    = $(WEBKIT_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 WEBKIT_LIBS   = $(WEBKIT_DIR)\lib\webkit.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CFNetwork.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CoreFoundation.lib
 WEBKIT_OBJS   = webkit_win32.obj webkit_win32_stats.obj webkit_win32_custom.obj webkit_win32_structs.obj
 
-# CEF3_DIR 	 = S:\swt-builddir\cef_3.1180.823_windows
-CEF3_DIR 	 = C:\cef3bin-1180\cef_binary_3.1180.823_windows
+# CEF3_DIR 	 = S:\swt-builddir\cef_binary_3.1364.1094_windows
+CEF3_DIR   = C:\cef3bin-1364\cef_binary_3.1364.1094_windows
 CEF3_PREFIX  = swt-cef3
 CEF3_LIB     = $(CEF3_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 CEF3_LIBS    = $(CEF3_DIR)\lib\Release\libcef.lib

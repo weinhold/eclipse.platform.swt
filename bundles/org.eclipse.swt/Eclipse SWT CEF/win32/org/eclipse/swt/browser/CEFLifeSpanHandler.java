@@ -21,11 +21,11 @@ public class CEFLifeSpanHandler {
 public CEFLifeSpanHandler(CEF host) {
 	super();
 	this.host = host;
-	object = new CEF3Object (new int[] {0, 0, 0, 6, 1, 1, 1, 1}) {
+	object = new CEF3Object (new int[] {0, 0, 0, 9, 1, 1, 1, 1}) {
 		public long /*int*/ method0(long /*int*/[] args) {return add_ref();}
 		public long /*int*/ method1(long /*int*/[] args) {return CEFLifeSpanHandler.this.release();}
 		public long /*int*/ method2(long /*int*/[] args) {return get_refct();}
-		public long /*int*/ method3(long /*int*/[] args) {return on_before_popup(args[0], args[1], args[2], args[3], args[4], args[5]);}
+		public long /*int*/ method3(long /*int*/[] args) {return on_before_popup(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);}
 		public long /*int*/ method4(long /*int*/[] args) {return on_after_created(args[0]);}
 		public long /*int*/ method5(long /*int*/[] args) {return run_modal(args[0]);}
 		public long /*int*/ method6(long /*int*/[] args) {return do_close(args[0]);}
@@ -61,7 +61,7 @@ synchronized int release() {
 
 /* cef_life_span_handler_t */
 
-long /*int*/ on_before_popup(long /*int*/ parentBrowser, long /*int*/ popupFeatures, long /*int*/ windowInfo, long /*int*/ url, long /*int*/ client, long /*int*/ settings) {
+long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ popupFeatures, long /*int*/ windowInfo, long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
 	if (Device.DEBUG) System.out.println("on_before_popup (TODO)");
 	return 0;
 }

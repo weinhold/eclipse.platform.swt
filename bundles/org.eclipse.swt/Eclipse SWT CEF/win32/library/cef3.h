@@ -15,8 +15,9 @@
 typedef enum cef_key_event_type_t cef_key_event_type_t;
 typedef enum cef_log_severity_t cef_log_severity_t;
 typedef enum cef_geoposition_error_code_t cef_geoposition_error_code_t;
-
+typedef enum cef_state_t cef_state_t;
 #define bool int
+
 #include <cef_app_capi.h>
 #include <cef_browser_capi.h>
 #include <cef_frame_capi.h>

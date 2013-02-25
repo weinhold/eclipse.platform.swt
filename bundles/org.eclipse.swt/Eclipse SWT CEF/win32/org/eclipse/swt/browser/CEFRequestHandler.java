@@ -25,7 +25,7 @@ public CEFRequestHandler() {
 		public long /*int*/ method3(long /*int*/[] args) {return on_before_resource_load(args[0], args[1], args[2]);}
 		public long /*int*/ method4(long /*int*/[] args) {return get_resource_handler(args[0], args[1], args[2]);}
 		public long /*int*/ method5(long /*int*/[] args) {return on_resource_redirect(args[0], args[1], args[2], args[3]);}
-		public long /*int*/ method6(long /*int*/[] args) {return get_auth_credentials(args[0], args[1], (int)/*64*/args[2], args[3], (int)/*64*/args[4], args[5], args[6],args[7]);}
+		public long /*int*/ method6(long /*int*/[] args) {return get_auth_credentials(args[0], args[1], (int)/*64*/args[2], args[3], (int)/*64*/args[4], args[5], args[6], args[7]);}
 		public long /*int*/ method7(long /*int*/[] args) {return on_quota_request(args[0], args[1], /*int64*/args[2], args[3]);}
 		public long /*int*/ method8(long /*int*/[] args) {return get_cookie_manager(args[0], args[1]);}
 		public long /*int*/ method9(long /*int*/[] args) {return on_protocol_execution(args[0], args[1], args[2]);}
