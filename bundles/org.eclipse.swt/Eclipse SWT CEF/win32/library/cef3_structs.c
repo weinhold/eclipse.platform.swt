@@ -56,7 +56,7 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct)
 typedef struct cef_browser_settings_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID size, standard_font_family, fixed_font_family, serif_font_family, sans_serif_font_family, cursive_font_family, fantasy_font_family, default_font_size, default_fixed_font_size, minimum_font_size, minimum_logical_font_size, remote_fonts_disabled, default_encoding, encoding_detector_enabled, javascript_disabled, javascript_open_windows_disallowed, javascript_close_windows_disallowed, javascript_access_clipboard_disallowed, dom_paste_disabled, caret_browsing_enabled, java_disabled, plugins_disabled, universal_access_from_file_urls_allowed, file_access_from_file_urls_allowed, web_security_disabled, xss_auditor_enabled, image_load_disabled, shrink_standalone_images_to_fit, site_specific_quirks_disabled, text_area_resize_disabled, page_cache_disabled, tab_to_links_disabled, hyperlink_auditing_disabled, user_style_sheet_enabled, user_style_sheet_location, author_and_user_styles_disabled, local_storage_disabled, databases_disabled, application_cache_disabled, webgl_disabled, accelerated_compositing_disabled, accelerated_layers_disabled, accelerated_video_disabled, accelerated_2d_canvas_disabled, accelerated_painting_enabled, accelerated_filters_enabled, accelerated_plugins_disabled, developer_tools_disabled, fullscreen_enabled;
+	jfieldID size, standard_font_family, fixed_font_family, serif_font_family, sans_serif_font_family, cursive_font_family, fantasy_font_family, default_font_size, default_fixed_font_size, minimum_font_size, minimum_logical_font_size, default_encoding, user_style_sheet_location, remote_fonts, javascript, javascript_open_windows, javascript_close_windows, javascript_access_clipboard, javascript_dom_paste, caret_browsing, java, plugins, universal_access_from_file_urls, file_access_from_file_urls, web_security, image_loading, image_shrink_standalone_to_fit, text_area_resize, page_cache, tab_to_links, author_and_user_styles, local_storage, databases, application_cache, webgl, accelerated_compositing, developer_tools;
 } cef_browser_settings_t_FID_CACHE;
 
 cef_browser_settings_t_FID_CACHE cef_browser_settings_tFc;
@@ -76,44 +76,32 @@ void cachecef_browser_settings_tFields(JNIEnv *env, jobject lpObject)
 	cef_browser_settings_tFc.default_fixed_font_size = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "default_fixed_font_size", "I");
 	cef_browser_settings_tFc.minimum_font_size = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "minimum_font_size", "I");
 	cef_browser_settings_tFc.minimum_logical_font_size = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "minimum_logical_font_size", "I");
-	cef_browser_settings_tFc.remote_fonts_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "remote_fonts_disabled", "I");
 	cef_browser_settings_tFc.default_encoding = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "default_encoding", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
-	cef_browser_settings_tFc.encoding_detector_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "encoding_detector_enabled", "I");
-	cef_browser_settings_tFc.javascript_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_disabled", "I");
-	cef_browser_settings_tFc.javascript_open_windows_disallowed = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_open_windows_disallowed", "I");
-	cef_browser_settings_tFc.javascript_close_windows_disallowed = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_close_windows_disallowed", "I");
-	cef_browser_settings_tFc.javascript_access_clipboard_disallowed = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_access_clipboard_disallowed", "I");
-	cef_browser_settings_tFc.dom_paste_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "dom_paste_disabled", "I");
-	cef_browser_settings_tFc.caret_browsing_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "caret_browsing_enabled", "I");
-	cef_browser_settings_tFc.java_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "java_disabled", "I");
-	cef_browser_settings_tFc.plugins_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "plugins_disabled", "I");
-	cef_browser_settings_tFc.universal_access_from_file_urls_allowed = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "universal_access_from_file_urls_allowed", "I");
-	cef_browser_settings_tFc.file_access_from_file_urls_allowed = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "file_access_from_file_urls_allowed", "I");
-	cef_browser_settings_tFc.web_security_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "web_security_disabled", "I");
-	cef_browser_settings_tFc.xss_auditor_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "xss_auditor_enabled", "I");
-	cef_browser_settings_tFc.image_load_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "image_load_disabled", "I");
-	cef_browser_settings_tFc.shrink_standalone_images_to_fit = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "shrink_standalone_images_to_fit", "I");
-	cef_browser_settings_tFc.site_specific_quirks_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "site_specific_quirks_disabled", "I");
-	cef_browser_settings_tFc.text_area_resize_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "text_area_resize_disabled", "I");
-	cef_browser_settings_tFc.page_cache_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "page_cache_disabled", "I");
-	cef_browser_settings_tFc.tab_to_links_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "tab_to_links_disabled", "I");
-	cef_browser_settings_tFc.hyperlink_auditing_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "hyperlink_auditing_disabled", "I");
-	cef_browser_settings_tFc.user_style_sheet_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "user_style_sheet_enabled", "I");
 	cef_browser_settings_tFc.user_style_sheet_location = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "user_style_sheet_location", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
-	cef_browser_settings_tFc.author_and_user_styles_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "author_and_user_styles_disabled", "I");
-	cef_browser_settings_tFc.local_storage_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "local_storage_disabled", "I");
-	cef_browser_settings_tFc.databases_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "databases_disabled", "I");
-	cef_browser_settings_tFc.application_cache_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "application_cache_disabled", "I");
-	cef_browser_settings_tFc.webgl_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "webgl_disabled", "I");
-	cef_browser_settings_tFc.accelerated_compositing_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_compositing_disabled", "I");
-	cef_browser_settings_tFc.accelerated_layers_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_layers_disabled", "I");
-	cef_browser_settings_tFc.accelerated_video_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_video_disabled", "I");
-	cef_browser_settings_tFc.accelerated_2d_canvas_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_2d_canvas_disabled", "I");
-	cef_browser_settings_tFc.accelerated_painting_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_painting_enabled", "I");
-	cef_browser_settings_tFc.accelerated_filters_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_filters_enabled", "I");
-	cef_browser_settings_tFc.accelerated_plugins_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_plugins_disabled", "I");
-	cef_browser_settings_tFc.developer_tools_disabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "developer_tools_disabled", "I");
-	cef_browser_settings_tFc.fullscreen_enabled = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "fullscreen_enabled", "I");
+	cef_browser_settings_tFc.remote_fonts = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "remote_fonts", "I");
+	cef_browser_settings_tFc.javascript = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript", "I");
+	cef_browser_settings_tFc.javascript_open_windows = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_open_windows", "I");
+	cef_browser_settings_tFc.javascript_close_windows = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_close_windows", "I");
+	cef_browser_settings_tFc.javascript_access_clipboard = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_access_clipboard", "I");
+	cef_browser_settings_tFc.javascript_dom_paste = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "javascript_dom_paste", "I");
+	cef_browser_settings_tFc.caret_browsing = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "caret_browsing", "I");
+	cef_browser_settings_tFc.java = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "java", "I");
+	cef_browser_settings_tFc.plugins = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "plugins", "I");
+	cef_browser_settings_tFc.universal_access_from_file_urls = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "universal_access_from_file_urls", "I");
+	cef_browser_settings_tFc.file_access_from_file_urls = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "file_access_from_file_urls", "I");
+	cef_browser_settings_tFc.web_security = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "web_security", "I");
+	cef_browser_settings_tFc.image_loading = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "image_loading", "I");
+	cef_browser_settings_tFc.image_shrink_standalone_to_fit = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "image_shrink_standalone_to_fit", "I");
+	cef_browser_settings_tFc.text_area_resize = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "text_area_resize", "I");
+	cef_browser_settings_tFc.page_cache = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "page_cache", "I");
+	cef_browser_settings_tFc.tab_to_links = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "tab_to_links", "I");
+	cef_browser_settings_tFc.author_and_user_styles = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "author_and_user_styles", "I");
+	cef_browser_settings_tFc.local_storage = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "local_storage", "I");
+	cef_browser_settings_tFc.databases = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "databases", "I");
+	cef_browser_settings_tFc.application_cache = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "application_cache", "I");
+	cef_browser_settings_tFc.webgl = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "webgl", "I");
+	cef_browser_settings_tFc.accelerated_compositing = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "accelerated_compositing", "I");
+	cef_browser_settings_tFc.developer_tools = (*env)->GetFieldID(env, cef_browser_settings_tFc.clazz, "developer_tools", "I");
 	cef_browser_settings_tFc.cached = 1;
 }
 
@@ -149,50 +137,38 @@ cef_browser_settings_t *getcef_browser_settings_tFields(JNIEnv *env, jobject lpO
 	lpStruct->default_fixed_font_size = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.default_fixed_font_size);
 	lpStruct->minimum_font_size = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.minimum_font_size);
 	lpStruct->minimum_logical_font_size = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.minimum_logical_font_size);
-	lpStruct->remote_fonts_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.remote_fonts_disabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_browser_settings_tFc.default_encoding);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->default_encoding);
 	}
-	lpStruct->encoding_detector_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.encoding_detector_enabled);
-	lpStruct->javascript_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_disabled);
-	lpStruct->javascript_open_windows_disallowed = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_open_windows_disallowed);
-	lpStruct->javascript_close_windows_disallowed = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_close_windows_disallowed);
-	lpStruct->javascript_access_clipboard_disallowed = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_access_clipboard_disallowed);
-	lpStruct->dom_paste_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.dom_paste_disabled);
-	lpStruct->caret_browsing_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.caret_browsing_enabled);
-	lpStruct->java_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.java_disabled);
-	lpStruct->plugins_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.plugins_disabled);
-	lpStruct->universal_access_from_file_urls_allowed = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.universal_access_from_file_urls_allowed);
-	lpStruct->file_access_from_file_urls_allowed = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.file_access_from_file_urls_allowed);
-	lpStruct->web_security_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.web_security_disabled);
-	lpStruct->xss_auditor_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.xss_auditor_enabled);
-	lpStruct->image_load_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.image_load_disabled);
-	lpStruct->shrink_standalone_images_to_fit = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.shrink_standalone_images_to_fit);
-	lpStruct->site_specific_quirks_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.site_specific_quirks_disabled);
-	lpStruct->text_area_resize_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.text_area_resize_disabled);
-	lpStruct->page_cache_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.page_cache_disabled);
-	lpStruct->tab_to_links_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.tab_to_links_disabled);
-	lpStruct->hyperlink_auditing_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.hyperlink_auditing_disabled);
-	lpStruct->user_style_sheet_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.user_style_sheet_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_browser_settings_tFc.user_style_sheet_location);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->user_style_sheet_location);
 	}
-	lpStruct->author_and_user_styles_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.author_and_user_styles_disabled);
-	lpStruct->local_storage_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.local_storage_disabled);
-	lpStruct->databases_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.databases_disabled);
-	lpStruct->application_cache_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.application_cache_disabled);
-	lpStruct->webgl_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.webgl_disabled);
-	lpStruct->accelerated_compositing_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_compositing_disabled);
-	lpStruct->accelerated_layers_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_layers_disabled);
-	lpStruct->accelerated_video_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_video_disabled);
-	lpStruct->accelerated_2d_canvas_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_2d_canvas_disabled);
-	lpStruct->accelerated_painting_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_painting_enabled);
-	lpStruct->accelerated_filters_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_filters_enabled);
-	lpStruct->accelerated_plugins_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_plugins_disabled);
-	lpStruct->developer_tools_disabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.developer_tools_disabled);
-	lpStruct->fullscreen_enabled = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.fullscreen_enabled);
+	lpStruct->remote_fonts = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.remote_fonts);
+	lpStruct->javascript = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript);
+	lpStruct->javascript_open_windows = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_open_windows);
+	lpStruct->javascript_close_windows = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_close_windows);
+	lpStruct->javascript_access_clipboard = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_access_clipboard);
+	lpStruct->javascript_dom_paste = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.javascript_dom_paste);
+	lpStruct->caret_browsing = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.caret_browsing);
+	lpStruct->java = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.java);
+	lpStruct->plugins = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.plugins);
+	lpStruct->universal_access_from_file_urls = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.universal_access_from_file_urls);
+	lpStruct->file_access_from_file_urls = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.file_access_from_file_urls);
+	lpStruct->web_security = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.web_security);
+	lpStruct->image_loading = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.image_loading);
+	lpStruct->image_shrink_standalone_to_fit = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.image_shrink_standalone_to_fit);
+	lpStruct->text_area_resize = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.text_area_resize);
+	lpStruct->page_cache = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.page_cache);
+	lpStruct->tab_to_links = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.tab_to_links);
+	lpStruct->author_and_user_styles = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.author_and_user_styles);
+	lpStruct->local_storage = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.local_storage);
+	lpStruct->databases = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.databases);
+	lpStruct->application_cache = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.application_cache);
+	lpStruct->webgl = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.webgl);
+	lpStruct->accelerated_compositing = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_compositing);
+	lpStruct->developer_tools = (*env)->GetIntField(env, lpObject, cef_browser_settings_tFc.developer_tools);
 	return lpStruct;
 }
 
@@ -228,50 +204,38 @@ void setcef_browser_settings_tFields(JNIEnv *env, jobject lpObject, cef_browser_
 	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.default_fixed_font_size, (jint)lpStruct->default_fixed_font_size);
 	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.minimum_font_size, (jint)lpStruct->minimum_font_size);
 	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.minimum_logical_font_size, (jint)lpStruct->minimum_logical_font_size);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.remote_fonts_disabled, (jint)lpStruct->remote_fonts_disabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_browser_settings_tFc.default_encoding);
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->default_encoding);
 	}
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.encoding_detector_enabled, (jint)lpStruct->encoding_detector_enabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_disabled, (jint)lpStruct->javascript_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_open_windows_disallowed, (jint)lpStruct->javascript_open_windows_disallowed);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_close_windows_disallowed, (jint)lpStruct->javascript_close_windows_disallowed);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_access_clipboard_disallowed, (jint)lpStruct->javascript_access_clipboard_disallowed);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.dom_paste_disabled, (jint)lpStruct->dom_paste_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.caret_browsing_enabled, (jint)lpStruct->caret_browsing_enabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.java_disabled, (jint)lpStruct->java_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.plugins_disabled, (jint)lpStruct->plugins_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.universal_access_from_file_urls_allowed, (jint)lpStruct->universal_access_from_file_urls_allowed);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.file_access_from_file_urls_allowed, (jint)lpStruct->file_access_from_file_urls_allowed);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.web_security_disabled, (jint)lpStruct->web_security_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.xss_auditor_enabled, (jint)lpStruct->xss_auditor_enabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.image_load_disabled, (jint)lpStruct->image_load_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.shrink_standalone_images_to_fit, (jint)lpStruct->shrink_standalone_images_to_fit);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.site_specific_quirks_disabled, (jint)lpStruct->site_specific_quirks_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.text_area_resize_disabled, (jint)lpStruct->text_area_resize_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.page_cache_disabled, (jint)lpStruct->page_cache_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.tab_to_links_disabled, (jint)lpStruct->tab_to_links_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.hyperlink_auditing_disabled, (jint)lpStruct->hyperlink_auditing_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.user_style_sheet_enabled, (jint)lpStruct->user_style_sheet_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_browser_settings_tFc.user_style_sheet_location);
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->user_style_sheet_location);
 	}
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.author_and_user_styles_disabled, (jint)lpStruct->author_and_user_styles_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.local_storage_disabled, (jint)lpStruct->local_storage_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.databases_disabled, (jint)lpStruct->databases_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.application_cache_disabled, (jint)lpStruct->application_cache_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.webgl_disabled, (jint)lpStruct->webgl_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_compositing_disabled, (jint)lpStruct->accelerated_compositing_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_layers_disabled, (jint)lpStruct->accelerated_layers_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_video_disabled, (jint)lpStruct->accelerated_video_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_2d_canvas_disabled, (jint)lpStruct->accelerated_2d_canvas_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_painting_enabled, (jint)lpStruct->accelerated_painting_enabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_filters_enabled, (jint)lpStruct->accelerated_filters_enabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_plugins_disabled, (jint)lpStruct->accelerated_plugins_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.developer_tools_disabled, (jint)lpStruct->developer_tools_disabled);
-	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.fullscreen_enabled, (jint)lpStruct->fullscreen_enabled);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.remote_fonts, (jint)lpStruct->remote_fonts);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript, (jint)lpStruct->javascript);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_open_windows, (jint)lpStruct->javascript_open_windows);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_close_windows, (jint)lpStruct->javascript_close_windows);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_access_clipboard, (jint)lpStruct->javascript_access_clipboard);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.javascript_dom_paste, (jint)lpStruct->javascript_dom_paste);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.caret_browsing, (jint)lpStruct->caret_browsing);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.java, (jint)lpStruct->java);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.plugins, (jint)lpStruct->plugins);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.universal_access_from_file_urls, (jint)lpStruct->universal_access_from_file_urls);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.file_access_from_file_urls, (jint)lpStruct->file_access_from_file_urls);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.web_security, (jint)lpStruct->web_security);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.image_loading, (jint)lpStruct->image_loading);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.image_shrink_standalone_to_fit, (jint)lpStruct->image_shrink_standalone_to_fit);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.text_area_resize, (jint)lpStruct->text_area_resize);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.page_cache, (jint)lpStruct->page_cache);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.tab_to_links, (jint)lpStruct->tab_to_links);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.author_and_user_styles, (jint)lpStruct->author_and_user_styles);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.local_storage, (jint)lpStruct->local_storage);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.databases, (jint)lpStruct->databases);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.application_cache, (jint)lpStruct->application_cache);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.webgl, (jint)lpStruct->webgl);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.accelerated_compositing, (jint)lpStruct->accelerated_compositing);
+	(*env)->SetIntField(env, lpObject, cef_browser_settings_tFc.developer_tools, (jint)lpStruct->developer_tools);
 }
 #endif
 
@@ -279,7 +243,7 @@ void setcef_browser_settings_tFields(JNIEnv *env, jobject lpObject, cef_browser_
 typedef struct cef_browser_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID get_host, can_go_back, go_back, can_go_forward, go_forward, is_loading, reload, reload_ignore_cache, stop_load, get_identifier, is_popup, has_document, get_main_frame, get_focused_frame, get_frame_byident, get_frame, get_frame_count, get_frame_identifiers, get_frame_names, send_process_message;
+	jfieldID get_host, can_go_back, go_back, can_go_forward, go_forward, is_loading, reload, reload_ignore_cache, stop_load, get_identifier, is_same, is_popup, has_document, get_main_frame, get_focused_frame, get_frame_byident, get_frame, get_frame_count, get_frame_identifiers, get_frame_names, send_process_message;
 } cef_browser_t_FID_CACHE;
 
 cef_browser_t_FID_CACHE cef_browser_tFc;
@@ -299,6 +263,7 @@ void cachecef_browser_tFields(JNIEnv *env, jobject lpObject)
 	cef_browser_tFc.reload_ignore_cache = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "reload_ignore_cache", I_J);
 	cef_browser_tFc.stop_load = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "stop_load", I_J);
 	cef_browser_tFc.get_identifier = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_identifier", I_J);
+	cef_browser_tFc.is_same = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_same", I_J);
 	cef_browser_tFc.is_popup = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "is_popup", I_J);
 	cef_browser_tFc.has_document = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "has_document", I_J);
 	cef_browser_tFc.get_main_frame = (*env)->GetFieldID(env, cef_browser_tFc.clazz, "get_main_frame", I_J);
@@ -326,6 +291,7 @@ cef_browser_t *getcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser
 	lpStruct->reload_ignore_cache = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache);
 	lpStruct->stop_load = (void (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.stop_load);
 	lpStruct->get_identifier = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_identifier);
+	lpStruct->is_same = (int (CEF_CALLBACK *)(struct _cef_browser_t* self, struct _cef_browser_t* that))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_same);
 	lpStruct->is_popup = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.is_popup);
 	lpStruct->has_document = (int (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.has_document);
 	lpStruct->get_main_frame = (struct _cef_frame_t* (CEF_CALLBACK *)(struct _cef_browser_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame);
@@ -353,6 +319,7 @@ void setcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStru
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.reload_ignore_cache, (jintLong)lpStruct->reload_ignore_cache);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.stop_load, (jintLong)lpStruct->stop_load);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_identifier, (jintLong)lpStruct->get_identifier);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_same, (jintLong)lpStruct->is_same);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.is_popup, (jintLong)lpStruct->is_popup);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.has_document, (jintLong)lpStruct->has_document);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_main_frame, (jintLong)lpStruct->get_main_frame);
@@ -504,7 +471,7 @@ void setcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lp
 typedef struct cef_settings_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID size, single_process, browser_subprocess_path, multi_threaded_message_loop, command_line_args_disabled, cache_path, user_agent, product_version, locale, log_file, log_severity, javascript_flags, auto_detect_proxy_settings_enabled, resources_dir_path, locales_dir_path, pack_loading_disabled, remote_debugging_port;
+	jfieldID size, single_process, browser_subprocess_path, multi_threaded_message_loop, command_line_args_disabled, cache_path, user_agent, product_version, locale, log_file, log_severity, release_dcheck_enabled, javascript_flags, resources_dir_path, locales_dir_path, pack_loading_disabled, remote_debugging_port, uncaught_exception_stack_size, context_safety_implementation;
 } cef_settings_t_FID_CACHE;
 
 cef_settings_t_FID_CACHE cef_settings_tFc;
@@ -524,12 +491,14 @@ void cachecef_settings_tFields(JNIEnv *env, jobject lpObject)
 	cef_settings_tFc.locale = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "locale", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.log_file = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "log_file", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.log_severity = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "log_severity", "I");
+	cef_settings_tFc.release_dcheck_enabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "release_dcheck_enabled", "I");
 	cef_settings_tFc.javascript_flags = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "javascript_flags", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
-	cef_settings_tFc.auto_detect_proxy_settings_enabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "auto_detect_proxy_settings_enabled", "I");
 	cef_settings_tFc.resources_dir_path = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "resources_dir_path", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.locales_dir_path = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "locales_dir_path", "Lorg/eclipse/swt/internal/cef3/cef_string_t;");
 	cef_settings_tFc.pack_loading_disabled = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "pack_loading_disabled", "I");
 	cef_settings_tFc.remote_debugging_port = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "remote_debugging_port", "I");
+	cef_settings_tFc.uncaught_exception_stack_size = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "uncaught_exception_stack_size", "I");
+	cef_settings_tFc.context_safety_implementation = (*env)->GetFieldID(env, cef_settings_tFc.clazz, "context_safety_implementation", "I");
 	cef_settings_tFc.cached = 1;
 }
 
@@ -565,11 +534,11 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->log_file);
 	}
 	lpStruct->log_severity = (*env)->GetIntField(env, lpObject, cef_settings_tFc.log_severity);
+	lpStruct->release_dcheck_enabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.javascript_flags);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->javascript_flags);
 	}
-	lpStruct->auto_detect_proxy_settings_enabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.auto_detect_proxy_settings_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.resources_dir_path);
 	if (lpObject1 != NULL) getcef_string_tFields(env, lpObject1, &lpStruct->resources_dir_path);
@@ -580,6 +549,8 @@ cef_settings_t *getcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_setti
 	}
 	lpStruct->pack_loading_disabled = (*env)->GetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled);
 	lpStruct->remote_debugging_port = (*env)->GetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port);
+	lpStruct->uncaught_exception_stack_size = (*env)->GetIntField(env, lpObject, cef_settings_tFc.uncaught_exception_stack_size);
+	lpStruct->context_safety_implementation = (*env)->GetIntField(env, lpObject, cef_settings_tFc.context_safety_implementation);
 	return lpStruct;
 }
 
@@ -615,11 +586,11 @@ void setcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_settings_t *lpSt
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->log_file);
 	}
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.log_severity, (jint)lpStruct->log_severity);
+	(*env)->SetIntField(env, lpObject, cef_settings_tFc.release_dcheck_enabled, (jint)lpStruct->release_dcheck_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.javascript_flags);
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->javascript_flags);
 	}
-	(*env)->SetIntField(env, lpObject, cef_settings_tFc.auto_detect_proxy_settings_enabled, (jint)lpStruct->auto_detect_proxy_settings_enabled);
 	{
 	jobject lpObject1 = (*env)->GetObjectField(env, lpObject, cef_settings_tFc.resources_dir_path);
 	if (lpObject1 != NULL) setcef_string_tFields(env, lpObject1, &lpStruct->resources_dir_path);
@@ -630,6 +601,8 @@ void setcef_settings_tFields(JNIEnv *env, jobject lpObject, cef_settings_t *lpSt
 	}
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.pack_loading_disabled, (jint)lpStruct->pack_loading_disabled);
 	(*env)->SetIntField(env, lpObject, cef_settings_tFc.remote_debugging_port, (jint)lpStruct->remote_debugging_port);
+	(*env)->SetIntField(env, lpObject, cef_settings_tFc.uncaught_exception_stack_size, (jint)lpStruct->uncaught_exception_stack_size);
+	(*env)->SetIntField(env, lpObject, cef_settings_tFc.context_safety_implementation, (jint)lpStruct->context_safety_implementation);
 }
 #endif
 
@@ -674,7 +647,7 @@ void setcef_string_tFields(JNIEnv *env, jobject lpObject, cef_string_t *lpStruct
 typedef struct cef_window_info_t_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID ex_style, window_name, style, x, y, width, height, parent_window, menu, transparent_painting, window;
+	jfieldID ex_style, window_name, style, x, y, width, height, parent_window, menu, window_rendering_disabled, transparent_painting, window;
 } cef_window_info_t_FID_CACHE;
 
 cef_window_info_t_FID_CACHE cef_window_info_tFc;
@@ -692,6 +665,7 @@ void cachecef_window_info_tFields(JNIEnv *env, jobject lpObject)
 	cef_window_info_tFc.height = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "height", "I");
 	cef_window_info_tFc.parent_window = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "parent_window", I_J);
 	cef_window_info_tFc.menu = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "menu", I_J);
+	cef_window_info_tFc.window_rendering_disabled = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "window_rendering_disabled", "I");
 	cef_window_info_tFc.transparent_painting = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "transparent_painting", "I");
 	cef_window_info_tFc.window = (*env)->GetFieldID(env, cef_window_info_tFc.clazz, "window", I_J);
 	cef_window_info_tFc.cached = 1;
@@ -712,6 +686,7 @@ cef_window_info_t *getcef_window_info_tFields(JNIEnv *env, jobject lpObject, cef
 	lpStruct->height = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.height);
 	lpStruct->parent_window = (cef_window_handle_t)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.parent_window);
 	lpStruct->menu = (HMENU)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.menu);
+	lpStruct->window_rendering_disabled = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.window_rendering_disabled);
 	lpStruct->transparent_painting = (*env)->GetIntField(env, lpObject, cef_window_info_tFc.transparent_painting);
 	lpStruct->window = (cef_window_handle_t)(*env)->GetIntLongField(env, lpObject, cef_window_info_tFc.window);
 	return lpStruct;
@@ -732,6 +707,7 @@ void setcef_window_info_tFields(JNIEnv *env, jobject lpObject, cef_window_info_t
 	(*env)->SetIntField(env, lpObject, cef_window_info_tFc.height, (jint)lpStruct->height);
 	(*env)->SetIntLongField(env, lpObject, cef_window_info_tFc.parent_window, (jintLong)lpStruct->parent_window);
 	(*env)->SetIntLongField(env, lpObject, cef_window_info_tFc.menu, (jintLong)lpStruct->menu);
+	(*env)->SetIntField(env, lpObject, cef_window_info_tFc.window_rendering_disabled, (jint)lpStruct->window_rendering_disabled);
 	(*env)->SetIntField(env, lpObject, cef_window_info_tFc.transparent_painting, (jint)lpStruct->transparent_painting);
 	(*env)->SetIntLongField(env, lpObject, cef_window_info_tFc.window, (jintLong)lpStruct->window);
 }

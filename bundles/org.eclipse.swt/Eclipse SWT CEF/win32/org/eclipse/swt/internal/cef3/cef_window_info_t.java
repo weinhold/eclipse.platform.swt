@@ -23,6 +23,7 @@ public class cef_window_info_t {
 	public long /*int*/ parent_window;
 	/** @field cast=(HMENU) */
 	public long /*int*/ menu;
+	public int window_rendering_disabled;
 	public int transparent_painting;
 	/** @field cast=(cef_window_handle_t) */
 	public long /*int*/ window;		// HWND on win32

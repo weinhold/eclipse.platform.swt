@@ -28,21 +28,23 @@ public class CEFClient {
 public CEFClient(CEF host) {
 	super();
 	this.host = host;
-	object = new CEF3Object (new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}) {
+	object = new CEF3Object (new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}) {
 		public long /*int*/ method0(long /*int*/[] args) {return add_ref();}
 		public long /*int*/ method1(long /*int*/[] args) {return CEFClient.this.release();}
 		public long /*int*/ method2(long /*int*/[] args) {return get_refct();}
 		public long /*int*/ method3(long /*int*/[] args) {return get_context_menu_handler();}
-		public long /*int*/ method4(long /*int*/[] args) {return get_display_handler();}
-		public long /*int*/ method5(long /*int*/[] args) {return get_download_handler();}
-		public long /*int*/ method6(long /*int*/[] args) {return get_focus_handler();}
-		public long /*int*/ method7(long /*int*/[] args) {return get_geolocation_handler();}
-		public long /*int*/ method8(long /*int*/[] args) {return get_jsdialog_handler();}
-		public long /*int*/ method9(long /*int*/[] args) {return get_keyboard_handler();}
-		public long /*int*/ method10(long /*int*/[] args) {return get_life_span_handler();}
-		public long /*int*/ method11(long /*int*/[] args) {return get_load_handler();}
-		public long /*int*/ method12(long /*int*/[] args) {return get_request_handler();}
-		public long /*int*/ method13(long /*int*/[] args) {return on_process_message_received(args[0], args[1], args[2]);}
+		public long /*int*/ method4(long /*int*/[] args) {return get_dialog_handler();}
+		public long /*int*/ method5(long /*int*/[] args) {return get_display_handler();}
+		public long /*int*/ method6(long /*int*/[] args) {return get_download_handler();}
+		public long /*int*/ method7(long /*int*/[] args) {return get_focus_handler();}
+		public long /*int*/ method8(long /*int*/[] args) {return get_geolocation_handler();}
+		public long /*int*/ method9(long /*int*/[] args) {return get_jsdialog_handler();}
+		public long /*int*/ method10(long /*int*/[] args) {return get_keyboard_handler();}
+		public long /*int*/ method11(long /*int*/[] args) {return get_life_span_handler();}
+		public long /*int*/ method12(long /*int*/[] args) {return get_load_handler();}
+		public long /*int*/ method13(long /*int*/[] args) {return get_render_handler();}
+		public long /*int*/ method14(long /*int*/[] args) {return get_request_handler();}
+		public long /*int*/ method15(long /*int*/[] args) {return on_process_message_received(args[0], args[1], args[2]);}
 	};
 }
 
@@ -107,6 +109,11 @@ long /*int*/ get_context_menu_handler() {
 	return contextMenuHandler.getAddress();
 }
 
+long /*int*/ get_dialog_handler() {
+	if (Device.DEBUG) System.out.println("get_dialog_handler");
+	return 0;
+}
+
 long /*int*/ get_display_handler() {
 	if (Device.DEBUG) System.out.println("get_display_handler (impl)");
 	if (displayHandler == null) {
@@ -161,6 +168,11 @@ long /*int*/ get_load_handler() {
 	}
 	loadHandler.add_ref();
 	return loadHandler.getAddress();
+}
+
+long /*int*/ get_render_handler() {
+	if (Device.DEBUG) System.out.println("get_render_handler");
+	return 0;
 }
 
 long /*int*/ get_request_handler() {
