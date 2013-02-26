@@ -44,12 +44,10 @@ WEBKIT_LIB    = $(WEBKIT_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 WEBKIT_LIBS   = $(WEBKIT_DIR)\lib\webkit.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CFNetwork.lib $(WEBKIT_SUPPORT_DIR)\win\lib\CoreFoundation.lib
 WEBKIT_OBJS   = webkit_win32.obj webkit_win32_stats.obj webkit_win32_custom.obj webkit_win32_structs.obj
 
-# CEF3_DIR 	 = S:\swt-builddir\cef_binary_3.1364.1094_windows
-CEF3_DIR   = C:\cef3bin-1364\cef_binary_3.1364.1094_windows
+CEF3_DIR     = C:\cef3bin-1364\cef_binary_3.1364.1094_windows
 CEF3_PREFIX  = swt-cef3
 CEF3_LIB     = $(CEF3_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
 CEF3_LIBS    = $(CEF3_DIR)\lib\Release\libcef.lib
-# CEF3_LIBS    = $(CEF3_DIR)\binary_distrib\cef_binary_3.1180.None_windows\lib\Debug\libcef.lib
 CEF3_OBJS    = cef3.obj cef3_structs.obj cef3_stats.obj cef3_custom.obj
 
 WGL_PREFIX = swt-wgl
@@ -109,6 +107,9 @@ cef3_structs.obj: cef3_structs.c
 	cl $(CEF3CFLAGS) cef3_structs.c
 cef3.obj: cef3.c
 	cl $(CEF3CFLAGS) cef3.c
+
+cef3_subproc.obj: cef3_subproc.c
+	cl $(CEF3CFLAGS) cef3_subproc.c
 
 webkit_win32_custom.obj: webkit_win32_custom.cpp
 	cl $(WEBKITCFLAGS) webkit_win32_custom.cpp
@@ -176,15 +177,12 @@ make_cef3: $(CEF3_OBJS) swt_cef3.res
 	link @templrf
 	del templrf
 
-cef3_subprocess.obj: cef3_subprocess.c
-	cl $(CEF3CFLAGS) cef3_subprocess.c
-	
-make_cef3_subprocess: cef3_subprocess.obj swt_cef3.res
+make_cef3_subproc: cef3_subproc.obj swt_cef3.res
 	echo $(ldebug) >templrf
-	echo $(CEF3_LIBS) User32.lib >>templrf
-	echo cef3_subprocess.obj >>templrf
+	echo $(CEF3_LIBS) >>templrf
+	echo cef3_subproc.obj >>templrf
 	echo swt_cef3.res >>templrf
-	echo -out:cef3_subprocess.exe >>templrf
+	echo -out:swt-cef3subproc-win32.exe >>templrf
 	link @templrf
 	del templrf
 
@@ -241,6 +239,7 @@ swt_xpcominit.res:
 
 install:
 	copy *.dll "$(OUTPUT_DIR)"
+	copy *.exe "$(OUTPUT_DIR)"
 
 clean:
     del *.obj *.res *.dll *.lib *.exp

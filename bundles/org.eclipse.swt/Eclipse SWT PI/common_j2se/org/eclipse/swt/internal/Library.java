@@ -120,6 +120,15 @@ public static int JAVA_VERSION (int major, int minor, int micro) {
 }
 
 /**
+ * Returns the location that SWT auto-extracts its libraries to.
+ * 
+ * @return the version
+ */
+public static String SWT_LIB_DIR () {
+	return SWT_LIB_DIR;
+}
+
+/**
  * Returns the SWT version number as an integer.
  * 
  * @param major
@@ -320,13 +329,13 @@ public static void loadLibrary (String name, boolean mapName) {
 		if (load (path + SEPARATOR + fileName1, message)) return;
 		if (mapName && load (path + SEPARATOR + fileName2, message)) return;
 	}
-		
+
 	/* Try extracting and loading library from jar */
 	if (path != null) {
 		if (extract (path + SEPARATOR + fileName1, mappedName1, message)) return;
 		if (mapName && extract (path + SEPARATOR + fileName2, mappedName2, message)) return;
 	}
-	
+
 	/* Failed to find the library */
 	throw new UnsatisfiedLinkError ("Could not load SWT library. Reasons: " + message.toString()); //$NON-NLS-1$
 }

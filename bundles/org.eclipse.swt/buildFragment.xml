@@ -167,7 +167,7 @@
 		<antcall target="copy.translationfiles"/>
 		<antcall target="replace64"/>
 	</target>
-			
+
 	<target name="copy.cocoa.src">
 		<property name="copy.src.dir" value="${temp.folder}/@dot.src"/>
 		<delete dir="${copy.src.dir}" quiet="true"/>
@@ -352,6 +352,7 @@
 			<fileset dir="${plugindir}/Eclipse SWT Mozilla/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Mozilla/win32/"/>
 			<fileset dir="${plugindir}/Eclipse SWT WebKit/win32/"/>
+			<fileset dir="${plugindir}/Eclipse SWT CEF/win32/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Custom Widgets/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Drag and Drop/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Drag and Drop/win32/"/>
@@ -477,9 +478,9 @@
 			<fileset dir="${build.result.folder}/@dot" includes="**" />
 		</copy>
 		<copy todir="${destination.temp.folder}/${full.name}">
-			<fileset dir="${fragmentdir}" includes="fragment.properties,about.html,about_files/,swt*.dll,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2,META-INF/" />
+			<fileset dir="${fragmentdir}" includes="fragment.properties,about.html,about_files/,swt*.dll,swt*.exe,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2,META-INF/" />
 		</copy>
-		<chmod perm="755" dir="${destination.temp.folder}/${full.name}" includes="swt*.dll,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
+		<chmod perm="755" dir="${destination.temp.folder}/${full.name}" includes="swt*.dll,swt*.exe,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
 		<eclipse.versionReplacer path="${destination.temp.folder}/${full.name}" version="${version.suffix}" />
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${destination.temp.folder}/${full.name}"/>
@@ -500,14 +501,14 @@
 			<param name="debug" value="true" />
 			<param name="jar.filename" value="swt-debug.jar" />
 		</antcall>
-		<jar jarfile="${build.result.folder}/swt-debug.jar" basedir="${fragmentdir}" update="true" includes="swt*.dll,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
+		<jar jarfile="${build.result.folder}/swt-debug.jar" basedir="${fragmentdir}" update="true" includes="swt*.dll,swt*.exe,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
 		<copy file="${build.result.folder}/swt-debug.jar" todir="${temp.folder}/swtdownload" />
 		<delete dir="${build.result.folder}/@dot" />
 		<antcall target="build.jars">
 			<param name="debug" value="false" />
 			<param name="jar.filename" value="swt.jar" />
 		</antcall>
-		<jar jarfile="${build.result.folder}/swt.jar" basedir="${fragmentdir}" update="true" includes="swt*.dll,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
+		<jar jarfile="${build.result.folder}/swt.jar" basedir="${fragmentdir}" update="true" includes="swt*.dll,swt*.exe,libswt*.so,libswt*.sl,libswt*.a,libswt*.jnilib,libXm.so.2" />
 		<copy file="${build.result.folder}/swt.jar" todir="${temp.folder}/swtdownload" />
 		<antcall target="build.sources" />
 		<copy file="${build.result.folder}/src.zip" todir="${temp.folder}/swtdownload" />
