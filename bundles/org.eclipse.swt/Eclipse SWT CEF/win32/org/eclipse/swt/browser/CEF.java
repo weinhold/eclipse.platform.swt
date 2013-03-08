@@ -12,6 +12,7 @@ package org.eclipse.swt.browser;
 
 
 import java.io.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.cef3.*;
@@ -29,7 +30,9 @@ public class CEF extends WebBrowser {
 	
 	public static cef_string_t STRING_EMPTY;
 	
+	static final String ABOUT_BLANK = "about:blank"; //$NON-NLS-1$
 	static final String CEF3_PATH = "org.eclipse.swt.browser.CEF3Path"; //$NON-NLS-1$
+	static final String URI_FILEROOT = "file:///"; //$NON-NLS-1$
 
 	static {
 		/*
@@ -165,6 +168,16 @@ static long /*int*/ CreateCEFString(String string) {
 	return result;
 }
 
+static String ExtractCEFString(long /*int*/ stringPointer) {
+	cef_string_t cefStringUrl = new cef_string_t();
+	CEF3.memmove(cefStringUrl, stringPointer, CEF3.cef_string_t_sizeof());
+
+	int length = (int)/*64*/cefStringUrl.length;
+	char[] chars = new char[length]; 
+	OS.memmove(chars, cefStringUrl.str, length * 2); 
+	return new String(chars); 
+}
+
 static boolean IsInstalled() {
 	if (!LibraryLoaded) return false;
 	// TODO if CEF3 has API to get its version then verify that it is supported, for now assume that it is
@@ -217,8 +230,9 @@ public void create(Composite parent, int style) {
 }
 
 public boolean back() {
-	// TODO
-	return false;
+	if (cefBrowser.can_go_back() == 0) return false;
+	cefBrowser.go_back();
+	return true;
 }
 
 public boolean close() {
@@ -237,8 +251,9 @@ public boolean execute(String script) {
 }
 
 public boolean forward() {
-	// TODO
-	return false;
+	if (cefBrowser.can_go_forward() == 0) return false;
+	cefBrowser.go_forward();
+	return true;
 }
 
 public String getBrowserType() {
@@ -252,18 +267,37 @@ public String getText() {
 }
 
 public String getUrl() {
-	// TODO
-	return null;
+	long /*int*/ result = cefBrowser.get_main_frame();
+	if (result == 0) {
+		return null;
+	}	
+	CEFFrame frame = new CEFFrame(result);
+	
+	long /*int*/ url = frame.get_url();
+	String javaStringUrl = ExtractCEFString(url); 
+	
+	/*
+	 * If the URI indicates that the page is being rendered from memory
+	 * (via setText()) then set it to about:blank to be consistent with IE.
+	 */
+	if (javaStringUrl.equals (URI_FILEROOT)) {
+		javaStringUrl = ABOUT_BLANK;
+	} else {
+		int length = URI_FILEROOT.length ();
+		if (javaStringUrl.startsWith (URI_FILEROOT) && javaStringUrl.charAt (length) == '#') {
+			javaStringUrl = ABOUT_BLANK + javaStringUrl.substring (length);
+		}
+	}
+	
+	return javaStringUrl;
 }
 
 public boolean isBackEnabled() {
-	// TODO
-	return false;
+	return cefBrowser.can_go_back() != 0;
 }
 
 public boolean isForwardEnabled() {
-	// TODO
-	return false;
+	return cefBrowser.can_go_forward() != 0;
 }
 
 void onDispose(Event e) {
@@ -279,7 +313,7 @@ void onDispose(Event e) {
 }
 
 public void refresh() {
-	// TODO
+	cefBrowser.reload();
 }
 
 public boolean setText(String html, boolean trusted) {
@@ -301,7 +335,7 @@ public boolean setUrl(String url, String postData, String[] headers) {
 }
 
 public void stop() {
-	// TODO
+	cefBrowser.stop_load();
 }
 
 }
