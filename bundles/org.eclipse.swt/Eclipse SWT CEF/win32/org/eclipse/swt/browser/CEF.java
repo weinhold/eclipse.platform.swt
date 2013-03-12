@@ -14,15 +14,18 @@ package org.eclipse.swt.browser;
 import java.io.*;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.cef3.*;
 import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.widgets.*;
 
 public class CEF extends WebBrowser {
-	boolean ignoreDispose;
+	boolean ignoreDispose, creatingBrowser;
 	CEFClient client;
 	CEFBrowser cefBrowser;
+	Object[] pendingText, pendingUrl;
+	long /*int*/ windowHandle;
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -44,7 +47,7 @@ public class CEF extends WebBrowser {
 		
 		// TODO is InitError really needed?  Some failure branches below don't set it
 		String CEF3Path = System.getProperty(CEF3_PATH);
-		if (CEF3Path.length() > 0) {
+		if (CEF3Path != null && CEF3Path.length() > 0) {
 			File file = new File(CEF3Path);
 			if (!(file.exists() && file.isDirectory())) {
 				InitError = "org.eclipse.swt.browser.CEF3Path value is not valid: " + CEF3Path;  // $NON-NLS-1$
@@ -207,6 +210,7 @@ public void create(Composite parent, int style) {
 		return;
 	}
 
+	creatingBrowser = true;
 	Listener listener = new Listener() {
 		public void handleEvent(Event event) {
 			switch (event.type) {
@@ -222,20 +226,27 @@ public void create(Composite parent, int style) {
 					onDispose(event);
 					break;
 				}
+				case SWT.Resize: {
+					onResize();
+					break;
+				}
 			}
 		}
 	};
 	browser.addListener(SWT.Dispose, listener);
-	browser.addListener(SWT.KeyDown, listener);
+	// browser.addListener(SWT.Resize, listener); // TODO when SWT.EMBEDDED style is removed
+	browser.addListener(SWT.KeyDown, listener); /* needed for tabbing into the Browser */
 }
 
 public boolean back() {
-	if (cefBrowser.can_go_back() == 0) return false;
+	if (cefBrowser == null || cefBrowser.can_go_back() == 0) return false;
 	cefBrowser.go_back();
 	return true;
 }
 
 public boolean close() {
+	if (cefBrowser == null) return false;
+
 	// TODO
 	return false;
 }
@@ -243,15 +254,29 @@ public boolean close() {
 void browserCreated(long /*int*/ handle) {
 	cefBrowser = new CEFBrowser(handle);
 	cefBrowser.add_ref(); // TODO release() when disposed
+	creatingBrowser = false;
+
+	CEFBrowserHost host = new CEFBrowserHost(cefBrowser.get_host());
+	windowHandle = host.get_window_handle();
+
+	/* if browser content has been provided by the client then set it now */
+	if (pendingText != null) {
+		setText((String)pendingText[0], ((Boolean)pendingText[1]).booleanValue());
+	} else if (pendingUrl != null) {
+		setUrl((String)pendingUrl[0], (String)pendingUrl[1], (String[])pendingUrl[2]);
+	}
+	pendingText = pendingUrl = null;
 }
 
 public boolean execute(String script) {
+	if (cefBrowser == null) return false;
+
 	// TODO
 	return false;
 }
 
 public boolean forward() {
-	if (cefBrowser.can_go_forward() == 0) return false;
+	if (cefBrowser == null || cefBrowser.can_go_forward() == 0) return false;
 	cefBrowser.go_forward();
 	return true;
 }
@@ -262,11 +287,23 @@ public String getBrowserType() {
 }
 
 public String getText() {
+	if (cefBrowser == null) return "";
+
 	// TODO
 	return null;
 }
 
 public String getUrl() {
+	if (cefBrowser == null) {
+		/*
+		 * If the browser is being created then return ABOUT_BLANK in order to be
+		 * consistent with the other Browser implementations which auto-navigate
+		 * to ABOUT_BLANK when opened.
+		 */
+		if (!creatingBrowser) return "";
+		return ABOUT_BLANK;
+	}
+
 	long /*int*/ result = cefBrowser.get_main_frame();
 	if (result == 0) {
 		return null;
@@ -293,11 +330,11 @@ public String getUrl() {
 }
 
 public boolean isBackEnabled() {
-	return cefBrowser.can_go_back() != 0;
+	return cefBrowser != null && cefBrowser.can_go_back() != 0;
 }
 
 public boolean isForwardEnabled() {
-	return cefBrowser.can_go_forward() != 0;
+	return cefBrowser != null && cefBrowser.can_go_forward() != 0;
 }
 
 void onDispose(Event e) {
@@ -312,16 +349,36 @@ void onDispose(Event e) {
 	// TODO more clean up
 }
 
+void onResize() {
+	Rectangle bounds = browser.getClientArea();
+	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+}
+
 public void refresh() {
+	if (cefBrowser == null) return;
 	cefBrowser.reload();
 }
 
 public boolean setText(String html, boolean trusted) {
+	if (cefBrowser == null) {
+		if (!creatingBrowser) return false;
+		pendingText = new Object[] {html, new Boolean (trusted)};
+		pendingUrl = null;
+		return true;
+	}
+
 	// TODO
 	return false;
 }
 
 public boolean setUrl(String url, String postData, String[] headers) {
+	if (cefBrowser == null) {
+		if (!creatingBrowser) return false;
+		pendingText = null;
+		pendingUrl = new Object[] {url, postData, headers};
+		return true;
+	}
+
 	// TODO postData, headers...
 	long /*int*/ result = cefBrowser.get_main_frame();
 	if (result == 0) {
@@ -335,6 +392,10 @@ public boolean setUrl(String url, String postData, String[] headers) {
 }
 
 public void stop() {
+	if (cefBrowser == null) {
+		pendingText = pendingUrl = null;
+		return;
+	}
 	cefBrowser.stop_load();
 }
 

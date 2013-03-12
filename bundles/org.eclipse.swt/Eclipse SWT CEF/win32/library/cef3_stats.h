@@ -39,6 +39,7 @@ typedef enum {
 #endif
 	cef_1base_1t_1sizeof_FUNC,
 	cef_1browser_1host_1create_1browser_FUNC,
+	cef_1browser_1host_1t_1sizeof_FUNC,
 	cef_1browser_1settings_1t_1sizeof_FUNC,
 	cef_1browser_1t_1sizeof_FUNC,
 	cef_1execute_1process_FUNC,
@@ -54,6 +55,11 @@ typedef enum {
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ_FUNC,
+#endif
+#ifndef JNI64
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II_FUNC,
+#else
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2II_FUNC,

@@ -20,6 +20,10 @@ public CEFBrowser(long /*int*/ address) {
 	CEF3.memmove(struct, address, cef_browser_t.sizeof);
 }
 
+public long /*int*/ get_host() {
+	return CEF3.callFuncPtr(struct.get_host, address);
+}
+
 public int can_go_back() {
 	return CEF3.callFuncInt(struct.can_go_back, address);
 }

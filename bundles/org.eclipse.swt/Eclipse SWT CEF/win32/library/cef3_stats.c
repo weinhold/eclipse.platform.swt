@@ -29,6 +29,7 @@ char * CEF3_nativeFunctionNames[] = {
 #endif
 	"cef_1base_1t_1sizeof",
 	"cef_1browser_1host_1create_1browser",
+	"cef_1browser_1host_1t_1sizeof",
 	"cef_1browser_1settings_1t_1sizeof",
 	"cef_1browser_1t_1sizeof",
 	"cef_1execute_1process",
@@ -44,6 +45,11 @@ char * CEF3_nativeFunctionNames[] = {
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II",
 #else
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ",
+#endif
+#ifndef JNI64
+	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II",
+#else
+	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ",
 #endif
 #ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2II",

@@ -114,6 +114,18 @@ fail:
 }
 #endif
 
+#ifndef NO_cef_1browser_1host_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1browser_1host_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1browser_1host_1t_1sizeof_FUNC);
+	rc = (jint)cef_browser_host_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1browser_1host_1t_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_cef_1browser_1settings_1t_1sizeof
 JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1browser_1settings_1t_1sizeof)
 	(JNIEnv *env, jclass that)
@@ -278,6 +290,31 @@ fail:
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	cef_browser_host_t _arg0, *lparg0=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setcef_browser_host_tFields(env, arg0, lparg0);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ_FUNC);
 #endif
 }
 #endif

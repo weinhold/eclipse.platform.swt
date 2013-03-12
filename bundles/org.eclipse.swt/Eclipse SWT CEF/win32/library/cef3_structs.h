@@ -23,6 +23,18 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct);
 #define cef_base_t_sizeof() 0
 #endif
 
+#ifndef NO_cef_browser_host_t
+void cachecef_browser_host_tFields(JNIEnv *env, jobject lpObject);
+cef_browser_host_t *getcef_browser_host_tFields(JNIEnv *env, jobject lpObject, cef_browser_host_t *lpStruct);
+void setcef_browser_host_tFields(JNIEnv *env, jobject lpObject, cef_browser_host_t *lpStruct);
+#define cef_browser_host_t_sizeof() sizeof(cef_browser_host_t)
+#else
+#define cachecef_browser_host_tFields(a,b)
+#define getcef_browser_host_tFields(a,b,c) NULL
+#define setcef_browser_host_tFields(a,b,c)
+#define cef_browser_host_t_sizeof() 0
+#endif
+
 #ifndef NO_cef_browser_settings_t
 void cachecef_browser_settings_tFields(JNIEnv *env, jobject lpObject);
 cef_browser_settings_t *getcef_browser_settings_tFields(JNIEnv *env, jobject lpObject, cef_browser_settings_t *lpStruct);

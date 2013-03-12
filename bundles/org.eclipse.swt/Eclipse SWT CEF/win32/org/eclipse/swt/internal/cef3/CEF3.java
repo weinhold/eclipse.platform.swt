@@ -60,6 +60,13 @@ public static final native void memmove(cef_browser_t dest, long /*int*/ src, lo
  * @param src cast=(const void *)
  * @param size cast=(size_t)
  */
+public static final native void memmove(cef_browser_host_t dest, long /*int*/ src, long /*int*/ size);
+
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
 public static final native void memmove(cef_frame_t dest, long /*int*/ src, long /*int*/ size);
 
 /**
@@ -86,6 +93,7 @@ public static final native void callFuncVoid(long /*int*/ address, long /*int*/ 
 
 public static final native int cef_base_t_sizeof();
 public static final native int cef_browser_t_sizeof();
+public static final native int cef_browser_host_t_sizeof();
 public static final native int cef_browser_settings_t_sizeof();
 public static final native int cef_frame_t_sizeof();
 public static final native int cef_settings_t_sizeof();

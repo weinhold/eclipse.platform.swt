@@ -52,6 +52,70 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct)
 }
 #endif
 
+#ifndef NO_cef_browser_host_t
+typedef struct cef_browser_host_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID get_browser, parent_window_will_close, close_browser, set_focus, get_window_handle, get_opener_window_handle, get_client, get_dev_tools_url, get_zoom_level, set_zoom_level, run_file_dialog;
+} cef_browser_host_t_FID_CACHE;
+
+cef_browser_host_t_FID_CACHE cef_browser_host_tFc;
+
+void cachecef_browser_host_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_browser_host_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_browser_host_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_browser_host_tFc.get_browser = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_browser", I_J);
+	cef_browser_host_tFc.parent_window_will_close = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "parent_window_will_close", I_J);
+	cef_browser_host_tFc.close_browser = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "close_browser", I_J);
+	cef_browser_host_tFc.set_focus = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "set_focus", I_J);
+	cef_browser_host_tFc.get_window_handle = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_window_handle", I_J);
+	cef_browser_host_tFc.get_opener_window_handle = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_opener_window_handle", I_J);
+	cef_browser_host_tFc.get_client = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_client", I_J);
+	cef_browser_host_tFc.get_dev_tools_url = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_dev_tools_url", I_J);
+	cef_browser_host_tFc.get_zoom_level = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "get_zoom_level", I_J);
+	cef_browser_host_tFc.set_zoom_level = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "set_zoom_level", I_J);
+	cef_browser_host_tFc.run_file_dialog = (*env)->GetFieldID(env, cef_browser_host_tFc.clazz, "run_file_dialog", I_J);
+	cef_browser_host_tFc.cached = 1;
+}
+
+cef_browser_host_t *getcef_browser_host_tFields(JNIEnv *env, jobject lpObject, cef_browser_host_t *lpStruct)
+{
+	if (!cef_browser_host_tFc.cached) cachecef_browser_host_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->get_browser = (struct _cef_browser_t* (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_browser);
+	lpStruct->parent_window_will_close = (void (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.parent_window_will_close);
+	lpStruct->close_browser = (void (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.close_browser);
+	lpStruct->set_focus = (void (CEF_CALLBACK *)(struct _cef_browser_host_t* self, int enable))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.set_focus);
+	lpStruct->get_window_handle = (cef_window_handle_t (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_window_handle);
+	lpStruct->get_opener_window_handle = (cef_window_handle_t (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_opener_window_handle);
+	lpStruct->get_client = (struct _cef_client_t* (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_client);
+	lpStruct->get_dev_tools_url = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_browser_host_t* self, int http_scheme))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_dev_tools_url);
+	lpStruct->get_zoom_level = (double (CEF_CALLBACK *)(struct _cef_browser_host_t* self))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.get_zoom_level);
+	lpStruct->set_zoom_level = (void (CEF_CALLBACK *)(struct _cef_browser_host_t* self, double zoomLevel))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.set_zoom_level);
+	lpStruct->run_file_dialog = (void (CEF_CALLBACK *)(struct _cef_browser_host_t* self, enum cef_file_dialog_mode_t mode, const cef_string_t* title, const cef_string_t* default_file_name, cef_string_list_t accept_types, struct _cef_run_file_dialog_callback_t* callback))(*env)->GetIntLongField(env, lpObject, cef_browser_host_tFc.run_file_dialog);
+	return lpStruct;
+}
+
+void setcef_browser_host_tFields(JNIEnv *env, jobject lpObject, cef_browser_host_t *lpStruct)
+{
+	if (!cef_browser_host_tFc.cached) cachecef_browser_host_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_browser, (jintLong)lpStruct->get_browser);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.parent_window_will_close, (jintLong)lpStruct->parent_window_will_close);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.close_browser, (jintLong)lpStruct->close_browser);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.set_focus, (jintLong)lpStruct->set_focus);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_window_handle, (jintLong)lpStruct->get_window_handle);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_opener_window_handle, (jintLong)lpStruct->get_opener_window_handle);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_client, (jintLong)lpStruct->get_client);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_dev_tools_url, (jintLong)lpStruct->get_dev_tools_url);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.get_zoom_level, (jintLong)lpStruct->get_zoom_level);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.set_zoom_level, (jintLong)lpStruct->set_zoom_level);
+	(*env)->SetIntLongField(env, lpObject, cef_browser_host_tFc.run_file_dialog, (jintLong)lpStruct->run_file_dialog);
+}
+#endif
+
 #ifndef NO_cef_browser_settings_t
 typedef struct cef_browser_settings_t_FID_CACHE {
 	int cached;

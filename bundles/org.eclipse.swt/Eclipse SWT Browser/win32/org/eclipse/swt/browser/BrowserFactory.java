@@ -23,7 +23,7 @@ WebBrowser createWebBrowser (int style) {
 		return new Mozilla ();
 	}
 	if ((style & SWT.WEBKIT) != 0) {
-		return new CEF (); // TODO
+		return CEF.IsInstalled () ? (WebBrowser)new CEF () : new WebKit ();
 	}
 	return new IE ();
 }

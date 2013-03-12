@@ -125,7 +125,6 @@ static Composite checkParent (Composite parent) {
 }
 
 static int checkStyle(int style) {
-	style |= SWT.EMBEDDED; // TODO
 	String platform = SWT.getPlatform ();
 	if (DefaultType == SWT.DEFAULT) {
 		/*
@@ -192,6 +191,10 @@ static int checkStyle(int style) {
 	if ((style & SWT.MOZILLA) != 0 || (style & SWT.WEBKIT) != 0) {
 		if ("carbon".equals (platform)) return style | SWT.EMBEDDED; //$NON-NLS-1$
 		if ("motif".equals (platform)) return style | SWT.EMBEDDED; //$NON-NLS-1$
+		// TODO try to remove the next lines
+		if ("win32".equals (platform) && (style & SWT.WEBKIT) != 0 && System.getProperty ("org.eclipse.swt.browser.CEF3Path") != null) { //$NON-NLS-1$ //$NON-NLS-2$
+			style |= SWT.EMBEDDED;
+		}
 		return style;
 	}
 
