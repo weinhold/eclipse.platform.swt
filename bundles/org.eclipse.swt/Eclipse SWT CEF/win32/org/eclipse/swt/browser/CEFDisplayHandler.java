@@ -12,6 +12,7 @@ package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.CEFFrame;
 import org.eclipse.swt.widgets.Display;
 
 public class CEFDisplayHandler {
@@ -68,7 +69,17 @@ long /*int*/ on_loading_state_change(long /*int*/ browser, int isLoading, int ca
 }
 
 long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*int*/ url) {
-	if (Device.DEBUG) System.out.println("on_address_change (TODO)");
+	if (Device.DEBUG) System.out.println("on_address_change (impl)");
+	
+	CEFFrame cefFrame = new CEFFrame(frame);
+	final String location = CEF.getUrl(cefFrame);
+	final boolean top = cefFrame.is_main() == 1;
+	
+	Display.getDefault().asyncExec(new Runnable() {
+		public void run() {
+			host.onLocationChange(location, top);
+		}
+	});
 	return 0;
 }
 

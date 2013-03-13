@@ -63,17 +63,7 @@ synchronized int release() {
 /* cef_load_handler_t */
 
 long /*int*/ on_load_start(long /*int*/ browser, long /*int*/ frame) {
-	if (Device.DEBUG) System.out.println("on_load_start (impl)");
-	
-	CEFFrame cefFrame = new CEFFrame(frame);
-	final String location = CEF.getUrl(cefFrame);
-	final boolean top = cefFrame.is_main() == 1;
-	
-	Display.getDefault().asyncExec(new Runnable() {
-		public void run() {
-			host.onLocationChange(location, top);
-		}
-	});
+	if (Device.DEBUG) System.out.println("on_load_start (TODO)");
 	return 0;
 }
 
