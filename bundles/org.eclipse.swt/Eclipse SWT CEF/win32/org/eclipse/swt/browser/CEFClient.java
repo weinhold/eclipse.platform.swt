@@ -164,7 +164,7 @@ long /*int*/ get_life_span_handler() {
 long /*int*/ get_load_handler() {
 	if (Device.DEBUG) System.out.println("get_load_handler (impl)");
 	if (loadHandler == null) {
-		loadHandler = new CEFLoadHandler();
+		loadHandler = new CEFLoadHandler(host);
 	}
 	loadHandler.add_ref();
 	return loadHandler.getAddress();

@@ -185,6 +185,27 @@ static String ExtractCEFString(long /*int*/ stringPointer) {
 	return new String(chars); 
 }
 
+public static String getUrl(CEFFrame frame) {
+	long /*int*/ url = frame.get_url();
+	String javaStringUrl = ExtractCEFString(url); 
+	
+	/*
+	 * If the URI indicates that the page is being rendered from memory
+	 * (via setText()) then set it to about:blank to be consistent with IE.
+	 */
+	if (javaStringUrl.equals (URI_FILEROOT)) {
+		javaStringUrl = ABOUT_BLANK;
+	} else {
+		int length = URI_FILEROOT.length ();
+		if (javaStringUrl.startsWith (URI_FILEROOT) && javaStringUrl.charAt (length) == '#') {
+			javaStringUrl = ABOUT_BLANK + javaStringUrl.substring (length);
+		}
+	}
+	return javaStringUrl;
+}
+
+
+
 static boolean IsInstalled() {
 	if (!LibraryLoaded) return false;
 	// TODO if CEF3 has API to get its version then verify that it is supported, for now assume that it is
@@ -314,23 +335,7 @@ public String getUrl() {
 	}	
 	CEFFrame frame = new CEFFrame(result);
 	
-	long /*int*/ url = frame.get_url();
-	String javaStringUrl = ExtractCEFString(url); 
-	
-	/*
-	 * If the URI indicates that the page is being rendered from memory
-	 * (via setText()) then set it to about:blank to be consistent with IE.
-	 */
-	if (javaStringUrl.equals (URI_FILEROOT)) {
-		javaStringUrl = ABOUT_BLANK;
-	} else {
-		int length = URI_FILEROOT.length ();
-		if (javaStringUrl.startsWith (URI_FILEROOT) && javaStringUrl.charAt (length) == '#') {
-			javaStringUrl = ABOUT_BLANK + javaStringUrl.substring (length);
-		}
-	}
-	
-	return javaStringUrl;
+	return getUrl(frame);
 }
 
 public boolean isBackEnabled() {
@@ -353,9 +358,21 @@ void onDispose(Event e) {
 	// TODO more clean up
 }
 
+
 void onResize() {
 	Rectangle bounds = browser.getClientArea();
 	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+}
+
+public void onLocationChange(String location, boolean top) {
+	LocationEvent event = new LocationEvent(browser);
+	event.display = browser.getDisplay ();
+	event.widget = browser;
+	event.location = location;
+	event.top = top;
+	for (int i=0; i < locationListeners.length; i++) {
+		locationListeners[i].changed (event);
+	}
 }
 
 public void refresh() {
