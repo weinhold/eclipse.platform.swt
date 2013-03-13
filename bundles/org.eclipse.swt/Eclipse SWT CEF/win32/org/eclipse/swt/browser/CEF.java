@@ -36,6 +36,7 @@ public class CEF extends WebBrowser {
 	static final String ABOUT_BLANK = "about:blank"; //$NON-NLS-1$
 	static final String CEF3_PATH = "org.eclipse.swt.browser.CEF3Path"; //$NON-NLS-1$
 	static final String URI_FILEROOT = "file:///"; //$NON-NLS-1$
+	static final int MAX_PROGRESS = 100;
 
 	static {
 		/*
@@ -358,10 +359,20 @@ void onDispose(Event e) {
 	// TODO more clean up
 }
 
-
 void onResize() {
 	Rectangle bounds = browser.getClientArea();
 	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+}
+
+public void onLoadComplete() {
+	ProgressEvent progress = new ProgressEvent (browser);
+	progress.display = browser.getDisplay ();
+	progress.widget = browser;
+	progress.current = MAX_PROGRESS;
+	progress.total = MAX_PROGRESS;
+	for (int i = 0; i < progressListeners.length; i++) {
+		progressListeners[i].completed (progress);
+	}
 }
 
 public void onLocationChange(String location, boolean top) {

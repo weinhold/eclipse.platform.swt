@@ -78,7 +78,16 @@ long /*int*/ on_load_start(long /*int*/ browser, long /*int*/ frame) {
 }
 
 long /*int*/ on_load_end(long /*int*/ browser, long /*int*/ frame, int httpStatusCode) {
-	if (Device.DEBUG) System.out.println("on_load_end (TODO)");
+	if (Device.DEBUG) System.out.println("on_load_end (impl)");
+	
+	CEFFrame cefFrame = new CEFFrame(frame);
+	if (cefFrame.is_main() == 1) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				host.onLoadComplete();
+			}
+		});
+	}
 	return 0;
 }
 
