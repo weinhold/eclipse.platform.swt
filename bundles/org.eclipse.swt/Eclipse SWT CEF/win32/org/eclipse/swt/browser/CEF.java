@@ -172,12 +172,16 @@ static long /*int*/ CreateCEFString(String string) {
 }
 
 static String ExtractCEFString(long /*int*/ stringPointer) {
+	if (stringPointer == 0) {
+		return "";
+	}
+	
 	cef_string_t cefStringUrl = new cef_string_t();
 	CEF3.memmove(cefStringUrl, stringPointer, CEF3.cef_string_t_sizeof());
 
 	int length = (int)/*64*/cefStringUrl.length;
 	char[] chars = new char[length]; 
-	OS.memmove(chars, cefStringUrl.str, length * 2); 
+	OS.memmove(chars, (int)/*64*/cefStringUrl.str, length * 2); 
 	return new String(chars); 
 }
 
