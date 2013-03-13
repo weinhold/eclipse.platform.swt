@@ -37,6 +37,11 @@ typedef enum {
 #else
 	callFuncVoid__JJJ_FUNC,
 #endif
+#ifndef JNI64
+	callFuncVoid__IIIII_FUNC,
+#else
+	callFuncVoid__JJJJI_FUNC,
+#endif
 	cef_1base_1t_1sizeof_FUNC,
 	cef_1browser_1host_1create_1browser_FUNC,
 	cef_1browser_1host_1t_1sizeof_FUNC,

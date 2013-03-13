@@ -32,4 +32,8 @@ public boolean is_main() {
 	return CEF3.callFuncInt(struct.is_main, address) != 0;
 }
 
+public void execute_java_script(long /*int*/ code, long /*int*/ script_url, int start_line) {
+	CEF3.callFuncVoid(struct.execute_java_script, address, code, script_url, start_line);
+}
+
 }

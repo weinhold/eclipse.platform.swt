@@ -27,6 +27,11 @@ char * CEF3_nativeFunctionNames[] = {
 #else
 	"callFuncVoid__JJJ",
 #endif
+#ifndef JNI64
+	"callFuncVoid__IIIII",
+#else
+	"callFuncVoid__JJJJI",
+#endif
 	"cef_1base_1t_1sizeof",
 	"cef_1browser_1host_1create_1browser",
 	"cef_1browser_1host_1t_1sizeof",

@@ -60,9 +60,9 @@ public class CEF extends WebBrowser {
 						Library.loadLibrary("swt-cef3"); // $NON-NLS-1$
 
 						/* initialize STRING_EMPTY */
-						long /*int*/ string = CreateCEFString("");
+						long /*int*/ pString = CreateCEFString(""); /* leaked */
 						STRING_EMPTY = new cef_string_t();
-						CEF3.memmove(STRING_EMPTY, string, cef_string_t.sizeof);
+						CEF3.memmove(STRING_EMPTY, pString, cef_string_t.sizeof);
 
 						/* initialize CEF3 */
 						cef_main_args_t args = new cef_main_args_t();
@@ -108,6 +108,7 @@ public class CEF extends WebBrowser {
 								CEF3.memmove(settings.browser_subprocess_path, subprocessPath, cef_string_t.sizeof);
 								App.add_ref();
 								int rc = CEF3.cef_initialize(args, settings, App.getAddress());
+								CEF3.cef_string_userfree_free(subprocessPath);
 								if (rc != 0) {
 									LibraryLoaded = true;
 								} else {
@@ -172,13 +173,13 @@ static long /*int*/ CreateCEFString(String string) {
 	return result;
 }
 
-static String ExtractCEFString(long /*int*/ stringPointer) {
-	if (stringPointer == 0) {
+static String ExtractCEFString(long /*int*/ pString) {
+	if (pString == 0) {
 		return "";
 	}
 
 	cef_string_t cefStringUrl = new cef_string_t();
-	CEF3.memmove(cefStringUrl, stringPointer, CEF3.cef_string_t_sizeof());
+	CEF3.memmove(cefStringUrl, pString, CEF3.cef_string_t_sizeof());
 
 	int length = (int)/*64*/cefStringUrl.length;
 	char[] chars = new char[length]; 
@@ -207,10 +208,11 @@ public void create(Composite parent, int style) {
 	cef_browser_settings_t browserSettings = new cef_browser_settings_t();
 	browserSettings.size = cef_browser_settings_t.sizeof;
 
-	long /*int*/ url = CreateCEFString("about:blank");
+	long /*int*/ pUrl = CreateCEFString("about:blank");
 	client = new CEFClient(this);
 	client.add_ref();
-	int rc = CEF3.cef_browser_host_create_browser(windowInfo, client.getAddress(), url, browserSettings);
+	int rc = CEF3.cef_browser_host_create_browser(windowInfo, client.getAddress(), pUrl, browserSettings);
+	CEF3.cef_string_userfree_free(pUrl);
 	if (rc == 0) {
 		return;
 	}
@@ -276,8 +278,14 @@ void browserCreated(long /*int*/ handle) {
 public boolean execute(String script) {
 	if (cefBrowser == null) return false;
 
-	// TODO
-	return false;
+	long /*int*/ pFrame = cefBrowser.get_main_frame();
+	CEFFrame mainFrame = new CEFFrame(pFrame);
+	long /*int*/ pScript = CreateCEFString(script);
+	long /*int*/ pUrl = CreateCEFString(getUrl());
+	mainFrame.execute_java_script(pScript, pUrl, 0);
+	CEF3.cef_string_userfree_free(pUrl);
+	CEF3.cef_string_userfree_free(pScript);
+	return true;
 }
 
 public boolean forward() {
@@ -309,13 +317,13 @@ public String getUrl() {
 		return ABOUT_BLANK;
 	}
 
-	long /*int*/ result = cefBrowser.get_main_frame();
-	if (result == 0) {
+	long /*int*/ pFrame = cefBrowser.get_main_frame();
+	if (pFrame == 0) {
 		return null;
 	}	
-	CEFFrame frame = new CEFFrame(result);
-	long /*int*/ url = frame.get_url();
-	String javaStringUrl = ExtractCEFString(url); 
+	CEFFrame frame = new CEFFrame(pFrame);
+	long /*int*/ pUrl = frame.get_url();
+	String javaStringUrl = ExtractCEFString(pUrl); 
 
 	/*
 	 * If the URI indicates that the page is being rendered from memory
@@ -447,14 +455,15 @@ public boolean setUrl(String url, String postData, String[] headers) {
 	}
 
 	// TODO postData, headers...
-	long /*int*/ result = cefBrowser.get_main_frame();
-	if (result == 0) {
+	long /*int*/ pFrame = cefBrowser.get_main_frame();
+	if (pFrame == 0) {
 		return false;
 	}
 
-	CEFFrame frame = new CEFFrame(result);
-	long /*int*/ urlPtr = CreateCEFString(url);
-	frame.load_url(urlPtr);
+	CEFFrame frame = new CEFFrame(pFrame);
+	long /*int*/ pUrl = CreateCEFString(url);
+	frame.load_url(pUrl);
+	CEF3.cef_string_userfree_free(pUrl);
 	return true;
 }
 

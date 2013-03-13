@@ -83,6 +83,27 @@ JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJ)(JNIEnv *env, jclass that, 
 }
 #endif
 
+#if (!defined(NO_callFuncVoid__IIIII) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJJJI) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3, jint arg4)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJJI)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3, jint arg4)
+#endif
+{
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__IIIII_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJJJI_FUNC);
+#endif
+	((void (CEF_CALLBACK*)())arg0)(arg1, arg2, arg3, arg4);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IIIII_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJJJI_FUNC);
+#endif
+}
+#endif
+
 #ifndef NO_cef_1base_1t_1sizeof
 JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1base_1t_1sizeof)
 	(JNIEnv *env, jclass that)

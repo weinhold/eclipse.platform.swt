@@ -87,6 +87,8 @@ public static final native void callFuncVoid(long /*int*/ address, long /*int*/ 
 public static final native long /*int*/ callFuncPtr(long /*int*/ address, long /*int*/ arg0);
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1);
+/** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1, long /*int*/ arg2, int arg3);
 
 
 /* 64 bit */
