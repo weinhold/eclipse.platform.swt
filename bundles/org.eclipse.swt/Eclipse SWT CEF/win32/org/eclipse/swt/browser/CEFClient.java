@@ -117,7 +117,7 @@ long /*int*/ get_dialog_handler() {
 long /*int*/ get_display_handler() {
 	if (Device.DEBUG) System.out.println("get_display_handler (impl)");
 	if (displayHandler == null) {
-		displayHandler = new CEFDisplayHandler();
+		displayHandler = new CEFDisplayHandler(host);
 	}
 	displayHandler.add_ref();
 	return displayHandler.getAddress();

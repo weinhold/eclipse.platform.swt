@@ -375,6 +375,16 @@ public void onLocationChange(String location, boolean top) {
 	}
 }
 
+public void onTitleChange(String title) {
+	TitleEvent event = new TitleEvent(browser);
+	event.display = browser.getDisplay ();
+	event.widget = browser;
+	event.title = title;
+	for (int i=0; i < titleListeners.length; i++) {
+		titleListeners[i].changed (event);
+	}
+}
+
 public void refresh() {
 	if (cefBrowser == null) return;
 	cefBrowser.reload();

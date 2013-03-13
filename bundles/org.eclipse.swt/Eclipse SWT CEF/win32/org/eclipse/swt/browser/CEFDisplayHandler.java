@@ -12,12 +12,15 @@ package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.widgets.Display;
 
 public class CEFDisplayHandler {
 	CEF3Object object;
+	CEF host;
 	int refCount = 1;
 
-public CEFDisplayHandler() {
+public CEFDisplayHandler(CEF host) {
+	this.host = host;
 	object = new CEF3Object (new int[] {0, 0, 0, 4, 3, 2, 2, 2, 4}) {
 		public long /*int*/ method0(long /*int*/[] args) {return add_ref();}
 		public long /*int*/ method1(long /*int*/[] args) {return CEFDisplayHandler.this.release();}
@@ -70,7 +73,16 @@ long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*
 }
 
 long /*int*/ on_title_change(long /*int*/ browser, long /*int*/ title) {
-	if (Device.DEBUG) System.out.println("on_title_change (TODO)");
+	if (Device.DEBUG) System.out.println("on_title_change (impl)");
+	
+	final String titleString = CEF.ExtractCEFString(title);
+	
+	Display.getDefault().asyncExec(new Runnable() {
+		public void run() {
+			host.onTitleChange(titleString);
+		}
+	});
+
 	return 0;
 }
 
