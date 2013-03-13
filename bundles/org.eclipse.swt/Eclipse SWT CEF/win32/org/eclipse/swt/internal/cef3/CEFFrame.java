@@ -28,8 +28,8 @@ public long /*int*/ get_url() {
 	return CEF3.callFuncPtr(struct.get_url, address);
 }
 
-public long /*int*/ is_main() {
-	return CEF3.callFuncInt(struct.is_main, address);
+public boolean is_main() {
+	return CEF3.callFuncInt(struct.is_main, address) != 0;
 }
 
 }

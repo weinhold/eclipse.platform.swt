@@ -11,14 +11,13 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
-import org.eclipse.swt.internal.cef3.CEFFrame;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFDisplayHandler {
 	CEF3Object object;
 	CEF host;
 	int refCount = 1;
+	boolean initialNavigate = true;
 
 public CEFDisplayHandler(CEF host) {
 	this.host = host;
@@ -70,13 +69,23 @@ long /*int*/ on_loading_state_change(long /*int*/ browser, int isLoading, int ca
 
 long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*int*/ url) {
 	if (Device.DEBUG) System.out.println("on_address_change (impl)");
-	
+
+	/*
+	 * CEF initially auto-navigates to about:blank, which is fine but should not be reported
+	 * to the user in order to be consistent with the other Browser implementations. 
+	 */
+	if (initialNavigate) {
+		initialNavigate = false;
+		return 0;
+	}
+
+	final String location = CEF.ExtractCEFString(url);
 	CEFFrame cefFrame = new CEFFrame(frame);
-	final String location = CEF.getUrl(cefFrame);
-	final boolean top = cefFrame.is_main() == 1;
-	
-	Display.getDefault().asyncExec(new Runnable() {
+	final boolean top = cefFrame.is_main();
+
+	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
+			if (host.browser.isDisposed()) return;
 			host.onLocationChange(location, top);
 		}
 	});
@@ -85,11 +94,12 @@ long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*
 
 long /*int*/ on_title_change(long /*int*/ browser, long /*int*/ title) {
 	if (Device.DEBUG) System.out.println("on_title_change (impl)");
-	
+
 	final String titleString = CEF.ExtractCEFString(title);
-	
-	Display.getDefault().asyncExec(new Runnable() {
+
+	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
+			if (host.browser.isDisposed()) return;
 			host.onTitleChange(titleString);
 		}
 	});
@@ -104,15 +114,16 @@ long /*int*/ on_tooltip(long /*int*/ browser, long /*int*/ text) {
 
 long /*int*/ on_status_message(long /*int*/ browser, long /*int*/ value) {
 	if (Device.DEBUG) System.out.println("on_status_message (impl)");
-	
+
 	final String statusString = CEF.ExtractCEFString(value);
-	
-	Display.getDefault().asyncExec(new Runnable() {
+
+	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
+			if (host.browser.isDisposed()) return;
 			host.onStatusMessage(statusString);
 		}
 	});
-	
+
 	return 0;
 }
 

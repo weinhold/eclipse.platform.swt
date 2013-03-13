@@ -176,36 +176,15 @@ static String ExtractCEFString(long /*int*/ stringPointer) {
 	if (stringPointer == 0) {
 		return "";
 	}
-	
+
 	cef_string_t cefStringUrl = new cef_string_t();
 	CEF3.memmove(cefStringUrl, stringPointer, CEF3.cef_string_t_sizeof());
 
 	int length = (int)/*64*/cefStringUrl.length;
 	char[] chars = new char[length]; 
-	OS.memmove(chars, (int)/*64*/cefStringUrl.str, length * 2); 
+	OS.memmove(chars, cefStringUrl.str, length * 2); 
 	return new String(chars); 
 }
-
-public static String getUrl(CEFFrame frame) {
-	long /*int*/ url = frame.get_url();
-	String javaStringUrl = ExtractCEFString(url); 
-	
-	/*
-	 * If the URI indicates that the page is being rendered from memory
-	 * (via setText()) then set it to about:blank to be consistent with IE.
-	 */
-	if (javaStringUrl.equals (URI_FILEROOT)) {
-		javaStringUrl = ABOUT_BLANK;
-	} else {
-		int length = URI_FILEROOT.length ();
-		if (javaStringUrl.startsWith (URI_FILEROOT) && javaStringUrl.charAt (length) == '#') {
-			javaStringUrl = ABOUT_BLANK + javaStringUrl.substring (length);
-		}
-	}
-	return javaStringUrl;
-}
-
-
 
 static boolean IsInstalled() {
 	if (!LibraryLoaded) return false;
@@ -335,8 +314,22 @@ public String getUrl() {
 		return null;
 	}	
 	CEFFrame frame = new CEFFrame(result);
-	
-	return getUrl(frame);
+	long /*int*/ url = frame.get_url();
+	String javaStringUrl = ExtractCEFString(url); 
+
+	/*
+	 * If the URI indicates that the page is being rendered from memory
+	 * (via setText()) then set it to about:blank to be consistent with IE.
+	 */
+	if (javaStringUrl.equals (URI_FILEROOT)) {
+		javaStringUrl = ABOUT_BLANK;
+	} else {
+		int length = URI_FILEROOT.length ();
+		if (javaStringUrl.startsWith (URI_FILEROOT) && javaStringUrl.charAt (length) == '#') {
+			javaStringUrl = ABOUT_BLANK + javaStringUrl.substring (length);
+		}
+	}
+	return javaStringUrl;
 }
 
 public boolean isBackEnabled() {
@@ -365,8 +358,8 @@ void onResize() {
 }
 
 public void onLoadComplete() {
-	ProgressEvent progress = new ProgressEvent (browser);
-	progress.display = browser.getDisplay ();
+	ProgressEvent progress = new ProgressEvent(browser);
+	progress.display = browser.getDisplay();
 	progress.widget = browser;
 	progress.current = MAX_PROGRESS;
 	progress.total = MAX_PROGRESS;
@@ -376,23 +369,35 @@ public void onLoadComplete() {
 }
 
 public void onLocationChange(String location, boolean top) {
+	Display display = browser.getDisplay();
+	if (top) {
+		ProgressEvent progress = new ProgressEvent(browser);
+		progress.display = display;
+		progress.widget = browser;
+		progress.current = 1;
+		progress.total = MAX_PROGRESS;
+		for (int i = 0; i < progressListeners.length; i++) {
+			progressListeners[i].changed(progress);
+		}
+		if (browser.isDisposed()) return;
+
+		StatusTextEvent statusText = new StatusTextEvent(browser);
+		statusText.display = display;
+		statusText.widget = browser;
+		statusText.text = location;
+		for (int i = 0; i < statusTextListeners.length; i++) {
+			statusTextListeners[i].changed(statusText);
+		}
+		if (browser.isDisposed()) return;
+	}
+
 	LocationEvent event = new LocationEvent(browser);
-	event.display = browser.getDisplay ();
+	event.display = display;
 	event.widget = browser;
 	event.location = location;
 	event.top = top;
-	for (int i=0; i < locationListeners.length; i++) {
-		locationListeners[i].changed (event);
-	}
-}
-
-public void onTitleChange(String title) {
-	TitleEvent event = new TitleEvent(browser);
-	event.display = browser.getDisplay ();
-	event.widget = browser;
-	event.title = title;
-	for (int i=0; i < titleListeners.length; i++) {
-		titleListeners[i].changed (event);
+	for (int i = 0; i < locationListeners.length; i++) {
+		locationListeners[i].changed(event);
 	}
 }
 
@@ -402,7 +407,17 @@ public void onStatusMessage(String status) {
 	event.widget = browser;
 	event.text = status;
 	for (int i = 0; i < statusTextListeners.length; i++) {
-		statusTextListeners[i].changed (event);
+		statusTextListeners[i].changed(event);
+	}
+}
+
+public void onTitleChange(String title) {
+	TitleEvent event = new TitleEvent(browser);
+	event.display = browser.getDisplay();
+	event.widget = browser;
+	event.title = title;
+	for (int i = 0; i < titleListeners.length; i++) {
+		titleListeners[i].changed(event);
 	}
 }
 

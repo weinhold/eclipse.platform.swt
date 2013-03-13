@@ -11,9 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
-import org.eclipse.swt.internal.cef3.CEFFrame;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFLoadHandler {
 	CEF3Object object;
@@ -69,11 +67,12 @@ long /*int*/ on_load_start(long /*int*/ browser, long /*int*/ frame) {
 
 long /*int*/ on_load_end(long /*int*/ browser, long /*int*/ frame, int httpStatusCode) {
 	if (Device.DEBUG) System.out.println("on_load_end (impl)");
-	
+
 	CEFFrame cefFrame = new CEFFrame(frame);
-	if (cefFrame.is_main() == 1) {
-		Display.getDefault().asyncExec(new Runnable() {
+	if (cefFrame.is_main()) {
+		host.browser.getDisplay().asyncExec(new Runnable() {
 			public void run() {
+				if (host.browser.isDisposed()) return;
 				host.onLoadComplete();
 			}
 		});
