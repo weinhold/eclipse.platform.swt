@@ -92,7 +92,16 @@ long /*int*/ on_tooltip(long /*int*/ browser, long /*int*/ text) {
 }
 
 long /*int*/ on_status_message(long /*int*/ browser, long /*int*/ value) {
-	if (Device.DEBUG) System.out.println("on_status_message (TODO)");
+	if (Device.DEBUG) System.out.println("on_status_message (impl)");
+	
+	final String statusString = CEF.ExtractCEFString(value);
+	
+	Display.getDefault().asyncExec(new Runnable() {
+		public void run() {
+			host.onStatusMessage(statusString);
+		}
+	});
+	
 	return 0;
 }
 

@@ -385,6 +385,16 @@ public void onTitleChange(String title) {
 	}
 }
 
+public void onStatusMessage(String status) {
+	StatusTextEvent event = new StatusTextEvent(browser);
+	event.display = browser.getDisplay ();
+	event.widget = browser;
+	event.text = status;
+	for (int i = 0; i < statusTextListeners.length; i++) {
+		statusTextListeners[i].changed (event);
+	}
+}
+
 public void refresh() {
 	if (cefBrowser == null) return;
 	cefBrowser.reload();
