@@ -147,13 +147,8 @@ public class Snippet128 {
 		
 		shell.open();
 		/* delay for 2 seconds because creation of the underlying CEF browser is asynchronous */
-		display.timerExec(2000, new Runnable() {
-			public void run() {
-				browser.setUrl("http://www.eclipse.org");
-				browser2.setUrl("http://www.google.com");
-			}
-		});
-		
+		browser.setUrl("http://www.eclipse.org");
+		browser2.setUrl("http://www.google.com");
 		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
