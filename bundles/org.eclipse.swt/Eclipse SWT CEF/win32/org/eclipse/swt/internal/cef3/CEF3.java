@@ -88,6 +88,8 @@ public static final native long /*int*/ callFuncPtr(long /*int*/ address, long /
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1);
 /** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1, long /*int*/ arg2);
+/** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1, long /*int*/ arg2, int arg3);
 
 
@@ -100,5 +102,6 @@ public static final native int cef_browser_settings_t_sizeof();
 public static final native int cef_frame_t_sizeof();
 public static final native int cef_settings_t_sizeof();
 public static final native int cef_string_t_sizeof();
+public static final native int cef_build_revision();
 
 }

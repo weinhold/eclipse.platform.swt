@@ -38,6 +38,11 @@ typedef enum {
 	callFuncVoid__JJJ_FUNC,
 #endif
 #ifndef JNI64
+	callFuncVoid__IIII_FUNC,
+#else
+	callFuncVoid__JJJJ_FUNC,
+#endif
+#ifndef JNI64
 	callFuncVoid__IIIII_FUNC,
 #else
 	callFuncVoid__JJJJI_FUNC,
@@ -47,6 +52,7 @@ typedef enum {
 	cef_1browser_1host_1t_1sizeof_FUNC,
 	cef_1browser_1settings_1t_1sizeof_FUNC,
 	cef_1browser_1t_1sizeof_FUNC,
+	cef_1build_1revision_FUNC,
 	cef_1execute_1process_FUNC,
 	cef_1frame_1t_1sizeof_FUNC,
 	cef_1initialize_FUNC,

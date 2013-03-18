@@ -24,6 +24,10 @@ public void load_url(long /*int*/ url) {
 	CEF3.callFuncVoid(struct.load_url, address, url);
 }
 
+public void load_string(long /*int*/ string, long /*int*/ url) {
+	CEF3.callFuncVoid(struct.load_string, address, string, url);
+}
+
 public long /*int*/ get_url() {
 	return CEF3.callFuncPtr(struct.get_url, address);
 }

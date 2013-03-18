@@ -21,9 +21,10 @@ import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.widgets.*;
 
 public class CEF extends WebBrowser {
-	boolean ignoreDispose, creatingBrowser;
+	boolean creatingBrowser, ignoreDispose;
 	CEFClient client;
 	CEFBrowser cefBrowser;
+	String htmlText;
 	Object[] pendingText, pendingUrl;
 	long /*int*/ windowHandle;
 
@@ -37,6 +38,7 @@ public class CEF extends WebBrowser {
 	static final String CEF3_PATH = "org.eclipse.swt.browser.CEF3Path"; //$NON-NLS-1$
 	static final String URI_FILEROOT = "file:///"; //$NON-NLS-1$
 	static final int MAX_PROGRESS = 100;
+	static final int CEF3_SUPPORTED_REVISON = 1094;
 
 	static {
 		/*
@@ -189,7 +191,7 @@ static String ExtractCEFString(long /*int*/ pString) {
 
 static boolean IsInstalled() {
 	if (!LibraryLoaded) return false;
-	// TODO if CEF3 has API to get its version then verify that it is supported, for now assume that it is
+	if (CEF3.cef_build_revision() < CEF3_SUPPORTED_REVISON) return false;
 	return true;
 }
 
@@ -442,7 +444,18 @@ public boolean setText(String html, boolean trusted) {
 		return true;
 	}
 
-	// TODO
+	long /*int*/ pFrame = cefBrowser.get_main_frame();
+	if (pFrame == 0) {
+		return false;
+	}
+	CEFFrame frame = new CEFFrame(pFrame);
+	
+	long /*int*/ pHtml = CreateCEFString(html);
+	long /*int*/ pUrl = CreateCEFString(ABOUT_BLANK);
+	frame.load_string(pHtml, pUrl);
+	CEF3.cef_string_userfree_free(pHtml);
+	CEF3.cef_string_userfree_free(pUrl);
+	
 	return false;
 }
 
@@ -472,6 +485,7 @@ public void stop() {
 		pendingText = pendingUrl = null;
 		return;
 	}
+
 	cefBrowser.stop_load();
 }
 

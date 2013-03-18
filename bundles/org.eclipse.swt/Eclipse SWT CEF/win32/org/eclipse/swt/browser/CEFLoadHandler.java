@@ -82,7 +82,7 @@ long /*int*/ on_load_end(long /*int*/ browser, long /*int*/ frame, int httpStatu
 
 long /*int*/ on_load_error(long /*int*/ browser, long /*int*/ frame, int errorCode, long /*int*/ errorText, long /*int*/ failedUrl) {
 	/* possibly useful if on_load_end() not received for load errors */
-	if (Device.DEBUG) System.out.println("on_load_error");
+	if (Device.DEBUG) System.out.println("on_load_error code:" + errorCode + " text: " + CEF.ExtractCEFString(errorText) );
 	return 0;
 }
 
