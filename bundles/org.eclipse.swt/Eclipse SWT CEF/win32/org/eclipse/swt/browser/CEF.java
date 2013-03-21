@@ -191,7 +191,7 @@ static String ExtractCEFString(long /*int*/ pString) {
 
 static boolean IsInstalled() {
 	if (!LibraryLoaded) return false;
-	if (CEF3.cef_build_revision() < CEF3_SUPPORTED_REVISON) return false;
+	if (CEF3.cef_build_revision() != CEF3_SUPPORTED_REVISON) return false;
 	return true;
 }
 
@@ -449,13 +449,13 @@ public boolean setText(String html, boolean trusted) {
 		return false;
 	}
 	CEFFrame frame = new CEFFrame(pFrame);
-	
+
 	long /*int*/ pHtml = CreateCEFString(html);
 	long /*int*/ pUrl = CreateCEFString(ABOUT_BLANK);
 	frame.load_string(pHtml, pUrl);
 	CEF3.cef_string_userfree_free(pHtml);
 	CEF3.cef_string_userfree_free(pUrl);
-	
+
 	return false;
 }
 

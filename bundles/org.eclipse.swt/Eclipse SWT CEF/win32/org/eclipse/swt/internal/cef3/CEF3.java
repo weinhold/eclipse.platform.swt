@@ -21,6 +21,8 @@ public class CEF3 extends C {
  */
 public static final native int cef_browser_host_create_browser(cef_window_info_t windowInfo, long /*int*/ client, long /*int*/ url, cef_browser_settings_t settings);
 
+public static final native int cef_build_revision();
+
 /** @param application cast=(struct _cef_app_t*) */
 public static final native int cef_execute_process(cef_main_args_t args, long /*int*/ application);
 
@@ -102,6 +104,5 @@ public static final native int cef_browser_settings_t_sizeof();
 public static final native int cef_frame_t_sizeof();
 public static final native int cef_settings_t_sizeof();
 public static final native int cef_string_t_sizeof();
-public static final native int cef_build_revision();
 
 }

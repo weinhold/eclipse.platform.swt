@@ -88,7 +88,7 @@ CEF3CFLAGS = -O1 -DNDEBUG $(cflags) $(cvarsmt) $(CFLAGS) \
 	-DSWT_VERSION=$(SWT_VERSION) $(NATIVE_STATS) -DUSE_ASSEMBLER \
 	/I"$(JAVA_HOME)\include" /I"$(JAVA_HOME)\include\win32" /I. \
 	-I"$(CEF3_DIR)" \
-	-I"$(CEF3_DIR)\include\internal" \
+	-I"$(CEF3_DIR)\include" \
 	-I"$(CEF3_DIR)\include\capi"
 
 #CFLAGS = $(cdebug) $(cflags) $(cvarsmt) $(CFLAGS) \
