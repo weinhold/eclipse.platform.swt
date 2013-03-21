@@ -64,11 +64,14 @@ synchronized int release() {
 
 long /*int*/ on_loading_state_change(long /*int*/ browser, int isLoading, int canGoBack, int canGoForward) {
 	if (Device.DEBUG) System.out.println("on_loading_state_change (TODO)");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*int*/ url) {
 	if (Device.DEBUG) System.out.println("on_address_change (impl)");
+
+	new CEFBase(browser).release();
 
 	/*
 	 * CEF initially auto-navigates to about:blank, which is fine but should not be reported
@@ -76,17 +79,19 @@ long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*
 	 */
 	if (initialNavigate) {
 		initialNavigate = false;
+		new CEFBase(frame).release();
 		return 0;
 	}
 
 	final String location = CEF.ExtractCEFString(url);
 	CEFFrame cefFrame = new CEFFrame(frame);
 	final boolean top = cefFrame.is_main();
+	cefFrame.release();
 
 	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
 			if (host.browser.isDisposed()) return;
-			host.onLocationChange(location, top);
+			host.onLocationChanged(location, top);
 		}
 	});
 	return 0;
@@ -94,6 +99,8 @@ long /*int*/ on_address_change(long /*int*/ browser, long /*int*/ frame, long /*
 
 long /*int*/ on_title_change(long /*int*/ browser, long /*int*/ title) {
 	if (Device.DEBUG) System.out.println("on_title_change (impl)");
+
+	new CEFBase(browser).release();
 
 	final String titleString = CEF.ExtractCEFString(title);
 
@@ -109,11 +116,14 @@ long /*int*/ on_title_change(long /*int*/ browser, long /*int*/ title) {
 
 long /*int*/ on_tooltip(long /*int*/ browser, long /*int*/ text) {
 	if (Device.DEBUG) System.out.println("on_tooltip");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_status_message(long /*int*/ browser, long /*int*/ value) {
 	if (Device.DEBUG) System.out.println("on_status_message (impl)");
+
+	new CEFBase(browser).release();
 
 	final String statusString = CEF.ExtractCEFString(value);
 
@@ -129,6 +139,7 @@ long /*int*/ on_status_message(long /*int*/ browser, long /*int*/ value) {
 
 long /*int*/ on_console_message(long /*int*/ browser, long /*int*/ message, long /*int*/ source, int line) {
 	if (Device.DEBUG) System.out.println("on_console_message");
+	new CEFBase(browser).release();
 	return 0;
 }
 

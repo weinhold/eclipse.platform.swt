@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFLifeSpanHandler {
 	CEF3Object object;
@@ -63,6 +63,10 @@ synchronized int release() {
 
 long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ popupFeatures, long /*int*/ windowInfo, long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
 	if (Device.DEBUG) System.out.println("on_before_popup (TODO)");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(popupFeatures).release();
+	// TODO does client need to be released too?
 	return 0;
 }
 
@@ -71,22 +75,26 @@ long /*int*/ on_after_created(long /*int*/ browser) {
 	if (host != null) {
 		host.browserCreated(browser);
 	}
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ run_modal(long /*int*/ browser) {
 	if (Device.DEBUG) System.out.println("run_modal");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ do_close(long /*int*/ browser) {
 	/* possibly useful */
 	if (Device.DEBUG) System.out.println("do_close");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_before_close(long /*int*/ browser) {
 	if (Device.DEBUG) System.out.println("on_before_close");
+	new CEFBase(browser).release();
 	return 0;
 }
 

@@ -77,24 +77,30 @@ long /*int*/ on_load_end(long /*int*/ browser, long /*int*/ frame, int httpStatu
 			}
 		});
 	}
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
 	return 0;
 }
 
 long /*int*/ on_load_error(long /*int*/ browser, long /*int*/ frame, int errorCode, long /*int*/ errorText, long /*int*/ failedUrl) {
 	/* possibly useful if on_load_end() not received for load errors */
 	if (Device.DEBUG) System.out.println("on_load_error code:" + errorCode + " text: " + CEF.ExtractCEFString(errorText) );
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
 	return 0;
 }
 
 long /*int*/ on_render_process_terminated(long /*int*/ browser, int status) {
 	/* possibly useful if no other notification received for this */
 	if (Device.DEBUG) System.out.println("on_render_process_terminated");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_plugin_crashed(long /*int*/ browser, long /*int*/ plugin_path) {
 	/* possibly useful if no other notification received for this */
 	if (Device.DEBUG) System.out.println("on_plugin_crashed");
+	new CEFBase(browser).release();
 	return 0;
 }
 

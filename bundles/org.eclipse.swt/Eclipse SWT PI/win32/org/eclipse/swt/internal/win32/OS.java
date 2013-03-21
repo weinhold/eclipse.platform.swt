@@ -682,7 +682,9 @@ public class OS extends C {
 	public static final int FEATURE_DISABLE_NAVIGATION_SOUNDS = 21;
 	public static final int FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
 	public static final int FILE_ATTRIBUTE_NORMAL = 0x00000080;
+	public static final int FILE_MAP_ALL_ACCESS = 0xF001F;
 	public static final int FILE_MAP_READ = 4;
+	public static final int FILE_MAP_WRITE = 2;
 	public static final int FLICKDIRECTION_RIGHT = 0;
 	public static final int FLICKDIRECTION_UPRIGHT = 1;
 	public static final int FLICKDIRECTION_UP = 2;
@@ -2502,6 +2504,15 @@ public static final long /*int*/ CreateEnhMetaFile (long /*int*/ hdcRef, TCHAR l
 	return CreateEnhMetaFileA (hdcRef, lpFilename1, lpRect, lpDescription1);
 }
 
+public static final int OpenFileMapping(int dwDesiredAccess, int bInheritHandle, TCHAR lpName) {
+	if (IsUnicode) {
+		char [] lpName1 = lpName == null ? null : lpName.chars;
+		return OpenFileMappingW (dwDesiredAccess, bInheritHandle, lpName1);
+	}
+	byte [] lpName1 = lpName == null ? null : lpName.bytes;
+	return OpenFileMappingA (dwDesiredAccess, bInheritHandle, lpName1);
+}
+
 public static final long /*int*/ CreateFontIndirect (long /*int*/ lplf) {
 	if (IsUnicode) return CreateFontIndirectW (lplf);
 	return CreateFontIndirectA (lplf);
@@ -3755,6 +3766,12 @@ public static final native long /*int*/ CopyImage (long /*int*/ hImage, int uTyp
 public static final native long /*int*/ CoTaskMemAlloc(int cb);
 /** @param pv cast=(LPVOID) */
 public static final native void CoTaskMemFree(long /*int*/ pv);
+/** 
+ * param Destination cast=(PVOID)
+ * param Source cast=(const VOID *)
+ * param Length cast=(size_t)
+ */
+public static final native void CopyMemory(long /*int*/ Destination, byte [] Source, long /*int*/ Length);
 /** @param lpaccl cast=(LPACCEL) */
 public static final native long /*int*/ CreateAcceleratorTableW (byte [] lpaccl, int cEntries); 
 /** @param lpaccl cast=(LPACCEL) */
@@ -5739,6 +5756,10 @@ public static final native int OleInitialize (long /*int*/ pvReserved);
 public static final native void OleUninitialize ();
 /** @param hWndNewOwner cast=(HWND) */
 public static final native boolean OpenClipboard (long /*int*/ hWndNewOwner);
+/** @param lpName cast=(LPCWSTR) */
+public static final native int OpenFileMappingW(int dwDesiredAccess, int bInheritHandle, char[] lpName);
+/** @param lpName cast=(LPCSTR) */
+public static final native int OpenFileMappingA(int dwDesiredAccess, int bInheritHandle, byte[] lpName);
 /**
  * @method flags=dynamic
  * @param hwnd cast=(HWND)

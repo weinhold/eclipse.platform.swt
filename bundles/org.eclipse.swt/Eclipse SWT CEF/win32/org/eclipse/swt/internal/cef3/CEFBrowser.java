@@ -52,4 +52,7 @@ public long /*int*/ get_main_frame() {
 	return CEF3.callFuncPtr(struct.get_main_frame, address);
 }
 
+public int send_process_message(int target_process, long /*int*/ message) {
+	return CEF3.callFuncInt(struct.send_process_message,  address, target_process, message);
+}
 }

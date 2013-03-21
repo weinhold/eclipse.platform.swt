@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1276,6 +1276,20 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(CopyImage)
 	rc = (jintLong)CopyImage((HANDLE)arg0, arg1, arg2, arg3, arg4);
 	OS_NATIVE_EXIT(env, that, CopyImage_FUNC);
 	return rc;
+}
+#endif
+
+#ifndef NO_CopyMemory
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory)
+	(JNIEnv *env, jclass that, jintLong arg0, jbyteArray arg1, jintLong arg2)
+{
+	jbyte *lparg1=NULL;
+	OS_NATIVE_ENTER(env, that, CopyMemory_FUNC);
+	if (arg1) if ((lparg1 = (*env)->GetByteArrayElements(env, arg1, NULL)) == NULL) goto fail;
+	CopyMemory(arg0, lparg1, arg2);
+fail:
+	if (arg1 && lparg1) (*env)->ReleaseByteArrayElements(env, arg1, lparg1, 0);
+	OS_NATIVE_EXIT(env, that, CopyMemory_FUNC);
 }
 #endif
 
@@ -12299,6 +12313,38 @@ JNIEXPORT jboolean JNICALL OS_NATIVE(OpenClipboard)
 	OS_NATIVE_ENTER(env, that, OpenClipboard_FUNC);
 	rc = (jboolean)OpenClipboard((HWND)arg0);
 	OS_NATIVE_EXIT(env, that, OpenClipboard_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_OpenFileMappingA
+JNIEXPORT jint JNICALL OS_NATIVE(OpenFileMappingA)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1, jbyteArray arg2)
+{
+	jbyte *lparg2=NULL;
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, OpenFileMappingA_FUNC);
+	if (arg2) if ((lparg2 = (*env)->GetByteArrayElements(env, arg2, NULL)) == NULL) goto fail;
+	rc = (jint)OpenFileMappingA(arg0, arg1, (LPCSTR)lparg2);
+fail:
+	if (arg2 && lparg2) (*env)->ReleaseByteArrayElements(env, arg2, lparg2, 0);
+	OS_NATIVE_EXIT(env, that, OpenFileMappingA_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_OpenFileMappingW
+JNIEXPORT jint JNICALL OS_NATIVE(OpenFileMappingW)
+	(JNIEnv *env, jclass that, jint arg0, jint arg1, jcharArray arg2)
+{
+	jchar *lparg2=NULL;
+	jint rc = 0;
+	OS_NATIVE_ENTER(env, that, OpenFileMappingW_FUNC);
+	if (arg2) if ((lparg2 = (*env)->GetCharArrayElements(env, arg2, NULL)) == NULL) goto fail;
+	rc = (jint)OpenFileMappingW(arg0, arg1, (LPCWSTR)lparg2);
+fail:
+	if (arg2 && lparg2) (*env)->ReleaseCharArrayElements(env, arg2, lparg2, 0);
+	OS_NATIVE_EXIT(env, that, OpenFileMappingW_FUNC);
 	return rc;
 }
 #endif

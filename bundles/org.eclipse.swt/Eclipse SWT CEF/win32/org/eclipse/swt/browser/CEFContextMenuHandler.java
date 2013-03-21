@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFContextMenuHandler {
 	CEF3Object object;
@@ -58,16 +58,25 @@ synchronized int release() {
 
 long /*int*/ on_before_context_menu(long /*int*/ browser, long /*int*/ frame, long /*int*/ params, long /*int*/ model) {
 	if (Device.DEBUG) System.out.println("on_before_context_menu (TODO)");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(params).release();
+	new CEFBase(model).release();
 	return 0;
 }
 
 long /*int*/ on_context_menu_command(long /*int*/ browser, long /*int*/ frame, long /*int*/ params, int command_id, int event_flags) {
 	if (Device.DEBUG) System.out.println("on_context_menu_command");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(params).release();
 	return 0;
 }
 
 long /*int*/ on_context_menu_dismissed(long /*int*/ browser, long /*int*/ frame) {
 	if (Device.DEBUG) System.out.println("on_before_context_menu");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
 	return 0;
 }
 

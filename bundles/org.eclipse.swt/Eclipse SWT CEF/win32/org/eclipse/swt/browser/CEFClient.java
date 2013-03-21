@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFClient {
 	CEF host;
@@ -185,9 +185,11 @@ long /*int*/ get_request_handler() {
 }
 
 long /*int*/ on_process_message_received(long /*int*/ browser, long /*int*/ source_process, long /*int*/ message) {
-	/* possibly important (?) */
-	if (Device.DEBUG) System.out.println("on_process_message_received");
-	return 0;
+	if (Device.DEBUG) System.out.println("on_process_message_received (impl)");
+	host.onMessageReceived(message);
+	new CEFBase(browser).release();
+	new CEFBase(message).release();
+	return 1;
 }
 
 }

@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFBrowserProcessHandler {
 	CEF3Object object;
@@ -62,13 +62,14 @@ long /*int*/ on_context_initialized() {
 }
 
 long /*int*/ on_before_child_process_launch(long /*int*/ command_line) {
-	/* opportunity to view/modify command line before it is used by subprocess */
-	if (Device.DEBUG) System.out.println("on_before_child_process_launch (TODO)");
+	if (Device.DEBUG) System.out.println("on_before_child_process_launch");
+	new CEFBase(command_line).release();
 	return 0;
 }
 
 long /*int*/ on_render_process_thread_created(long /*int*/ extra_info) {
 	if (Device.DEBUG) System.out.println("on_render_process_thread_created");
+	new CEFBase(extra_info).release();
 	return 0;
 }
 

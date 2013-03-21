@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -116,6 +116,7 @@ typedef enum {
 	CommandBar_1InsertMenubarEx_FUNC,
 	CommandBar_1Show_FUNC,
 	CopyImage_FUNC,
+	CopyMemory_FUNC,
 	CreateAcceleratorTableA_FUNC,
 	CreateAcceleratorTableW_FUNC,
 	CreateActCtxA_FUNC,
@@ -1242,6 +1243,8 @@ typedef enum {
 	OleInitialize_FUNC,
 	OleUninitialize_FUNC,
 	OpenClipboard_FUNC,
+	OpenFileMappingA_FUNC,
+	OpenFileMappingW_FUNC,
 	OpenPrinterA_FUNC,
 	OpenPrinterW_FUNC,
 	OpenProcess_FUNC,

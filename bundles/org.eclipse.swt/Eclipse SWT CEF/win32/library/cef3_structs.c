@@ -500,6 +500,109 @@ void setcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct)
 }
 #endif
 
+#ifndef NO_cef_list_value_t
+typedef struct cef_list_value_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID is_valid, is_owned, is_read_only, copy, set_size, get_size, clear, remove, get_type, get_bool, get_int, get_double, get_string, get_binary, get_dictionary, get_list, set_null, set_bool, set_int, set_double, set_string, set_binary, set_dictionary, set_list;
+} cef_list_value_t_FID_CACHE;
+
+cef_list_value_t_FID_CACHE cef_list_value_tFc;
+
+void cachecef_list_value_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_list_value_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_list_value_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_list_value_tFc.is_valid = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "is_valid", I_J);
+	cef_list_value_tFc.is_owned = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "is_owned", I_J);
+	cef_list_value_tFc.is_read_only = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "is_read_only", I_J);
+	cef_list_value_tFc.copy = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "copy", I_J);
+	cef_list_value_tFc.set_size = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_size", I_J);
+	cef_list_value_tFc.get_size = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_size", I_J);
+	cef_list_value_tFc.clear = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "clear", I_J);
+	cef_list_value_tFc.remove = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "remove", I_J);
+	cef_list_value_tFc.get_type = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_type", I_J);
+	cef_list_value_tFc.get_bool = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_bool", I_J);
+	cef_list_value_tFc.get_int = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_int", I_J);
+	cef_list_value_tFc.get_double = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_double", I_J);
+	cef_list_value_tFc.get_string = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_string", I_J);
+	cef_list_value_tFc.get_binary = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_binary", I_J);
+	cef_list_value_tFc.get_dictionary = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_dictionary", I_J);
+	cef_list_value_tFc.get_list = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "get_list", I_J);
+	cef_list_value_tFc.set_null = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_null", I_J);
+	cef_list_value_tFc.set_bool = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_bool", I_J);
+	cef_list_value_tFc.set_int = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_int", I_J);
+	cef_list_value_tFc.set_double = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_double", I_J);
+	cef_list_value_tFc.set_string = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_string", I_J);
+	cef_list_value_tFc.set_binary = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_binary", I_J);
+	cef_list_value_tFc.set_dictionary = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_dictionary", I_J);
+	cef_list_value_tFc.set_list = (*env)->GetFieldID(env, cef_list_value_tFc.clazz, "set_list", I_J);
+	cef_list_value_tFc.cached = 1;
+}
+
+cef_list_value_t *getcef_list_value_tFields(JNIEnv *env, jobject lpObject, cef_list_value_t *lpStruct)
+{
+	if (!cef_list_value_tFc.cached) cachecef_list_value_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->is_valid = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.is_valid);
+	lpStruct->is_owned = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.is_owned);
+	lpStruct->is_read_only = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.is_read_only);
+	lpStruct->copy = (struct _cef_list_value_t* (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.copy);
+	lpStruct->set_size = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, size_t size))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_size);
+	lpStruct->get_size = (size_t (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_size);
+	lpStruct->clear = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.clear);
+	lpStruct->remove = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.remove);
+	lpStruct->get_type = (enum cef_value_type_t (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_type);
+	lpStruct->get_bool = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_bool);
+	lpStruct->get_int = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_int);
+	lpStruct->get_double = (double (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_double);
+	lpStruct->get_string = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_string);
+	lpStruct->get_binary = (struct _cef_binary_value_t* (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_binary);
+	lpStruct->get_dictionary = (struct _cef_dictionary_value_t* (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_dictionary);
+	lpStruct->get_list = (struct _cef_list_value_t* (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.get_list);
+	lpStruct->set_null = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_null);
+	lpStruct->set_bool = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, int value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_bool);
+	lpStruct->set_int = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, int value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_int);
+	lpStruct->set_double = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, double value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_double);
+	lpStruct->set_string = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, const cef_string_t* value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_string);
+	lpStruct->set_binary = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, struct _cef_binary_value_t* value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_binary);
+	lpStruct->set_dictionary = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, struct _cef_dictionary_value_t* value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_dictionary);
+	lpStruct->set_list = (int (CEF_CALLBACK *)(struct _cef_list_value_t* self, int index, struct _cef_list_value_t* value))(*env)->GetIntLongField(env, lpObject, cef_list_value_tFc.set_list);
+	return lpStruct;
+}
+
+void setcef_list_value_tFields(JNIEnv *env, jobject lpObject, cef_list_value_t *lpStruct)
+{
+	if (!cef_list_value_tFc.cached) cachecef_list_value_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.is_valid, (jintLong)lpStruct->is_valid);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.is_owned, (jintLong)lpStruct->is_owned);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.is_read_only, (jintLong)lpStruct->is_read_only);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.copy, (jintLong)lpStruct->copy);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_size, (jintLong)lpStruct->set_size);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_size, (jintLong)lpStruct->get_size);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.clear, (jintLong)lpStruct->clear);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.remove, (jintLong)lpStruct->remove);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_type, (jintLong)lpStruct->get_type);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_bool, (jintLong)lpStruct->get_bool);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_int, (jintLong)lpStruct->get_int);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_double, (jintLong)lpStruct->get_double);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_string, (jintLong)lpStruct->get_string);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_binary, (jintLong)lpStruct->get_binary);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_dictionary, (jintLong)lpStruct->get_dictionary);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.get_list, (jintLong)lpStruct->get_list);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_null, (jintLong)lpStruct->set_null);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_bool, (jintLong)lpStruct->set_bool);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_int, (jintLong)lpStruct->set_int);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_double, (jintLong)lpStruct->set_double);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_string, (jintLong)lpStruct->set_string);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_binary, (jintLong)lpStruct->set_binary);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_dictionary, (jintLong)lpStruct->set_dictionary);
+	(*env)->SetIntLongField(env, lpObject, cef_list_value_tFc.set_list, (jintLong)lpStruct->set_list);
+}
+#endif
+
 #ifndef NO_cef_main_args_t
 typedef struct cef_main_args_t_FID_CACHE {
 	int cached;
@@ -528,6 +631,52 @@ void setcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lp
 {
 	if (!cef_main_args_tFc.cached) cachecef_main_args_tFields(env, lpObject);
 	(*env)->SetIntLongField(env, lpObject, cef_main_args_tFc.instance, (jintLong)lpStruct->instance);
+}
+#endif
+
+#ifndef NO_cef_process_message_t
+typedef struct cef_process_message_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID is_valid, is_read_only, copy, get_name, get_argument_list;
+} cef_process_message_t_FID_CACHE;
+
+cef_process_message_t_FID_CACHE cef_process_message_tFc;
+
+void cachecef_process_message_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_process_message_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_process_message_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_process_message_tFc.is_valid = (*env)->GetFieldID(env, cef_process_message_tFc.clazz, "is_valid", I_J);
+	cef_process_message_tFc.is_read_only = (*env)->GetFieldID(env, cef_process_message_tFc.clazz, "is_read_only", I_J);
+	cef_process_message_tFc.copy = (*env)->GetFieldID(env, cef_process_message_tFc.clazz, "copy", I_J);
+	cef_process_message_tFc.get_name = (*env)->GetFieldID(env, cef_process_message_tFc.clazz, "get_name", I_J);
+	cef_process_message_tFc.get_argument_list = (*env)->GetFieldID(env, cef_process_message_tFc.clazz, "get_argument_list", I_J);
+	cef_process_message_tFc.cached = 1;
+}
+
+cef_process_message_t *getcef_process_message_tFields(JNIEnv *env, jobject lpObject, cef_process_message_t *lpStruct)
+{
+	if (!cef_process_message_tFc.cached) cachecef_process_message_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->is_valid = (int (CEF_CALLBACK *)(struct _cef_process_message_t* self))(*env)->GetIntLongField(env, lpObject, cef_process_message_tFc.is_valid);
+	lpStruct->is_read_only = (int (CEF_CALLBACK *)(struct _cef_process_message_t* self))(*env)->GetIntLongField(env, lpObject, cef_process_message_tFc.is_read_only);
+	lpStruct->copy = (struct _cef_process_message_t* (CEF_CALLBACK *)(struct _cef_process_message_t* self))(*env)->GetIntLongField(env, lpObject, cef_process_message_tFc.copy);
+	lpStruct->get_name = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_process_message_t* self))(*env)->GetIntLongField(env, lpObject, cef_process_message_tFc.get_name);
+	lpStruct->get_argument_list = (struct _cef_list_value_t* (CEF_CALLBACK *)(struct _cef_process_message_t* self))(*env)->GetIntLongField(env, lpObject, cef_process_message_tFc.get_argument_list);
+	return lpStruct;
+}
+
+void setcef_process_message_tFields(JNIEnv *env, jobject lpObject, cef_process_message_t *lpStruct)
+{
+	if (!cef_process_message_tFc.cached) cachecef_process_message_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_process_message_tFc.is_valid, (jintLong)lpStruct->is_valid);
+	(*env)->SetIntLongField(env, lpObject, cef_process_message_tFc.is_read_only, (jintLong)lpStruct->is_read_only);
+	(*env)->SetIntLongField(env, lpObject, cef_process_message_tFc.copy, (jintLong)lpStruct->copy);
+	(*env)->SetIntLongField(env, lpObject, cef_process_message_tFc.get_name, (jintLong)lpStruct->get_name);
+	(*env)->SetIntLongField(env, lpObject, cef_process_message_tFc.get_argument_list, (jintLong)lpStruct->get_argument_list);
 }
 #endif
 

@@ -20,11 +20,11 @@ public CEFFrame(long /*int*/ address) {
 	CEF3.memmove(struct, address, cef_frame_t.sizeof);
 }
 
-public void load_url(long /*int*/ url) {
+public void load_url(cef_string_t url) {
 	CEF3.callFuncVoid(struct.load_url, address, url);
 }
 
-public void load_string(long /*int*/ string, long /*int*/ url) {
+public void load_string(cef_string_t string, cef_string_t url) {
 	CEF3.callFuncVoid(struct.load_string, address, string, url);
 }
 
@@ -36,7 +36,7 @@ public boolean is_main() {
 	return CEF3.callFuncInt(struct.is_main, address) != 0;
 }
 
-public void execute_java_script(long /*int*/ code, long /*int*/ script_url, int start_line) {
+public void execute_java_script(cef_string_t code, cef_string_t script_url, int start_line) {
 	CEF3.callFuncVoid(struct.execute_java_script, address, code, script_url, start_line);
 }
 

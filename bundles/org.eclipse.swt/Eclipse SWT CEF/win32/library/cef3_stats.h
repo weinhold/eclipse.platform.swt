@@ -25,27 +25,45 @@ extern char* CEF3_nativeFunctionNames[];
 #endif
 
 typedef enum {
-	callFuncInt_FUNC,
-	callFuncPtr_FUNC,
 #ifndef JNI64
-	callFuncVoid__II_FUNC,
+	callFuncInt__II_FUNC,
 #else
-	callFuncVoid__JJ_FUNC,
+	callFuncInt__JJ_FUNC,
 #endif
 #ifndef JNI64
-	callFuncVoid__III_FUNC,
+	callFuncInt__IIII_FUNC,
 #else
-	callFuncVoid__JJJ_FUNC,
+	callFuncInt__JJIJ_FUNC,
 #endif
 #ifndef JNI64
-	callFuncVoid__IIII_FUNC,
+	callFuncPtr__II_FUNC,
 #else
-	callFuncVoid__JJJJ_FUNC,
+	callFuncPtr__JJ_FUNC,
+#endif
+#ifndef JNI64
+	callFuncPtr__III_FUNC,
+#else
+	callFuncPtr__JJI_FUNC,
 #endif
 #ifndef JNI64
 	callFuncVoid__IIIII_FUNC,
 #else
 	callFuncVoid__JJJJI_FUNC,
+#endif
+#ifndef JNI64
+	callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#else
+	callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#endif
+#ifndef JNI64
+	callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#else
+	callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#endif
+#ifndef JNI64
+	callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC,
+#else
+	callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC,
 #endif
 	cef_1base_1t_1sizeof_FUNC,
 	cef_1browser_1host_1create_1browser_FUNC,
@@ -56,11 +74,12 @@ typedef enum {
 	cef_1execute_1process_FUNC,
 	cef_1frame_1t_1sizeof_FUNC,
 	cef_1initialize_FUNC,
+	cef_1list_1value_1t_1sizeof_FUNC,
+	cef_1process_1message_1create_FUNC,
+	cef_1process_1message_1t_1sizeof_FUNC,
 	cef_1settings_1t_1sizeof_FUNC,
-	cef_1string_1clear_FUNC,
 	cef_1string_1set_FUNC,
 	cef_1string_1t_1sizeof_FUNC,
-	cef_1string_1userfree_1alloc_FUNC,
 	cef_1string_1userfree_1free_FUNC,
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II_FUNC,
@@ -81,6 +100,16 @@ typedef enum {
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2II_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ_FUNC,
+#endif
+#ifndef JNI64
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1list_1value_1t_2II_FUNC,
+#else
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1list_1value_1t_2JJ_FUNC,
+#endif
+#ifndef JNI64
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1process_1message_1t_2II_FUNC,
+#else
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1process_1message_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1string_1t_2II_FUNC,

@@ -71,6 +71,18 @@ void setcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct);
 #define cef_frame_t_sizeof() 0
 #endif
 
+#ifndef NO_cef_list_value_t
+void cachecef_list_value_tFields(JNIEnv *env, jobject lpObject);
+cef_list_value_t *getcef_list_value_tFields(JNIEnv *env, jobject lpObject, cef_list_value_t *lpStruct);
+void setcef_list_value_tFields(JNIEnv *env, jobject lpObject, cef_list_value_t *lpStruct);
+#define cef_list_value_t_sizeof() sizeof(cef_list_value_t)
+#else
+#define cachecef_list_value_tFields(a,b)
+#define getcef_list_value_tFields(a,b,c) NULL
+#define setcef_list_value_tFields(a,b,c)
+#define cef_list_value_t_sizeof() 0
+#endif
+
 #ifndef NO_cef_main_args_t
 void cachecef_main_args_tFields(JNIEnv *env, jobject lpObject);
 cef_main_args_t *getcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lpStruct);
@@ -81,6 +93,18 @@ void setcef_main_args_tFields(JNIEnv *env, jobject lpObject, cef_main_args_t *lp
 #define getcef_main_args_tFields(a,b,c) NULL
 #define setcef_main_args_tFields(a,b,c)
 #define cef_main_args_t_sizeof() 0
+#endif
+
+#ifndef NO_cef_process_message_t
+void cachecef_process_message_tFields(JNIEnv *env, jobject lpObject);
+cef_process_message_t *getcef_process_message_tFields(JNIEnv *env, jobject lpObject, cef_process_message_t *lpStruct);
+void setcef_process_message_tFields(JNIEnv *env, jobject lpObject, cef_process_message_t *lpStruct);
+#define cef_process_message_t_sizeof() sizeof(cef_process_message_t)
+#else
+#define cachecef_process_message_tFields(a,b)
+#define getcef_process_message_tFields(a,b,c) NULL
+#define setcef_process_message_tFields(a,b,c)
+#define cef_process_message_t_sizeof() 0
 #endif
 
 #ifndef NO_cef_settings_t

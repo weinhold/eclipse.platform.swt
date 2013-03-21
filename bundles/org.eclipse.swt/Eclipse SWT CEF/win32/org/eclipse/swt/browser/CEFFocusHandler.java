@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFFocusHandler {
 	CEF3Object object;
@@ -58,17 +58,20 @@ synchronized int release() {
 
 long /*int*/ on_take_focus(long /*int*/ browser, int next) {
 	if (Device.DEBUG) System.out.println("on_take_focus (TODO)");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_set_focus(long /*int*/ browser, int source) {
 	if (Device.DEBUG) System.out.println("on_set_focus");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_got_focus(long /*int*/ browser) {
 	/* possibly useful */
 	if (Device.DEBUG) System.out.println("on_got_focus");
+	new CEFBase(browser).release();
 	return 0;
 }
 

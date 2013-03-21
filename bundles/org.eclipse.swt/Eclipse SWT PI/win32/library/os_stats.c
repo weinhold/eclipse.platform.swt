@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,6 +106,7 @@ char * OS_nativeFunctionNames[] = {
 	"CommandBar_1InsertMenubarEx",
 	"CommandBar_1Show",
 	"CopyImage",
+	"CopyMemory",
 	"CreateAcceleratorTableA",
 	"CreateAcceleratorTableW",
 	"CreateActCtxA",
@@ -1232,6 +1233,8 @@ char * OS_nativeFunctionNames[] = {
 	"OleInitialize",
 	"OleUninitialize",
 	"OpenClipboard",
+	"OpenFileMappingA",
+	"OpenFileMappingW",
 	"OpenPrinterA",
 	"OpenPrinterW",
 	"OpenProcess",

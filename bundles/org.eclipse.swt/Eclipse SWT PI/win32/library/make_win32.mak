@@ -47,7 +47,7 @@ WEBKIT_OBJS   = webkit_win32.obj webkit_win32_stats.obj webkit_win32_custom.obj 
 CEF3_DIR     = C:\cef3bin-1364\cef_binary_3.1364.1094_windows
 CEF3_PREFIX  = swt-cef3
 CEF3_LIB     = $(CEF3_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).dll
-CEF3_LIBS    = $(CEF3_DIR)\lib\Release\libcef.lib
+CEF3_LIBS    = $(CEF3_DIR)\lib\Release\libcef.lib user32.lib
 CEF3_OBJS    = cef3.obj cef3_structs.obj cef3_stats.obj cef3_custom.obj
 
 WGL_PREFIX = swt-wgl

@@ -21,12 +21,13 @@ import org.eclipse.swt.internal.win32.*;
 import org.eclipse.swt.widgets.*;
 
 public class CEF extends WebBrowser {
-	boolean creatingBrowser, ignoreDispose;
+	boolean creatingBrowser, ignoreDispose, suppressNavEvents;
 	CEFClient client;
 	CEFBrowser cefBrowser;
 	String htmlText;
 	Object[] pendingText, pendingUrl;
 	long /*int*/ windowHandle;
+	CEFIPCSharedFile ipcAdapter;
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -39,6 +40,10 @@ public class CEF extends WebBrowser {
 	static final String URI_FILEROOT = "file:///"; //$NON-NLS-1$
 	static final int MAX_PROGRESS = 100;
 	static final int CEF3_SUPPORTED_REVISON = 1094;
+
+	/* IPC message names */
+	static final String MSG_init_ipc = "init_ipc"; //$NON-NLS-1$
+	static final String MSG_on_before_navigation = "on_before_navigation"; //$NON-NLS-1$
 
 	static {
 		/*
@@ -62,9 +67,7 @@ public class CEF extends WebBrowser {
 						Library.loadLibrary("swt-cef3"); // $NON-NLS-1$
 
 						/* initialize STRING_EMPTY */
-						long /*int*/ pString = CreateCEFString(""); /* leaked */
-						STRING_EMPTY = new cef_string_t();
-						CEF3.memmove(STRING_EMPTY, pString, cef_string_t.sizeof);
+						STRING_EMPTY = CreateCEFString("");
 
 						/* initialize CEF3 */
 						cef_main_args_t args = new cef_main_args_t();
@@ -105,12 +108,9 @@ public class CEF extends WebBrowser {
 								settings.size = cef_settings_t.sizeof;
 								settings.multi_threaded_message_loop = 1;
 								settings.release_dcheck_enabled = 1;
-								long /*int*/ subprocessPath = CreateCEFString(file.getAbsolutePath());
-								settings.browser_subprocess_path = new cef_string_t();
-								CEF3.memmove(settings.browser_subprocess_path, subprocessPath, cef_string_t.sizeof);
+								settings.browser_subprocess_path = CreateCEFString(file.getAbsolutePath());
 								App.add_ref();
 								int rc = CEF3.cef_initialize(args, settings, App.getAddress());
-								CEF3.cef_string_userfree_free(subprocessPath);
 								if (rc != 0) {
 									LibraryLoaded = true;
 								} else {
@@ -167,10 +167,10 @@ public class CEF extends WebBrowser {
 	}
 
 
-static long /*int*/ CreateCEFString(String string) {
+static cef_string_t CreateCEFString(String string) {
 	char[] chars = new char[string.length()];
 	string.getChars(0, string.length(), chars, 0);
-	long /*int*/ result = CEF3.cef_string_userfree_alloc();
+	cef_string_t result = new cef_string_t();
 	CEF3.cef_string_set(chars, chars.length, result, 1);
 	return result;
 }
@@ -180,12 +180,11 @@ static String ExtractCEFString(long /*int*/ pString) {
 		return "";
 	}
 
-	cef_string_t cefStringUrl = new cef_string_t();
-	CEF3.memmove(cefStringUrl, pString, CEF3.cef_string_t_sizeof());
-
-	int length = (int)/*64*/cefStringUrl.length;
+	cef_string_t cefString = new cef_string_t();
+	CEF3.memmove(cefString, pString, CEF3.cef_string_t_sizeof());
+	int length = (int)/*64*/cefString.length;
 	char[] chars = new char[length]; 
-	OS.memmove(chars, cefStringUrl.str, length * 2); 
+	OS.memmove(chars, cefString.str, length * 2); 
 	return new String(chars); 
 }
 
@@ -210,16 +209,16 @@ public void create(Composite parent, int style) {
 	cef_browser_settings_t browserSettings = new cef_browser_settings_t();
 	browserSettings.size = cef_browser_settings_t.sizeof;
 
-	long /*int*/ pUrl = CreateCEFString("about:blank");
+	cef_string_t strUrl = CreateCEFString(ABOUT_BLANK);
 	client = new CEFClient(this);
 	client.add_ref();
-	int rc = CEF3.cef_browser_host_create_browser(windowInfo, client.getAddress(), pUrl, browserSettings);
-	CEF3.cef_string_userfree_free(pUrl);
+	int rc = CEF3.cef_browser_host_create_browser(windowInfo, client.getAddress(), strUrl, browserSettings);
 	if (rc == 0) {
 		return;
 	}
 
 	creatingBrowser = true;
+
 	Listener listener = new Listener() {
 		public void handleEvent(Event event) {
 			switch (event.type) {
@@ -282,11 +281,9 @@ public boolean execute(String script) {
 
 	long /*int*/ pFrame = cefBrowser.get_main_frame();
 	CEFFrame mainFrame = new CEFFrame(pFrame);
-	long /*int*/ pScript = CreateCEFString(script);
-	long /*int*/ pUrl = CreateCEFString(getUrl());
-	mainFrame.execute_java_script(pScript, pUrl, 0);
-	CEF3.cef_string_userfree_free(pUrl);
-	CEF3.cef_string_userfree_free(pScript);
+	cef_string_t strScript = CreateCEFString(script);
+	cef_string_t strUrl = CreateCEFString(getUrl());
+	mainFrame.execute_java_script(strScript, strUrl, 0);
 	return true;
 }
 
@@ -325,7 +322,8 @@ public String getUrl() {
 	}	
 	CEFFrame frame = new CEFFrame(pFrame);
 	long /*int*/ pUrl = frame.get_url();
-	String javaStringUrl = ExtractCEFString(pUrl); 
+	String javaStringUrl = ExtractCEFString(pUrl);
+	CEF3.cef_string_userfree_free(pUrl);
 
 	/*
 	 * If the URI indicates that the page is being rendered from memory
@@ -351,23 +349,34 @@ public boolean isForwardEnabled() {
 }
 
 void onDispose(Event e) {
+	htmlText = null;
+
+	if (ipcAdapter != null) {
+		ipcAdapter.dispose();
+		ipcAdapter = null;
+	}
+
 	if (client != null) {
 		client.release();
+		client = null;
 	}
-	client = null;
+
 	if (cefBrowser != null) {
 		cefBrowser.release();
+		cefBrowser = null;
 	}
-	cefBrowser = null;
-	// TODO more clean up
 }
 
-void onResize() {
-	Rectangle bounds = browser.getClientArea();
-	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+void onIPCInit(String args) {
+	ipcAdapter = new CEFIPCSharedFile(args);
 }
 
-public void onLoadComplete() {
+void onLoadComplete() {
+	if (suppressNavEvents) {
+		/* completed initial navigate to about:blank for setText() invocation */
+		return;
+	}
+
 	ProgressEvent progress = new ProgressEvent(browser);
 	progress.display = browser.getDisplay();
 	progress.widget = browser;
@@ -378,40 +387,147 @@ public void onLoadComplete() {
 	}
 }
 
-public void onLocationChange(String location, boolean top) {
-	Display display = browser.getDisplay();
-	if (top) {
-		ProgressEvent progress = new ProgressEvent(browser);
-		progress.display = display;
-		progress.widget = browser;
-		progress.current = 1;
-		progress.total = MAX_PROGRESS;
-		for (int i = 0; i < progressListeners.length; i++) {
-			progressListeners[i].changed(progress);
+void onLocationChanged(String location, boolean top) {
+	if (!suppressNavEvents) {
+		Display display = browser.getDisplay();
+		if (top) {
+			ProgressEvent progress = new ProgressEvent(browser);
+			progress.display = display;
+			progress.widget = browser;
+			progress.current = 1;
+			progress.total = MAX_PROGRESS;
+			for (int i = 0; i < progressListeners.length; i++) {
+				progressListeners[i].changed(progress);
+			}
+			if (browser.isDisposed()) return;
+	
+			StatusTextEvent statusText = new StatusTextEvent(browser);
+			statusText.display = display;
+			statusText.widget = browser;
+			statusText.text = location;
+			for (int i = 0; i < statusTextListeners.length; i++) {
+				statusTextListeners[i].changed(statusText);
+			}
+			if (browser.isDisposed()) return;
 		}
-		if (browser.isDisposed()) return;
-
-		StatusTextEvent statusText = new StatusTextEvent(browser);
-		statusText.display = display;
-		statusText.widget = browser;
-		statusText.text = location;
-		for (int i = 0; i < statusTextListeners.length; i++) {
-			statusTextListeners[i].changed(statusText);
+	
+		LocationEvent event = new LocationEvent(browser);
+		event.display = display;
+		event.widget = browser;
+		event.location = location;
+		event.top = top;
+		for (int i = 0; i < locationListeners.length; i++) {
+			locationListeners[i].changed(event);
 		}
 		if (browser.isDisposed()) return;
 	}
 
-	LocationEvent event = new LocationEvent(browser);
-	event.display = display;
-	event.widget = browser;
-	event.location = location;
-	event.top = top;
-	for (int i = 0; i < locationListeners.length; i++) {
-		locationListeners[i].changed(event);
+	if (top && htmlText != null) {
+		long /*int*/ pFrame = cefBrowser.get_main_frame();
+		if (pFrame != 0) {
+			CEFFrame frame = new CEFFrame(pFrame);
+			cef_string_t strHtml = CreateCEFString(htmlText);
+			cef_string_t strUrl = CreateCEFString(ABOUT_BLANK);
+			frame.load_string(strHtml, strUrl);
+			htmlText = null;
+		}
 	}
 }
 
-public void onStatusMessage(String status) {
+boolean onLocationChanging(String location) {
+//	if (location.length () == 0) {
+//		return false;
+//	}
+//	if (url.startsWith (WebKit.PROTOCOL_FILE) && webKit.getUrl ().startsWith (WebKit.ABOUT_BLANK) && webKit.untrustedText) {
+//		/* indicates an attempt to access the local file system from untrusted content */
+//		pdListener.ignore ();
+//		return false;
+//	}
+	/*
+	 * If the URI indicates that the page is being rendered from memory
+	 * (via setText()) then set it to about:blank to be consistent with IE.
+	 */
+//	if (url.equals (WebKit.URI_FILEROOT)) {
+//		url = WebKit.ABOUT_BLANK;
+//	} else {
+//		int length = WebKit.URI_FILEROOT.length ();
+//		if (url.startsWith (WebKit.URI_FILEROOT) && url.charAt (length) == '#') {
+//			url = WebKit.ABOUT_BLANK + url.substring (length);
+//		}
+//	}
+
+	if (suppressNavEvents) {
+		suppressNavEvents = false;
+		if (location.equals(ABOUT_BLANK)) {
+			/* 
+			 * This is the second navigate to about:blank in response to a setText()
+			 * invocation, so allow it silently.
+			 */
+			return true;
+		}
+		htmlText = null;
+	}
+
+	LocationEvent newEvent = new LocationEvent(browser);
+	newEvent.display = browser.getDisplay();
+	newEvent.widget = browser;
+	newEvent.location = location;
+	newEvent.doit = true;
+	if (locationListeners != null) {
+		for (int i = 0; i < locationListeners.length; i++) {
+			locationListeners[i].changing(newEvent);
+		}
+	}
+	if (browser.isDisposed()) return false;
+
+	if (htmlText != null) {
+		if (newEvent.doit && location.equals(ABOUT_BLANK)) {
+			/* 
+			 * This is the first of two navigates to about:blank in response to a setText()
+			 * invocation, the subsequent Changed, Completed and Changing events should not be sent.
+			 */
+			suppressNavEvents = true;
+		} else {
+			htmlText = null;
+		}
+	}
+	return newEvent.doit;
+}
+
+void onMessageReceived(long /*int*/ pMessage) {
+	CEFProcessMessage message = new CEFProcessMessage(pMessage);
+	long /*int*/ pName = message.get_name();
+	String name = CEF.ExtractCEFString(pName);
+	CEF3.cef_string_userfree_free(pName);
+	if (name.equals(MSG_init_ipc)) {
+		long /*int*/ pArgs = message.get_argument_list();
+		CEFListValue args = new CEFListValue(pArgs);
+		long /*int*/ pInitArgs = args.get_string(0);
+		String argsString = CEF.ExtractCEFString(pInitArgs);
+		CEF3.cef_string_userfree_free(pInitArgs);
+		onIPCInit(argsString);
+	} else if (name.equals(MSG_on_before_navigation)) {
+		long /*int*/ pArgs = message.get_argument_list();
+		CEFListValue args = new CEFListValue(pArgs);
+		long /*int*/ pUrl = args.get_string(0);
+		final String url = CEF.ExtractCEFString(pUrl);
+		CEF3.cef_string_userfree_free(pUrl);
+		browser.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (browser.isDisposed()) return;
+				boolean doit = onLocationChanging(url);
+				sendRenderProcessResponse(String.valueOf(doit ? 1 : 0));
+			}
+		});
+	}
+}
+
+void onResize() {
+	Rectangle bounds = browser.getClientArea();
+	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+}
+
+void onStatusMessage(String status) {
 	StatusTextEvent event = new StatusTextEvent(browser);
 	event.display = browser.getDisplay ();
 	event.widget = browser;
@@ -421,7 +537,7 @@ public void onStatusMessage(String status) {
 	}
 }
 
-public void onTitleChange(String title) {
+void onTitleChange(String title) {
 	TitleEvent event = new TitleEvent(browser);
 	event.display = browser.getDisplay();
 	event.widget = browser;
@@ -433,14 +549,32 @@ public void onTitleChange(String title) {
 
 public void refresh() {
 	if (cefBrowser == null) return;
+	htmlText = null;
 	cefBrowser.reload();
+}
+
+boolean sendRenderProcessResponse(String message) {
+	return ipcAdapter.sendResponse(message);
+}
+
+boolean sendRenderProcessResponse(String message, int maxLength) {
+	return ipcAdapter.sendResponse(message, maxLength);
 }
 
 public boolean setText(String html, boolean trusted) {
 	if (cefBrowser == null) {
 		if (!creatingBrowser) return false;
-		pendingText = new Object[] {html, new Boolean (trusted)};
+		pendingText = new Object[] {html, new Boolean(trusted)};
 		pendingUrl = null;
+		return true;
+	}
+
+	if (htmlText != null) {
+		/*
+		 * about:blank is already loading in response to a previous setText()
+		 * invocation, so just change the text that will be set into it
+		 */
+		htmlText = html;
 		return true;
 	}
 
@@ -448,15 +582,12 @@ public boolean setText(String html, boolean trusted) {
 	if (pFrame == 0) {
 		return false;
 	}
+
+	htmlText = html;
 	CEFFrame frame = new CEFFrame(pFrame);
-
-	long /*int*/ pHtml = CreateCEFString(html);
-	long /*int*/ pUrl = CreateCEFString(ABOUT_BLANK);
-	frame.load_string(pHtml, pUrl);
-	CEF3.cef_string_userfree_free(pHtml);
-	CEF3.cef_string_userfree_free(pUrl);
-
-	return false;
+	cef_string_t strUrl = CreateCEFString(ABOUT_BLANK);
+	frame.load_url(strUrl);
+	return true;
 }
 
 public boolean setUrl(String url, String postData, String[] headers) {
@@ -467,6 +598,8 @@ public boolean setUrl(String url, String postData, String[] headers) {
 		return true;
 	}
 
+	htmlText = null;
+
 	// TODO postData, headers...
 	long /*int*/ pFrame = cefBrowser.get_main_frame();
 	if (pFrame == 0) {
@@ -474,13 +607,13 @@ public boolean setUrl(String url, String postData, String[] headers) {
 	}
 
 	CEFFrame frame = new CEFFrame(pFrame);
-	long /*int*/ pUrl = CreateCEFString(url);
-	frame.load_url(pUrl);
-	CEF3.cef_string_userfree_free(pUrl);
+	cef_string_t strUrl = CreateCEFString(url);
+	frame.load_url(strUrl);
 	return true;
 }
 
 public void stop() {
+	htmlText = null;
 	if (cefBrowser == null) {
 		pendingText = pendingUrl = null;
 		return;

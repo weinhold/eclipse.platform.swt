@@ -11,12 +11,11 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFApp {
 	CEF3Object object;
 	CEFBrowserProcessHandler browserProcessHandler;
-	CEFRenderProcessHandler renderProcessHandler;
 	CEFResourceBundleHandler resourceBundleHandler;
 	int refCount = 1;
 
@@ -55,10 +54,6 @@ synchronized int release() {
 			browserProcessHandler.release();
 			browserProcessHandler = null;
 		}
-		if (renderProcessHandler != null) {
-			renderProcessHandler.release();
-			renderProcessHandler = null;
-		}
 		if (resourceBundleHandler != null) {
 			resourceBundleHandler.release();
 			resourceBundleHandler = null;
@@ -83,12 +78,9 @@ synchronized long /*int*/ get_browser_process_handler() {
 }
 
 synchronized long /*int*/ get_render_process_handler() {
-	if (Device.DEBUG) System.out.println("get_render_process_handler (impl)");
-	if (renderProcessHandler == null) {
-		renderProcessHandler = new CEFRenderProcessHandler();
-	}
-	renderProcessHandler.add_ref();
-	return renderProcessHandler.getAddress();
+	/* wrong process, should never be invoked */
+	if (Device.DEBUG) System.out.println("get_render_process_handler (!!!!)");
+	return 0;
 }
 
 long /*int*/ get_resource_bundle_handler() {
@@ -106,11 +98,13 @@ long /*int*/ on_before_command_line_processing(long /*int*/ process_type, long /
 	 * appropriate place to do this for our purposes.
 	 */
 	if (Device.DEBUG) System.out.println("on_before_command_line_processing");
+	new CEFBase(command_line).release();
 	return 0;
 }
 
 long /*int*/ on_register_custom_schemes(long /*int*/ registrar) {
 	if (Device.DEBUG) System.out.println("on_register_custom_schemes");
+	new CEFBase(registrar).release();
 	return 0;
 }
 

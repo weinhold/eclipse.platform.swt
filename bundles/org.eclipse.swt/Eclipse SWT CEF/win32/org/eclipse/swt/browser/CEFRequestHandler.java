@@ -11,7 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.internal.cef3.CEF3Object;
+import org.eclipse.swt.internal.cef3.*;
 
 public class CEFRequestHandler {
 	CEF3Object object;
@@ -63,41 +63,58 @@ synchronized int release() {
 
 long /*int*/ on_before_resource_load(long /*int*/ browser, long /*int*/ frame, long /*int*/ request) {
 	if (Device.DEBUG) System.out.println("on_before_resource_load");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(request).release();
 	return 0;
 }
 
 long /*int*/ get_resource_handler(long /*int*/ browser, long /*int*/ frame, long /*int*/ request) {
 	if (Device.DEBUG) System.out.println("get_resource_handler");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(request).release();
 	return 0;
 }
 
 long /*int*/ on_resource_redirect(long /*int*/ browser, long /*int*/ frame, long /*int*/ old_url, long /*int*/ new_url) {
 	if (Device.DEBUG) System.out.println("on_resource_redirect");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
 	return 0;
 }
 
 long /*int*/ get_auth_credentials(long /*int*/ browser, long /*int*/ frame, int isProxy, long /*int*/ host, int port, long /*int*/ realm, long /*int*/ scheme, long /*int*/ callback) {
 	if (Device.DEBUG) System.out.println("get_auth_credentials (TODO)");
+	new CEFBase(browser).release();
+	new CEFBase(frame).release();
+	new CEFBase(callback).release();
 	return 0;
 }
 
 long /*int*/ on_quota_request(long /*int*/ browser, long /*int*/ origin_url, /*int64*/ long /*int*/ new_size, long /*int*/ callback) {
 	if (Device.DEBUG) System.out.println("on_quota_request (note: has int64 param)");
+	new CEFBase(browser).release();
+	new CEFBase(callback).release();
 	return 0;
 }
 
 long /*int*/ get_cookie_manager(long /*int*/ browser, long /*int*/ main_url) {
 	if (Device.DEBUG) System.out.println("get_cookie_manager");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_protocol_execution(long /*int*/ browser, long /*int*/ url, long /*int*/ allow_os_execution) {
 	if (Device.DEBUG) System.out.println("on_protocol_execution");
+	new CEFBase(browser).release();
 	return 0;
 }
 
 long /*int*/ on_before_plugin_load(long /*int*/ browser, long /*int*/ url, long /*int*/ policy_url, long /*int*/ info) {
 	if (Device.DEBUG) System.out.println("on_before_plugin_load");
+	new CEFBase(browser).release();
+	new CEFBase(info).release();
 	return 0;
 }
 
