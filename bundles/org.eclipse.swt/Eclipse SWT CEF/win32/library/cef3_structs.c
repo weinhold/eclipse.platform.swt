@@ -500,6 +500,40 @@ void setcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct)
 }
 #endif
 
+#ifndef NO_cef_jsdialog_callback_t
+typedef struct cef_jsdialog_callback_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID cont;
+} cef_jsdialog_callback_t_FID_CACHE;
+
+cef_jsdialog_callback_t_FID_CACHE cef_jsdialog_callback_tFc;
+
+void cachecef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_jsdialog_callback_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_jsdialog_callback_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_jsdialog_callback_tFc.cont = (*env)->GetFieldID(env, cef_jsdialog_callback_tFc.clazz, "cont", I_J);
+	cef_jsdialog_callback_tFc.cached = 1;
+}
+
+cef_jsdialog_callback_t *getcef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject, cef_jsdialog_callback_t *lpStruct)
+{
+	if (!cef_jsdialog_callback_tFc.cached) cachecef_jsdialog_callback_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->cont = (void (CEF_CALLBACK *)(struct _cef_jsdialog_callback_t* self, int success, const cef_string_t* user_input))(*env)->GetIntLongField(env, lpObject, cef_jsdialog_callback_tFc.cont);
+	return lpStruct;
+}
+
+void setcef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject, cef_jsdialog_callback_t *lpStruct)
+{
+	if (!cef_jsdialog_callback_tFc.cached) cachecef_jsdialog_callback_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_jsdialog_callback_tFc.cont, (jintLong)lpStruct->cont);
+}
+#endif
+
 #ifndef NO_cef_list_value_t
 typedef struct cef_list_value_t_FID_CACHE {
 	int cached;

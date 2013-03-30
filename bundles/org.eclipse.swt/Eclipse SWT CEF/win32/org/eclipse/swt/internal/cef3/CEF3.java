@@ -91,6 +91,12 @@ public static final native void memmove(cef_process_message_t dest, long /*int*/
  * @param size cast=(size_t)
  */
 public static final native void memmove(cef_string_t dest, long /*int*/ src, long /*int*/ size);
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
+public static final native void memmove(cef_jsdialog_callback_t dest, long /*int*/ src, long /*int*/ size);
 
 
 /* function ptr invocations */
@@ -110,6 +116,8 @@ public static final native void callFuncVoid(long /*int*/ address, long /*int*/ 
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, int arg1, cef_string_t arg2);
+/** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1, long /*int*/ arg2, int arg3);
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, cef_string_t arg2, int arg3);
@@ -126,5 +134,6 @@ public static final native int cef_list_value_t_sizeof();
 public static final native int cef_process_message_t_sizeof();
 public static final native int cef_settings_t_sizeof();
 public static final native int cef_string_t_sizeof();
+public static final native int cef_jsdialog_callback_t_sizeof();
 
 }

@@ -4,26 +4,17 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+package org.eclipse.swt.internal.cef3;
 
-#ifndef INC_cef3_H
-#define INC_cef3_H
 
-typedef enum cef_key_event_type_t cef_key_event_type_t;
-typedef enum cef_log_severity_t cef_log_severity_t;
-typedef enum cef_geoposition_error_code_t cef_geoposition_error_code_t;
-typedef enum cef_state_t cef_state_t;
-#define bool int
+public class cef_jsdialog_callback_t extends cef_base_t {
 
-#include <cef_app_capi.h>
-#include <cef_browser_capi.h>
-#include <cef_frame_capi.h>
-#include <cef_jsdialog_handler_capi.h>
-#include <cef_version.h>
-#include <cef_process_message_capi.h>
-#include <cef_values_capi.h>
-
-#endif /* INC_cef3_H */
+	/** @field cast="(void (CEF_CALLBACK *)(struct _cef_jsdialog_callback_t* self, int success, const cef_string_t* user_input))" */
+	public long /*int*/ cont;
+	
+	public static final int sizeof = CEF3.cef_jsdialog_callback_t_sizeof();
+}

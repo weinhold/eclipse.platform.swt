@@ -71,6 +71,18 @@ void setcef_frame_tFields(JNIEnv *env, jobject lpObject, cef_frame_t *lpStruct);
 #define cef_frame_t_sizeof() 0
 #endif
 
+#ifndef NO_cef_jsdialog_callback_t
+void cachecef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject);
+cef_jsdialog_callback_t *getcef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject, cef_jsdialog_callback_t *lpStruct);
+void setcef_jsdialog_callback_tFields(JNIEnv *env, jobject lpObject, cef_jsdialog_callback_t *lpStruct);
+#define cef_jsdialog_callback_t_sizeof() sizeof(cef_jsdialog_callback_t)
+#else
+#define cachecef_jsdialog_callback_tFields(a,b)
+#define getcef_jsdialog_callback_tFields(a,b,c) NULL
+#define setcef_jsdialog_callback_tFields(a,b,c)
+#define cef_jsdialog_callback_t_sizeof() 0
+#endif
+
 #ifndef NO_cef_list_value_t
 void cachecef_list_value_tFields(JNIEnv *env, jobject lpObject);
 cef_list_value_t *getcef_list_value_tFields(JNIEnv *env, jobject lpObject, cef_list_value_t *lpStruct);

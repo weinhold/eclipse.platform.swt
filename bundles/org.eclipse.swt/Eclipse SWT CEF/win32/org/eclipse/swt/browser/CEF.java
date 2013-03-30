@@ -14,10 +14,14 @@ package org.eclipse.swt.browser;
 import java.io.*;
 import java.util.*;
 import org.eclipse.swt.*;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.cef3.*;
 import org.eclipse.swt.internal.win32.*;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 public class CEF extends WebBrowser {
@@ -654,6 +658,213 @@ public boolean setUrl(String url, String postData, String[] headers) {
 	cef_string_t strUrl = CreateCEFString(url);
 	frame.load_url(strUrl);
 	return true;
+}
+
+void showAlertMessage (String title, String message, final CEFJSDialogCallback callback) {
+	Shell parent = browser.getShell();
+	final Shell dialog = new Shell(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
+	GridLayout layout = new GridLayout(2, false);
+	layout.horizontalSpacing = 10;
+	layout.verticalSpacing = 20;
+	layout.marginWidth = layout.marginHeight = 10;
+	dialog.setLayout(layout);
+	dialog.setText(title);
+
+	Label label = new Label(dialog, SWT.NONE);
+	Image image = dialog.getDisplay().getSystemImage(SWT.ICON_WARNING);
+	label.setImage(image);
+
+	label = new Label(dialog, SWT.WRAP);
+	label.setText(message);
+	Monitor monitor = parent.getMonitor();
+	int maxWidth = monitor.getBounds().width * 2 / 3;
+	int width = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+	GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+	data.widthHint = Math.min(width, maxWidth);
+	label.setLayoutData(data);
+
+	Button ok = new Button(dialog, SWT.PUSH);
+	ok.setText(SWT.getMessage("SWT_OK")); //$NON-NLS-1$
+	width = ok.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+	GridData layoutData = new GridData();
+	layoutData.horizontalAlignment = SWT.CENTER;
+	layoutData.verticalAlignment = SWT.CENTER;
+	layoutData.horizontalSpan = 2;
+	layoutData.widthHint = Math.max(width, 75);
+	ok.setLayoutData(layoutData);
+
+	final int[] result = new int[1];
+	result[0] = 0;
+	ok.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			result[0] = 1;
+			dialog.dispose();
+		}
+	});
+	
+	dialog.setDefaultButton(ok);
+	dialog.pack();
+	Rectangle parentSize = parent.getBounds();
+	Rectangle dialogSize = dialog.getBounds();
+	int x = parent.getLocation().x + (parentSize.width - dialogSize.width) / 2;
+	int y = parent.getLocation().y + (parentSize.height - dialogSize.height) / 2;
+	dialog.setLocation(x, y);
+	dialog.open();
+	Display display = browser.getDisplay();
+	while (!dialog.isDisposed()) {
+		if (!display.readAndDispatch()) display.sleep();
+	}
+	callback.cont(result[0], CEFSTRING_EMPTY);
+	callback.release();
+}
+
+void showBeforeUnloadConfirmPanel(String message, final CEFJSDialogCallback callback) {
+	Shell parent = browser.getShell();
+	StringBuffer text = new StringBuffer (Compatibility.getMessage ("SWT_OnBeforeUnload_Message1")); //$NON-NLS-1$
+	text.append ("\n\n"); //$NON-NLS-1$
+	text.append (message);
+	text.append ("\n\n"); //$NON-NLS-1$
+	text.append (Compatibility.getMessage ("SWT_OnBeforeUnload_Message2")); //$NON-NLS-1$
+	MessageBox box = new MessageBox (parent, SWT.OK | SWT.CANCEL | SWT.ICON_QUESTION);
+	box.setMessage (text.toString ());
+	int response = box.open () == SWT.OK ? 1 : 0;
+	callback.cont(response, CEFSTRING_EMPTY);
+	callback.release();
+}
+
+void showConfirmPanel(String title, String message, final CEFJSDialogCallback callback) {
+	Shell parent = browser.getShell();
+	final Shell dialog = new Shell(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
+	GridLayout layout = new GridLayout(2, false);
+	layout.horizontalSpacing = 10;
+	layout.verticalSpacing = 20;
+	layout.marginWidth = layout.marginHeight = 10;
+	dialog.setLayout(layout);
+	dialog.setText(title);
+
+	Label label = new Label(dialog, SWT.NONE);
+	Image image = dialog.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+	label.setImage(image);
+	label.setLayoutData(new GridData());
+
+	label = new Label(dialog, SWT.WRAP);
+	label.setText(message);
+	Monitor monitor = parent.getMonitor();
+	int maxWidth = monitor.getBounds().width * 2 / 3;
+	int width = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+	GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+	data.widthHint = Math.min(width, maxWidth);
+	label.setLayoutData(data);
+
+	Composite buttons = new Composite(dialog, SWT.NONE);
+	data = new GridData(SWT.CENTER, SWT.CENTER, true, true, 2, 1);
+	buttons.setLayoutData(data);
+	buttons.setLayout(new GridLayout(2, true));
+
+	Button ok = new Button(buttons, SWT.PUSH);
+	ok.setText(SWT.getMessage("SWT_OK")); //$NON-NLS-1$
+	GridData layoutData = new GridData();
+	layoutData.horizontalAlignment = SWT.CENTER;
+	layoutData.verticalAlignment = SWT.CENTER;
+	ok.setLayoutData(layoutData);
+
+	Button cancel = new Button(buttons, SWT.PUSH);
+	cancel.setText(SWT.getMessage("SWT_Cancel")); //$NON-NLS-1$
+	cancel.setLayoutData(layoutData);
+	width = cancel.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+	layoutData.widthHint = Math.max(width, 75);
+
+	final int[] result = new int[1];
+	result[0] = 0;
+	ok.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			result[0] = 1;
+			dialog.dispose();
+
+		}
+	});
+	cancel.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			dialog.dispose();
+		}
+	});
+
+	dialog.setDefaultButton(ok);
+	dialog.pack();
+	Rectangle parentSize = parent.getBounds();
+	Rectangle dialogSize = dialog.getBounds();
+	int x = parent.getLocation().x + (parentSize.width - dialogSize.width) / 2;
+	int y = parent.getLocation().y + (parentSize.height - dialogSize.height) / 2;
+	dialog.setLocation(x, y);
+	dialog.open();
+	Display display = browser.getDisplay();
+	while (!dialog.isDisposed()) {
+		if (!display.readAndDispatch()) {
+			display.sleep();
+		}
+	}
+	callback.cont(result[0], CEFSTRING_EMPTY);
+	callback.release();
+}
+void showTextPrompter(String title, String message, String defaultText, final CEFJSDialogCallback callback) {
+	Shell parent = browser.getShell();
+	final Shell dialog = new Shell(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
+	dialog.setLayout(new GridLayout());
+	dialog.setText(title);
+
+	Label label = new Label(dialog, SWT.NONE);
+	label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	label.setText(message);
+
+	final Text textBox = new Text(dialog, SWT.SINGLE | SWT.BORDER);
+	GridData data = new GridData(GridData.FILL_HORIZONTAL);
+	data.widthHint = 300;
+	textBox.setLayoutData(data);
+	textBox.setText(defaultText);
+
+	Composite buttons = new Composite(dialog, SWT.NONE);
+	buttons.setLayout(new GridLayout(2, true));
+	buttons.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER));
+	Button ok = new Button(buttons, SWT.PUSH);
+	ok.setText(SWT.getMessage("SWT_OK")); //$NON-NLS-1$
+	ok.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+	final int[] result = new int[1];
+	final cef_string_t [] text = new cef_string_t[1];
+	result[0] = 0;
+	text[0] = CEFSTRING_EMPTY;
+	ok.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			result[0] = 1;
+			text[0] = CreateCEFString(textBox.getText());
+			dialog.dispose();
+		}
+	});
+	Button cancel = new Button(buttons, SWT.PUSH);
+	cancel.setText(SWT.getMessage("SWT_Cancel")); //$NON-NLS-1$
+	cancel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	cancel.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			dialog.dispose();
+		}
+	});
+
+	dialog.setDefaultButton(ok);
+	dialog.pack();
+	Rectangle parentSize = parent.getBounds();
+	Rectangle dialogSize = dialog.getBounds();
+	int x = parent.getLocation().x + (parentSize.width - dialogSize.width) / 2;
+	int y = parent.getLocation().y + (parentSize.height - dialogSize.height) / 2;
+	dialog.setLocation(x, y);
+	dialog.open();
+	Display display = browser.getDisplay();
+	while (!dialog.isDisposed()) {
+		if (!display.readAndDispatch()) {
+			display.sleep();
+		}
+	}
+	callback.cont(result[0],text[0]);
+	callback.release();
 }
 
 public void stop() {

@@ -19,6 +19,7 @@ public class CEFClient {
 	CEFContextMenuHandler contextMenuHandler;
 	CEFDisplayHandler displayHandler;
 	CEFFocusHandler focusHandler;
+	CEFJSDialogHandler jsDialogHandler;
 	CEFLifeSpanHandler lifeSpanHandler;
 	CEFLoadHandler loadHandler;
 	CEFRequestHandler requestHandler;
@@ -143,8 +144,12 @@ long /*int*/ get_geolocation_handler() {
 }
 
 long /*int*/ get_jsdialog_handler() {
-	if (Device.DEBUG) System.out.println("get_jsdialog_handler (TODO)");
-	return 0;
+	if (Device.DEBUG) System.out.println("get_jsdialog_handler (impl)");
+	if (jsDialogHandler == null) {
+		jsDialogHandler = new CEFJSDialogHandler(host);
+	}
+	jsDialogHandler.add_ref();
+	return jsDialogHandler.getAddress();
 }
 
 long /*int*/ get_keyboard_handler() {
