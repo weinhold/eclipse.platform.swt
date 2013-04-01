@@ -12,7 +12,7 @@ package org.eclipse.swt.browser;
 
 
 import java.io.*;
-
+import java.util.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -27,7 +27,7 @@ public class CEF extends WebBrowser {
 	String htmlText;
 	Object[] pendingText, pendingUrl;
 	long /*int*/ windowHandle;
-	CEFIPCSharedFile ipcAdapter;
+	Hashtable ipcAdapters = new Hashtable(9);
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -42,6 +42,7 @@ public class CEF extends WebBrowser {
 	static final int CEF3_SUPPORTED_REVISON = 1094;
 
 	/* IPC message names */
+	static final String MSG_dispose_ipc = "dispose_ipc"; //$NON-NLS-1$
 	static final String MSG_init_ipc = "init_ipc"; //$NON-NLS-1$
 	static final String MSG_on_before_navigation = "on_before_navigation"; //$NON-NLS-1$
 
@@ -351,10 +352,11 @@ public boolean isForwardEnabled() {
 void onDispose(Event e) {
 	htmlText = null;
 
-	if (ipcAdapter != null) {
-		ipcAdapter.dispose();
-		ipcAdapter = null;
+	Enumeration elements = ipcAdapters.elements();
+	while (elements.hasMoreElements()) {
+		((CEFIPCSharedFile)elements.nextElement()).dispose();
 	}
+	ipcAdapters = null;
 
 	if (client != null) {
 		client.release();
@@ -367,8 +369,16 @@ void onDispose(Event e) {
 	}
 }
 
-void onIPCInit(String args) {
-	ipcAdapter = new CEFIPCSharedFile(args);
+void onIPCDispose(String id) {
+	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(id);
+	if (adapter != null) {
+		adapter.dispose();
+		ipcAdapters.remove(id);
+	}
+}
+
+void onIPCInit(String id, String arg) {
+	ipcAdapters.put(id, new CEFIPCSharedFile(arg));
 }
 
 void onLoadComplete() {
@@ -502,21 +512,34 @@ void onMessageReceived(long /*int*/ pMessage) {
 	if (name.equals(MSG_init_ipc)) {
 		long /*int*/ pArgs = message.get_argument_list();
 		CEFListValue args = new CEFListValue(pArgs);
-		long /*int*/ pInitArgs = args.get_string(0);
-		String argsString = CEF.ExtractCEFString(pInitArgs);
-		CEF3.cef_string_userfree_free(pInitArgs);
-		onIPCInit(argsString);
+		long /*int*/ pArg = args.get_string(0);
+		String idString = CEF.ExtractCEFString(pArg);
+		CEF3.cef_string_userfree_free(pArg);
+		pArg = args.get_string(1);
+		String initString = CEF.ExtractCEFString(pArg);
+		CEF3.cef_string_userfree_free(pArg);
+		onIPCInit(idString, initString);
+	} else if (name.equals(MSG_dispose_ipc)) {
+		long /*int*/ pArgs = message.get_argument_list();
+		CEFListValue args = new CEFListValue(pArgs);
+		long /*int*/ pArg = args.get_string(0);
+		String idString = CEF.ExtractCEFString(pArg);
+		CEF3.cef_string_userfree_free(pArg);
+		onIPCDispose(idString);
 	} else if (name.equals(MSG_on_before_navigation)) {
 		long /*int*/ pArgs = message.get_argument_list();
 		CEFListValue args = new CEFListValue(pArgs);
-		long /*int*/ pUrl = args.get_string(0);
-		final String url = CEF.ExtractCEFString(pUrl);
-		CEF3.cef_string_userfree_free(pUrl);
+		long /*int*/ pArg = args.get_string(0);
+		final String id = CEF.ExtractCEFString(pArg);
+		CEF3.cef_string_userfree_free(pArg);
+		pArg = args.get_string(1);
+		final String url = CEF.ExtractCEFString(pArg);
+		CEF3.cef_string_userfree_free(pArg);
 		browser.getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				if (browser.isDisposed()) return;
 				boolean doit = onLocationChanging(url);
-				sendRenderProcessResponse(String.valueOf(doit ? 1 : 0));
+				sendRenderProcessResponse(id, String.valueOf(doit ? 1 : 0));
 			}
 		});
 	}
@@ -553,12 +576,16 @@ public void refresh() {
 	cefBrowser.reload();
 }
 
-boolean sendRenderProcessResponse(String message) {
-	return ipcAdapter.sendResponse(message);
+boolean sendRenderProcessResponse(String id, String message) {
+	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(id);
+	if (adapter == null) return false;
+	return adapter.sendResponse(message);
 }
 
-boolean sendRenderProcessResponse(String message, int maxLength) {
-	return ipcAdapter.sendResponse(message, maxLength);
+boolean sendRenderProcessResponse(String id, String message, int maxLength) {
+	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(id);
+	if (adapter == null) return false;
+	return adapter.sendResponse(message, maxLength);
 }
 
 public boolean setText(String html, boolean trusted) {

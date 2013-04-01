@@ -24,7 +24,9 @@
 
 	cef_render_process_handler_t renderProcessHandler;
 	unsigned int appRefCount = 1, handlerRefCount = 1;
+	int haveNavigated = 0;
 	HANDLE hSharedFile = 0;
+	wchar_t ipcFileName[64];
 
 	static int RESPONSE_TIMEOUT = 3000;
 	static char* SHARED_MEMORY_NAME = "org.eclipse.swt.browser.CEF3.ipc";
@@ -32,6 +34,7 @@
 	static int SLEEP_INTERVAL = 50;
 
 	/* IPC message names */
+	static wchar_t* MSG_dispose_ipc = L"dispose_ipc";
 	static wchar_t* MSG_init_ipc = L"init_ipc";
 	static wchar_t* MSG_on_before_navigation = L"on_before_navigation";
 
@@ -77,9 +80,11 @@ int (CEF_CALLBACK on_before_navigation)(
 	static int RESULT_SIZE = 1;
 
 	/*
-	 * If browser process cannot respond to the navigation request then always let it proceed.
+	 * Always let the navigation proceed if either of the following are true:
+	 * - browser process cannot respond to the navigation request (hSharedFile == 0)
+	 * - this is the first navigate for this process (see http://code.google.com/p/chromiumembedded/issues/detail?id=926)
 	 */
-	if (hSharedFile) {
+	if (hSharedFile && haveNavigated) {
 		pMemory = MapViewOfFile(hSharedFile, FILE_MAP_WRITE, 0, 0, RESULT_SIZE);
 		if (pMemory) {
 			/* clear the portion of the shared memory that will be read */
@@ -91,8 +96,11 @@ int (CEF_CALLBACK on_before_navigation)(
 			cef_string_set(MSG_on_before_navigation, wcslen(MSG_on_before_navigation), &string, 1);
 			message = cef_process_message_create(&string);
 			argsList = message->get_argument_list(message);
+			cef_string_clear(&string);
+			cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
+			argsList->set_string(argsList, 0, &string);
 			url = request->get_url(request);
-			argsList->set_string(argsList, 0, url);
+			argsList->set_string(argsList, 1, url);
 			cef_string_userfree_free(url);
 
 			message->base.add_ref(&message->base);
@@ -116,6 +124,8 @@ int (CEF_CALLBACK on_before_navigation)(
 	browser->base.release(&browser->base);
 	frame->base.release(&frame->base);
 	request->base.release(&request->base);
+	
+	haveNavigated = 1;
 	return result;
 }
 
@@ -123,28 +133,58 @@ void (CEF_CALLBACK on_browser_created)(struct _cef_render_process_handler_t* sel
 	cef_process_message_t* message;
 	cef_list_value_t* argsList;
 	cef_string_t string;
-	char fileName[64];
-	wchar_t messageArg[64];
+	char lpName[64];
 
 	/* create shared file store */
-	sprintf_s(fileName, 64, "%s.%d", SHARED_MEMORY_NAME, GetCurrentProcessId());
-	hSharedFile = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, SHARED_MEMORY_MAXSIZE, fileName);
-	if (hSharedFile != 0) {
+	sprintf_s(lpName, 64, "%s.%d", SHARED_MEMORY_NAME, GetCurrentProcessId());
+	hSharedFile = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, SHARED_MEMORY_MAXSIZE, lpName);
+	if (hSharedFile) {
+		swprintf(ipcFileName, 64, L"%hs", lpName);
+
 		/* send message to browser process */
 		memset(&string, 0, sizeof(cef_string_t));
 		cef_string_set(MSG_init_ipc, wcslen(MSG_init_ipc), &string, 1);
 		message = cef_process_message_create(&string);
 		argsList = message->get_argument_list(message);
 		cef_string_clear(&string);
-		swprintf(messageArg, 64, L"%hs", fileName);
-		cef_string_set(messageArg, wcslen(messageArg), &string, 1);
+		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
 		argsList->set_string(argsList, 0, &string);
+		argsList->set_string(argsList, 1, &string);
 
 		message->base.add_ref(&message->base);
 		if (!browser->send_process_message(browser, PID_BROWSER, message)) {
 			CloseHandle(hSharedFile);
 			hSharedFile = 0;
 		}
+		message->base.release(&message->base);
+	}
+
+	browser->base.release(&browser->base);
+}
+
+void (CEF_CALLBACK on_browser_destroyed)(struct _cef_render_process_handler_t* self, struct _cef_browser_t* browser) {
+	cef_process_message_t* message;
+	cef_list_value_t* argsList;
+	cef_string_t string;
+	
+	/*
+	 * Note this this function currently is invoked but does not run to
+	 * completion, see http://code.google.com/p/chromiumembedded/issues/detail?id=930.
+	 */
+	if (hSharedFile) {
+		/* send message to browser process */
+		memset(&string, 0, sizeof(cef_string_t));
+		cef_string_set(MSG_dispose_ipc, wcslen(MSG_dispose_ipc), &string, 1);
+		message = cef_process_message_create(&string);
+		argsList = message->get_argument_list(message);
+		cef_string_clear(&string);
+		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
+		argsList->set_string(argsList, 0, &string);
+
+		message->base.add_ref(&message->base);
+		browser->send_process_message(browser, PID_BROWSER, message);
+		CloseHandle(hSharedFile);
+		hSharedFile = 0;
 		message->base.release(&message->base);
 	}
 
@@ -174,6 +214,7 @@ struct _cef_render_process_handler_t* (CEF_CALLBACK get_render_process_handler)(
  		renderProcessHandler.base = base;
  		renderProcessHandler.on_before_navigation = on_before_navigation;
 		renderProcessHandler.on_browser_created = on_browser_created;
+		renderProcessHandler.on_browser_destroyed = on_browser_destroyed;
 		renderProcessHandler.on_process_message_received = on_process_message_received;
  	}
 	renderProcessHandler.base.add_ref(&renderProcessHandler.base);
