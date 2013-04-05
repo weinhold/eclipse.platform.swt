@@ -21,7 +21,6 @@ typedef enum cef_state_t cef_state_t;
 #include <cef_app_capi.h>
 #include <cef_browser_capi.h>
 #include <cef_frame_capi.h>
-#include <cef_jsdialog_handler_capi.h>
 #include <cef_version.h>
 #include <cef_process_message_capi.h>
 #include <cef_values_capi.h>

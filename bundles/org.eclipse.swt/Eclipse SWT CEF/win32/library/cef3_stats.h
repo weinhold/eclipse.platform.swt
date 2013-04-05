@@ -56,11 +56,6 @@ typedef enum {
 	callFuncVoid__JJJJI_FUNC,
 #endif
 #ifndef JNI64
-	callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
-#else
-	callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
-#endif
-#ifndef JNI64
 	callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
 #else
 	callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
@@ -84,7 +79,6 @@ typedef enum {
 	cef_1execute_1process_FUNC,
 	cef_1frame_1t_1sizeof_FUNC,
 	cef_1initialize_FUNC,
-	cef_1jsdialog_1callback_1t_1sizeof_FUNC,
 	cef_1list_1value_1t_1sizeof_FUNC,
 	cef_1process_1message_1create_FUNC,
 	cef_1process_1message_1t_1sizeof_FUNC,
@@ -111,11 +105,6 @@ typedef enum {
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2II_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ_FUNC,
-#endif
-#ifndef JNI64
-	memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II_FUNC,
-#else
-	memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1list_1value_1t_2II_FUNC,

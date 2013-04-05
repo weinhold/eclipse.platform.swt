@@ -157,31 +157,6 @@ JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJJI)(JNIEnv *env, jclass that
 }
 #endif
 
-#if (!defined(NO_callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && defined(JNI64))
-#ifndef JNI64
-JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jobject arg3)
-#else
-JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jobject arg3)
-#endif
-{
-	cef_string_t _arg3, *lparg3=NULL;
-#ifndef JNI64
-	CEF3_NATIVE_ENTER(env, that, callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
-#else
-	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
-#endif
-	if (arg3) if ((lparg3 = getcef_string_tFields(env, arg3, &_arg3)) == NULL) goto fail;
-	((void (CEF_CALLBACK*)())arg0)(arg1, arg2, lparg3);
-fail:
-	if (arg3 && lparg3) setcef_string_tFields(env, arg3, lparg3);
-#ifndef JNI64
-	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
-#else
-	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
-#endif
-}
-#endif
-
 #if (!defined(NO_callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jobject arg2)
@@ -392,18 +367,6 @@ fail:
 }
 #endif
 
-#ifndef NO_cef_1jsdialog_1callback_1t_1sizeof
-JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1jsdialog_1callback_1t_1sizeof)
-	(JNIEnv *env, jclass that)
-{
-	jint rc = 0;
-	CEF3_NATIVE_ENTER(env, that, cef_1jsdialog_1callback_1t_1sizeof_FUNC);
-	rc = (jint)cef_jsdialog_callback_t_sizeof();
-	CEF3_NATIVE_EXIT(env, that, cef_1jsdialog_1callback_1t_1sizeof_FUNC);
-	return rc;
-}
-#endif
-
 #ifndef NO_cef_1list_1value_1t_1sizeof
 JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1list_1value_1t_1sizeof)
 	(JNIEnv *env, jclass that)
@@ -593,31 +556,6 @@ fail:
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2II_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ_FUNC);
-#endif
-}
-#endif
-
-#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ) && defined(JNI64))
-#ifndef JNI64
-JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
-#else
-JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
-#endif
-{
-	cef_jsdialog_callback_t _arg0, *lparg0=NULL;
-#ifndef JNI64
-	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II_FUNC);
-#else
-	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ_FUNC);
-#endif
-	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
-	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
-fail:
-	if (arg0 && lparg0) setcef_jsdialog_callback_tFields(env, arg0, lparg0);
-#ifndef JNI64
-	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II_FUNC);
-#else
-	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ_FUNC);
 #endif
 }
 #endif

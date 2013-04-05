@@ -46,11 +46,6 @@ char * CEF3_nativeFunctionNames[] = {
 	"callFuncVoid__JJJJI",
 #endif
 #ifndef JNI64
-	"callFuncVoid__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
-#else
-	"callFuncVoid__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
-#endif
-#ifndef JNI64
 	"callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
 #else
 	"callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
@@ -74,7 +69,6 @@ char * CEF3_nativeFunctionNames[] = {
 	"cef_1execute_1process",
 	"cef_1frame_1t_1sizeof",
 	"cef_1initialize",
-	"cef_1jsdialog_1callback_1t_1sizeof",
 	"cef_1list_1value_1t_1sizeof",
 	"cef_1process_1message_1create",
 	"cef_1process_1message_1t_1sizeof",
@@ -101,11 +95,6 @@ char * CEF3_nativeFunctionNames[] = {
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2II",
 #else
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1frame_1t_2JJ",
-#endif
-#ifndef JNI64
-	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2II",
-#else
-	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1jsdialog_1callback_1t_2JJ",
 #endif
 #ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1list_1value_1t_2II",

@@ -19,11 +19,9 @@ public class CEFClient {
 	CEFContextMenuHandler contextMenuHandler;
 	CEFDisplayHandler displayHandler;
 	CEFFocusHandler focusHandler;
-	CEFJSDialogHandler jsDialogHandler;
 	CEFLifeSpanHandler lifeSpanHandler;
 	CEFLoadHandler loadHandler;
 	CEFRequestHandler requestHandler;
-	CEFResourceBundleHandler resourceHandler;
 	int refCount = 1;
 
 public CEFClient(CEF host) {
@@ -144,12 +142,8 @@ long /*int*/ get_geolocation_handler() {
 }
 
 long /*int*/ get_jsdialog_handler() {
-	if (Device.DEBUG) System.out.println("get_jsdialog_handler (impl)");
-	if (jsDialogHandler == null) {
-		jsDialogHandler = new CEFJSDialogHandler(host);
-	}
-	jsDialogHandler.add_ref();
-	return jsDialogHandler.getAddress();
+	if (Device.DEBUG) System.out.println("get_jsdialog_handler");
+	return 0;
 }
 
 long /*int*/ get_keyboard_handler() {
