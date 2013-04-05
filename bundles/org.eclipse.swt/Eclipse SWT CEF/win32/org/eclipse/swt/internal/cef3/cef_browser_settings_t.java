@@ -16,18 +16,18 @@ import org.eclipse.swt.browser.*;
 public class cef_browser_settings_t {
 	public long /*int*/ size;
 
-	public cef_string_t standard_font_family = CEF.STRING_EMPTY;
-	public cef_string_t fixed_font_family = CEF.STRING_EMPTY;
-	public cef_string_t serif_font_family = CEF.STRING_EMPTY;
-	public cef_string_t sans_serif_font_family = CEF.STRING_EMPTY;
-	public cef_string_t cursive_font_family = CEF.STRING_EMPTY;
-	public cef_string_t fantasy_font_family = CEF.STRING_EMPTY;
+	public cef_string_t standard_font_family = CEF.CEFSTRING_EMPTY;
+	public cef_string_t fixed_font_family = CEF.CEFSTRING_EMPTY;
+	public cef_string_t serif_font_family = CEF.CEFSTRING_EMPTY;
+	public cef_string_t sans_serif_font_family = CEF.CEFSTRING_EMPTY;
+	public cef_string_t cursive_font_family = CEF.CEFSTRING_EMPTY;
+	public cef_string_t fantasy_font_family = CEF.CEFSTRING_EMPTY;
 	public int default_font_size;
 	public int default_fixed_font_size;
 	public int minimum_font_size;
 	public int minimum_logical_font_size;
-	public cef_string_t default_encoding = CEF.STRING_EMPTY;
-	public cef_string_t user_style_sheet_location = CEF.STRING_EMPTY;
+	public cef_string_t default_encoding = CEF.CEFSTRING_EMPTY;
+	public cef_string_t user_style_sheet_location = CEF.CEFSTRING_EMPTY;
 	public int remote_fonts;
 	public int javascript;
 	public int javascript_open_windows;

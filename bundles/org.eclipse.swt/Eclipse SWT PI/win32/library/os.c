@@ -1279,17 +1279,78 @@ JNIEXPORT jintLong JNICALL OS_NATIVE(CopyImage)
 }
 #endif
 
-#ifndef NO_CopyMemory
-JNIEXPORT void JNICALL OS_NATIVE(CopyMemory)
-	(JNIEnv *env, jclass that, jintLong arg0, jbyteArray arg1, jintLong arg2)
+#if (!defined(NO_CopyMemory__I_3BI) && !defined(JNI64)) || (!defined(NO_CopyMemory__J_3BJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory__I_3BI)(JNIEnv *env, jclass that, jintLong arg0, jbyteArray arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory__J_3BJ)(JNIEnv *env, jclass that, jintLong arg0, jbyteArray arg1, jintLong arg2)
+#endif
 {
 	jbyte *lparg1=NULL;
-	OS_NATIVE_ENTER(env, that, CopyMemory_FUNC);
+#ifndef JNI64
+	OS_NATIVE_ENTER(env, that, CopyMemory__I_3BI_FUNC);
+#else
+	OS_NATIVE_ENTER(env, that, CopyMemory__J_3BJ_FUNC);
+#endif
 	if (arg1) if ((lparg1 = (*env)->GetByteArrayElements(env, arg1, NULL)) == NULL) goto fail;
-	CopyMemory(arg0, lparg1, arg2);
+	CopyMemory((PVOID)arg0, (const VOID *)lparg1, (size_t)arg2);
 fail:
 	if (arg1 && lparg1) (*env)->ReleaseByteArrayElements(env, arg1, lparg1, 0);
-	OS_NATIVE_EXIT(env, that, CopyMemory_FUNC);
+#ifndef JNI64
+	OS_NATIVE_EXIT(env, that, CopyMemory__I_3BI_FUNC);
+#else
+	OS_NATIVE_EXIT(env, that, CopyMemory__J_3BJ_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_CopyMemory___3BII) && !defined(JNI64)) || (!defined(NO_CopyMemory___3BJJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory___3BII)(JNIEnv *env, jclass that, jbyteArray arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory___3BJJ)(JNIEnv *env, jclass that, jbyteArray arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	jbyte *lparg0=NULL;
+#ifndef JNI64
+	OS_NATIVE_ENTER(env, that, CopyMemory___3BII_FUNC);
+#else
+	OS_NATIVE_ENTER(env, that, CopyMemory___3BJJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = (*env)->GetByteArrayElements(env, arg0, NULL)) == NULL) goto fail;
+	CopyMemory((PVOID)lparg0, (const VOID *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) (*env)->ReleaseByteArrayElements(env, arg0, lparg0, 0);
+#ifndef JNI64
+	OS_NATIVE_EXIT(env, that, CopyMemory___3BII_FUNC);
+#else
+	OS_NATIVE_EXIT(env, that, CopyMemory___3BJJ_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_CopyMemory___3CII) && !defined(JNI64)) || (!defined(NO_CopyMemory___3CJJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory___3CII)(JNIEnv *env, jclass that, jcharArray arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL OS_NATIVE(CopyMemory___3CJJ)(JNIEnv *env, jclass that, jcharArray arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	jchar *lparg0=NULL;
+#ifndef JNI64
+	OS_NATIVE_ENTER(env, that, CopyMemory___3CII_FUNC);
+#else
+	OS_NATIVE_ENTER(env, that, CopyMemory___3CJJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = (*env)->GetCharArrayElements(env, arg0, NULL)) == NULL) goto fail;
+	CopyMemory((PVOID)lparg0, (const VOID *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) (*env)->ReleaseCharArrayElements(env, arg0, lparg0, 0);
+#ifndef JNI64
+	OS_NATIVE_EXIT(env, that, CopyMemory___3CII_FUNC);
+#else
+	OS_NATIVE_EXIT(env, that, CopyMemory___3CJJ_FUNC);
+#endif
 }
 #endif
 
@@ -17424,6 +17485,16 @@ fail:
 	if (arg0 && lparg0) setSIPINFOFields(env, arg0, lparg0);
 	OS_NATIVE_EXIT(env, that, SipGetInfo_FUNC);
 	return rc;
+}
+#endif
+
+#ifndef NO_Sleep
+JNIEXPORT void JNICALL OS_NATIVE(Sleep)
+	(JNIEnv *env, jclass that, jint arg0)
+{
+	OS_NATIVE_ENTER(env, that, Sleep_FUNC);
+	Sleep(arg0);
+	OS_NATIVE_EXIT(env, that, Sleep_FUNC);
 }
 #endif
 

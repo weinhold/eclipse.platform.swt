@@ -106,7 +106,21 @@ char * OS_nativeFunctionNames[] = {
 	"CommandBar_1InsertMenubarEx",
 	"CommandBar_1Show",
 	"CopyImage",
-	"CopyMemory",
+#ifndef JNI64
+	"CopyMemory__I_3BI",
+#else
+	"CopyMemory__J_3BJ",
+#endif
+#ifndef JNI64
+	"CopyMemory___3BII",
+#else
+	"CopyMemory___3BJJ",
+#endif
+#ifndef JNI64
+	"CopyMemory___3CII",
+#else
+	"CopyMemory___3CJJ",
+#endif
 	"CreateAcceleratorTableA",
 	"CreateAcceleratorTableW",
 	"CreateActCtxA",
@@ -1792,6 +1806,7 @@ char * OS_nativeFunctionNames[] = {
 	"ShowScrollBar",
 	"ShowWindow",
 	"SipGetInfo",
+	"Sleep",
 	"StartDocA",
 	"StartDocW",
 	"StartPage",

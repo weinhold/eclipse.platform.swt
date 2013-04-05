@@ -36,6 +36,11 @@ typedef enum {
 	callFuncInt__JJIJ_FUNC,
 #endif
 #ifndef JNI64
+	callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#else
+	callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC,
+#endif
+#ifndef JNI64
 	callFuncPtr__II_FUNC,
 #else
 	callFuncPtr__JJ_FUNC,

@@ -63,6 +63,33 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJIJ)(JNIEnv *env, jclass that, 
 }
 #endif
 
+#if (!defined(NO_callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && !defined(JNI64)) || (!defined(NO_callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jobject arg3)
+#else
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jobject arg3)
+#endif
+{
+	cef_string_t _arg3, *lparg3=NULL;
+	jint rc = 0;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
+#endif
+	if (arg3) if ((lparg3 = getcef_string_tFields(env, arg3, &_arg3)) == NULL) goto fail;
+	rc = (jint)((jint (CEF_CALLBACK*)())arg0)(arg1, arg2, lparg3);
+fail:
+	if (arg3 && lparg3) setcef_string_tFields(env, arg3, lparg3);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
+#endif
+	return rc;
+}
+#endif
+
 #if (!defined(NO_callFuncPtr__II) && !defined(JNI64)) || (!defined(NO_callFuncPtr__JJ) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT jintLong JNICALL CEF3_NATIVE(callFuncPtr__II)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)

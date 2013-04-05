@@ -33,16 +33,20 @@ public class CEF extends WebBrowser {
 	static CEFApp App;
 	static String InitError;
 	
-	public static cef_string_t STRING_EMPTY;
+	public static cef_string_t CEFSTRING_EMPTY;
 	
 	static final String ABOUT_BLANK = "about:blank"; //$NON-NLS-1$
 	static final String CEF3_PATH = "org.eclipse.swt.browser.CEF3Path"; //$NON-NLS-1$
+	static final String STRING_NULL = "null"; //$NON-NLS-1$
+	static final String STRING_RESULT = "result:"; //$NON-NLS-1$
 	static final String URI_FILEROOT = "file:///"; //$NON-NLS-1$
-	static final int MAX_PROGRESS = 100;
 	static final int CEF3_SUPPORTED_REVISON = 1094;
+	static final int MAX_PROGRESS = 100;
+	static final int RESPONSE_TIMEOUT = 3000;
 
 	/* IPC message names */
 	static final String MSG_dispose_ipc = "dispose_ipc"; //$NON-NLS-1$
+	static final String MSG_evaluate = "evaluate"; //$NON-NLS-1$
 	static final String MSG_init_ipc = "init_ipc"; //$NON-NLS-1$
 	static final String MSG_on_before_navigation = "on_before_navigation"; //$NON-NLS-1$
 
@@ -68,7 +72,7 @@ public class CEF extends WebBrowser {
 						Library.loadLibrary("swt-cef3"); // $NON-NLS-1$
 
 						/* initialize STRING_EMPTY */
-						STRING_EMPTY = CreateCEFString("");
+						CEFSTRING_EMPTY = CreateCEFString("");
 
 						/* initialize CEF3 */
 						cef_main_args_t args = new cef_main_args_t();
@@ -185,7 +189,7 @@ static String ExtractCEFString(long /*int*/ pString) {
 	CEF3.memmove(cefString, pString, CEF3.cef_string_t_sizeof());
 	int length = (int)/*64*/cefString.length;
 	char[] chars = new char[length]; 
-	OS.memmove(chars, cefString.str, length * 2); 
+	OS.memmove(chars, cefString.str, length * 2);
 	return new String(chars); 
 }
 
@@ -204,7 +208,7 @@ public void create(Composite parent, int style) {
 	windowInfo.style = OS.WS_CHILD | OS.WS_VISIBLE | OS.WS_CLIPSIBLINGS;
 	windowInfo.x = windowInfo.width = OS.CW_USEDEFAULT;
 	windowInfo.ex_style = 0; 
-	windowInfo.window_name = STRING_EMPTY;
+	windowInfo.window_name = CEFSTRING_EMPTY;
 	windowInfo.parent_window = browser.handle;
 
 	cef_browser_settings_t browserSettings = new cef_browser_settings_t();
@@ -277,15 +281,42 @@ void browserCreated(long /*int*/ handle) {
 	pendingText = pendingUrl = null;
 }
 
+public Object evaluate (String script) throws SWTException {
+	if (cefBrowser == null) return null;
+	String string = eval(script);
+	if (string == null) return null;
+	if (!string.startsWith(STRING_RESULT)) {
+		throw new SWTException(SWT.ERROR_FAILED_EVALUATE, string);
+	}
+	string = string.substring(STRING_RESULT.length());
+	// TODO parse the JSON and return its Object
+	return string;
+}
+
 public boolean execute(String script) {
 	if (cefBrowser == null) return false;
+	return eval(script) != null;
+}
 
-	long /*int*/ pFrame = cefBrowser.get_main_frame();
-	CEFFrame mainFrame = new CEFFrame(pFrame);
+String eval(String script) {
+	script = "'" + STRING_RESULT + "' + JSON.stringify(" + script + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+	cef_string_t strName = CreateCEFString(MSG_evaluate);
+	long /*int*/ pMessage = CEF3.cef_process_message_create(strName);
+	CEFProcessMessage message = new CEFProcessMessage(pMessage);
+	long /*int*/ pArgs = message.get_argument_list();
+	CEFListValue args = new CEFListValue(pArgs);
 	cef_string_t strScript = CreateCEFString(script);
-	cef_string_t strUrl = CreateCEFString(getUrl());
-	mainFrame.execute_java_script(strScript, strUrl, 0);
-	return true;
+	args.set_string(0, strScript);
+
+	// TODO always takes the first adapter, which can obviously be wrong
+	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.elements().nextElement();
+	if (adapter == null) return null; /* should not happen */
+	final String[] response = new String[1];
+	adapter.sendMessage(message, RESPONSE_TIMEOUT, response);
+	message.release();
+	if (response[0].equals(STRING_NULL)) return null;
+	return response[0];
 }
 
 public boolean forward() {
@@ -378,7 +409,7 @@ void onIPCDispose(String id) {
 }
 
 void onIPCInit(String id, String arg) {
-	ipcAdapters.put(id, new CEFIPCSharedFile(arg));
+	ipcAdapters.put(id, new CEFIPCSharedFile(cefBrowser, arg));
 }
 
 void onLoadComplete() {
@@ -509,29 +540,27 @@ void onMessageReceived(long /*int*/ pMessage) {
 	long /*int*/ pName = message.get_name();
 	String name = CEF.ExtractCEFString(pName);
 	CEF3.cef_string_userfree_free(pName);
+
+	long /*int*/ pArgs = message.get_argument_list();
+	CEFListValue args = new CEFListValue(pArgs);
+	long /*int*/ pArg = args.get_string(0);
+	final String ipcId = CEF.ExtractCEFString(pArg);
+	CEF3.cef_string_userfree_free(pArg);
+
 	if (name.equals(MSG_init_ipc)) {
-		long /*int*/ pArgs = message.get_argument_list();
-		CEFListValue args = new CEFListValue(pArgs);
-		long /*int*/ pArg = args.get_string(0);
-		String idString = CEF.ExtractCEFString(pArg);
-		CEF3.cef_string_userfree_free(pArg);
 		pArg = args.get_string(1);
 		String initString = CEF.ExtractCEFString(pArg);
 		CEF3.cef_string_userfree_free(pArg);
-		onIPCInit(idString, initString);
+		onIPCInit(ipcId, initString);
+		return;
 	} else if (name.equals(MSG_dispose_ipc)) {
-		long /*int*/ pArgs = message.get_argument_list();
-		CEFListValue args = new CEFListValue(pArgs);
-		long /*int*/ pArg = args.get_string(0);
-		String idString = CEF.ExtractCEFString(pArg);
-		CEF3.cef_string_userfree_free(pArg);
-		onIPCDispose(idString);
-	} else if (name.equals(MSG_on_before_navigation)) {
-		long /*int*/ pArgs = message.get_argument_list();
-		CEFListValue args = new CEFListValue(pArgs);
-		long /*int*/ pArg = args.get_string(0);
-		final String id = CEF.ExtractCEFString(pArg);
-		CEF3.cef_string_userfree_free(pArg);
+		onIPCDispose(ipcId);
+		return;
+	}
+
+	final CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(ipcId);
+
+	if (name.equals(MSG_on_before_navigation)) {
 		pArg = args.get_string(1);
 		final String url = CEF.ExtractCEFString(pArg);
 		CEF3.cef_string_userfree_free(pArg);
@@ -539,7 +568,7 @@ void onMessageReceived(long /*int*/ pMessage) {
 			public void run() {
 				if (browser.isDisposed()) return;
 				boolean doit = onLocationChanging(url);
-				sendRenderProcessResponse(id, String.valueOf(doit ? 1 : 0));
+				adapter.sendResponse(String.valueOf(doit ? 1 : 0));
 			}
 		});
 	}
@@ -574,18 +603,6 @@ public void refresh() {
 	if (cefBrowser == null) return;
 	htmlText = null;
 	cefBrowser.reload();
-}
-
-boolean sendRenderProcessResponse(String id, String message) {
-	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(id);
-	if (adapter == null) return false;
-	return adapter.sendResponse(message);
-}
-
-boolean sendRenderProcessResponse(String id, String message, int maxLength) {
-	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.get(id);
-	if (adapter == null) return false;
-	return adapter.sendResponse(message, maxLength);
 }
 
 public boolean setText(String html, boolean trusted) {

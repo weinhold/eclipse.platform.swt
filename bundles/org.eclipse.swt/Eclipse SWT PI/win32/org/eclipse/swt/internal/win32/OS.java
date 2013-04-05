@@ -3767,11 +3767,23 @@ public static final native long /*int*/ CoTaskMemAlloc(int cb);
 /** @param pv cast=(LPVOID) */
 public static final native void CoTaskMemFree(long /*int*/ pv);
 /** 
- * param Destination cast=(PVOID)
- * param Source cast=(const VOID *)
- * param Length cast=(size_t)
+ * @param Destination cast=(PVOID)
+ * @param Source cast=(const VOID *)
+ * @param Length cast=(size_t)
  */
 public static final native void CopyMemory(long /*int*/ Destination, byte [] Source, long /*int*/ Length);
+/** 
+ * @param Destination cast=(PVOID)
+ * @param Source cast=(const VOID *)
+ * @param Length cast=(size_t)
+ */
+public static final native void CopyMemory(byte [] Destination, long /*int*/ Source, long /*int*/ Length);
+/** 
+ * @param Destination cast=(PVOID)
+ * @param Source cast=(const VOID *)
+ * @param Length cast=(size_t)
+ */
+public static final native void CopyMemory(char [] Destination, long /*int*/ Source, long /*int*/ Length);
 /** @param lpaccl cast=(LPACCEL) */
 public static final native long /*int*/ CreateAcceleratorTableW (byte [] lpaccl, int cEntries); 
 /** @param lpaccl cast=(LPACCEL) */
@@ -6864,6 +6876,7 @@ public static final native boolean ShowScrollBar (long /*int*/ hWnd, int wBar, b
 /** @param hWnd cast=(HWND) */
 public static final native boolean ShowWindow (long /*int*/ hWnd, int nCmdShow);
 public static final native boolean SipGetInfo (SIPINFO pSipInfo);
+public static final native void Sleep (int dwMilliseconds);
 /**
  * @param hdc cast=(HDC)
  * @param lpdi cast=(LPDOCINFOW)

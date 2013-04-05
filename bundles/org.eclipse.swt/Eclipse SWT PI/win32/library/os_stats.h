@@ -116,7 +116,21 @@ typedef enum {
 	CommandBar_1InsertMenubarEx_FUNC,
 	CommandBar_1Show_FUNC,
 	CopyImage_FUNC,
-	CopyMemory_FUNC,
+#ifndef JNI64
+	CopyMemory__I_3BI_FUNC,
+#else
+	CopyMemory__J_3BJ_FUNC,
+#endif
+#ifndef JNI64
+	CopyMemory___3BII_FUNC,
+#else
+	CopyMemory___3BJJ_FUNC,
+#endif
+#ifndef JNI64
+	CopyMemory___3CII_FUNC,
+#else
+	CopyMemory___3CJJ_FUNC,
+#endif
 	CreateAcceleratorTableA_FUNC,
 	CreateAcceleratorTableW_FUNC,
 	CreateActCtxA_FUNC,
@@ -1802,6 +1816,7 @@ typedef enum {
 	ShowScrollBar_FUNC,
 	ShowWindow_FUNC,
 	SipGetInfo_FUNC,
+	Sleep_FUNC,
 	StartDocA_FUNC,
 	StartDocW_FUNC,
 	StartPage_FUNC,

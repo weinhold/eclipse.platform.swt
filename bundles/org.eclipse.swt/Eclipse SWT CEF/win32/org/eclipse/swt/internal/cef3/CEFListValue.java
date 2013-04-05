@@ -24,4 +24,12 @@ public long /*int*/ get_string(int index) {
 	return CEF3.callFuncPtr(struct.get_string, address, index);
 }
 
+public int set_bool(int index, int value) {
+	return CEF3.callFuncInt(struct.set_bool, address, index, value);
+}
+
+public int set_string(int index, cef_string_t value) {
+	return CEF3.callFuncInt(struct.set_string, address, index, value);
+}
+
 }

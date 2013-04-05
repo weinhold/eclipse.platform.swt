@@ -17,19 +17,19 @@ public class cef_settings_t {
 	public long /*int*/ size;
 
 	public int single_process;
-	public cef_string_t browser_subprocess_path = CEF.STRING_EMPTY;
+	public cef_string_t browser_subprocess_path = CEF.CEFSTRING_EMPTY;
 	public int multi_threaded_message_loop;
 	public int command_line_args_disabled;
-	public cef_string_t cache_path = CEF.STRING_EMPTY;
-	public cef_string_t user_agent = CEF.STRING_EMPTY;
-	public cef_string_t product_version = CEF.STRING_EMPTY;
-	public cef_string_t locale = CEF.STRING_EMPTY;
-	public cef_string_t log_file = CEF.STRING_EMPTY;
+	public cef_string_t cache_path = CEF.CEFSTRING_EMPTY;
+	public cef_string_t user_agent = CEF.CEFSTRING_EMPTY;
+	public cef_string_t product_version = CEF.CEFSTRING_EMPTY;
+	public cef_string_t locale = CEF.CEFSTRING_EMPTY;
+	public cef_string_t log_file = CEF.CEFSTRING_EMPTY;
 	public int log_severity;
 	public int release_dcheck_enabled;
-	public cef_string_t javascript_flags = CEF.STRING_EMPTY;
-	public cef_string_t resources_dir_path = CEF.STRING_EMPTY;
-	public cef_string_t locales_dir_path = CEF.STRING_EMPTY;
+	public cef_string_t javascript_flags = CEF.CEFSTRING_EMPTY;
+	public cef_string_t resources_dir_path = CEF.CEFSTRING_EMPTY;
+	public cef_string_t locales_dir_path = CEF.CEFSTRING_EMPTY;
 	public int pack_loading_disabled;
 	public int remote_debugging_port;
 	public int uncaught_exception_stack_size;

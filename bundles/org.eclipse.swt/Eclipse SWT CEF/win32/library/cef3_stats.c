@@ -26,6 +26,11 @@ char * CEF3_nativeFunctionNames[] = {
 	"callFuncInt__JJIJ",
 #endif
 #ifndef JNI64
+	"callFuncInt__IIILorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
+#else
+	"callFuncInt__JJILorg_eclipse_swt_internal_cef3_cef_1string_1t_2",
+#endif
+#ifndef JNI64
 	"callFuncPtr__II",
 #else
 	"callFuncPtr__JJ",

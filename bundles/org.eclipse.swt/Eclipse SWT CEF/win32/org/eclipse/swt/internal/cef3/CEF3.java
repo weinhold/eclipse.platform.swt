@@ -15,6 +15,8 @@ import org.eclipse.swt.internal.*;
 
 public class CEF3 extends C {
 
+	public static final int PID_RENDERER = 1;
+
 /**
  * @param client cast=(struct _cef_client_t*)
  * @param url cast=(const cef_string_t*)
@@ -97,6 +99,8 @@ public static final native void memmove(cef_string_t dest, long /*int*/ src, lon
 public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0);
 /** @method convention=CEF_CALLBACK */
 public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, long /*int*/ arg2);
+/** @method convention=CEF_CALLBACK */
+public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
 public static final native long /*int*/ callFuncPtr(long /*int*/ address, long /*int*/ arg0);
 /** @method convention=CEF_CALLBACK */
