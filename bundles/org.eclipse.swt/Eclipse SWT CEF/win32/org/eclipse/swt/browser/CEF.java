@@ -28,6 +28,7 @@ public class CEF extends WebBrowser {
 	Object[] pendingText, pendingUrl;
 	long /*int*/ windowHandle;
 	Hashtable ipcAdapters = new Hashtable(9);
+	Hashtable downloads = new Hashtable();
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -251,6 +252,11 @@ public void create(Composite parent, int style) {
 	browser.addListener(SWT.KeyDown, listener); /* needed for tabbing into the Browser */
 }
 
+public void createDownloadWindow(String filename, String url, int id) {
+	CEFDownload download = new CEFDownload(filename, url, browser);
+	downloads.put(new Integer(id), download);
+}
+
 public boolean back() {
 	if (cefBrowser == null || cefBrowser.can_go_back() == 0) return false;
 	cefBrowser.go_back();
@@ -397,6 +403,13 @@ void onDispose(Event e) {
 	if (cefBrowser != null) {
 		cefBrowser.release();
 		cefBrowser = null;
+	}
+}
+
+void onDownloadProgress(long receivedBytes, long totalBytes, int completed, int inProgress, int cancelled, long /*int*/ pCallback,int id) {
+	boolean done = ((CEFDownload)downloads.get(new Integer(id))).updateStatus(receivedBytes, totalBytes, completed, inProgress, cancelled, pCallback);
+	if (done) {
+		downloads.remove(new Integer(id));
 	}
 }
 

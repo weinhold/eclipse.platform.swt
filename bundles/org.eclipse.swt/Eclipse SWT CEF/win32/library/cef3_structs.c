@@ -52,6 +52,40 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct)
 }
 #endif
 
+#ifndef NO_cef_before_download_callback_t
+typedef struct cef_before_download_callback_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID cont;
+} cef_before_download_callback_t_FID_CACHE;
+
+cef_before_download_callback_t_FID_CACHE cef_before_download_callback_tFc;
+
+void cachecef_before_download_callback_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_before_download_callback_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_before_download_callback_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_before_download_callback_tFc.cont = (*env)->GetFieldID(env, cef_before_download_callback_tFc.clazz, "cont", I_J);
+	cef_before_download_callback_tFc.cached = 1;
+}
+
+cef_before_download_callback_t *getcef_before_download_callback_tFields(JNIEnv *env, jobject lpObject, cef_before_download_callback_t *lpStruct)
+{
+	if (!cef_before_download_callback_tFc.cached) cachecef_before_download_callback_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->cont = (void (CEF_CALLBACK *)(struct _cef_before_download_callback_t* self, const cef_string_t* download_path, int show_dialog))(*env)->GetIntLongField(env, lpObject, cef_before_download_callback_tFc.cont);
+	return lpStruct;
+}
+
+void setcef_before_download_callback_tFields(JNIEnv *env, jobject lpObject, cef_before_download_callback_t *lpStruct)
+{
+	if (!cef_before_download_callback_tFc.cached) cachecef_before_download_callback_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_before_download_callback_tFc.cont, (jintLong)lpStruct->cont);
+}
+#endif
+
 #ifndef NO_cef_browser_host_t
 typedef struct cef_browser_host_t_FID_CACHE {
 	int cached;
@@ -394,6 +428,119 @@ void setcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStru
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_identifiers, (jintLong)lpStruct->get_frame_identifiers);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.get_frame_names, (jintLong)lpStruct->get_frame_names);
 	(*env)->SetIntLongField(env, lpObject, cef_browser_tFc.send_process_message, (jintLong)lpStruct->send_process_message);
+}
+#endif
+
+#ifndef NO_cef_download_item_callback_t
+typedef struct cef_download_item_callback_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID cancel;
+} cef_download_item_callback_t_FID_CACHE;
+
+cef_download_item_callback_t_FID_CACHE cef_download_item_callback_tFc;
+
+void cachecef_download_item_callback_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_download_item_callback_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_download_item_callback_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_download_item_callback_tFc.cancel = (*env)->GetFieldID(env, cef_download_item_callback_tFc.clazz, "cancel", I_J);
+	cef_download_item_callback_tFc.cached = 1;
+}
+
+cef_download_item_callback_t *getcef_download_item_callback_tFields(JNIEnv *env, jobject lpObject, cef_download_item_callback_t *lpStruct)
+{
+	if (!cef_download_item_callback_tFc.cached) cachecef_download_item_callback_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->cancel = (void (CEF_CALLBACK *)(struct _cef_before_download_callback_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_callback_tFc.cancel);
+	return lpStruct;
+}
+
+void setcef_download_item_callback_tFields(JNIEnv *env, jobject lpObject, cef_download_item_callback_t *lpStruct)
+{
+	if (!cef_download_item_callback_tFc.cached) cachecef_download_item_callback_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_callback_tFc.cancel, (jintLong)lpStruct->cancel);
+}
+#endif
+
+#ifndef NO_cef_download_item_t
+typedef struct cef_download_item_t_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID is_valid, is_in_progress, is_complete, is_canceled, get_current_speed, get_percent_complete, get_total_bytes, get_received_bytes, get_start_time, get_end_time, get_full_path, get_id, get_url, get_suggested_file_name, get_content_disposition, get_mime_type;
+} cef_download_item_t_FID_CACHE;
+
+cef_download_item_t_FID_CACHE cef_download_item_tFc;
+
+void cachecef_download_item_tFields(JNIEnv *env, jobject lpObject)
+{
+	if (cef_download_item_tFc.cached) return;
+	cachecef_base_tFields(env, lpObject);
+	cef_download_item_tFc.clazz = (*env)->GetObjectClass(env, lpObject);
+	cef_download_item_tFc.is_valid = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "is_valid", I_J);
+	cef_download_item_tFc.is_in_progress = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "is_in_progress", I_J);
+	cef_download_item_tFc.is_complete = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "is_complete", I_J);
+	cef_download_item_tFc.is_canceled = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "is_canceled", I_J);
+	cef_download_item_tFc.get_current_speed = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_current_speed", I_J);
+	cef_download_item_tFc.get_percent_complete = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_percent_complete", I_J);
+	cef_download_item_tFc.get_total_bytes = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_total_bytes", I_J);
+	cef_download_item_tFc.get_received_bytes = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_received_bytes", I_J);
+	cef_download_item_tFc.get_start_time = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_start_time", I_J);
+	cef_download_item_tFc.get_end_time = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_end_time", I_J);
+	cef_download_item_tFc.get_full_path = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_full_path", I_J);
+	cef_download_item_tFc.get_id = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_id", I_J);
+	cef_download_item_tFc.get_url = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_url", I_J);
+	cef_download_item_tFc.get_suggested_file_name = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_suggested_file_name", I_J);
+	cef_download_item_tFc.get_content_disposition = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_content_disposition", I_J);
+	cef_download_item_tFc.get_mime_type = (*env)->GetFieldID(env, cef_download_item_tFc.clazz, "get_mime_type", I_J);
+	cef_download_item_tFc.cached = 1;
+}
+
+cef_download_item_t *getcef_download_item_tFields(JNIEnv *env, jobject lpObject, cef_download_item_t *lpStruct)
+{
+	if (!cef_download_item_tFc.cached) cachecef_download_item_tFields(env, lpObject);
+	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	lpStruct->is_valid = (int (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.is_valid);
+	lpStruct->is_in_progress = (int (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.is_in_progress);
+	lpStruct->is_complete = (int (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.is_complete);
+	lpStruct->is_canceled = (int (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.is_canceled);
+	lpStruct->get_current_speed = (int64 (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_current_speed);
+	lpStruct->get_percent_complete = (int (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_percent_complete);
+	lpStruct->get_total_bytes = (int64 (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_total_bytes);
+	lpStruct->get_received_bytes = (int64 (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_received_bytes);
+	lpStruct->get_start_time = (cef_time_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_start_time);
+	lpStruct->get_end_time = (cef_time_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_end_time);
+	lpStruct->get_full_path = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_full_path);
+	lpStruct->get_id = (int32 (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_id);
+	lpStruct->get_url = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_url);
+	lpStruct->get_suggested_file_name = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_suggested_file_name);
+	lpStruct->get_content_disposition = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_content_disposition);
+	lpStruct->get_mime_type = (cef_string_userfree_t (CEF_CALLBACK *)(struct _cef_download_item_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_tFc.get_mime_type);
+	return lpStruct;
+}
+
+void setcef_download_item_tFields(JNIEnv *env, jobject lpObject, cef_download_item_t *lpStruct)
+{
+	if (!cef_download_item_tFc.cached) cachecef_download_item_tFields(env, lpObject);
+	setcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.is_valid, (jintLong)lpStruct->is_valid);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.is_in_progress, (jintLong)lpStruct->is_in_progress);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.is_complete, (jintLong)lpStruct->is_complete);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.is_canceled, (jintLong)lpStruct->is_canceled);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_current_speed, (jintLong)lpStruct->get_current_speed);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_percent_complete, (jintLong)lpStruct->get_percent_complete);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_total_bytes, (jintLong)lpStruct->get_total_bytes);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_received_bytes, (jintLong)lpStruct->get_received_bytes);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_start_time, (jintLong)lpStruct->get_start_time);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_end_time, (jintLong)lpStruct->get_end_time);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_full_path, (jintLong)lpStruct->get_full_path);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_id, (jintLong)lpStruct->get_id);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_url, (jintLong)lpStruct->get_url);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_suggested_file_name, (jintLong)lpStruct->get_suggested_file_name);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_content_disposition, (jintLong)lpStruct->get_content_disposition);
+	(*env)->SetIntLongField(env, lpObject, cef_download_item_tFc.get_mime_type, (jintLong)lpStruct->get_mime_type);
 }
 #endif
 

@@ -69,6 +69,26 @@ public static final native void memmove(cef_browser_host_t dest, long /*int*/ sr
  * @param src cast=(const void *)
  * @param size cast=(size_t)
  */
+public static final native void memmove(cef_before_download_callback_t dest, long /*int*/ src, long /*int*/ size);
+
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
+public static final native void memmove(cef_download_item_t dest, long /*int*/ src, long /*int*/ size);
+
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
+public static final native void memmove(cef_download_item_callback_t dest, long /*int*/ src, long /*int*/ size);
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
 public static final native void memmove(cef_frame_t dest, long /*int*/ src, long /*int*/ size);
 
 /**
@@ -102,11 +122,17 @@ public static final native int callFuncInt(long /*int*/ address, long /*int*/ ar
 /** @method convention=CEF_CALLBACK */
 public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
+public static final native long callFuncLong(long /*int*/ address, long /*int*/ arg0);
+/** @method convention=CEF_CALLBACK */
 public static final native long /*int*/ callFuncPtr(long /*int*/ address, long /*int*/ arg0);
 /** @method convention=CEF_CALLBACK */
 public static final native long /*int*/ callFuncPtr(long /*int*/ address, long /*int*/ arg0, int arg1);
 /** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0);
+/** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1);
+/** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, int arg2);
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
@@ -121,6 +147,9 @@ public static final native int cef_base_t_sizeof();
 public static final native int cef_browser_t_sizeof();
 public static final native int cef_browser_host_t_sizeof();
 public static final native int cef_browser_settings_t_sizeof();
+public static final native int cef_before_download_callback_t_sizeof();
+public static final native int cef_download_item_t_sizeof();
+public static final native int cef_download_item_callback_t_sizeof();
 public static final native int cef_frame_t_sizeof();
 public static final native int cef_list_value_t_sizeof();
 public static final native int cef_process_message_t_sizeof();

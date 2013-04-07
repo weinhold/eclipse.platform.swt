@@ -23,6 +23,18 @@ void setcef_base_tFields(JNIEnv *env, jobject lpObject, cef_base_t *lpStruct);
 #define cef_base_t_sizeof() 0
 #endif
 
+#ifndef NO_cef_before_download_callback_t
+void cachecef_before_download_callback_tFields(JNIEnv *env, jobject lpObject);
+cef_before_download_callback_t *getcef_before_download_callback_tFields(JNIEnv *env, jobject lpObject, cef_before_download_callback_t *lpStruct);
+void setcef_before_download_callback_tFields(JNIEnv *env, jobject lpObject, cef_before_download_callback_t *lpStruct);
+#define cef_before_download_callback_t_sizeof() sizeof(cef_before_download_callback_t)
+#else
+#define cachecef_before_download_callback_tFields(a,b)
+#define getcef_before_download_callback_tFields(a,b,c) NULL
+#define setcef_before_download_callback_tFields(a,b,c)
+#define cef_before_download_callback_t_sizeof() 0
+#endif
+
 #ifndef NO_cef_browser_host_t
 void cachecef_browser_host_tFields(JNIEnv *env, jobject lpObject);
 cef_browser_host_t *getcef_browser_host_tFields(JNIEnv *env, jobject lpObject, cef_browser_host_t *lpStruct);
@@ -57,6 +69,30 @@ void setcef_browser_tFields(JNIEnv *env, jobject lpObject, cef_browser_t *lpStru
 #define getcef_browser_tFields(a,b,c) NULL
 #define setcef_browser_tFields(a,b,c)
 #define cef_browser_t_sizeof() 0
+#endif
+
+#ifndef NO_cef_download_item_callback_t
+void cachecef_download_item_callback_tFields(JNIEnv *env, jobject lpObject);
+cef_download_item_callback_t *getcef_download_item_callback_tFields(JNIEnv *env, jobject lpObject, cef_download_item_callback_t *lpStruct);
+void setcef_download_item_callback_tFields(JNIEnv *env, jobject lpObject, cef_download_item_callback_t *lpStruct);
+#define cef_download_item_callback_t_sizeof() sizeof(cef_download_item_callback_t)
+#else
+#define cachecef_download_item_callback_tFields(a,b)
+#define getcef_download_item_callback_tFields(a,b,c) NULL
+#define setcef_download_item_callback_tFields(a,b,c)
+#define cef_download_item_callback_t_sizeof() 0
+#endif
+
+#ifndef NO_cef_download_item_t
+void cachecef_download_item_tFields(JNIEnv *env, jobject lpObject);
+cef_download_item_t *getcef_download_item_tFields(JNIEnv *env, jobject lpObject, cef_download_item_t *lpStruct);
+void setcef_download_item_tFields(JNIEnv *env, jobject lpObject, cef_download_item_t *lpStruct);
+#define cef_download_item_t_sizeof() sizeof(cef_download_item_t)
+#else
+#define cachecef_download_item_tFields(a,b)
+#define getcef_download_item_tFields(a,b,c) NULL
+#define setcef_download_item_tFields(a,b,c)
+#define cef_download_item_t_sizeof() 0
 #endif
 
 #ifndef NO_cef_frame_t

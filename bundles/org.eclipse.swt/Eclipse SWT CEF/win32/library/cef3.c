@@ -90,6 +90,18 @@ fail:
 }
 #endif
 
+#ifndef NO_callFuncLong
+JNIEXPORT jlong JNICALL CEF3_NATIVE(callFuncLong)
+	(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
+{
+	jlong rc = 0;
+	CEF3_NATIVE_ENTER(env, that, callFuncLong_FUNC);
+	rc = (jlong)((jlong (CEF_CALLBACK*)())arg0)(arg1);
+	CEF3_NATIVE_EXIT(env, that, callFuncLong_FUNC);
+	return rc;
+}
+#endif
+
 #if (!defined(NO_callFuncPtr__II) && !defined(JNI64)) || (!defined(NO_callFuncPtr__JJ) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT jintLong JNICALL CEF3_NATIVE(callFuncPtr__II)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
@@ -136,6 +148,27 @@ JNIEXPORT jintLong JNICALL CEF3_NATIVE(callFuncPtr__JJI)(JNIEnv *env, jclass tha
 }
 #endif
 
+#if (!defined(NO_callFuncVoid__II) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__II)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJ)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1)
+#endif
+{
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__II_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJ_FUNC);
+#endif
+	((void (CEF_CALLBACK*)())arg0)(arg1);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__II_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJ_FUNC);
+#endif
+}
+#endif
+
 #if (!defined(NO_callFuncVoid__IIIII) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJJJI) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3, jint arg4)
@@ -178,6 +211,31 @@ fail:
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2I) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2I) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2I)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jobject arg2, jint arg3)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2I)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jobject arg2, jint arg3)
+#endif
+{
+	cef_string_t _arg2, *lparg2=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC);
+#endif
+	if (arg2) if ((lparg2 = getcef_string_tFields(env, arg2, &_arg2)) == NULL) goto fail;
+	((void (CEF_CALLBACK*)())arg0)(arg1, lparg2, arg3);
+fail:
+	if (arg2 && lparg2) setcef_string_tFields(env, arg2, lparg2);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IILorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJLorg_eclipse_swt_internal_cef3_cef_1string_1t_2I_FUNC);
 #endif
 }
 #endif
@@ -250,6 +308,18 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1base_1t_1sizeof)
 }
 #endif
 
+#ifndef NO_cef_1before_1download_1callback_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1before_1download_1callback_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1before_1download_1callback_1t_1sizeof_FUNC);
+	rc = (jint)cef_before_download_callback_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1before_1download_1callback_1t_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_cef_1browser_1host_1create_1browser
 JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1browser_1host_1create_1browser)
 	(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jobject arg2, jobject arg3)
@@ -316,6 +386,30 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1build_1revision)
 	CEF3_NATIVE_ENTER(env, that, cef_1build_1revision_FUNC);
 	rc = (jint)cef_build_revision();
 	CEF3_NATIVE_EXIT(env, that, cef_1build_1revision_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_cef_1download_1item_1callback_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1download_1item_1callback_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1download_1item_1callback_1t_1sizeof_FUNC);
+	rc = (jint)cef_download_item_callback_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1download_1item_1callback_1t_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
+#ifndef NO_cef_1download_1item_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1download_1item_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1download_1item_1t_1sizeof_FUNC);
+	rc = (jint)cef_download_item_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1download_1item_1t_1sizeof_FUNC);
 	return rc;
 }
 #endif
@@ -485,6 +579,31 @@ fail:
 }
 #endif
 
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2JJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2JJ)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	cef_before_download_callback_t _arg0, *lparg0=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2JJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setcef_before_download_callback_tFields(env, arg0, lparg0);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1before_1download_1callback_1t_2JJ_FUNC);
+#endif
+}
+#endif
+
 #if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2JJ) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1host_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
@@ -531,6 +650,56 @@ fail:
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2II_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1browser_1t_2JJ_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2JJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2JJ)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	cef_download_item_callback_t _arg0, *lparg0=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2JJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setcef_download_item_callback_tFields(env, arg0, lparg0);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1callback_1t_2JJ_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2JJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2JJ)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)
+#endif
+{
+	cef_download_item_t _arg0, *lparg0=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2JJ_FUNC);
+#endif
+	if (arg0) if ((lparg0 = &_arg0) == NULL) goto fail;
+	memmove((void *)lparg0, (const void *)arg1, (size_t)arg2);
+fail:
+	if (arg0 && lparg0) setcef_download_item_tFields(env, arg0, lparg0);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2II_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, memmove__Lorg_eclipse_swt_internal_cef3_cef_1download_1item_1t_2JJ_FUNC);
 #endif
 }
 #endif

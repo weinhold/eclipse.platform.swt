@@ -18,6 +18,7 @@ public class CEFClient {
 	CEF3Object object;
 	CEFContextMenuHandler contextMenuHandler;
 	CEFDisplayHandler displayHandler;
+	CEFDownloadHandler downloadHandler;
 	CEFFocusHandler focusHandler;
 	CEFLifeSpanHandler lifeSpanHandler;
 	CEFLoadHandler loadHandler;
@@ -73,6 +74,10 @@ synchronized int release() {
 			displayHandler.release();
 			displayHandler = null;
 		}
+		if (downloadHandler != null) {
+			downloadHandler.release();
+			downloadHandler = null;
+		}
 		if (focusHandler != null) {
 			focusHandler.release();
 			focusHandler = null;
@@ -123,8 +128,12 @@ long /*int*/ get_display_handler() {
 }
 
 long /*int*/ get_download_handler() {
-	if (Device.DEBUG) System.out.println("get_download_handler (TODO)");
-	return 0;
+	if (Device.DEBUG) System.out.println("get_download_handler (impl)");
+	if (downloadHandler == null) {
+		downloadHandler = new CEFDownloadHandler(host);
+	}
+	downloadHandler.add_ref();
+	return downloadHandler.getAddress();
 }
 
 long /*int*/ get_focus_handler() {
