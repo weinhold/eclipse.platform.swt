@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.swt.browser;
 
+
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.internal.cef3.*;
 
@@ -59,47 +60,48 @@ synchronized int release() {
 /* cef_download_handler_t */
 
 
-long /*int*/ on_before_download(long /*int*/ pBrowser, long /*int*/ pDownloadItem, long /*int*/ strSuggestedName, long /*int*/ pCallback) {
+long /*int*/ on_before_download(long /*int*/ browser, long /*int*/ download_item, long /*int*/ suggested_name, long /*int*/ callback) {
 	if (Device.DEBUG) System.out.println("on_before_download (impl)");
-	final CEFBeforeDownloadCallback callback = new CEFBeforeDownloadCallback(pCallback);
-	CEFDownloadItem downloadItem = new CEFDownloadItem(pDownloadItem);
-	final String suggestedName = CEF.ExtractCEFString(strSuggestedName);
+	CEFDownloadItem downloadItem = new CEFDownloadItem(download_item);
+	final int id = downloadItem.getId();
 	long /*int*/ pUrl = downloadItem.getUrl();
 	final String url = CEF.ExtractCEFString(pUrl);
-	final int id = downloadItem.getId();
 	CEF3.cef_string_userfree_free(pUrl);
+	final String suggestedName = CEF.ExtractCEFString(suggested_name);
+	final CEFBeforeDownloadCallback beforeDownloadCallback = new CEFBeforeDownloadCallback(callback);
 	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
 			if (host.browser.isDisposed()) return;
 			host.createDownloadWindow(suggestedName, url, id);
-			callback.cont();
-			callback.release();
+			beforeDownloadCallback.cont(CEF.CEFSTRING_EMPTY, 1);
+			beforeDownloadCallback.release();
 		}
 	});
-	new CEFBase(pBrowser).release();
+	new CEFBase(browser).release();
 	downloadItem.release();
 	return 0;
 }
 
-long /*int*/ on_download_updated(long /*int*/ pBrowser, long /*int*/ pDownloadItem, final long /*int*/ pCallback) {
+long /*int*/ on_download_updated(long /*int*/ browser, long /*int*/ download_item, final long /*int*/ callback) {
 	if (Device.DEBUG) System.out.println("on_download_updated (impl)");
-	CEFDownloadItem downloadItem = new CEFDownloadItem(pDownloadItem);
+	CEFDownloadItem downloadItem = new CEFDownloadItem(download_item);
 	final long totalBytes = downloadItem.getTotalBytes();
 	final long receivedBytes = downloadItem.getReceivedBytes();
-	final int completed = downloadItem.isComplete();
-	final int inProgress = downloadItem.isInProgress();
-	final int cancelled = downloadItem.isCancelled();
+	final boolean completed = downloadItem.isComplete() == 1;
+	final boolean inProgress = downloadItem.isInProgress() == 1;
+	final boolean cancelled = downloadItem.isCancelled() == 1;
+	final CEFDownloadItemCallback downloadItemCallback = new CEFDownloadItemCallback(callback);
 	final int id = downloadItem.getId();
 	host.browser.getDisplay().asyncExec(new Runnable() {
 		public void run() {
 			if (host.browser.isDisposed()) return;
-			host.onDownloadProgress(receivedBytes, totalBytes, completed, inProgress, cancelled, pCallback, id);
+			host.onDownloadProgress(receivedBytes, totalBytes, completed, inProgress, cancelled, downloadItemCallback, id);
+			downloadItemCallback.release();
 		}
 	});
+	new CEFBase(browser).release();
 	downloadItem.release();
-	new CEFBase(pBrowser).release();
 	return 0;
 }
-
 
 }

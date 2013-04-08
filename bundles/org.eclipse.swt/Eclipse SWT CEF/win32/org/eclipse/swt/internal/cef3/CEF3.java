@@ -118,7 +118,9 @@ public static final native void memmove(cef_string_t dest, long /*int*/ src, lon
 /** @method convention=CEF_CALLBACK */
 public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0);
 /** @method convention=CEF_CALLBACK */
-public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, long /*int*/ arg2);
+public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, int arg2);
+/** @method convention=CEF_CALLBACK */
+public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, long arg2);
 /** @method convention=CEF_CALLBACK */
 public static final native int callFuncInt(long /*int*/ address, long /*int*/ arg0, int arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
@@ -136,7 +138,9 @@ public static final native void callFuncVoid(long /*int*/ address, long /*int*/ 
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, cef_string_t arg2);
 /** @method convention=CEF_CALLBACK */
-public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long /*int*/ arg1, long /*int*/ arg2, int arg3);
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, int arg1, int arg2, int arg3);
+/** @method convention=CEF_CALLBACK */
+public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, long arg1, long arg2, int arg3);
 /** @method convention=CEF_CALLBACK */
 public static final native void callFuncVoid(long /*int*/ address, long /*int*/ arg0, cef_string_t arg1, cef_string_t arg2, int arg3);
 

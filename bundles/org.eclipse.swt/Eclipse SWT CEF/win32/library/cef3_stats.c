@@ -23,6 +23,11 @@ char * CEF3_nativeFunctionNames[] = {
 #ifndef JNI64
 	"callFuncInt__IIII",
 #else
+	"callFuncInt__JJII",
+#endif
+#ifndef JNI64
+	"callFuncInt__IIIJ",
+#else
 	"callFuncInt__JJIJ",
 #endif
 #ifndef JNI64
@@ -48,6 +53,11 @@ char * CEF3_nativeFunctionNames[] = {
 #endif
 #ifndef JNI64
 	"callFuncVoid__IIIII",
+#else
+	"callFuncVoid__JJIII",
+#endif
+#ifndef JNI64
+	"callFuncVoid__IIJJI",
 #else
 	"callFuncVoid__JJJJI",
 #endif

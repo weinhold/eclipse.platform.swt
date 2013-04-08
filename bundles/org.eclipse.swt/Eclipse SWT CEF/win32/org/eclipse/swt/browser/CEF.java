@@ -28,7 +28,7 @@ public class CEF extends WebBrowser {
 	Object[] pendingText, pendingUrl;
 	long /*int*/ windowHandle;
 	Hashtable ipcAdapters = new Hashtable(9);
-	Hashtable downloads = new Hashtable();
+	Hashtable downloads = new Hashtable(9);
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -394,6 +394,8 @@ void onDispose(Event e) {
 		((CEFIPCSharedFile)elements.nextElement()).dispose();
 	}
 	ipcAdapters = null;
+	
+	downloads = null;
 
 	if (client != null) {
 		client.release();
@@ -406,8 +408,10 @@ void onDispose(Event e) {
 	}
 }
 
-void onDownloadProgress(long receivedBytes, long totalBytes, int completed, int inProgress, int cancelled, long /*int*/ pCallback,int id) {
-	boolean done = ((CEFDownload)downloads.get(new Integer(id))).updateStatus(receivedBytes, totalBytes, completed, inProgress, cancelled, pCallback);
+void onDownloadProgress(long receivedBytes, long totalBytes, boolean completed, boolean inProgress, boolean cancelled, CEFDownloadItemCallback callback, int id) {
+	CEFDownload download = (CEFDownload)downloads.get(new Integer(id));
+	if (download == null) return;
+	boolean done = download.updateStatus(receivedBytes, totalBytes, completed, inProgress, cancelled, callback);
 	if (done) {
 		downloads.remove(new Integer(id));
 	}

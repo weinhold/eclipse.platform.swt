@@ -33,6 +33,11 @@ typedef enum {
 #ifndef JNI64
 	callFuncInt__IIII_FUNC,
 #else
+	callFuncInt__JJII_FUNC,
+#endif
+#ifndef JNI64
+	callFuncInt__IIIJ_FUNC,
+#else
 	callFuncInt__JJIJ_FUNC,
 #endif
 #ifndef JNI64
@@ -58,6 +63,11 @@ typedef enum {
 #endif
 #ifndef JNI64
 	callFuncVoid__IIIII_FUNC,
+#else
+	callFuncVoid__JJIII_FUNC,
+#endif
+#ifndef JNI64
+	callFuncVoid__IIJJI_FUNC,
 #else
 	callFuncVoid__JJJJI_FUNC,
 #endif

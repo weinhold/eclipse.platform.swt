@@ -453,7 +453,7 @@ cef_download_item_callback_t *getcef_download_item_callback_tFields(JNIEnv *env,
 {
 	if (!cef_download_item_callback_tFc.cached) cachecef_download_item_callback_tFields(env, lpObject);
 	getcef_base_tFields(env, lpObject, (cef_base_t *)lpStruct);
-	lpStruct->cancel = (void (CEF_CALLBACK *)(struct _cef_before_download_callback_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_callback_tFc.cancel);
+	lpStruct->cancel = (void (CEF_CALLBACK *)(struct _cef_download_item_callback_t* self))(*env)->GetIntLongField(env, lpObject, cef_download_item_callback_tFc.cancel);
 	return lpStruct;
 }
 

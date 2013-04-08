@@ -40,22 +40,45 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJ)(JNIEnv *env, jclass that, ji
 }
 #endif
 
-#if (!defined(NO_callFuncInt__IIII) && !defined(JNI64)) || (!defined(NO_callFuncInt__JJIJ) && defined(JNI64))
+#if (!defined(NO_callFuncInt__IIII) && !defined(JNI64)) || (!defined(NO_callFuncInt__JJII) && defined(JNI64))
 #ifndef JNI64
-JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__IIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jintLong arg3)
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__IIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jint arg3)
 #else
-JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJIJ)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jintLong arg3)
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jint arg3)
 #endif
 {
 	jint rc = 0;
 #ifndef JNI64
 	CEF3_NATIVE_ENTER(env, that, callFuncInt__IIII_FUNC);
 #else
-	CEF3_NATIVE_ENTER(env, that, callFuncInt__JJIJ_FUNC);
+	CEF3_NATIVE_ENTER(env, that, callFuncInt__JJII_FUNC);
 #endif
 	rc = (jint)((jint (CEF_CALLBACK*)())arg0)(arg1, arg2, arg3);
 #ifndef JNI64
 	CEF3_NATIVE_EXIT(env, that, callFuncInt__IIII_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncInt__JJII_FUNC);
+#endif
+	return rc;
+}
+#endif
+
+#if (!defined(NO_callFuncInt__IIIJ) && !defined(JNI64)) || (!defined(NO_callFuncInt__JJIJ) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__IIIJ)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jlong arg3)
+#else
+JNIEXPORT jint JNICALL CEF3_NATIVE(callFuncInt__JJIJ)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jlong arg3)
+#endif
+{
+	jint rc = 0;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncInt__IIIJ_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncInt__JJIJ_FUNC);
+#endif
+	rc = (jint)((jint (CEF_CALLBACK*)())arg0)(arg1, arg2, arg3);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncInt__IIIJ_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, callFuncInt__JJIJ_FUNC);
 #endif
@@ -169,21 +192,42 @@ JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJ)(JNIEnv *env, jclass that, j
 }
 #endif
 
-#if (!defined(NO_callFuncVoid__IIIII) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJJJI) && defined(JNI64))
+#if (!defined(NO_callFuncVoid__IIIII) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJIII) && defined(JNI64))
 #ifndef JNI64
-JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3, jint arg4)
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jint arg3, jint arg4)
 #else
-JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJJI)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jintLong arg2, jintLong arg3, jint arg4)
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJIII)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jint arg2, jint arg3, jint arg4)
 #endif
 {
 #ifndef JNI64
 	CEF3_NATIVE_ENTER(env, that, callFuncVoid__IIIII_FUNC);
 #else
-	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJJJI_FUNC);
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJIII_FUNC);
 #endif
 	((void (CEF_CALLBACK*)())arg0)(arg1, arg2, arg3, arg4);
 #ifndef JNI64
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IIIII_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJIII_FUNC);
+#endif
+}
+#endif
+
+#if (!defined(NO_callFuncVoid__IIJJI) && !defined(JNI64)) || (!defined(NO_callFuncVoid__JJJJI) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__IIJJI)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jlong arg2, jlong arg3, jint arg4)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(callFuncVoid__JJJJI)(JNIEnv *env, jclass that, jintLong arg0, jintLong arg1, jlong arg2, jlong arg3, jint arg4)
+#endif
+{
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__IIJJI_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, callFuncVoid__JJJJI_FUNC);
+#endif
+	((void (CEF_CALLBACK*)())arg0)(arg1, arg2, arg3, arg4);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, callFuncVoid__IIJJI_FUNC);
 #else
 	CEF3_NATIVE_EXIT(env, that, callFuncVoid__JJJJI_FUNC);
 #endif
