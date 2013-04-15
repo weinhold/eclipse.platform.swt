@@ -61,13 +61,25 @@ synchronized int release() {
 
 /* cef_life_span_handler_t */
 
-long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ popupFeatures, long /*int*/ windowInfo, long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
-	if (Device.DEBUG) System.out.println("on_before_popup (TODO)");
+long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, final long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ pPopupFeatures, long /*int*/ windowInfo, long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
+	if (Device.DEBUG) System.out.println("on_before_popup (impl)");
+	final cef_popup_features_t popupFeatures = new cef_popup_features_t();
+	CEF3.memmove(popupFeatures, pPopupFeatures, cef_popup_features_t.sizeof);
+	final int result[] = new int[1];
+	result[0] = 0;
+	host.browser.getDisplay().syncExec(new Runnable() {
+		public void run() {
+			if (host.browser.isDisposed()) return;
+			result[0] = host.onWindowOpen(target_url, popupFeatures);
+		}
+	});
+	
 	new CEFBase(browser).release();
 	new CEFBase(frame).release();
-	new CEFBase(popupFeatures).release();
-	// TODO does client need to be released too?
-	return 0;
+	// does client need to be released too?
+	// Probably not, it is not a direct reference (it is a **cef_client_t, possibly a list of them?)
+	// The reference is held elsewhere.
+	return result[0];
 }
 
 long /*int*/ on_after_created(long /*int*/ browser) {
@@ -85,11 +97,22 @@ long /*int*/ run_modal(long /*int*/ browser) {
 	return 0;
 }
 
-long /*int*/ do_close(long /*int*/ browser) {
+long /*int*/ do_close(long /*int*/ pBrowser) {
 	/* possibly useful */
 	if (Device.DEBUG) System.out.println("do_close");
-	new CEFBase(browser).release();
-	return 0;
+	CEFBrowser cefBrowser = new CEFBrowser(pBrowser);
+	final Browser browser = CEF.findBrowser(cefBrowser);
+	final CEF webBrowser = ((CEF)browser.webBrowser);
+	browser.getDisplay().asyncExec(new Runnable() {
+		public void run() {
+			if (browser.isDisposed()) return;
+			webBrowser.onWindowClose();
+		}
+	});
+	cefBrowser.release();
+	// Not sure if I need to release the host at some point.
+	// There is no rule for structs that are returned by a method.
+	return 1;
 }
 
 long /*int*/ on_before_close(long /*int*/ browser) {

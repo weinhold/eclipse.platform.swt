@@ -106,6 +106,7 @@ typedef enum {
 	cef_1initialize_FUNC,
 	cef_1list_1value_1t_1sizeof_FUNC,
 	cef_1menu_1model_1t_1sizeof_FUNC,
+	cef_1popup_1features_1t_1sizeof_FUNC,
 	cef_1process_1message_1create_FUNC,
 	cef_1process_1message_1t_1sizeof_FUNC,
 	cef_1settings_1t_1sizeof_FUNC,
@@ -161,6 +162,11 @@ typedef enum {
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1menu_1model_1t_2II_FUNC,
 #else
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1menu_1model_1t_2JJ_FUNC,
+#endif
+#ifndef JNI64
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1popup_1features_1t_2II_FUNC,
+#else
+	memmove__Lorg_eclipse_swt_internal_cef3_cef_1popup_1features_1t_2JJ_FUNC,
 #endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1process_1message_1t_2II_FUNC,
