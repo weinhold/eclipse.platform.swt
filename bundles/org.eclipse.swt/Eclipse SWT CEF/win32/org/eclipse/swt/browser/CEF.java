@@ -29,14 +29,7 @@ public class CEF extends WebBrowser {
 	long /*int*/ windowHandle;
 	Hashtable ipcAdapters = new Hashtable(9);
 	Hashtable downloads = new Hashtable(9);
-	boolean addressBar = true;
-	boolean menuBar = true;
-	boolean statusBar = true;
-	boolean toolBar = true;
-	Point location = null;
-	Point size = null;
-	cef_popup_features_t features = null;
-	CEF parentBrowser = null;
+	cef_popup_features_t popupFeatures = null;
 
 	static boolean LibraryLoaded;
 	static CEFApp App;
@@ -202,7 +195,7 @@ static String ExtractCEFString(long /*int*/ pString) {
 	return new String(chars); 
 }
 
-static Browser findBrowser (CEFBrowser cefBrowser) {
+static Browser FindBrowser(CEFBrowser cefBrowser) {
 	CEFBrowserHost host = new CEFBrowserHost(cefBrowser.get_host());
 	long /*int*/ windowHandle = host.get_window_handle();
 	return (Browser)Display.getCurrent().findWidget(windowHandle);
@@ -292,18 +285,58 @@ void browserCreated(long /*int*/ handle) {
 	CEFBrowserHost host = new CEFBrowserHost(cefBrowser.get_host());
 	windowHandle = host.get_window_handle();
 
-	/* if browser content has been provided by the client then set it now */
-	if (pendingText != null) {
-		setText((String)pendingText[0], ((Boolean)pendingText[1]).booleanValue());
-	} else if (pendingUrl != null) {
-		setUrl((String)pendingUrl[0], (String)pendingUrl[1], (String[])pendingUrl[2]);
+	final Runnable setDeferredContentRunnable = new Runnable() {
+		public void run() {
+			/* if browser content has been provided by the client then set it now */
+			if (pendingText != null) {
+				setText((String)pendingText[0], ((Boolean)pendingText[1]).booleanValue());
+			} else if (pendingUrl != null) {
+				setUrl((String)pendingUrl[0], (String)pendingUrl[1], (String[])pendingUrl[2]);
+			}
+			pendingText = pendingUrl = null;
+		}
+	};
+
+	if (popupFeatures == null) {
+		setDeferredContentRunnable.run();
+		return;
 	}
-	pendingText = pendingUrl = null;
-	
-	if (features != null) {
-		parentBrowser.show(this);
-		features = null;
+
+	/* browser is logical child of another browser */
+
+	final WindowEvent newEvent = new WindowEvent(browser);
+	newEvent.display = browser.getDisplay();
+	newEvent.widget = browser;
+	newEvent.addressBar = popupFeatures.locationBarVisible == 1;
+	newEvent.menuBar = popupFeatures.menuBarVisible == 1;
+	newEvent.statusBar = popupFeatures.statusBarVisible == 1;
+	newEvent.toolBar = popupFeatures.toolBarVisible == 1;
+
+	if (popupFeatures.ySet == 1 && popupFeatures.xSet == 1) {
+		newEvent.location = new Point(popupFeatures.x, popupFeatures.y);
 	}
+
+	if (popupFeatures.widthSet == 1) {
+		if (popupFeatures.heightSet == 1) {
+			newEvent.size = new Point(popupFeatures.width, popupFeatures.height);
+		} else {
+			newEvent.size = new Point(popupFeatures.width, this.browser.getSize().y);
+		}
+	} else if (popupFeatures.heightSet == 1) {
+		newEvent.size = new Point(this.browser.getSize().y, popupFeatures.height);
+	}
+
+	popupFeatures = null;
+	browser.getDisplay().asyncExec(new Runnable() {
+		public void run() {
+			if (browser.isDisposed()) return;
+			for (int i = 0; i < visibilityWindowListeners.length; i++) {
+				visibilityWindowListeners[i].show(newEvent);
+			}
+			if (browser.isDisposed()) return;
+			setDeferredContentRunnable.run();
+		}
+	});
 }
 
 public Object evaluate (String script) throws SWTException {
@@ -431,6 +464,7 @@ void onDispose(Event e) {
 	}
 	ipcAdapters = null;
 	
+	popupFeatures = null;
 	downloads = null;
 
 	if (client != null) {
@@ -657,11 +691,11 @@ void onWindowClose() {
 	newEvent.display = browser.getDisplay();
 	newEvent.widget = browser;
 	for (int i = 0; i < closeWindowListeners.length; i++) {
-		closeWindowListeners[i].close (newEvent);
+		closeWindowListeners[i].close(newEvent);
 	}
 }
 
-int onWindowOpen(long /*int*/ str_target_url, cef_popup_features_t features) {
+boolean onWindowOpen(String targetUrl, cef_popup_features_t features) {
 	WindowEvent newEvent = new WindowEvent(browser);
 	newEvent.display = browser.getDisplay();
 	newEvent.widget = browser;
@@ -669,19 +703,17 @@ int onWindowOpen(long /*int*/ str_target_url, cef_popup_features_t features) {
 	for (int i = 0; i < openWindowListeners.length; i++) {
 		openWindowListeners[i].open(newEvent);
 	}
+
 	Browser browser = null;
 	if (newEvent.browser != null && newEvent.browser.webBrowser instanceof CEF) {
 		browser = newEvent.browser;
 	}
-	if (browser != null && !browser.isDisposed ()) {
-		String targetUrl = ExtractCEFString(str_target_url);
-		CEF webBrowser = (CEF)browser.webBrowser;
-		webBrowser.setUrl(targetUrl,null,null);
-		webBrowser.setPopupFeatures(features);
-		webBrowser.setParentBrowser(this);
-		return 1;
-	}
-	return 0;
+	if (browser == null || browser.isDisposed()) return false;
+
+	CEF webBrowser = (CEF)browser.webBrowser;
+	webBrowser.setUrl(targetUrl, null, null);
+	webBrowser.setPopupFeatures(features);
+	return true;
 }
 
 public void refresh() {
@@ -741,80 +773,8 @@ public boolean setUrl(String url, String postData, String[] headers) {
 	return true;
 }
 
-void setAddressBar(boolean addressBar) {
-	this.addressBar = addressBar;
-}
-
-void setMenuBar(boolean menuBar) {
-	this.menuBar = menuBar;
-}
-
-void setStatusBar(boolean statusBar) {
-	this.statusBar = statusBar;
-}
-
-void setToolBar(boolean toolBar) {
-	this.toolBar = toolBar;
-}
-
 void setPopupFeatures(cef_popup_features_t features) {
-	this.features = features;
-}
-
-void setParentBrowser(CEF parent) {
-	this.parentBrowser = parent;
-}
-
-void setLocation(Point location) {
-	this.location = location;
-}
-
-void setSize(Point size) {
-	this.size = size;
-}
-
-public void show(CEF child) {
-	cef_popup_features_t features = child.features;
-	final WindowEvent newEvent = new WindowEvent (child.browser);
-	newEvent.display = child.browser.getDisplay();
-	newEvent.widget = child.browser;
-	newEvent.addressBar = features.locationBarVisible == 1;
-	newEvent.menuBar = features.menuBarVisible == 1;
-	newEvent.statusBar = features.statusBarVisible == 1;
-	newEvent.toolBar = features.toolBarVisible == 1;
-	final Point location;
-	if (features.ySet == 1 && features.xSet == 1) {
-		location = new Point(features.x, features.y);
-	}
-	else {
-		location = null;
-	}
-
-	final Point size;
-	if (features.widthSet == 1) {
-		if (features.heightSet == 1) {
-			size = new Point(features.width, features.height);
-		}
-		else {
-			size = new Point(features.width, this.browser.getSize().y);
-		}
-	}
-	else if (features.heightSet == 1) {
-		size = new Point(this.browser.getSize().y, features.height);
-	}
-	else {
-		size = null;
-	}
-	newEvent.location = location;
-	newEvent.size = size;
-	final VisibilityWindowListener[] visibilityWindowListeners = this.visibilityWindowListeners;
-	browser.getDisplay().asyncExec(new Runnable() {
-		public void run() {
-			for (int i = 0; i < visibilityWindowListeners.length; i++) {
-				visibilityWindowListeners[i].show(newEvent);
-			}
-		}
-	});
+	this.popupFeatures = features;
 }
 
 public void stop() {

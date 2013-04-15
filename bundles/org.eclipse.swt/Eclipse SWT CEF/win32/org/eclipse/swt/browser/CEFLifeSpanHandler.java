@@ -11,6 +11,7 @@
 package org.eclipse.swt.browser;
 
 import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.cef3.*;
 
 public class CEFLifeSpanHandler {
@@ -65,21 +66,20 @@ long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, final lon
 	if (Device.DEBUG) System.out.println("on_before_popup (impl)");
 	final cef_popup_features_t popupFeatures = new cef_popup_features_t();
 	CEF3.memmove(popupFeatures, pPopupFeatures, cef_popup_features_t.sizeof);
-	final int result[] = new int[1];
-	result[0] = 0;
+	final String url = CEF.ExtractCEFString(target_url);
+	final boolean result[] = new boolean[1];
 	host.browser.getDisplay().syncExec(new Runnable() {
 		public void run() {
-			if (host.browser.isDisposed()) return;
-			result[0] = host.onWindowOpen(target_url, popupFeatures);
+			result[0] = host.onWindowOpen(url, popupFeatures);
 		}
 	});
-	
+
 	new CEFBase(browser).release();
 	new CEFBase(frame).release();
-	// does client need to be released too?
-	// Probably not, it is not a direct reference (it is a **cef_client_t, possibly a list of them?)
-	// The reference is held elsewhere.
-	return result[0];
+	long /*int*/[] pClient = new long /*int*/[1];
+	C.memmove(pClient, client, C.PTR_SIZEOF);
+	new CEFBase(pClient[0]).release();
+	return result[0] ? 1 : 0;
 }
 
 long /*int*/ on_after_created(long /*int*/ browser) {
@@ -97,21 +97,24 @@ long /*int*/ run_modal(long /*int*/ browser) {
 	return 0;
 }
 
-long /*int*/ do_close(long /*int*/ pBrowser) {
-	/* possibly useful */
+long /*int*/ do_close(final long /*int*/ pBrowser) {
 	if (Device.DEBUG) System.out.println("do_close");
-	CEFBrowser cefBrowser = new CEFBrowser(pBrowser);
-	final Browser browser = CEF.findBrowser(cefBrowser);
-	final CEF webBrowser = ((CEF)browser.webBrowser);
-	browser.getDisplay().asyncExec(new Runnable() {
+	host.browser.getDisplay().syncExec(new Runnable() {
 		public void run() {
-			if (browser.isDisposed()) return;
-			webBrowser.onWindowClose();
+			CEFBrowser cefBrowser = new CEFBrowser(pBrowser);
+			Browser browser = CEF.FindBrowser(cefBrowser);
+			if (browser != null) {
+				final CEF webBrowser = (CEF)browser.webBrowser;
+				browser.getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						if (webBrowser.browser.isDisposed()) return;
+						webBrowser.onWindowClose();
+					}
+				});
+			}
+			cefBrowser.release();
 		}
 	});
-	cefBrowser.release();
-	// Not sure if I need to release the host at some point.
-	// There is no rule for structs that are returned by a method.
 	return 1;
 }
 
