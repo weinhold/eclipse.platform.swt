@@ -529,6 +529,18 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1list_1value_1t_1sizeof)
 }
 #endif
 
+#ifndef NO_cef_1menu_1model_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1menu_1model_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1menu_1model_1t_1sizeof_FUNC);
+	rc = (jint)cef_menu_model_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1menu_1model_1t_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
 #ifndef NO_cef_1process_1message_1create
 JNIEXPORT jintLong JNICALL CEF3_NATIVE(cef_1process_1message_1create)
 	(JNIEnv *env, jclass that, jobject arg0)

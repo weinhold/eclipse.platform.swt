@@ -58,26 +58,25 @@ synchronized int release() {
 
 /* cef_context_menu_handler_t */
 
-long /*int*/ on_before_context_menu(long /*int*/ browser, long /*int*/ frame, long /*int*/ pParams, long /*int*/ pModel) {
+long /*int*/ on_before_context_menu(long /*int*/ browser, long /*int*/ frame, long /*int*/ params, long /*int*/ model) {
 	if (Device.DEBUG) System.out.println("on_before_context_menu (impl)");
-	CEFContextMenuParams params = new CEFContextMenuParams(pParams);
-	final int xCoord = params.getXCoord();
-	final int yCoord = params.getYCoord();
-	final int result[] = new int[1];
+	CEFContextMenuParams contextMenuParams = new CEFContextMenuParams(params);
+	final int xCoord = contextMenuParams.getXCoord();
+	final int yCoord = contextMenuParams.getYCoord();
+	final boolean result[] = new boolean[1];
 	host.browser.getDisplay().syncExec(new Runnable() {
 		public void run() {
-			if (host.browser.isDisposed()) return;
 			result[0] = host.onContextMenu(xCoord, yCoord);
 		}
 	});
-	CEFMenuModel model = new CEFMenuModel(pModel);
-	if (result[0] == 1) {
-		model.clear();
+	CEFMenuModel menuModel = new CEFMenuModel(model);
+	if (result[0]) {
+		menuModel.clear();
 	}
-	model.release();
+	menuModel.release();
+	contextMenuParams.release();
 	new CEFBase(browser).release();
 	new CEFBase(frame).release();
-	params.release();
 	return 0;
 }
 

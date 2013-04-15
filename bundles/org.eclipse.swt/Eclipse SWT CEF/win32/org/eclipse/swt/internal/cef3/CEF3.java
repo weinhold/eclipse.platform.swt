@@ -171,6 +171,7 @@ public static final native int cef_download_item_t_sizeof();
 public static final native int cef_download_item_callback_t_sizeof();
 public static final native int cef_frame_t_sizeof();
 public static final native int cef_list_value_t_sizeof();
+public static final native int cef_menu_model_t_sizeof();
 public static final native int cef_process_message_t_sizeof();
 public static final native int cef_settings_t_sizeof();
 public static final native int cef_string_t_sizeof();

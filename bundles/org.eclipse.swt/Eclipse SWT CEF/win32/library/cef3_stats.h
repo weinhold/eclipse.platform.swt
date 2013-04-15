@@ -105,6 +105,7 @@ typedef enum {
 	cef_1frame_1t_1sizeof_FUNC,
 	cef_1initialize_FUNC,
 	cef_1list_1value_1t_1sizeof_FUNC,
+	cef_1menu_1model_1t_1sizeof_FUNC,
 	cef_1process_1message_1create_FUNC,
 	cef_1process_1message_1t_1sizeof_FUNC,
 	cef_1settings_1t_1sizeof_FUNC,
