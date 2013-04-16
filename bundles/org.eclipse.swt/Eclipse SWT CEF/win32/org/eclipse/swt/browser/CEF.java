@@ -74,7 +74,7 @@ public class CEF extends WebBrowser {
 						Library.loadLibrary("swt-cef3"); // $NON-NLS-1$
 
 						/* initialize STRING_EMPTY */
-						CEFSTRING_EMPTY = CreateCEFString(""); // leaked
+						CEFSTRING_EMPTY = CreateCEFString("");
 
 						/* initialize CEF3 */
 						cef_main_args_t args = new cef_main_args_t();
@@ -136,6 +136,8 @@ public class CEF extends WebBrowser {
 		if (LibraryLoaded) {
 			Display.getCurrent().addListener(SWT.Dispose,  new Listener() {
 				public void handleEvent(Event event) {
+					CEF3.cef_string_clear(CEFSTRING_EMPTY);
+					CEFSTRING_EMPTY = null;
 					App.release();
 					App = null;
 				}
@@ -447,7 +449,7 @@ boolean onContextMenu(int xCoord, int yCoord) {
 	event.x = xCoord;
 	event.y = yCoord;
 	browser.notifyListeners(SWT.MenuDetect, event);
-	if (!event.doit) return true; /* don't show any menu */
+	if (!event.doit || browser.isDisposed()) return true; /* don't show any menu */
 
 	Menu menu = browser.getMenu();
 	if (menu == null || menu.isDisposed()) return false; /* show CEF menu */
@@ -709,14 +711,15 @@ boolean onWindowOpen(String targetUrl, cef_popup_features_t features) {
 	for (int i = 0; i < openWindowListeners.length; i++) {
 		openWindowListeners[i].open(newEvent);
 	}
+	if (browser.isDisposed()) return false;
 
-	Browser browser = null;
+	Browser childBrowser = null;
 	if (newEvent.browser != null && newEvent.browser.webBrowser instanceof CEF) {
-		browser = newEvent.browser;
+		childBrowser = newEvent.browser;
 	}
-	if (browser == null || browser.isDisposed()) return false;
+	if (childBrowser == null || childBrowser.isDisposed()) return false;
 
-	CEF webBrowser = (CEF)browser.webBrowser;
+	CEF webBrowser = (CEF)childBrowser.webBrowser;
 	webBrowser.setUrl(targetUrl, null, null);
 	webBrowser.setPopupFeatures(features);
 	return true;
