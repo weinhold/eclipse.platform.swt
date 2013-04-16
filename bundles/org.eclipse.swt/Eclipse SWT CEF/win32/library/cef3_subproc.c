@@ -95,11 +95,10 @@ int (CEF_CALLBACK on_before_navigation)(
 	if (haveNavigated) {
 		/* create message to send to browser process */
 		memset(&string, 0, sizeof(cef_string_t));
-		cef_string_set(MSG_on_before_navigation, wcslen(MSG_on_before_navigation), &string, 1);
+		cef_string_set(MSG_on_before_navigation, wcslen(MSG_on_before_navigation), &string, 0);
 		message = cef_process_message_create(&string);
 		argsList = message->get_argument_list(message);
-		cef_string_clear(&string);
-		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
+		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 0);
 		argsList->set_string(argsList, 0, &string);
 		url = request->get_url(request);
 		argsList->set_string(argsList, 1, url);
@@ -133,11 +132,10 @@ void (CEF_CALLBACK on_browser_created)(struct _cef_render_process_handler_t* sel
 
 		/* send message to browser process */
 		memset(&string, 0, sizeof(cef_string_t));
-		cef_string_set(MSG_init_ipc, wcslen(MSG_init_ipc), &string, 1);
+		cef_string_set(MSG_init_ipc, wcslen(MSG_init_ipc), &string, 0);
 		message = cef_process_message_create(&string);
 		argsList = message->get_argument_list(message);
-		cef_string_clear(&string);
-		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
+		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 0);
 		argsList->set_string(argsList, 0, &string);
 		argsList->set_string(argsList, 1, &string);
 		if (!sendMessage(browser, message, 0, NULL)) {
@@ -162,11 +160,10 @@ void (CEF_CALLBACK on_browser_destroyed)(struct _cef_render_process_handler_t* s
 	if (hSharedFile) {
 		/* send message to browser process */
 		memset(&string, 0, sizeof(cef_string_t));
-		cef_string_set(MSG_dispose_ipc, wcslen(MSG_dispose_ipc), &string, 1);
+		cef_string_set(MSG_dispose_ipc, wcslen(MSG_dispose_ipc), &string, 0);
 		message = cef_process_message_create(&string);
 		argsList = message->get_argument_list(message);
-		cef_string_clear(&string);
-		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 1);
+		cef_string_set(ipcFileName, wcslen(ipcFileName), &string, 0);
 		argsList->set_string(argsList, 0, &string);
 
 		sendMessage(browser, message, 0, NULL);
@@ -219,7 +216,7 @@ void performEvaluate(struct _cef_browser_t* browser, struct _cef_process_message
 
 	/* failure response */
 	memset(&nullString, 0, sizeof(cef_string_t));
-	cef_string_set(STRING_NULL, wcslen(STRING_NULL), &nullString, 1);
+	cef_string_set(STRING_NULL, wcslen(STRING_NULL), &nullString, 0);
 	sendResponse(nullString);
 }
 

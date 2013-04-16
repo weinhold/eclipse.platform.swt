@@ -593,6 +593,20 @@ JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1settings_1t_1sizeof)
 }
 #endif
 
+#ifndef NO_cef_1string_1clear
+JNIEXPORT void JNICALL CEF3_NATIVE(cef_1string_1clear)
+	(JNIEnv *env, jclass that, jobject arg0)
+{
+	cef_string_t _arg0, *lparg0=NULL;
+	CEF3_NATIVE_ENTER(env, that, cef_1string_1clear_FUNC);
+	if (arg0) if ((lparg0 = getcef_string_tFields(env, arg0, &_arg0)) == NULL) goto fail;
+	cef_string_clear((cef_string_t*)lparg0);
+fail:
+	if (arg0 && lparg0) setcef_string_tFields(env, arg0, lparg0);
+	CEF3_NATIVE_EXIT(env, that, cef_1string_1clear_FUNC);
+}
+#endif
+
 #ifndef NO_cef_1string_1set
 JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1string_1set)
 	(JNIEnv *env, jclass that, jcharArray arg0, jintLong arg1, jobject arg2, jint arg3)

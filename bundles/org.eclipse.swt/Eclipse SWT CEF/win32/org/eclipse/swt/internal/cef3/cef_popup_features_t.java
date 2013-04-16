@@ -31,7 +31,7 @@ public class cef_popup_features_t {
 	  public int fullscreen;
 	  public int dialog;
 	  /** @field cast=(cef_string_list_t) */
-	  public int /*long*/ additionalFeatures;
+	  public long /*int*/ additionalFeatures;
 
 	  public static final int sizeof = CEF3.cef_popup_features_t_sizeof();
 

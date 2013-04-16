@@ -100,6 +100,7 @@ char * CEF3_nativeFunctionNames[] = {
 	"cef_1process_1message_1create",
 	"cef_1process_1message_1t_1sizeof",
 	"cef_1settings_1t_1sizeof",
+	"cef_1string_1clear",
 	"cef_1string_1set",
 	"cef_1string_1t_1sizeof",
 	"cef_1string_1userfree_1free",

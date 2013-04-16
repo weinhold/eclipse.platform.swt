@@ -74,7 +74,7 @@ public class CEF extends WebBrowser {
 						Library.loadLibrary("swt-cef3"); // $NON-NLS-1$
 
 						/* initialize STRING_EMPTY */
-						CEFSTRING_EMPTY = CreateCEFString("");
+						CEFSTRING_EMPTY = CreateCEFString(""); // leaked
 
 						/* initialize CEF3 */
 						cef_main_args_t args = new cef_main_args_t();
@@ -118,6 +118,7 @@ public class CEF extends WebBrowser {
 								settings.browser_subprocess_path = CreateCEFString(file.getAbsolutePath());
 								App.add_ref();
 								int rc = CEF3.cef_initialize(args, settings, App.getAddress());
+								CEF3.cef_string_clear(settings.browser_subprocess_path);
 								if (rc != 0) {
 									LibraryLoaded = true;
 								} else {
@@ -226,6 +227,7 @@ public void create(Composite parent, int style) {
 	client = new CEFClient(this);
 	client.add_ref();
 	int rc = CEF3.cef_browser_host_create_browser(windowInfo, client.getAddress(), strUrl, browserSettings);
+	CEF3.cef_string_clear(strUrl);
 	if (rc == 0) {
 		return;
 	}
@@ -361,11 +363,13 @@ String eval(String script) {
 
 	cef_string_t strName = CreateCEFString(MSG_evaluate);
 	long /*int*/ pMessage = CEF3.cef_process_message_create(strName);
+	CEF3.cef_string_clear(strName);
 	CEFProcessMessage message = new CEFProcessMessage(pMessage);
 	long /*int*/ pArgs = message.get_argument_list();
 	CEFListValue args = new CEFListValue(pArgs);
 	cef_string_t strScript = CreateCEFString(script);
 	args.set_string(0, strScript);
+	CEF3.cef_string_clear(strScript);
 
 	// TODO always takes the first adapter, which can obviously be wrong
 	CEFIPCSharedFile adapter = (CEFIPCSharedFile)ipcAdapters.elements().nextElement();
@@ -557,6 +561,8 @@ void onLocationChanged(String location, boolean top) {
 			cef_string_t strHtml = CreateCEFString(htmlText);
 			cef_string_t strUrl = CreateCEFString(ABOUT_BLANK);
 			frame.load_string(strHtml, strUrl);
+			CEF3.cef_string_clear(strUrl);
+			CEF3.cef_string_clear(strHtml);
 			htmlText = null;
 		}
 	}
@@ -748,6 +754,7 @@ public boolean setText(String html, boolean trusted) {
 	CEFFrame frame = new CEFFrame(pFrame);
 	cef_string_t strUrl = CreateCEFString(ABOUT_BLANK);
 	frame.load_url(strUrl);
+	CEF3.cef_string_clear(strUrl);
 	return true;
 }
 
@@ -770,6 +777,7 @@ public boolean setUrl(String url, String postData, String[] headers) {
 	CEFFrame frame = new CEFFrame(pFrame);
 	cef_string_t strUrl = CreateCEFString(url);
 	frame.load_url(strUrl);
+	CEF3.cef_string_clear(strUrl);
 	return true;
 }
 

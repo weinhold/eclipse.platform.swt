@@ -110,6 +110,7 @@ typedef enum {
 	cef_1process_1message_1create_FUNC,
 	cef_1process_1message_1t_1sizeof_FUNC,
 	cef_1settings_1t_1sizeof_FUNC,
+	cef_1string_1clear_FUNC,
 	cef_1string_1set_FUNC,
 	cef_1string_1t_1sizeof_FUNC,
 	cef_1string_1userfree_1free_FUNC,

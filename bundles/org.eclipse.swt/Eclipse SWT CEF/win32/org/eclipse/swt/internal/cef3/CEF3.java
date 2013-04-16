@@ -34,6 +34,9 @@ public static final native int cef_initialize(cef_main_args_t args, cef_settings
 /** @param name cast=(cef_string_t*) */
 public static final native long /*int*/ cef_process_message_create(cef_string_t name);
 
+/** @param str cast=(cef_string_t*) */
+public static final native void cef_string_clear(cef_string_t str);
+
 /**
  * @param src cast=(void*)
  * @param output cast=(cef_string_t*)
