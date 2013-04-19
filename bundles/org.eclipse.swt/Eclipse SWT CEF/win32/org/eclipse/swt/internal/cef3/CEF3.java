@@ -136,6 +136,12 @@ public static final native void memmove(cef_process_message_t dest, long /*int*/
  */
 public static final native void memmove(cef_string_t dest, long /*int*/ src, long /*int*/ size);
 
+/**
+ * @param dest cast=(void *),flags=no_in critical
+ * @param src cast=(const void *)
+ * @param size cast=(size_t)
+ */
+public static final native void memmove(long /*int*/ dest, cef_window_info_t src, long /*int*/ size);
 
 /* function ptr invocations */
 
@@ -186,5 +192,6 @@ public static final native int cef_popup_features_t_sizeof();
 public static final native int cef_process_message_t_sizeof();
 public static final native int cef_settings_t_sizeof();
 public static final native int cef_string_t_sizeof();
+public static final native int cef_window_info_t_sizeof();
 
 }

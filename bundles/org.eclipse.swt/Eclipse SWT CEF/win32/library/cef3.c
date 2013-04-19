@@ -648,6 +648,43 @@ JNIEXPORT void JNICALL CEF3_NATIVE(cef_1string_1userfree_1free)
 }
 #endif
 
+#ifndef NO_cef_1window_1info_1t_1sizeof
+JNIEXPORT jint JNICALL CEF3_NATIVE(cef_1window_1info_1t_1sizeof)
+	(JNIEnv *env, jclass that)
+{
+	jint rc = 0;
+	CEF3_NATIVE_ENTER(env, that, cef_1window_1info_1t_1sizeof_FUNC);
+	rc = (jint)cef_window_info_t_sizeof();
+	CEF3_NATIVE_EXIT(env, that, cef_1window_1info_1t_1sizeof_FUNC);
+	return rc;
+}
+#endif
+
+#if (!defined(NO_memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I) && !defined(JNI64)) || (!defined(NO_memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J) && defined(JNI64))
+#ifndef JNI64
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jintLong arg2)
+#else
+JNIEXPORT void JNICALL CEF3_NATIVE(memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J)(JNIEnv *env, jclass that, jintLong arg0, jobject arg1, jintLong arg2)
+#endif
+{
+	cef_window_info_t _arg1, *lparg1=NULL;
+#ifndef JNI64
+	CEF3_NATIVE_ENTER(env, that, memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I_FUNC);
+#else
+	CEF3_NATIVE_ENTER(env, that, memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J_FUNC);
+#endif
+	if (arg1) if ((lparg1 = getcef_window_info_tFields(env, arg1, &_arg1)) == NULL) goto fail;
+	memmove((void *)arg0, (const void *)lparg1, (size_t)arg2);
+fail:
+	if (arg1 && lparg1) setcef_window_info_tFields(env, arg1, lparg1);
+#ifndef JNI64
+	CEF3_NATIVE_EXIT(env, that, memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I_FUNC);
+#else
+	CEF3_NATIVE_EXIT(env, that, memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J_FUNC);
+#endif
+}
+#endif
+
 #if (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II) && !defined(JNI64)) || (!defined(NO_memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2JJ) && defined(JNI64))
 #ifndef JNI64
 JNIEXPORT void JNICALL CEF3_NATIVE(memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II)(JNIEnv *env, jclass that, jobject arg0, jintLong arg1, jintLong arg2)

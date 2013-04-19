@@ -104,6 +104,12 @@ char * CEF3_nativeFunctionNames[] = {
 	"cef_1string_1set",
 	"cef_1string_1t_1sizeof",
 	"cef_1string_1userfree_1free",
+	"cef_1window_1info_1t_1sizeof",
+#ifndef JNI64
+	"memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I",
+#else
+	"memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J",
+#endif
 #ifndef JNI64
 	"memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II",
 #else

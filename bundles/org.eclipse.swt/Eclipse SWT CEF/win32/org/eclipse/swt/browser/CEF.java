@@ -201,7 +201,8 @@ static String ExtractCEFString(long /*int*/ pString) {
 static Browser FindBrowser(CEFBrowser cefBrowser) {
 	CEFBrowserHost host = new CEFBrowserHost(cefBrowser.get_host());
 	long /*int*/ windowHandle = host.get_window_handle();
-	return (Browser)Display.getCurrent().findWidget(windowHandle);
+	long /*int*/ parent = OS.GetParent(windowHandle);
+	return (Browser)Display.getCurrent().findWidget(parent);
 }
 
 static boolean IsInstalled() {
@@ -671,7 +672,7 @@ void onMessageReceived(long /*int*/ pMessage) {
 
 void onResize() {
 	Rectangle bounds = browser.getClientArea();
-	OS.SetWindowPos(windowHandle, 0, bounds.x, bounds.y, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
+	OS.SetWindowPos(windowHandle, 0, 0, 0, bounds.width, bounds.height, OS.SWP_NOZORDER | OS.SWP_DRAWFRAME | OS.SWP_NOACTIVATE | OS.SWP_ASYNCWINDOWPOS);
 }
 
 void onStatusMessage(String status) {
@@ -703,7 +704,7 @@ void onWindowClose() {
 	}
 }
 
-boolean onWindowOpen(String targetUrl, cef_popup_features_t features) {
+CEF onWindowOpen(String targetUrl, cef_popup_features_t features) {
 	WindowEvent newEvent = new WindowEvent(browser);
 	newEvent.display = browser.getDisplay();
 	newEvent.widget = browser;
@@ -711,18 +712,18 @@ boolean onWindowOpen(String targetUrl, cef_popup_features_t features) {
 	for (int i = 0; i < openWindowListeners.length; i++) {
 		openWindowListeners[i].open(newEvent);
 	}
-	if (browser.isDisposed()) return false;
+	if (browser.isDisposed()) return null;
 
 	Browser childBrowser = null;
 	if (newEvent.browser != null && newEvent.browser.webBrowser instanceof CEF) {
 		childBrowser = newEvent.browser;
 	}
-	if (childBrowser == null || childBrowser.isDisposed()) return false;
+	if (childBrowser == null || childBrowser.isDisposed()) return null;
 
 	CEF webBrowser = (CEF)childBrowser.webBrowser;
 	webBrowser.setUrl(targetUrl, null, null);
 	webBrowser.setPopupFeatures(features);
-	return true;
+	return webBrowser;
 }
 
 public void refresh() {

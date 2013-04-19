@@ -27,4 +27,6 @@ public class cef_window_info_t {
 	public int transparent_painting;
 	/** @field cast=(cef_window_handle_t) */
 	public long /*int*/ window;		// HWND on win32
+
+	public static final int sizeof = CEF3.cef_window_info_t_sizeof ();
 }

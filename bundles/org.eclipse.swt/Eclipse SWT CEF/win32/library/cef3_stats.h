@@ -114,6 +114,12 @@ typedef enum {
 	cef_1string_1set_FUNC,
 	cef_1string_1t_1sizeof_FUNC,
 	cef_1string_1userfree_1free_FUNC,
+	cef_1window_1info_1t_1sizeof_FUNC,
+#ifndef JNI64
+	memmove__ILorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2I_FUNC,
+#else
+	memmove__JLorg_eclipse_swt_internal_cef3_cef_1window_1info_1t_2J_FUNC,
+#endif
 #ifndef JNI64
 	memmove__Lorg_eclipse_swt_internal_cef3_cef_1base_1t_2II_FUNC,
 #else

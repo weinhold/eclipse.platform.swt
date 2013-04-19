@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.swt.browser;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.cef3.*;
+import org.eclipse.swt.internal.win32.OS;
 
 public class CEFLifeSpanHandler {
 	CEF3Object object;
@@ -62,24 +64,39 @@ synchronized int release() {
 
 /* cef_life_span_handler_t */
 
-long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, final long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ pPopupFeatures, long /*int*/ windowInfo, long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
+long /*int*/ on_before_popup(long /*int*/ browser, long /*int*/ frame, final long /*int*/ target_url, long /*int*/ target_frame_name, long /*int*/ pPopupFeatures, final long /*int*/ windowInfo, final long /*int*/ client, long /*int*/ settings, long /*int*/ no_javascript_access) {
 	if (Device.DEBUG) System.out.println("on_before_popup (impl)");
 	final cef_popup_features_t popupFeatures = new cef_popup_features_t();
 	CEF3.memmove(popupFeatures, pPopupFeatures, cef_popup_features_t.sizeof);
 	final String url = CEF.ExtractCEFString(target_url);
-	final boolean result[] = new boolean[1];
 	host.browser.getDisplay().syncExec(new Runnable() {
 		public void run() {
-			result[0] = host.onWindowOpen(url, popupFeatures);
+			long /*int*/[] pClient = new long /*int*/[1];
+			C.memmove(pClient, client, C.PTR_SIZEOF);
+			new CEFBase(pClient[0]).release();
+
+			CEF child = host.onWindowOpen(url, popupFeatures);
+			if (child != null) {
+				Browser childBrowser = child.browser;
+				cef_window_info_t newWindowInfo = new cef_window_info_t();
+				int extStyle = OS.WS_EX_NOINHERITLAYOUT;
+				if ((childBrowser.getStyle() & SWT.BORDER) != 0) extStyle |= OS.WS_EX_CLIENTEDGE;
+				if ((childBrowser.getStyle() & SWT.RIGHT_TO_LEFT) != 0) extStyle |= OS.WS_EX_LAYOUTRTL;
+				newWindowInfo.ex_style = extStyle; 
+				newWindowInfo.style = OS.WS_CHILD | OS.WS_VISIBLE | OS.WS_CLIPSIBLINGS;
+				newWindowInfo.x = newWindowInfo.width = OS.CW_USEDEFAULT;
+				newWindowInfo.ex_style = 0; 
+				newWindowInfo.window_name = CEF.CEFSTRING_EMPTY;
+				newWindowInfo.parent_window = childBrowser.handle;
+				CEF3.memmove(windowInfo, newWindowInfo, cef_window_info_t.sizeof);
+				CEF3.memmove(pClient[0], child.client.getAddress(), C.PTR_SIZEOF);
+			}
 		}
 	});
 
 	new CEFBase(browser).release();
 	new CEFBase(frame).release();
-	long /*int*/[] pClient = new long /*int*/[1];
-	C.memmove(pClient, client, C.PTR_SIZEOF);
-	new CEFBase(pClient[0]).release();
-	return result[0] ? 1 : 0;
+	return 0;
 }
 
 long /*int*/ on_after_created(long /*int*/ browser) {
