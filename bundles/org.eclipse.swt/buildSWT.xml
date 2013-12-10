@@ -42,6 +42,10 @@
 	<property name="src_motif" value="${src_common} 'bundles/org.eclipse.swt/Eclipse SWT PI/motif/library' 'bundles/org.eclipse.swt/Eclipse SWT PI/motif_gtk/library'  'bundles/org.eclipse.swt/Eclipse SWT AWT/motif/library' 'bundles/org.eclipse.swt/Eclipse SWT OpenGL/glx/library' 'bundles/org.eclipse.swt/Eclipse SWT PI/cairo/library' 'bundles/org.eclipse.swt/Eclipse SWT Program/gnome/library' 'bundles/org.eclipse.swt/Eclipse SWT Program/cde/library'"/>
 	<property name="src_wpf" value="${src_common} 'bundles/org.eclipse.swt/Eclipse SWT PI/wpf/library' 'bundles/org.eclipse.swt/Eclipse SWT PI/wpf_win32/library'"/>
 	<property name="src_photon" value="${src_common} 'bundles/org.eclipse.swt/Eclipse SWT PI/photon/library'"/>
+<!--
+	<property name="src_haiku" value="${src_common} 'bundles/org.eclipse.swt/Eclipse SWT PI/haiku/library' 'bundles/org.eclipse.swt/Eclipse SWT AWT/haiku/library' 'bundles/org.eclipse.swt/Eclipse SWT OpenGL/haiku/library' 'bundles/org.eclipse.swt/Eclipse SWT Program/haiku/library' 'bundles/org.eclipse.swt/Eclipse SWT WebKit/haiku/library' "/>
+ -->
+	<property name="src_haiku" value="${src_common} 'bundles/org.eclipse.swt/Eclipse SWT PI/haiku/library' "/>
 	
 	<property name="file_library_j2se" value="bundles/org.eclipse.swt/Eclipse SWT PI/common_j2se/org/eclipse/swt/internal/Library.java"/>
 	<property name="file_library_j2me" value="bundles/org.eclipse.swt/Eclipse SWT PI/common_j2me/org/eclipse/swt/internal/Library.java"/>
@@ -117,6 +121,10 @@
 			<param name="library_count" value="8"/>
 			<param name="fragment" value="org.eclipse.swt.gtk.solaris.x86"/>
 		</antcall>
+		<antcall target="check_fragment_libraries">
+			<param name="library_count" value="2"/>
+			<param name="fragment" value="org.eclipse.swt.haiku.haiku.x86"/>
+		</antcall>
 		<!-- Motif is not being built
 		antcall target="check_fragment_libraries">
 			<param name="library_count" value="9"/>
@@ -175,6 +183,7 @@
 			<exclude name="**/.git/**"/>
 			<exclude name="**/org.eclipse.swt.carbon.macosx/**"/>
 			<exclude name="**/org.eclipse.swt.gtk.linux.ia64/**"/>
+			<exclude name="**/org.eclipse.swt.haiku.haiku.x86/**"/>
 			<exclude name="**/org.eclipse.swt.motif.aix.ppc/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.ia64_32/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.PA_RISC/**"/>
@@ -189,6 +198,7 @@
 			<exclude name="**/.git/**"/>
 			<exclude name="**/org.eclipse.swt.carbon.macosx/**"/>
 			<exclude name="**/org.eclipse.swt.gtk.linux.ia64/**"/>
+			<exclude name="**/org.eclipse.swt.haiku.haiku.x86/**"/>
 			<exclude name="**/org.eclipse.swt.motif.aix.ppc/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.ia64_32/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.PA_RISC/**"/>
@@ -478,6 +488,9 @@
 			<param name="cp" value=".classpath_gtk"/>
 		</antcall>
 		<antcall target="build_classes">
+			<param name="cp" value=".classpath_haiku"/>
+		</antcall>
+		<antcall target="build_classes">
 			<param name="cp" value=".classpath_win32"/>
 		</antcall>
 		<!-- Not building motif
@@ -696,6 +709,7 @@
 			<arg line="${src_win32}"/>
 			<arg line="${src_gtk}"/>
 			<arg line="${src_cocoa}"/>
+			<arg line="${src_haiku}"/>
 		</exec>
 		<condition property="natives_changed">
 			<length string="${diffs}" trim="true" when="greater" length="0"/>
@@ -791,6 +805,7 @@
 			<exclude name="**/.git/**"/>
 			<exclude name="**/org.eclipse.swt.carbon.macosx/**"/>
 			<exclude name="**/org.eclipse.swt.gtk.linux.ia64/**"/>
+			<exclude name="**/org.eclipse.swt.haiku.haiku.x86/**"/>
 			<exclude name="**/org.eclipse.swt.motif.aix.ppc/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.ia64_32/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.PA_RISC/**"/>
@@ -816,6 +831,7 @@
 			<exclude name="**/tmpdir/**"/>
 			<exclude name="**/org.eclipse.swt.carbon.macosx/**"/>
 			<exclude name="**/org.eclipse.swt.gtk.linux.ia64/**"/>
+			<exclude name="**/org.eclipse.swt.haiku.haiku.x86/**"/>
 			<exclude name="**/org.eclipse.swt.motif.aix.ppc/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.ia64_32/**"/>
 			<exclude name="**/org.eclipse.swt.motif.hpux.PA_RISC/**"/>
