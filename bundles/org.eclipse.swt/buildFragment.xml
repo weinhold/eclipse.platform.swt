@@ -279,8 +279,8 @@
 			<fileset dir="${plugindir}/Eclipse SWT PI/haiku/"/>
 <!--			<fileset dir="${plugindir}/Eclipse SWT Printing/common/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT Printing/haiku/"/> -->
-<!--			<fileset dir="${plugindir}/Eclipse SWT Program/common/"/> -->
-<!--			<fileset dir="${plugindir}/Eclipse SWT Program/haiku/"/> -->
+			<fileset dir="${plugindir}/Eclipse SWT Program/common/"/>
+			<fileset dir="${plugindir}/Eclipse SWT Program/haiku/"/>
 <!--			<fileset dir="${plugindir}/Eclipse SWT Theme/haiku/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT WebKit/haiku/"/> -->
 			<fileset dir="${plugindir}/components/" excludes="**/*.idl" />
