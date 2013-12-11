@@ -262,8 +262,8 @@
 			<fileset dir="${plugindir}/Eclipse SWT/haiku/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Accessibility/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Accessibility/haiku/"/>
-<!--			<fileset dir="${plugindir}/Eclipse SWT AWT/common/"/> -->
-<!--			<fileset dir="${plugindir}/Eclipse SWT AWT/haiku/"/> -->
+			<fileset dir="${plugindir}/Eclipse SWT AWT/common/"/>
+			<fileset dir="${plugindir}/Eclipse SWT AWT/haiku/"/>
 <!--			<fileset dir="${plugindir}/Eclipse SWT Browser/common/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT Browser/haiku/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT Mozilla/common/"/> -->
