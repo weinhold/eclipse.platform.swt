@@ -268,7 +268,7 @@
 <!--			<fileset dir="${plugindir}/Eclipse SWT Browser/haiku/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT Mozilla/common/"/> -->
 <!--			<fileset dir="${plugindir}/Eclipse SWT Mozilla/haiku/"/> -->
-<!--			<fileset dir="${plugindir}/Eclipse SWT Custom Widgets/common/"/> -->
+			<fileset dir="${plugindir}/Eclipse SWT Custom Widgets/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Drag and Drop/common/"/>
 			<fileset dir="${plugindir}/Eclipse SWT Drag and Drop/haiku/"/>
 <!--			<fileset dir="${plugindir}/Eclipse SWT OpenGL/haiku/"/> -->
