@@ -119,6 +119,8 @@ import org.eclipse.swt.events.*;
  */
 public class Shell extends Decorations {
 
+	private long windowHandle;
+
 /**
  * Constructs a new instance of this class. This is equivalent
  * to calling <code>Shell((Display) null)</code>.
@@ -131,6 +133,7 @@ public class Shell extends Decorations {
 public Shell () {
 	this ((Display) null);
 }
+
 /**
  * Constructs a new instance of this class given only the style
  * value describing its behavior and appearance. This is equivalent
@@ -242,8 +245,20 @@ public Shell (Display display) {
  * @see SWT#SHEET
  */
 public Shell (Display display, int style) {
+	super ();
+	checkSubclass ();
+	if (display == null) display = Display.getCurrent ();
+	if (display == null) display = Display.getDefault ();
+	if (!display.isValidThread ()) {
+		error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	}
+	this.display = display;
+
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.missingFeature("style check");
+
+	reskinWidget();
+	createWidget(0);
 }
 
 /**
@@ -413,8 +428,27 @@ public void addShellListener (ShellListener listener) {
  * @see #dispose
  */
 public void close () {
+	checkWidget ();
+	closeWidget ();
+}
+
+void closeWidget () {
+	Event event = new Event ();
+	sendEvent (SWT.Close, event);
+	if (event.doit && !isDisposed ()) dispose ();
+}
+
+void createHandle (int index) {
+	state |= HANDLE | CANVAS;
+	if (windowHandle == 0) {
+		windowHandle = HaikuWindow.create(display.getDisplayHandle());
+		if (windowHandle == 0) error(SWT.ERROR_NO_HANDLES);
+	}
+
+	createHandle (index, false, true);
+
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.partiallyImplemented();
 }
 
 /**
@@ -577,6 +611,12 @@ public Shell [] getShells () {
 	return null;
 }
 
+void hookEvents () {
+	super.hookEvents ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Moves the receiver to the top of the drawing order for
  * the display on which it was created (so that all other
@@ -599,6 +639,41 @@ public Shell [] getShells () {
  * @see Shell#forceActive
  */
 public void open () {
+	checkWidget ();
+
+	// TODO: Implement!
+	HaikuUtils.missingFeature("bring to front");
+
+	setVisible (true);
+	if (isDisposed ()) return;
+
+	// TODO: Implement!
+	HaikuUtils.missingFeature("activate");
+}
+
+void register () {
+	super.register ();
+	display.addWidget (windowHandle, this);
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	HaikuWindow.delete(windowHandle);
+	windowHandle = 0;
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseParent () {
+	/* Do nothing */
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -807,6 +882,28 @@ public void setRegion (Region region) {
 	HaikuUtils.notImplemented();
 }
 
+public void setVisible (boolean visible) {
+	checkWidget();
+	HaikuWindow.setVisible(windowHandle, visible);
+}
+
+void deregister () {
+	super.deregister ();
+	display.removeWidget (windowHandle);
+}
+
+public void dispose () {
+	/*
+	* Note:  It is valid to attempt to dispose a widget
+	* more than once.  If this happens, fail silently.
+	*/
+	if (isDisposed()) return;
+	HaikuWindow.setVisible(windowHandle, false);
+	super.dispose ();
+	// TODO: Missing: Call to fixActiveShell().
+	HaikuUtils.partiallyImplemented();
+}
+
 /**
  * If the receiver is visible, moves it to the top of the 
  * drawing order for the display on which it was created 
@@ -831,6 +928,12 @@ public void setRegion (Region region) {
 public void forceActive () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+boolean windowQuitRequested() {
+	if (isDisposed()) return false;
+	close();
+	return false;
 }
 
 }

@@ -18,6 +18,18 @@ public class HaikuUtils {
 	public static void notImplemented() {
 		StackTraceElement[] stackTrace = (new Throwable()).getStackTrace();
 		String caller = stackTrace.length >= 2 ? stackTrace[1].toString() : "???";
-		System.err.println("XXX Haiku: implementation needed: " + caller);
+		System.err.println("XXX Haiku: missing implementation: " + caller);
+	}
+
+	public static void partiallyImplemented() {
+		StackTraceElement[] stackTrace = (new Throwable()).getStackTrace();
+		String caller = stackTrace.length >= 2 ? stackTrace[1].toString() : "???";
+		System.err.println("XXX Haiku: partial implementation: " + caller);
+	}
+
+	public static void missingFeature(String featureName) {
+		StackTraceElement[] stackTrace = (new Throwable()).getStackTrace();
+		String caller = stackTrace.length >= 2 ? stackTrace[1].toString() : "???";
+		System.err.println("XXX Haiku: missing feature \"" + featureName + "\": " + caller);
 	}
 }

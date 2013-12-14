@@ -105,6 +105,18 @@ public Rectangle computeTrim (int x, int y, int width, int height) {
 	return null;
 }
 
+void createWidget (int index) {
+	super.createWidget (index);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void deregister () {
+	super.deregister ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Returns a rectangle which describes the area of the
  * receiver which is capable of displaying data (that is,
@@ -184,6 +196,30 @@ public ScrollBar getVerticalBar () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+void register () {
+	super.register ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
+	super.setOrientation (create);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 }

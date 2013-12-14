@@ -143,6 +143,12 @@ public Decorations (Composite parent, int style) {
 	HaikuUtils.notImplemented();
 }
 
+void createWidget (int index) {
+	super.createWidget (index);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Returns the receiver's default button if one had
  * previously been set, otherwise returns null.
@@ -298,6 +304,24 @@ public String getText () {
 	return null;
 }
 
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * If the argument is not null, sets the receiver's default
  * button to the argument, and if the argument is null, sets
@@ -451,6 +475,12 @@ public void setMenuBar (Menu menu) {
  * @see #setMaximized
  */
 public void setMinimized (boolean minimized) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
+    super.setOrientation (create);
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }

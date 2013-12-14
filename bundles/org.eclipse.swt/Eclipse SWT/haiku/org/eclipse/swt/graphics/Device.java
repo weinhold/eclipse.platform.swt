@@ -25,17 +25,54 @@ import org.eclipse.swt.internal.haiku.*;
  */
 public abstract class Device implements Drawable {
 
+	/**
+	 * the handle to the platform Display
+	 * (Warning: This field is platform dependent)
+	 * <p>
+	 * <b>IMPORTANT:</b> This field is <em>not</em> part of the SWT
+	 * public API. It is marked protected only so that it can be shared
+	 * within the packages provided by SWT. It is not available on all
+	 * platforms and should never be accessed from application code.
+	 * </p>
+	 * 
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	protected long deviceHandle;
+
 	/* Debugging */
 	public static boolean DEBUG;
+	boolean debug = DEBUG;
 	boolean tracking = DEBUG;
+
+	/* Disposed flag */
+	boolean disposed;
+
+	/*
+	* TEMPORARY CODE. When a graphics object is
+	* created and the device parameter is null,
+	* the current Display is used. This presents
+	* a problem because SWT graphics does not
+	* reference classes in SWT widgets. The correct
+	* fix is to remove this feature. Unfortunately,
+	* too many application programs rely on this
+	* feature.
+	*/
+	protected static Device CurrentDevice;
+	protected static Runnable DeviceFinder;
+	static {
+		try {
+			Class.forName ("org.eclipse.swt.widgets.Display");
+		} catch (ClassNotFoundException e) {}
+	}	
 
 /*
 * TEMPORARY CODE.
 */
 static synchronized Device getDevice () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	if (DeviceFinder != null) DeviceFinder.run();
+	Device device = CurrentDevice;
+	CurrentDevice = null;
+	return device;
 }
 
 /**
@@ -66,8 +103,18 @@ public Device() {
  * @see DeviceData
  */
 public Device(DeviceData data) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	synchronized (Device.class) {
+		if (data != null) {
+			debug = data.debug;
+			tracking = data.tracking;
+		}
+		if (tracking) {
+			// TODO: Implement!
+			HaikuUtils.missingFeature("tracking");
+		}
+		create (data);
+		init ();
+	}
 }
 
 /**
@@ -110,8 +157,6 @@ protected void checkDevice () {
  * @see #init
  */
 protected void create (DeviceData data) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
 }
 
 /**
@@ -125,8 +170,18 @@ protected void create (DeviceData data) {
  * @see #checkDevice
  */
 public void dispose () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	synchronized (Device.class) {
+		if (isDisposed()) return;
+		checkDevice ();
+		release ();
+		destroy ();
+		deviceHandle = 0;
+		disposed = true;
+		if (tracking) {
+			// TODO: Implement!
+			HaikuUtils.missingFeature("tracking");
+		}
+	}
 }
 
 void dispose_Object (Object object) {
@@ -149,8 +204,6 @@ void dispose_Object (Object object) {
  * @see #release
  */
 protected void destroy () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
 }
 
 /**
@@ -388,9 +441,9 @@ public abstract void internal_dispose_GC (long /*int*/ hDC, GCData data);
  * @return <code>true</code> when the device is disposed and <code>false</code> otherwise
  */
 public boolean isDisposed () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	synchronized (Device.class) {
+		return disposed;
+	}
 }
 
 /**

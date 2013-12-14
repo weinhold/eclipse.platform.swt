@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2013 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -10,12 +10,29 @@
  * this distribution shall govern.
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Ingo Weinhold
  *******************************************************************************/
-  
-#ifndef INC_os_H
-#define INC_os_H
 
-#include "os_custom.h"
+#ifndef INC_HAIKU_APPLICATION_H
+#define INC_HAIKU_APPLICATION_H
 
-#endif /* INC_os_H */
+
+#include <app/Application.h>
+
+
+namespace swt {
+namespace haiku {
+
+
+class HaikuApplication : public BApplication {
+public:
+								HaikuApplication();
+								~HaikuApplication();
+};
+
+
+}	// namespace haiku
+}	// namespace swt
+
+
+#endif /* INC_HAIKU_APPLICATION_H */

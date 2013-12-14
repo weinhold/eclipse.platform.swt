@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2013 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -10,10 +10,44 @@
  * this distribution shall govern.
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Ingo Weinhold
  *******************************************************************************/
 
+
+#include "HaikuMessage.h"
+
 #include "swt.h"
-//#include "os_structs.h"
-//#include "os_stats.h"
+
+#include "HaikuDisplay.h"
+
+
+using namespace swt::haiku;
+
+
+namespace swt {
+namespace haiku {
+
+
+HaikuMessage::HaikuMessage(BMessage* message, HaikuWindow* window,
+	BHandler* handler)
+	:
+	fMessage(message),
+	fWindow(window),
+	fHandler(handler)
+{
+}
+
+
+HaikuMessage::~HaikuMessage()
+{
+	delete fMessage;
+}
+
+
+}	// namespace haiku
+}	// namespace swt
+
+
+// #pragma mark - native methods
+
 

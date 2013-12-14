@@ -56,10 +56,36 @@ public abstract class Widget {
 	 * 
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	public long /*int*/ handle;
-	int style;
+	public long handle;
+	int style, state;
 	Display display;
 	EventTable eventTable;
+	Object data;
+
+	/* Global state flags */
+	static final int DISPOSED = 1<<0;
+	static final int CANVAS = 1<<1;
+//	static final int KEYED_DATA = 1<<2;
+	static final int HANDLE = 1<<3;
+//	static final int DISABLED = 1<<4;
+//	static final int MENU = 1<<5;
+//	static final int OBSCURED = 1<<6;
+//	static final int MOVED = 1<<7;
+//	static final int RESIZED = 1<<8;
+//	static final int ZERO_WIDTH = 1<<9;
+//	static final int ZERO_HEIGHT = 1<<10;
+//	static final int HIDDEN = 1<<11;
+//	static final int FOREGROUND = 1<<12;
+//	static final int BACKGROUND = 1<<13;
+//	static final int FONT = 1<<14;
+//	static final int PARENT_BACKGROUND = 1<<15;
+//	static final int THEME_BACKGROUND = 1<<16;
+
+	/* More global state flags */
+	static final int RELEASED = 1<<20;
+	static final int DISPOSE_SENT = 1<<21;
+//	static final int FOREIGN_HANDLE = 1<<22;
+//	static final int DRAG_DETECT = 1<<23;
 
 /**
  * Prevents uninitialized instances from being created outside the package.
@@ -96,8 +122,16 @@ Widget () {}
  * @see #getStyle
  */
 public Widget (Widget parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkSubclass ();
+	checkParent (parent);
+	this.style = style;
+	display = parent.display;
+	reskinWidget ();
+}
+
+void _addListener (int eventType, Listener listener) {
+	if (eventTable == null) eventTable = new EventTable ();
+	eventTable.hook (eventType, listener);
 }
 
 /**
@@ -125,8 +159,9 @@ public Widget (Widget parent, int style) {
  * @see #notifyListeners
  */
 public void addListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	_addListener (eventType, listener);
 }
 
 /**
@@ -212,8 +247,7 @@ void checkParent (Widget parent) {
  * </ul>
  */
 protected void checkSubclass () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
 }
 
 /**
@@ -243,6 +277,31 @@ protected void checkWidget () {
 	HaikuUtils.notImplemented();
 }
 
+/*
+ * Creates the widget's underlying platform resources.
+ */
+void createHandle (int index) {
+}
+
+/*
+ * Creates all widget related resources and attaches it to the display. Among
+ * other things, it calls createHandle().
+ */
+void createWidget (int index) {
+	createHandle (index);
+	setOrientation (true);
+	hookEvents ();
+	register ();
+}
+
+/*
+ * Called by release(true) to free all remaining resources associated with the
+ * widget, including freeing its platform handle(s).
+ */
+void destroyWidget () {
+	releaseHandle ();
+}
+
 /**
  * Disposes of the operating system resources associated with
  * the receiver and all its descendants. After this method has
@@ -268,8 +327,21 @@ protected void checkWidget () {
  * @see #checkWidget
  */
 public void dispose () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	/*
+	* Note:  It is valid to attempt to dispose a widget
+	* more than once.  If this happens, fail silently.
+	*/
+	if (isDisposed ()) return;
+	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	release (true);
+}
+
+/*
+ * Called (indirectly) by release() to detach the widget from the display.
+ */
+void deregister () {
+	if (handle == 0) return;
+	if ((state & HANDLE) != 0) display.removeWidget (handle);
 }
 
 void error (int code) {
@@ -349,9 +421,9 @@ public Object getData (String key) {
  * </ul>
  */
 public Display getDisplay () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	Display display = this.display;
+	if (display == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	return display;
 }
 
 /**
@@ -376,9 +448,9 @@ public Display getDisplay () {
  * @since 3.4
  */
 public Listener[] getListeners (int eventType) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (eventTable == null) return new Listener[0];
+	return eventTable.getListeners(eventType);
 }
 
 /**
@@ -419,9 +491,7 @@ public int getStyle () {
  * @return <code>true</code> when the widget is disposed and <code>false</code> otherwise
  */
 public boolean isDisposed () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	return (state & DISPOSED) != 0;
 }
 
 /**
@@ -446,8 +516,18 @@ public boolean isListening (int eventType) {
 	return false;
 }
 
+boolean isValidThread () {
+	return getDisplay ().isValidThread ();
+}
+
 boolean isValidSubclass() {
 	return Display.isValidClass(getClass());
+}
+
+/*
+ * Registers platform callbacks for the events needed for the widget.
+ */
+void hookEvents () {
 }
 
 /*
@@ -464,9 +544,8 @@ boolean isValidSubclass() {
  * @see #isListening
  */
 boolean hooks (int eventType) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	if (eventTable == null) return false;
+	return eventTable.hooks (eventType);
 }
 
 /**
@@ -494,29 +573,67 @@ public void notifyListeners (int eventType, Event event) {
 	HaikuUtils.notImplemented();
 }
 
+/*
+ * Attaches the widget to its display.
+ */
+void register () {
+	if (handle == 0) return;
+	display.addWidget (handle, this);
+}
+
+/*
+ * Backend for dispose(). Disposes the widget and all of its decendents. The
+ * flag "destroy" indicates whether this is (potentially) the widget on which
+ * the API user has called dispose(). If so (true), additional work to detach
+ * the widget from its parent.
+ */
 void release (boolean destroy) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if ((state & DISPOSE_SENT) == 0) {
+		state |= DISPOSE_SENT;
+		sendEvent (SWT.Dispose);
+	}
+	if ((state & DISPOSED) == 0) {
+		releaseChildren (destroy);
+	}
+	if ((state & RELEASED) == 0) {
+		state |= RELEASED;
+		if (destroy) {
+			releaseParent ();
+			releaseWidget ();
+			destroyWidget ();
+		} else {
+			releaseWidget ();
+			releaseHandle ();
+		}
+	}
 }
 
+/*
+ * Called by release() to release (i.e. dispose) the widgets descendents.
+ */
 void releaseChildren (boolean destroy) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
 }
 
+/*
+ * Called by release() to free all remaining resources associated with the
+ * widget, including freeing its platform handle(s).
+ */
 void releaseHandle () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	handle = 0;
+	state |= DISPOSED;
+	display = null;
 }
 
+/*
+ * Called by release(true) to detach the widget from its parent.
+ */
 void releaseParent () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
 }
 
 void releaseWidget () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	deregister ();
+	eventTable = null;
+	data = null;
 }
 
 /**
@@ -542,8 +659,10 @@ void releaseWidget () {
  * @see #notifyListeners
  */
 public void removeListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, listener);
 }
 
 /**
@@ -573,8 +692,10 @@ public void removeListener (int eventType, Listener listener) {
  * @noreference This method is not intended to be referenced by clients.
  */
 protected void removeListener (int eventType, SWTEventListener handler) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (handler == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, handler);
 }
 
 /**
@@ -638,8 +759,43 @@ void reskinWidget() {
  * @see #addDisposeListener
  */
 public void removeDisposeListener (DisposeListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Dispose, listener);
+}
+
+void sendEvent (Event event) {
+	Display display = event.display;
+	if (!display.filterEvent (event)) {
+		if (eventTable != null) eventTable.sendEvent (event);
+	}
+}
+
+void sendEvent (int eventType) {
+	sendEvent (eventType, null, true);
+}
+
+void sendEvent (int eventType, Event event) {
+	sendEvent (eventType, event, true);
+}
+
+void sendEvent (int eventType, Event event, boolean send) {
+	if (eventTable == null && !display.filters (eventType)) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	event.type = eventType;
+	event.display = display;
+	event.widget = this;
+	if (event.time == 0) {
+		event.time = display.getLastEventTime ();
+	}
+	if (send) {
+		sendEvent (event);
+	} else {
+		display.postEvent (event);
+	}
 }
 
 void sendSelectionEvent (int eventType, Event event, boolean send) {
@@ -701,6 +857,12 @@ public void setData (Object data) {
 public void setData (String key, Object value) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+/*
+ * Propagates the widget's orientation to the OS and its children.
+ */
+void setOrientation (boolean create) {
 }
 
 /**

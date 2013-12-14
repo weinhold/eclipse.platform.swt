@@ -11,6 +11,13 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.haiku.*;
@@ -95,12 +102,50 @@ import org.eclipse.swt.graphics.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Display extends Device {
+	private HaikuApplication application;
+
+	/* Widget Table */
+	private Map<Long, Widget> widgetTable = new HashMap<>();
+
+	/* Sync/Async Widget Communication */
+	Thread thread;
+
+	/* Display Shutdown */
+	Queue<Runnable> disposeList;
 
 	/* System Tray */
 	Tray tray;
 
+	/* Multiple Displays. */
+	static Display Default;
+	static Map<Thread, Display> Displays = new IdentityHashMap<>();
+
 	/* Package name */
 	static final String PACKAGE_PREFIX = "org.eclipse.swt.widgets."; //$NON-NLS-1$
+
+	/*
+	* TEMPORARY CODE.  Install the runnable that
+	* gets the current display. This code will
+	* be removed in the future.
+	*/
+	static {
+		DeviceFinder = new Runnable () {
+			public void run () {
+				Device device = getCurrent ();
+				if (device == null) {
+					device = getDefault ();
+				}
+				setDevice (device);
+			}
+		};
+	}
+
+/*
+* TEMPORARY CODE.
+*/
+static void setDevice (Device device) {
+	CurrentDevice = device;
+}
 
 /**
  * Constructs a new instance of this class.
@@ -204,6 +249,10 @@ public void addListener (int eventType, Listener listener) {
 	HaikuUtils.notImplemented();
 }
 
+void addWidget (long handle, Widget widget) {
+	widgetTable.put(handle, widget);
+}
+
 /**
  * Causes the <code>run()</code> method of the runnable to
  * be invoked by the user-interface thread at the next 
@@ -245,6 +294,18 @@ public void beep () {
 	HaikuUtils.notImplemented();
 }
 
+protected void checkDevice () {
+	if (thread == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	if (thread != Thread.currentThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+}
+
+static void checkDisplay (Thread thread) {
+	synchronized (Device.class) {
+		if (Displays.containsKey(thread)) SWT.error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	}
+}
+
 /**
  * Checks that this class can be subclassed.
  * <p>
@@ -258,8 +319,7 @@ public void beep () {
  * @see Widget#checkSubclass
  */
 protected void checkSubclass () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (!isValidClass (getClass ())) error (SWT.ERROR_INVALID_SUBCLASS);
 }
 
 /**
@@ -293,8 +353,26 @@ public void close () {
  * @see #init
  */
 protected void create (DeviceData data) {
+	checkSubclass ();
+	checkDisplay(thread = Thread.currentThread ());
+	createDisplay (data);
+	register (this);
+}
+
+void createDisplay (DeviceData data) {
+	application = HaikuApplication.getInstance();
+	deviceHandle = HaikuDisplay.create(application.getHandle(), this);
+	if (deviceHandle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.partiallyImplemented();
+}
+
+static void deregister (Display display) {
+	synchronized (Device.class) {
+		if (display == Default) Default = null;
+		Displays.remove(display.thread);
+	}
 }
 
 /**
@@ -308,8 +386,27 @@ protected void create (DeviceData data) {
  * @see #release
  */
 protected void destroy () {
+	deregister (this);
+	destroyDisplay ();
+}
+
+void destroyDisplay () {
+	HaikuDisplay.delete(deviceHandle);
+	deviceHandle = 0;
+
+	application.releaseReference();
+}
+
+boolean filterEvent (Event event) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+	return false;
+}
+
+boolean filters (int eventType) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+	return false;
 }
 
 /**
@@ -323,9 +420,9 @@ protected void destroy () {
  * @return the display for the given thread
  */
 public static Display findDisplay (Thread thread) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		return Displays.get(thread);
+	}
 }
 
 /**
@@ -342,8 +439,10 @@ public static Display findDisplay (Thread thread) {
  * </ul>
  */
 public void disposeExec (Runnable runnable) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
+	if (runnable == null) return;
+	if (disposeList == null) disposeList = new ArrayDeque<>();
+	disposeList.add(runnable);
 }
 
 /**
@@ -378,10 +477,9 @@ void error (int code) {
  * 
  * @noreference This method is not intended to be referenced by clients.
  */
-public Widget findWidget (long /*int*/ handle) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+public Widget findWidget (long handle) {
+	checkDevice ();
+	return widgetTable.get(handle);
 }
 
 /**
@@ -409,8 +507,7 @@ public Widget findWidget (long /*int*/ handle) {
  * @since 3.1
  */
 public Widget findWidget (long /*int*/ handle, long /*int*/ id) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -434,8 +531,7 @@ public Widget findWidget (long /*int*/ handle, long /*int*/ id) {
  * @since 3.3
  */
 public Widget findWidget (Widget widget, long /*int*/ id) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -608,9 +704,10 @@ public Object getData () {
  * @return the default display
  */
 public static Display getDefault () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		if (Default == null) Default = new Display ();
+		return Default;
+	}
 }
 
 static boolean isValidClass (Class clazz) {
@@ -658,6 +755,10 @@ public int getDismissalAlignment () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return SWT.RIGHT;
+}
+
+long getDisplayHandle () {
+	return deviceHandle;
 }
 
 /**
@@ -759,6 +860,12 @@ public Point [] getIconSizes () {
 	return new Point [] {new Point (16, 16), new Point (32, 32)}; 
 }
 
+int getLastEventTime () {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+	return 0;
+}
+
 /**
  * Returns an array of monitors attached to the device.
  * 
@@ -797,9 +904,14 @@ public Monitor getPrimaryMonitor () {
  * </ul>
  */
 public Shell [] getShells () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkDevice ();
+	Set<Shell> shells = new HashSet<>();
+	for (Widget widget: widgetTable.values()) {
+		if (widget instanceof Shell) {
+			shells.add((Shell)widget);
+		}
+	}
+	return shells.toArray(new Shell[shells.size()]);
 }
 
 /**
@@ -1045,6 +1157,7 @@ public boolean getTouchEnabled() {
  * @see #create
  */
 protected void init () {
+	super.init ();
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -1098,9 +1211,7 @@ public long /*int*/ internal_new_GC (GCData data) {
 }
 
 boolean isValidThread () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	return thread == Thread.currentThread ();
 }
 
 /**
@@ -1339,6 +1450,11 @@ public boolean post (Event event) {
 	return false;
 }
 
+void postEvent (Event event) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Reads an event from the operating system's event queue,
  * dispatches it appropriately, and returns <code>true</code>
@@ -1364,9 +1480,21 @@ public boolean post (Event event) {
  * @see #wake
  */
 public boolean readAndDispatch () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	// Note: Unlike documented above, the method seems to be expected to return
+	// false only if it didn't actually do anything (i.e. if there already
+	// wasn't any pending event). At least HelloWorld1 hangs, since it
+	// immediately sleeps after readAndDispatch() returned true, even if the
+	// shell was disposed.
+	checkDevice ();
+	HaikuUtils.partiallyImplemented();
+	return HaikuDisplay.handleNextEvent(deviceHandle);
+}
+
+static void register (Display display) {
+	synchronized (Device.class) {
+		Displays.put(display.thread, display);
+		if (Default == null) Default = display;
+	}
 }
 
 /**
@@ -1394,6 +1522,30 @@ public boolean readAndDispatch () {
  * @see #destroy
  */
 protected void release () {
+	sendEvent (SWT.Dispose, new Event ());
+	Shell [] shells = getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Shell shell = shells [i];
+		if (!shell.isDisposed ())  shell.dispose ();
+	}
+	if (tray != null) tray.dispose ();
+	tray = null;
+	while (readAndDispatch ()) {}
+	if (disposeList != null) {
+		while (!disposeList.isEmpty()) {
+			disposeList.remove().run();
+		}
+	}
+	disposeList = null;
+//	synchronizer.releaseSynchronizer ();
+//	synchronizer = null;
+	// TODO: Implement!
+	HaikuUtils.missingFeature("synchronised execution");
+	releaseDisplay ();
+	super.release ();
+}
+
+void releaseDisplay () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -1453,6 +1605,11 @@ public void removeListener (int eventType, Listener listener) {
 	HaikuUtils.notImplemented();
 }
 
+Widget removeWidget (long handle) {
+	if (handle == 0) return null;
+	return widgetTable.remove(handle);
+}
+
 /**
  * Returns the application name.
  *
@@ -1481,6 +1638,11 @@ public static String getAppVersion () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+void sendEvent (int eventType, Event event) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 /**
@@ -1647,9 +1809,8 @@ public void setSynchronizer (Synchronizer synchronizer) {
  * @see #wake
  */
 public boolean sleep () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkDevice ();
+	return HaikuDisplay.checkPendingEvents(deviceHandle, true);
 }
 
 /**
@@ -1744,6 +1905,13 @@ public void wake () {
 void wakeThread () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+
+private boolean callbackWindowQuitRequested(long windowHandle) {
+	Shell shell = (Shell)findWidget(windowHandle);
+	if (shell == null) return false;
+	return shell.windowQuitRequested();
 }
 
 }

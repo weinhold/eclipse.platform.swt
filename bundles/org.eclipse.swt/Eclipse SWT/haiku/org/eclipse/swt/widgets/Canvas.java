@@ -140,6 +140,12 @@ public IME getIME () {
 	return null;
 }
 
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Scrolls a rectangular area of the receiver by first copying 
  * the source area to the destination and then causing the area

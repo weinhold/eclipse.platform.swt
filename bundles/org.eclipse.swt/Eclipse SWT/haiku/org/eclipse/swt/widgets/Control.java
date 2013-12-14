@@ -83,6 +83,12 @@ public Control (Composite parent, int style) {
 	HaikuUtils.notImplemented();
 }
 
+void deregister () {
+	super.deregister ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 boolean drawGripper (GC gc, int x, int y, int width, int height, boolean vertical) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
@@ -125,6 +131,11 @@ public int getTextDirection() {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return 0;
+}
+
+void hookEvents () {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 /**
@@ -221,6 +232,12 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return new Point(wHint, hHint);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 /**
@@ -1889,6 +1906,12 @@ public boolean isVisible () {
 	return false;
 }
 
+void register () {
+	super.register ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Causes the entire bounds of the receiver to be marked
  * as needing to be redrawn. The next time a paint request
@@ -1944,6 +1967,30 @@ public void redraw () {
  * @see SWT#DOUBLE_BUFFERED
  */
 public void redraw (int x, int y, int width, int height, boolean all) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void release (boolean destroy) {
+	super.release (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	parent = null;
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseParent () {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -2165,6 +2212,11 @@ public void setForeground (Color color) {
  * </ul>
  */
 public void setMenu (Menu menu) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }

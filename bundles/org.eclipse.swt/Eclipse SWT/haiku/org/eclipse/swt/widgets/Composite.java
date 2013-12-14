@@ -124,6 +124,23 @@ public void changed (Control[] changed) {
 	HaikuUtils.notImplemented();
 }
 
+void createHandle (int index) {
+	createHandle (index, true, false);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void createHandle (int index, boolean fixed, boolean scrolled) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void deregister () {
+	super.deregister ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /** 
  * Fills the interior of the rectangle specified by the arguments,
  * with the receiver's background. 
@@ -262,6 +279,12 @@ public Control [] getTabList () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+void hookEvents () {
+	super.hookEvents ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 /**
@@ -484,6 +507,30 @@ public void layout (Control [] changed, int flags) {
 	HaikuUtils.notImplemented();
 }
 
+void register () {
+	super.register ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 void removeControl (Control control) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
@@ -550,6 +597,12 @@ public void setLayout (Layout layout) {
  * @since 3.1
  */
 public void setLayoutDeferred (boolean defer) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
+	super.setOrientation (create);
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }

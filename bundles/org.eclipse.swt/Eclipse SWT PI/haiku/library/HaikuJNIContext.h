@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2013 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -10,10 +10,46 @@
  * this distribution shall govern.
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Ingo Weinhold
  *******************************************************************************/
 
-#include "swt.h"
-//#include "os_structs.h"
-//#include "os_stats.h"
+#ifndef INC_HAIKU_JNI_CONTEXT_H
+#define INC_HAIKU_JNI_CONTEXT_H
 
+
+#include <SupportDefs.h>
+
+#include "swt.h"
+
+
+namespace swt {
+namespace haiku {
+
+
+class HaikuJNIContext {
+public:
+								HaikuJNIContext(JNIEnv* env);
+								~HaikuJNIContext();
+
+	static	bool				Init();
+
+	static	HaikuJNIContext*	Current();
+	static	JNIEnv*				CurrentEnv()
+									{ return Current()->Env(); }
+
+			JNIEnv*				Env() const
+									{ return fEnv; }
+
+private:
+	static	int32				fTLSSlot;
+
+			HaikuJNIContext*	fPrevious;
+			JNIEnv*				fEnv;
+};
+
+
+}	// namespace haiku
+}	// namespace swt
+
+
+#endif /* INC_HAIKU_JNI_CONTEXT_H */

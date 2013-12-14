@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2013 IBM Corporation and others. All rights reserved.
  * The contents of this file are made available under the terms
  * of the GNU Lesser General Public License (LGPL) Version 2.1 that
  * accompanies this distribution (lgpl-v21.txt).  The LGPL is also
@@ -10,7 +10,21 @@
  * this distribution shall govern.
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Ingo Weinhold
  *******************************************************************************/
+package org.eclipse.swt.internal.haiku;
 
-#include "os.h"
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+
+
+public class HaikuDisplay {
+	public static native boolean checkPendingEvents(long handle, boolean wait);
+
+	public static native long create(long applicationHandle, Display display);
+
+	public static native void delete(long handle);
+
+	public static native boolean handleNextEvent(long handle);
+}
