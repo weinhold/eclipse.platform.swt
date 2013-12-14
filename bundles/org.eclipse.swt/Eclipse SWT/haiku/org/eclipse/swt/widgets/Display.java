@@ -104,6 +104,9 @@ import org.eclipse.swt.graphics.*;
 public class Display extends Device {
 	private HaikuApplication application;
 
+	/* Events Dispatching */
+	EventTable eventTable, filterTable;
+
 	/* Widget Table */
 	private Map<Long, Widget> widgetTable = new HashMap<>();
 
@@ -216,8 +219,10 @@ public Display (DeviceData data) {
  * @since 3.0 
  */
 public void addFilter (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (filterTable == null) filterTable = new EventTable ();
+	filterTable.hook (eventType, listener);
 }
 
 /**
@@ -245,8 +250,10 @@ public void addFilter (int eventType, Listener listener) {
  * @since 2.0 
  */
 public void addListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) eventTable = new EventTable ();
+	eventTable.hook (eventType, listener);
 }
 
 void addWidget (long handle, Widget widget) {
@@ -398,15 +405,13 @@ void destroyDisplay () {
 }
 
 boolean filterEvent (Event event) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (filterTable != null) filterTable.sendEvent (event);
 	return false;
 }
 
 boolean filters (int eventType) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	if (filterTable == null) return false;
+	return filterTable.hooks (eventType);
 }
 
 /**
@@ -1546,6 +1551,8 @@ protected void release () {
 }
 
 void releaseDisplay () {
+	eventTable = filterTable = null;
+
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -1574,8 +1581,11 @@ void releaseDisplay () {
  * @since 3.0
  */
 public void removeFilter (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (filterTable == null) return;
+	filterTable.unhook (eventType, listener);
+	if (filterTable.size () == 0) filterTable = null;
 }
 
 /**
@@ -1601,8 +1611,10 @@ public void removeFilter (int eventType, Listener listener) {
  * @since 2.0 
  */
 public void removeListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, listener);
 }
 
 Widget removeWidget (long handle) {
@@ -1641,8 +1653,16 @@ public static String getAppVersion () {
 }
 
 void sendEvent (int eventType, Event event) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (eventTable == null && filterTable == null) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	event.display = this;
+	event.type = eventType;
+	if (event.time == 0) event.time = getLastEventTime ();
+	if (!filterEvent (event)) {
+		if (eventTable != null) eventTable.sendEvent (event);
+	}
 }
 
 /**
