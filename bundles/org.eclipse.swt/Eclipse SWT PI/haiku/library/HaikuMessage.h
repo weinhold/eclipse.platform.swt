@@ -25,7 +25,7 @@
 namespace swt {
 namespace haiku {
 
-class BView;
+
 class HaikuWindow;
 
 

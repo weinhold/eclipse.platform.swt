@@ -12,18 +12,29 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
-package org.eclipse.swt.internal.haiku;
+
+#ifndef INC_HAIKU_UTILS_H
+#define INC_HAIKU_UTILS_H
 
 
-import org.eclipse.swt.SWT;
+#include <String.h>
+
+#include "swt.h"
 
 
-public class HaikuWindow {
-	public static native long create(long displayHandle);
+namespace swt {
+namespace haiku {
 
-	public static native long createRootView(long handle);
 
-	public static native void delete(long handle);
+class HaikuUtils {
+public:
+	static	BString				FromJavaString(jstring javaString);
+	static	jstring				ToJavaString(const BString& string);
+};
 
-	public static native void setVisible(long handle, boolean visible);
-}
+
+}	// namespace haiku
+}	// namespace swt
+
+
+#endif /* INC_HAIKU_UTILS_H */

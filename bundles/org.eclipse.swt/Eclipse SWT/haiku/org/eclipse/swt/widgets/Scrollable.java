@@ -72,6 +72,10 @@ public Scrollable (Composite parent, int style) {
 	super (parent, style);
 }
 
+long clientHandle () {
+	return handle;
+}
+
 /**
  * Given a desired <em>client area</em> for the receiver
  * (as described by the arguments), returns the bounding
@@ -132,9 +136,9 @@ void deregister () {
  * @see #computeTrim
  */
 public Rectangle getClientArea () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	int[] bounds = new int[4];
+	HaikuView.setAndGetFrame(clientHandle(), bounds, new boolean[2]);
+	return new Rectangle (bounds[0], bounds[1], bounds[2], bounds[3]);
 }
 
 /**

@@ -45,7 +45,7 @@ SWTPI_LIB = lib$(SWTPI_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).so
 #CAIROLIBS = `pkg-config --libs-only-L cairo` -lcairo
 
 HAIKUCFLAGS = 
-HAIKULIBS = -lbe
+HAIKULIBS = -lbe -ltextencoding
 
 #CDE_LIBS = -L$(CDE_HOME)/lib -R$(CDE_HOME)/lib -lXt -lX11 -lDtSvc
 
@@ -82,7 +82,7 @@ SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 #CDE_OBJECTS = swt.o cde.o cde_structs.o cde_stats.o
 #AWT_OBJECTS = swt_awt.o
 SWTPI_OBJECTS = HaikuApplication.o HaikuDisplay.o HaikuJNIContext.o \
-	HaikuMessage.o HaikuWindow.o swt.o
+	HaikuLabel.o HaikuMessage.o HaikuUtils.o HaikuView.o HaikuWindow.o swt.o
 #CAIRO_OBJECTS = swt.o cairo.o cairo_structs.o cairo_stats.o
 #ATK_OBJECTS = swt.o atk.o atk_structs.o atk_custom.o atk_stats.o
 #GNOME_OBJECTS = swt.o gnome.o gnome_structs.o gnome_stats.o

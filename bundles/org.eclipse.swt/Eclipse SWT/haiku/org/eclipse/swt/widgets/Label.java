@@ -50,6 +50,7 @@ import org.eclipse.swt.graphics.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Label extends Control {
+	private String text;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -89,9 +90,50 @@ public class Label extends Control {
  * @see Widget#getStyle
  */
 public Label (Composite parent, int style) {
+	super (parent, checkStyle (style));
+}
+
+static int checkStyle (int style) {
+	style |= SWT.NO_FOCUS;
+	if ((style & SWT.SEPARATOR) != 0) {
+		style = checkBits (style, SWT.VERTICAL, SWT.HORIZONTAL, 0, 0, 0, 0);
+		return checkBits (style, SWT.SHADOW_OUT, SWT.SHADOW_IN, SWT.SHADOW_NONE, 0, 0, 0);
+	} 
+	return checkBits (style, SWT.LEFT, SWT.CENTER, SWT.RIGHT, 0, 0, 0);
+}
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
 	// TODO: Implement!
-	super (parent, style);
 	HaikuUtils.notImplemented();
+	return new Point(wHint, hHint);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	if ((style & SWT.SEPARATOR) != 0) {
+		// TODO: Implement!
+		HaikuUtils.notImplemented();
+		error (SWT.ERROR_NOT_IMPLEMENTED);
+	} else {
+		handle = HaikuLabel.create(display.getDisplayHandle());
+		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
+	}
+
+	if ((style & SWT.BORDER) != 0) {
+		// TODO: Implement!
+		HaikuUtils.missingFeature("border");
+	}
+
+	setAlignment ();
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	text = "";
+}
+
+void deregister () {
+	super.deregister ();
 }
 
 /**
@@ -109,9 +151,19 @@ public Label (Composite parent, int style) {
  * </ul>
  */
 public int getAlignment () {
+	checkWidget ();
+	if ((style & SWT.SEPARATOR) != 0) return 0;
+	if ((style & SWT.LEFT) != 0) return SWT.LEFT;
+	if ((style & SWT.CENTER) != 0) return SWT.CENTER;
+	if ((style & SWT.RIGHT) != 0) return SWT.RIGHT;
+	return SWT.LEFT;
+}
+
+public int getBorderWidth () {
+	checkWidget();
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
-	return SWT.LEFT;
+	return 0;
 }
 
 /**
@@ -144,9 +196,22 @@ public Image getImage () {
  * </ul>
  */
 public String getText () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget ();
+	if ((style & SWT.SEPARATOR) != 0) return "";
+	return text;
+}
+
+void register () {
+	super.register ();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	text = null;
 }
 
 /**
@@ -163,8 +228,30 @@ public String getText () {
  * </ul>
  */
 public void setAlignment (int alignment) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if ((alignment & (SWT.LEFT | SWT.RIGHT | SWT.CENTER)) == 0) return;
+	style &= ~(SWT.LEFT | SWT.RIGHT | SWT.CENTER);
+	style |= alignment & (SWT.LEFT | SWT.RIGHT | SWT.CENTER);
+	setAlignment ();
+}
+
+void setAlignment () {
+	if ((style & SWT.LEFT) != 0) {
+		// TODO: Implement!
+		HaikuUtils.notImplemented();
+		return;
+	}
+	if ((style & SWT.CENTER) != 0) {
+		// TODO: Implement!
+		HaikuUtils.notImplemented();
+		return;
+	}
+	if ((style & SWT.RIGHT) != 0) {
+		// TODO: Implement!
+		HaikuUtils.notImplemented();
+		return;
+	}
 }
 
 /**
@@ -182,6 +269,12 @@ public void setAlignment (int alignment) {
  * </ul>
  */
 public void setImage (Image image) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
+	super.setOrientation (create);
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -214,8 +307,13 @@ public void setImage (Image image) {
  * </ul>
  */
 public void setText (String string) {
+	checkWidget ();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.SEPARATOR) != 0) return;
+	text = string;
+	HaikuLabel.setText(handle, text);
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.missingFeature("mnemonic");
 }
 
 }

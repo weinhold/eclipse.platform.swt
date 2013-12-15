@@ -79,8 +79,9 @@ Control () {
  * @see Widget#getStyle
  */
 public Control (Composite parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	super (parent, style);
+	this.parent = parent;
+	createWidget (0);
 }
 
 void deregister () {
@@ -189,9 +190,7 @@ public boolean print (GC gc) {
  * @see "computeTrim, getClientArea for controls that implement them"
  */
 public Point computeSize (int wHint, int hHint) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return new Point(wHint, hHint);
+	return computeSize (wHint, hHint, true);
 }
 
 /**
@@ -234,10 +233,17 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	return new Point(wHint, hHint);
 }
 
+void addToParent() {
+}
+
 void createWidget (int index) {
+	checkOrientation (parent);
 	super.createWidget (index);
+	if (parent != null) {
+		parent.addChild(topHandle());
+	}
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.partiallyImplemented();
 }
 
 /**
@@ -304,8 +310,9 @@ public Rectangle getBounds () {
  * </ul>
  */
 public void setBounds (Rectangle rect) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (rect == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (rect.x, rect.y, Math.max (0, rect.width), Math.max (0, rect.height), true, true);
 }
 
 /**
@@ -332,8 +339,26 @@ public void setBounds (Rectangle rect) {
  * </ul>
  */
 public void setBounds (int x, int y, int width, int height) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	setBounds (x, y, Math.max (0, width), Math.max (0, height), true, true);
+}
+
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+System.err.printf("Control.setBounds(%d, %d, %d, %d, %s, %s)\n", x, y, width, height, move, resize);
+	int bounds[] = new int[]{x, y, width, height};
+	boolean moveResize[] = new boolean[]{move, resize};
+	HaikuView.setAndGetFrame(topHandle(), bounds, moveResize);
+
+	int result = 0;
+	if (moveResize[0]) {
+		sendEvent (SWT.Move);
+//		result |= MOVED;
+	}
+	if (moveResize[1]) {
+		sendEvent (SWT.Resize);
+//		result |= RESIZED;
+	}
+	return result;
 }
 
 /**

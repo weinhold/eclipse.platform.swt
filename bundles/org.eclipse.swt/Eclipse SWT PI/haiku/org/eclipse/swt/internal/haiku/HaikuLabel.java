@@ -18,12 +18,10 @@ package org.eclipse.swt.internal.haiku;
 import org.eclipse.swt.SWT;
 
 
-public class HaikuWindow {
+public class HaikuLabel {
 	public static native long create(long displayHandle);
-
-	public static native long createRootView(long handle);
 
 	public static native void delete(long handle);
 
-	public static native void setVisible(long handle, boolean visible);
+	public static native void setText(long handle, String text);
 }

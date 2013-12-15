@@ -445,7 +445,8 @@ void createHandle (int index) {
 		if (windowHandle == 0) error(SWT.ERROR_NO_HANDLES);
 	}
 
-	createHandle (index, false, true);
+	handle = HaikuWindow.createRootView(windowHandle);
+	if (handle == 0) error(SWT.ERROR_NO_HANDLES);
 
 	// TODO: Implement!
 	HaikuUtils.partiallyImplemented();

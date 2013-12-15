@@ -16,6 +16,9 @@
 
 #include "HaikuWindow.h"
 
+#include <GroupLayout.h>
+#include <View.h>
+
 #include "swt.h"
 
 #include "HaikuDisplay.h"
@@ -31,9 +34,10 @@ namespace haiku {
 
 HaikuWindow::HaikuWindow(HaikuDisplay* display)
 	:
-	BWindow(BRect(10, 10, 100, 100), "SWT", B_TITLED_WINDOW,
+	BWindow(BRect(20, 20, 119, 119), "SWT", B_TITLED_WINDOW,
 		B_ASYNCHRONOUS_CONTROLS),
 	fDisplay(display),
+	fRootView(NULL),
 	fDelayedMessage(NULL),
 	fDeleted(false)
 {
@@ -76,6 +80,27 @@ bool
 HaikuWindow::QuitRequested()
 {
 	return fDeleted ? true : fDisplay->CallbackWindowQuitRequested(this);
+}
+
+
+BView*
+HaikuWindow::CreateRootView()
+{
+	BGroupLayout* layout = new(std::nothrow) BGroupLayout(B_HORIZONTAL);
+	if (layout == NULL)
+		return NULL;
+	SetLayout(layout);
+
+	fRootView = new(std::nothrow) BView(NULL, B_WILL_DRAW);
+	if (fRootView == NULL || layout->AddView(fRootView) == NULL) {
+		delete fRootView;
+		fRootView = NULL;
+		return NULL;
+	}
+
+	fRootView->ResizeTo(Bounds().Size());
+
+	return fRootView;
 }
 
 
@@ -142,6 +167,23 @@ Java_org_eclipse_swt_internal_haiku_HaikuWindow_delete(JNIEnv* env,
 		window->Delete();
 		window->Unlock();
 	}
+}
+
+
+extern "C" jlong
+Java_org_eclipse_swt_internal_haiku_HaikuWindow_createRootView(JNIEnv* env,
+	jobject object, jlong handle)
+{
+	HaikuJNIContext haikuJniContext(env);
+
+	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
+	BView* view = NULL;
+	if (window->Lock()) {
+		view = window->CreateRootView();
+		window->Unlock();
+	}
+
+	return (jlong)(addr_t)view;
 }
 
 

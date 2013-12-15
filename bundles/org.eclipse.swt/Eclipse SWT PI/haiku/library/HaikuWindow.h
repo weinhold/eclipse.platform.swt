@@ -39,12 +39,15 @@ public:
 									BHandler* handler);
 	virtual	bool				QuitRequested();
 
+			BView*				CreateRootView();
+
 			void				Delete();
 
 			void				DispatchDelayedMessage(HaikuMessage* message);
 
 private:
 			HaikuDisplay*		fDisplay;
+			BView*				fRootView;
 			HaikuMessage*		fDelayedMessage;
 			bool				fDeleted;
 };

@@ -101,6 +101,11 @@ public Composite (Composite parent, int style) {
 	HaikuUtils.notImplemented();
 }
 
+void addChild(long childHandle)
+{
+	HaikuView.addChild(handle, childHandle);
+}
+
 /**
  * Clears any data that has been cached by a Layout for all widgets that 
  * are in the parent hierarchy of the changed control up to and including the 
@@ -529,6 +534,11 @@ void releaseWidget () {
 	super.releaseWidget ();
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+void removeChild(long childHandle)
+{
+	HaikuView.removeChild(handle, childHandle);
 }
 
 void removeControl (Control control) {
