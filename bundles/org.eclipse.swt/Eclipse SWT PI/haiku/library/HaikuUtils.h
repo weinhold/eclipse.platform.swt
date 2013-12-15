@@ -17,6 +17,8 @@
 #define INC_HAIKU_UTILS_H
 
 
+#include <Point.h>
+#include <Size.h>
 #include <String.h>
 
 #include "swt.h"
@@ -28,9 +30,41 @@ namespace haiku {
 
 class HaikuUtils {
 public:
+	static	bool				Init(JNIEnv* env);
+	static	void				Cleanup(JNIEnv* env);
+
 	static	BString				FromJavaString(jstring javaString);
 	static	jstring				ToJavaString(const BString& string);
+
+	static	jobject				CreatePoint(JNIEnv *env, jint x, jint y);
+	static	jobject				CreatePoint(JNIEnv *env, const BPoint& point);
+	static	jobject				CreatePoint(JNIEnv *env, const BSize& size);
+
+private:
+	static	jclass				sPointClass;
+	static	jmethodID			sPointConstructor;
 };
+
+
+/*static*/ inline jobject
+HaikuUtils::CreatePoint(JNIEnv *env, jint x, jint y)
+{
+	return env->NewObject(sPointClass, sPointConstructor, x, y);
+}
+
+
+/*static*/ inline jobject
+HaikuUtils::CreatePoint(JNIEnv *env, const BPoint& point)
+{
+	return CreatePoint(env, (jint)point.x, (jint)point.y);
+}
+
+
+/*static*/ inline jobject
+HaikuUtils::CreatePoint(JNIEnv *env, const BSize& size)
+{
+	return CreatePoint(env, (jint)size.width + 1, (jint)size.height + 1);
+}
 
 
 }	// namespace haiku

@@ -22,6 +22,7 @@
 #include "swt.h"
 
 #include "HaikuJNIContext.h"
+#include "HaikuUtils.h"
 
 
 using namespace swt::haiku;
@@ -59,11 +60,17 @@ Java_org_eclipse_swt_internal_haiku_HaikuApplication_create(JNIEnv* env,
 
 	HaikuJNIContext haikuJniContext(env);
 
+	if (!HaikuUtils::Init(env))
+		return 0;
+
 	sApplication = new(std::nothrow) HaikuApplication;
-	if (sApplication != NULL) {
-		// unlock, so we can run the message loop in another thread
-		sApplication->Unlock();
+	if (sApplication == NULL) {
+		HaikuUtils::Cleanup(env);
+		return 0;
 	}
+
+	// unlock, so we can run the message loop in another thread
+	sApplication->Unlock();
 	return (jlong)(addr_t)sApplication;
 }
 
@@ -83,6 +90,8 @@ Java_org_eclipse_swt_internal_haiku_HaikuApplication_delete(JNIEnv* env,
 		while (wait_for_thread(thread, NULL) == B_INTERRUPTED) {
 		}
 	}
+
+	HaikuUtils::Cleanup(env);
 }
 
 

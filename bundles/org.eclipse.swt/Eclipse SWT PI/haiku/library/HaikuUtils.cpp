@@ -30,6 +30,41 @@ namespace swt {
 namespace haiku {
 
 
+jclass HaikuUtils::sPointClass = NULL;
+jmethodID HaikuUtils::sPointConstructor = NULL;
+
+
+/*static*/ bool
+HaikuUtils::Init(JNIEnv* env)
+{
+	// get the Point class and constructor
+	jclass clazz = env->FindClass("org/eclipse/swt/graphics/Point");
+	if (clazz == NULL)
+		return false;
+
+	sPointClass = (jclass)env->NewGlobalRef(clazz);
+	if (sPointClass == NULL)
+		return false;
+
+	sPointConstructor = env->GetMethodID(sPointClass, "<init>", "(II)V");
+	if (sPointConstructor == NULL)
+		return false;
+
+	return true;
+}
+
+
+/*static*/ void
+HaikuUtils::Cleanup(JNIEnv* env)
+{
+	if (sPointClass != NULL) {
+		env->DeleteGlobalRef(sPointClass);
+		sPointClass = NULL;
+	}
+	sPointConstructor = NULL;
+}
+
+
 /*static*/ BString
 HaikuUtils::FromJavaString(jstring javaString)
 {
