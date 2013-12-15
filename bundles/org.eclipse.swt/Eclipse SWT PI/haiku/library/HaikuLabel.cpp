@@ -51,6 +51,23 @@ Java_org_eclipse_swt_internal_haiku_HaikuLabel_delete(JNIEnv* env,
 
 
 extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuLabel_setAlignment(
+	JNIEnv* env, jobject object, jlong handle, jint alignment)
+{
+	HaikuJNIContext haikuJniContext(env);
+
+	BStringView* view = (BStringView*)(addr_t)handle;
+	bool locked = view->LockLooper();
+	view->SetAlignment(
+		alignment == 0
+			? B_ALIGN_CENTER
+			: (alignment < 0 ? B_ALIGN_LEFT : B_ALIGN_RIGHT));
+	if (locked)
+		view->UnlockLooper();
+}
+
+
+extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_setText(
 	JNIEnv* env, jobject object, jlong handle, jstring text)
 {
