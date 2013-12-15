@@ -81,11 +81,18 @@ public abstract class Widget {
 //	static final int PARENT_BACKGROUND = 1<<15;
 //	static final int THEME_BACKGROUND = 1<<16;
 
+	/* The preferred size of a child has changed */
+	static final int LAYOUT_CHANGED = 1<<18;
+	
 	/* More global state flags */
 	static final int RELEASED = 1<<20;
 	static final int DISPOSE_SENT = 1<<21;
 //	static final int FOREIGN_HANDLE = 1<<22;
 //	static final int DRAG_DETECT = 1<<23;
+
+	/* Default size for widgets */
+	static final int DEFAULT_WIDTH	= 64;
+	static final int DEFAULT_HEIGHT	= 64;
 
 /**
  * Prevents uninitialized instances from being created outside the package.

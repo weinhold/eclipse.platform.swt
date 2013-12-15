@@ -11,6 +11,8 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.haiku.*;
 import org.eclipse.swt.graphics.*;
@@ -59,6 +61,8 @@ public class Composite extends Scrollable {
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public long /*int*/  embeddedHandle;
+
+	Layout layout;
 
 Composite () {
 	/* Do nothing */
@@ -127,6 +131,31 @@ void addChild(long childHandle)
 public void changed (Control[] changed) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	display.runSkin();
+	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
+	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
+	Point size;
+	if (layout != null) {
+		if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
+			changed |= (state & LAYOUT_CHANGED) != 0;
+			size = layout.computeSize (this, wHint, hHint, changed);
+			state &= ~LAYOUT_CHANGED;
+		} else {
+			size = new Point (wHint, hHint);
+		}
+	} else {
+		size = minimumSize (wHint, hHint, changed);
+		if (size.x == 0) size.x = DEFAULT_WIDTH;
+		if (size.y == 0) size.y = DEFAULT_HEIGHT;
+	}
+	if (wHint != SWT.DEFAULT) size.x = wHint;
+	if (hHint != SWT.DEFAULT) size.y = hHint;
+	Rectangle trim = computeTrim (0, 0, size.x, size.y);
+	return new Point (trim.width, trim.height);
 }
 
 void createHandle (int index) {
@@ -202,6 +231,20 @@ public int getBackgroundMode () {
 	return 0;
 }
 
+Control [] _getChildren () {
+	long parentHandle = parentingHandle ();
+	long[] childHandles = HaikuView.getChildren(parentHandle);
+	if (childHandles == null) return new Control[0];
+	Set<Control> children = new HashSet<>();
+	for (int i = 0; i < childHandles.length; i++) {
+		Widget widget = display.getWidget (childHandles[i]);
+		if (widget != null && widget != this && widget instanceof Control) {
+			children.add((Control)widget);
+		}
+	}
+	return children.toArray(new Control[children.size()]);
+}
+
 /**
  * Returns a (possibly empty) array containing the receiver's children.
  * Children are returned in the order that they are drawn.  The topmost
@@ -224,9 +267,8 @@ public int getBackgroundMode () {
  * </ul>
  */
 public Control [] getChildren () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getChildren ();
 }
 
 /**
@@ -510,6 +552,22 @@ public void layout (Control [] changed) {
 public void layout (Control [] changed, int flags) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+Point minimumSize (int wHint, int hHint, boolean changed) {
+	Control [] children = _getChildren ();
+	Rectangle clientArea = getClientArea ();
+	int width = 0, height = 0;
+	for (int i=0; i<children.length; i++) {
+		Rectangle rect = children [i].getBounds ();
+		width = Math.max (width, rect.x - clientArea.x + rect.width);
+		height = Math.max (height, rect.y - clientArea.y + rect.height);
+	}
+	return new Point (width, height);
+}
+
+long parentingHandle () {
+	return handle;
 }
 
 void register () {

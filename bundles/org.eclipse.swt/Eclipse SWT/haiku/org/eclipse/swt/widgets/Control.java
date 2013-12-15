@@ -228,9 +228,15 @@ public Point computeSize (int wHint, int hHint) {
  * @see "computeTrim, getClientArea for controls that implement them"
  */
 public Point computeSize (int wHint, int hHint, boolean changed) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return new Point(wHint, hHint);
+	checkWidget();
+	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
+	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
+	return computeNativeSize (handle, wHint, hHint, changed);	
+}
+
+Point computeNativeSize (long handle, int wHint, int hHint, boolean changed) {
+	if (wHint != SWT.DEFAULT && hHint != SWT.DEFAULT) return new Point(wHint, hHint);
+	return HaikuView.getPreferredSize(handle, wHint, hHint);
 }
 
 void addToParent() {
@@ -286,9 +292,8 @@ public Accessible getAccessible () {
  * </ul>
  */
 public Rectangle getBounds () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget ();
+	return HaikuView.getFrame(topHandle());
 }
 
 /**
@@ -344,7 +349,6 @@ public void setBounds (int x, int y, int width, int height) {
 }
 
 int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
-System.err.printf("Control.setBounds(%d, %d, %d, %d, %s, %s)\n", x, y, width, height, move, resize);
 	int bounds[] = new int[]{x, y, width, height};
 	boolean moveResize[] = new boolean[]{move, resize};
 	HaikuView.setAndGetFrame(topHandle(), bounds, moveResize);
@@ -395,8 +399,9 @@ public Point getLocation () {
  * </ul>
  */
 public void setLocation (Point location) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (location.x, location.y, 0, 0, true, false);
 }
 
 /**
@@ -415,8 +420,8 @@ public void setLocation (Point location) {
  * </ul>
  */
 public void setLocation(int x, int y) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	setBounds (x, y, 0, 0, true, false);
 }
 
 /**
@@ -457,8 +462,9 @@ public Point getSize () {
  * </ul>
  */
 public void setSize (Point size) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (0, 0, Math.max (0, size.x), Math.max (0, size.y), false, true);
 }
 
 /**
@@ -593,8 +599,7 @@ public void pack () {
  * @see #computeSize(int, int, boolean)
  */
 public void pack (boolean changed) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	setSize (computeSize (SWT.DEFAULT, SWT.DEFAULT, changed));
 }
 
 /**

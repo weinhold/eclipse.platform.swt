@@ -16,11 +16,16 @@
 
 #include "swt.h"
 
+#include <algorithm>
+
 #include <Autolock.h>
 #include <View.h>
 
+#include <private/shared/AutoLocker.h>
+
 #include "HaikuDisplay.h"
 #include "HaikuJNIContext.h"
+#include "HaikuUtils.h"
 
 
 using namespace swt::haiku;
@@ -43,6 +48,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuView_addChild(
 		view->UnlockLooper();
 }
 
+
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuView_removeChild(
 	JNIEnv* env, jobject object, jlong handle, jlong childHandle)
@@ -56,6 +62,82 @@ Java_org_eclipse_swt_internal_haiku_HaikuView_removeChild(
 	if (locked)
 		view->UnlockLooper();
 }
+
+
+extern "C" jlongArray
+Java_org_eclipse_swt_internal_haiku_HaikuView_getChildren(
+	JNIEnv* env, jobject object, jlong handle)
+{
+	HaikuJNIContext haikuJniContext(env);
+
+	BView* view = (BView*)(addr_t)handle;
+	
+	if (!view->LockLooper())
+		return NULL;
+	AutoLocker<BLooper> windowLocker(view->Looper(), true);
+
+	int32 count = view->CountChildren();
+	if (count == 0)
+		return NULL;
+
+	jlongArray handleArray = env->NewLongArray(count);
+	if (handleArray == NULL)
+		return NULL;
+
+	jlong* handles = (jlong*)env->GetPrimitiveArrayCritical(handleArray, NULL);
+	if (handles == NULL)
+		return NULL;
+
+	for (int32 i = 0; i < count; i++)
+		handles[i] = (jlong)(addr_t)view->ChildAt(i);
+
+	env->ReleasePrimitiveArrayCritical(handleArray, handles, JNI_COMMIT);
+	return handleArray;
+}
+
+
+extern "C" jobject
+Java_org_eclipse_swt_internal_haiku_HaikuView_getPreferredSize(
+	JNIEnv* env, jobject object, jlong handle, jint wHint, jint hHint)
+{
+	HaikuJNIContext haikuJniContext(env);
+
+	BView* view = (BView*)(addr_t)handle;
+	BSize size;
+	if (view->LockLooper()) {
+		// If hints have been specified, make sure they lie within the
+		// min/max range for the view.
+		if (wHint >= 0 || hHint >= 0) {
+			BSize min = view->MinSize();
+			BSize max = view->MaxSize();
+			if (wHint >= 0) {
+				wHint = std::max(wHint, (jint)min.width + 1);
+				wHint = std::min(wHint, (jint)max.width + 1);
+			}
+			if (hHint >= 0) {
+				hHint = std::max(hHint, (jint)min.height + 1);
+				hHint = std::min(hHint, (jint)max.height + 1);
+			}
+		}
+
+		// The Haiku API doesn't support getting the width for a height, so we
+		// always get the preferred width, if the width isn't given.
+		BSize preferred = view->PreferredSize();
+		size.width = wHint >= 0 ? float(wHint - 1) : preferred.width;
+
+		if (view->HasHeightForWidth()) {
+			view->GetHeightForWidth(size.width, NULL, NULL, &size.height);
+		} else {
+			size.height = hHint >= 0
+				? hHint - 1 : view->PreferredSize().height;
+		}
+
+		view->UnlockLooper();
+	}
+
+	return HaikuUtils::CreatePoint(env, size);
+}
+
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuView_setAndGetFrame(

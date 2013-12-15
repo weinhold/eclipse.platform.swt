@@ -104,8 +104,8 @@ static int checkStyle (int style) {
 
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return new Point(wHint, hHint);
+	HaikuUtils.partiallyImplemented();
+	return super.computeSize(wHint, hHint, changed);
 }
 
 void createHandle (int index) {

@@ -493,6 +493,11 @@ public int getAlpha () {
 	return 255;  
 }
 
+public Rectangle getBounds () {
+	checkWidget ();
+	return HaikuWindow.getFrame(windowHandle);
+}
+
 /**
  * Returns <code>true</code> if the receiver is currently
  * in fullscreen state, and false otherwise. 
@@ -747,6 +752,23 @@ public void setActive () {
 public void setAlpha (int alpha) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+	int bounds[] = new int[]{x, y, width, height};
+	boolean moveResize[] = new boolean[]{move, resize};
+	HaikuWindow.setAndGetFrame(windowHandle, bounds, moveResize);
+
+	int result = 0;
+	if (moveResize[0]) {
+		sendEvent (SWT.Move);
+//		result |= MOVED;
+	}
+	if (moveResize[1]) {
+		sendEvent (SWT.Resize);
+//		result |= RESIZED;
+	}
+	return result;
 }
 
 /**

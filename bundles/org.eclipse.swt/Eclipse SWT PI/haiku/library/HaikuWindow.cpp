@@ -188,6 +188,60 @@ Java_org_eclipse_swt_internal_haiku_HaikuWindow_createRootView(JNIEnv* env,
 
 
 extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuWindow_setAndGetFrame(
+	JNIEnv* env, jobject object, jlong handle, jintArray _frame,
+	jbooleanArray _moveResize)
+{
+	HaikuJNIContext haikuJniContext(env);
+
+	jint* frame = env->GetIntArrayElements(_frame, NULL);
+	if (frame == NULL)
+		return;
+
+	jboolean* moveResize = env->GetBooleanArrayElements(_moveResize, NULL);
+	if (frame == NULL) {
+		env->ReleaseIntArrayElements(_frame, frame, JNI_ABORT);
+		return;
+	}
+
+	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
+	BRect newFrame;
+	if (window->Lock()) {
+		BRect oldFrame = window->Frame();
+		if (moveResize[0]) {
+			BPoint leftTop(frame[0], frame[1]);
+			if (leftTop != oldFrame.LeftTop())
+				window->MoveTo(leftTop);
+			else
+				moveResize[0] = false;
+		}
+
+		if (moveResize[1]) {
+			BSize size(frame[2] - 1, frame[3] - 1);
+			if (size != oldFrame.Size())
+				window->ResizeTo(size.width, size.height);
+			else
+				moveResize[1] = false;
+		}
+
+		newFrame = window->Frame();
+
+		window->Unlock();
+	} else {
+		moveResize[0] = false;
+		moveResize[1] = false;
+	}
+
+	frame[0] = (jint)newFrame.left;
+	frame[1] = (jint)newFrame.top;
+	frame[2] = (jint)newFrame.IntegerWidth() + 1;
+	frame[3] = (jint)newFrame.IntegerHeight() + 1;
+
+	env->ReleaseIntArrayElements(_frame, frame, JNI_COMMIT);
+	env->ReleaseBooleanArrayElements(_moveResize, moveResize, JNI_COMMIT);
+}
+
+extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_setVisible(
 	JNIEnv* env, jobject object, jlong handle, jboolean visible)
 {

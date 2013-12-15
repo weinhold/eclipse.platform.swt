@@ -484,7 +484,7 @@ void error (int code) {
  */
 public Widget findWidget (long handle) {
 	checkDevice ();
-	return widgetTable.get(handle);
+	return getWidget(handle);
 }
 
 /**
@@ -1152,6 +1152,10 @@ public boolean getTouchEnabled() {
 	return false;
 }
 
+public Widget getWidget (long handle) {
+	return widgetTable.get(handle);
+}
+
 /**
  * Initializes any internal resources needed by the
  * device.
@@ -1665,6 +1669,12 @@ void sendEvent (int eventType, Event event) {
 	}
 }
 
+boolean runSkin () {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+	return false;
+}
+
 /**
  * Sets the application name to the argument.
  * <p>
@@ -1929,7 +1939,7 @@ void wakeThread () {
 
 
 private boolean callbackWindowQuitRequested(long windowHandle) {
-	Shell shell = (Shell)findWidget(windowHandle);
+	Shell shell = (Shell)getWidget(windowHandle);
 	if (shell == null) return false;
 	return shell.windowQuitRequested();
 }

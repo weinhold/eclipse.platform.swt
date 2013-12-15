@@ -106,7 +106,7 @@ long clientHandle () {
 public Rectangle computeTrim (int x, int y, int width, int height) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
-	return null;
+	return new Rectangle(x, y, width, height);
 }
 
 void createWidget (int index) {
@@ -136,9 +136,8 @@ void deregister () {
  * @see #computeTrim
  */
 public Rectangle getClientArea () {
-	int[] bounds = new int[4];
-	HaikuView.setAndGetFrame(clientHandle(), bounds, new boolean[2]);
-	return new Rectangle (bounds[0], bounds[1], bounds[2], bounds[3]);
+	checkWidget ();
+	return HaikuView.getFrame(clientHandle());
 }
 
 /**
