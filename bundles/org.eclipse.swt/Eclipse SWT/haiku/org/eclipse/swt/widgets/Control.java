@@ -725,8 +725,11 @@ public Point toDisplay (Point point) {
  * @see #removeControlListener
  */
 public void addControlListener(ControlListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Resize, typedListener);
+	addListener (SWT.Move, typedListener);
 }
 
 /**
@@ -1093,8 +1096,11 @@ public void addTraverseListener (TraverseListener listener) {
  * @see #addControlListener
  */
 public void removeControlListener (ControlListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Move, listener);
+	eventTable.unhook (SWT.Resize, listener);
 }
 
 /**
@@ -2537,6 +2543,14 @@ public boolean traverse (int traversal, KeyEvent event) {
 public void update () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+void controlFrameMoved() {
+	sendEvent(SWT.Move);
+}
+
+void controlFrameResized() {
+	sendEvent(SWT.Resize);
 }
 
 }

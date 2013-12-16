@@ -85,6 +85,20 @@ HaikuWindow::QuitRequested()
 }
 
 
+void
+HaikuWindow::FrameMoved(BPoint newPosition)
+{
+	fDisplay->CallbackControlFrameMoved(this);
+}
+
+
+void
+HaikuWindow::FrameResized(float newWidth, float newHeight)
+{
+	fDisplay->CallbackControlFrameResized(this);
+}
+
+
 HaikuWindow::RootView*
 HaikuWindow::CreateRootView()
 {

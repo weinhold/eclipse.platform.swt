@@ -31,6 +31,9 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuControl;
+
+
 class HaikuDisplay {
 public:
 								HaikuDisplay();
@@ -48,6 +51,11 @@ public:
 									HaikuMessageList& messages);
 
 			bool				HandleNextMessage();
+
+			void				CallbackControlFrameMoved(
+									HaikuControl* control);
+			void				CallbackControlFrameResized(
+									HaikuControl* control);
 
 			bool				CallbackWindowQuitRequested(
 									HaikuWindow* window);
@@ -67,6 +75,8 @@ private:
 
 			jobject				fObject;
 			jmethodID			fWindowQuitRequestedCallback;
+			jmethodID			fControlFrameMovedCallback;
+			jmethodID			fControlFrameResizedCallback;
 };
 
 

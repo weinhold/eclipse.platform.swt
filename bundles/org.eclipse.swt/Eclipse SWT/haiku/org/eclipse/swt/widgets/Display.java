@@ -1944,4 +1944,16 @@ private boolean callbackWindowQuitRequested(long windowHandle) {
 	return shell.windowQuitRequested();
 }
 
+private void callbackControlFrameMoved(long handle) {
+	Control control = (Control)getWidget(handle);
+	if (control == null) return;
+	control.controlFrameMoved();
+}
+
+private void callbackControlFrameResized(long handle) {
+	Control control = (Control)getWidget(handle);
+	if (control == null) return;
+	control.controlFrameResized();
+}
+
 }

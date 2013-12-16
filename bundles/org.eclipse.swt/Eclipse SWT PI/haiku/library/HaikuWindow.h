@@ -44,6 +44,9 @@ public:
 									BHandler* handler);
 	virtual	bool				QuitRequested();
 
+	virtual	void				FrameMoved(BPoint newPosition);
+	virtual	void				FrameResized(float newWidth, float newHeight);
+
 			RootView*			CreateRootView();
 
 			void				DispatchDelayedMessage(HaikuMessage* message);

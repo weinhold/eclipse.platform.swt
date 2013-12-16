@@ -25,6 +25,8 @@
 #include "swt.h"
 
 #include "HaikuControl.h"
+#include "HaikuDisplay.h"
+#include "HaikuJNIContext.h"
 
 
 namespace swt {
@@ -60,6 +62,16 @@ public:
 	static HaikuViewComposite* Get(jlong handle)
 	{
 		return GetAs<HaikuViewComposite>(handle);
+	}
+
+	virtual void FrameMoved(BPoint newPosition)
+	{
+		HaikuJNIContext::CurrentDisplay()->CallbackControlFrameMoved(this);
+	}
+
+	virtual void FrameResized(float newWidth, float newHeight)
+	{
+		HaikuJNIContext::CurrentDisplay()->CallbackControlFrameResized(this);
 	}
 
 	virtual bool Lock()

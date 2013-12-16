@@ -44,7 +44,10 @@ HaikuDisplay::HaikuDisplay()
 	:
 	fQueue(),
 	fContext(NULL),
-	fObject(NULL)
+	fObject(NULL),
+	fWindowQuitRequestedCallback(NULL),
+	fControlFrameMovedCallback(NULL),
+	fControlFrameResizedCallback(NULL)
 {
 	pthread_mutex_init(&fMutex, NULL);
 	pthread_cond_init(&fNotEmptyCondition, NULL);
@@ -136,6 +139,22 @@ HaikuDisplay::HandleNextMessage()
 }
 
 
+void
+HaikuDisplay::CallbackControlFrameMoved(HaikuControl* control)
+{
+	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
+		fControlFrameMovedCallback, control->Handle());
+}
+
+
+void
+HaikuDisplay::CallbackControlFrameResized(HaikuControl* control)
+{
+	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
+		fControlFrameResizedCallback, control->Handle());
+}
+
+
 bool
 HaikuDisplay::CallbackWindowQuitRequested(HaikuWindow* window)
 {
@@ -157,10 +176,21 @@ HaikuDisplay::_Init(jobject object)
 	if (clazz == NULL)
 		return false;
 
-	fWindowQuitRequestedCallback = env->GetMethodID(clazz,
-		"callbackWindowQuitRequested", "(J)Z");
+	#define GET_METHOD_ID(variable, name, signature)			\
+		variable = env->GetMethodID(clazz, name, signature);	\
+		if (variable == NULL)									\
+			return false;
 
-	return fWindowQuitRequestedCallback != NULL;
+	GET_METHOD_ID(fWindowQuitRequestedCallback, "callbackWindowQuitRequested",
+		"(J)Z");
+	GET_METHOD_ID(fControlFrameMovedCallback, "callbackControlFrameMoved",
+		"(J)V");
+	GET_METHOD_ID(fControlFrameResizedCallback, "callbackControlFrameResized",
+		"(J)V");
+
+	#undef GET_METHOD_ID
+
+	return true;
 }
 
 
@@ -199,7 +229,10 @@ Java_org_eclipse_swt_internal_haiku_HaikuDisplay_create(
 {
 	HAIKU_JNI_ENTER(env);
 
-	return (jlong)(addr_t)HaikuDisplay::Create(displayObject);
+	HaikuDisplay* display = HaikuDisplay::Create(displayObject);
+	haikuJniContext.SetDisplay(display);
+
+	return (jlong)(addr_t)display;
 }
 
 
@@ -208,6 +241,8 @@ Java_org_eclipse_swt_internal_haiku_HaikuDisplay_delete(
 	JNIEnv* env, jobject object, jlong handle)
 {
 	HAIKU_JNI_ENTER(env);
+
+	haikuJniContext.SetDisplay(NULL);
 
 	HaikuDisplay* display = (HaikuDisplay*)(addr_t)handle;
 	delete display;

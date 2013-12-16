@@ -36,6 +36,9 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuDisplay;
+
+
 class HaikuJNIContext {
 public:
 								HaikuJNIContext(JNIEnv* env
@@ -48,18 +51,24 @@ public:
 	static	HaikuJNIContext*	Current();
 	static	JNIEnv*				CurrentEnv()
 									{ return Current()->Env(); }
+	static	HaikuDisplay*		CurrentDisplay();
 
 			JNIEnv*				Env() const
 									{ return fEnv; }
+			HaikuDisplay*		Display() const
+									{ return fDisplay; }
+			void				SetDisplay(HaikuDisplay* display)
+									{ fDisplay = display; }
+
+private:
 
 private:
 	static	int32				fTLSSlot;
 
 			HaikuJNIContext*	fPrevious;
 			JNIEnv*				fEnv;
+			HaikuDisplay*		fDisplay;
 #ifdef TRACE_HAIKU_JNI
-			const char*			fFileName;
-			int					fLineNumber;
 			const char*			fFunctionName;
 #endif
 };

@@ -24,6 +24,9 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuWindow;
+
+
 class HaikuWidget {
 public:
 								HaikuWidget();
