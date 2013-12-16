@@ -21,6 +21,8 @@
 
 #include <interface/Window.h>
 
+#include "HaikuComposite.h"
+
 
 namespace swt {
 namespace haiku {
@@ -30,7 +32,10 @@ class HaikuDisplay;
 class HaikuMessage;
 
 
-class HaikuWindow : public BWindow {
+class HaikuWindow : public BWindow, public HaikuComposite {
+public:
+			typedef HaikuViewComposite<BView> RootView;
+
 public:
 								HaikuWindow(HaikuDisplay* display);
 								~HaikuWindow();
@@ -39,15 +44,34 @@ public:
 									BHandler* handler);
 	virtual	bool				QuitRequested();
 
-			BView*				CreateRootView();
-
-			void				Delete();
+			RootView*			CreateRootView();
 
 			void				DispatchDelayedMessage(HaikuMessage* message);
 
+	static	HaikuWindow*		Get(jlong handle)
+									{ return GetAs<HaikuWindow>(handle); }
+
+	// HaikuWidget interface 
+	virtual	void				Delete();
+
+	// HaikuControl interface 
+	virtual	bool				Lock();
+	virtual	void				Unlock();
+
+	virtual	BSize				ControlPreferredSize(jint wHint, jint hHint);
+	virtual	BRect				ControlFrame();
+	virtual	void				ControlMoveTo(const BPoint& point);
+	virtual	void				ControlResizeTo(const BSize& size);
+
+	// HaikuComposite interface 
+	virtual	bool				CompositeAddChild(HaikuControl* child);
+	virtual	bool				CompositeRemoveChild(HaikuControl* child);
+	virtual	void				CompositeGetChildren(
+									BObjectList<HaikuControl>& children);
+
 private:
 			HaikuDisplay*		fDisplay;
-			BView*				fRootView;
+			RootView*			fRootView;
 			HaikuMessage*		fDelayedMessage;
 			bool				fDeleted;
 };

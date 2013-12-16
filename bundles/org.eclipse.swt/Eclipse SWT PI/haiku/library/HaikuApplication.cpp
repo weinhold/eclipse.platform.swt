@@ -58,7 +58,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuApplication_create(JNIEnv* env,
 	if (!HaikuJNIContext::Init())
 		return 0;
 
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	if (!HaikuUtils::Init(env))
 		return 0;
@@ -79,7 +79,7 @@ extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuApplication_delete(JNIEnv* env,
 	jobject object)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	if (sApplication->Lock()) {
 		thread_id thread = sApplication->Thread();
@@ -99,7 +99,7 @@ extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuApplication_run(JNIEnv* env,
 	jobject object)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	sApplication->Lock();
 	sApplication->Run();

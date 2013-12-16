@@ -14,61 +14,49 @@
  *******************************************************************************/
 
 
+#include "HaikuWidget.h"
+
 #include "HaikuJNIContext.h"
 
-#include <TLS.h>
+
+using namespace swt::haiku;
 
 
 namespace swt {
 namespace haiku {
 
 
-int32 HaikuJNIContext::fTLSSlot = -1;
-
-
-HaikuJNIContext::HaikuJNIContext(JNIEnv* env
-	TRACE_HAIKU_JNI_ONLY(,const char* functionName))
-	:
-	fEnv(env)
-#ifdef TRACE_HAIKU_JNI
-	, fFunctionName(functionName)
-#endif
+HaikuWidget::HaikuWidget()
 {
-#ifdef TRACE_HAIKU_JNI
-	fprintf(stderr, "XXX Haiku: %s\n", fFunctionName);
-#endif
-
-	HaikuJNIContext** tls = (HaikuJNIContext**)tls_address(fTLSSlot);
-	fPrevious = *tls;
-	*tls = this;
 }
 
 
-HaikuJNIContext::~HaikuJNIContext()
+HaikuWidget::~HaikuWidget()
 {
-	tls_set(fTLSSlot, fPrevious);
-
-#ifdef TRACE_HAIKU_JNI
-	fprintf(stderr, "XXX Haiku: %s done\n", fFunctionName);
-#endif
 }
 
 
-/*static*/ bool
-HaikuJNIContext::Init()
+void
+HaikuWidget::Delete()
 {
-	if (fTLSSlot < 0)
-		fTLSSlot = tls_allocate();
-	return fTLSSlot >= 0;
-}
-
-
-/*static*/ HaikuJNIContext*
-HaikuJNIContext::Current()
-{
-	return (HaikuJNIContext*)tls_get(fTLSSlot);
+	delete this;
 }
 
 
 }	// namespace haiku
 }	// namespace swt
+
+
+// #pragma mark - native methods
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuWidget_delete(
+	JNIEnv* env, jobject object, jlong handle, jint wHint, jint hHint)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuWidget* widget = HaikuWidget::Get(handle);
+	widget->Delete();
+}
+

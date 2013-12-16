@@ -641,6 +641,7 @@ void releaseChildren (boolean destroy) {
  * widget, including freeing its platform handle(s).
  */
 void releaseHandle () {
+	if (handle != 0) HaikuWidget.delete(handle);
 	handle = 0;
 	state |= DISPOSED;
 	display = null;

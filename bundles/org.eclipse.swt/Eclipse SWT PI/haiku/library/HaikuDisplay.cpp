@@ -140,7 +140,7 @@ bool
 HaikuDisplay::CallbackWindowQuitRequested(HaikuWindow* window)
 {
 	return HaikuJNIContext::CurrentEnv()->CallBooleanMethod(fObject,
-		fWindowQuitRequestedCallback, (jlong)(addr_t)window);
+		fWindowQuitRequestedCallback, window->Handle());
 }
 
 
@@ -197,7 +197,7 @@ extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_create(
 	JNIEnv* env, jobject object, jlong applicationHandle, jobject displayObject)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	return (jlong)(addr_t)HaikuDisplay::Create(displayObject);
 }
@@ -207,7 +207,7 @@ extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_delete(
 	JNIEnv* env, jobject object, jlong handle)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	HaikuDisplay* display = (HaikuDisplay*)(addr_t)handle;
 	delete display;
@@ -218,7 +218,7 @@ extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_checkPendingEvents(
 	JNIEnv* env, jobject object, jlong handle, jboolean wait)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	HaikuDisplay* display = (HaikuDisplay*)(addr_t)handle;
 	return display->PeekMessage(wait) != NULL;
@@ -229,7 +229,7 @@ extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_handleNextEvent(
 	JNIEnv* env, jobject object, jlong handle)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	HaikuDisplay* display = (HaikuDisplay*)(addr_t)handle;
 	return display->HandleNextMessage();

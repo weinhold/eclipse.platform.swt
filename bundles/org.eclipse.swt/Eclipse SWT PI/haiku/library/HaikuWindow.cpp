@@ -19,6 +19,8 @@
 #include <GroupLayout.h>
 #include <View.h>
 
+#include <private/shared/AutoLocker.h>
+
 #include "swt.h"
 
 #include "HaikuDisplay.h"
@@ -83,7 +85,7 @@ HaikuWindow::QuitRequested()
 }
 
 
-BView*
+HaikuWindow::RootView*
 HaikuWindow::CreateRootView()
 {
 	BGroupLayout* layout = new(std::nothrow) BGroupLayout(B_HORIZONTAL);
@@ -91,7 +93,7 @@ HaikuWindow::CreateRootView()
 		return NULL;
 	SetLayout(layout);
 
-	fRootView = new(std::nothrow) BView(NULL, B_WILL_DRAW);
+	fRootView = new(std::nothrow) RootView((const char*)NULL, B_WILL_DRAW);
 	if (fRootView == NULL || layout->AddView(fRootView) == NULL) {
 		delete fRootView;
 		fRootView = NULL;
@@ -105,8 +107,20 @@ HaikuWindow::CreateRootView()
 
 
 void
+HaikuWindow::DispatchDelayedMessage(HaikuMessage* message)
+{
+	fDelayedMessage = message;
+	BWindow::DispatchMessage(message->Message(), message->Handler());
+		// TODO: Check whether the handler is still valid!
+	fDelayedMessage = NULL;
+}
+
+
+void
 HaikuWindow::Delete()
 {
+	AutoLocker<HaikuWindow> locker(this);
+
 	fDeleted = true;
 
 	// handle all of our messages still in the display message queue
@@ -128,13 +142,66 @@ HaikuWindow::Delete()
 }
 
 
-void
-HaikuWindow::DispatchDelayedMessage(HaikuMessage* message)
+bool
+HaikuWindow::Lock()
 {
-	fDelayedMessage = message;
-	BWindow::DispatchMessage(message->Message(), message->Handler());
-		// TODO: Check whether the handler is still valid!
-	fDelayedMessage = NULL;
+	return BWindow::Lock();
+}
+
+
+void
+HaikuWindow::Unlock()
+{
+	BWindow::Unlock();
+}
+
+
+BSize
+HaikuWindow::ControlPreferredSize(jint wHint, jint hHint)
+{
+	return fRootView->ControlPreferredSize(wHint, hHint);
+}
+
+
+BRect
+HaikuWindow::ControlFrame()
+{
+	return Frame();
+}
+
+
+void
+HaikuWindow::ControlMoveTo(const BPoint& point)
+{
+	MoveTo(point);
+}
+
+
+void
+HaikuWindow::ControlResizeTo(const BSize& size)
+{
+	ResizeTo(size.width, size.height);
+}
+
+
+bool
+HaikuWindow::CompositeAddChild(HaikuControl* child)
+{
+	return fRootView->CompositeAddChild(child);
+}
+
+
+bool
+HaikuWindow::CompositeRemoveChild(HaikuControl* child)
+{
+	return fRootView->CompositeRemoveChild(child);
+}
+
+
+void
+HaikuWindow::CompositeGetChildren(BObjectList<HaikuControl>& children)
+{
+	fRootView->CompositeGetChildren(children);
 }
 
 
@@ -149,24 +216,11 @@ extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_create(
 	JNIEnv* env, jobject object, jlong displayHandle)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
 	HaikuDisplay* display = (HaikuDisplay*)(addr_t)displayHandle;
-	return (jlong)(addr_t)new(std::nothrow) HaikuWindow(display);
-}
-
-
-extern "C" void
-Java_org_eclipse_swt_internal_haiku_HaikuWindow_delete(JNIEnv* env,
-	jobject object, jlong handle)
-{
-	HaikuJNIContext haikuJniContext(env);
-
-	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
-	if (window->Lock()) {
-		window->Delete();
-		window->Unlock();
-	}
+	HaikuWindow* window = new(std::nothrow) HaikuWindow(display);
+	return window != NULL ? window->Handle() : 0;
 }
 
 
@@ -174,80 +228,26 @@ extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_createRootView(JNIEnv* env,
 	jobject object, jlong handle)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
-	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
-	BView* view = NULL;
+	HaikuWindow* window = HaikuWindow::Get(handle);
+	HaikuWindow::RootView* view = NULL;
 	if (window->Lock()) {
 		view = window->CreateRootView();
 		window->Unlock();
 	}
 
-	return (jlong)(addr_t)view;
+	return view != NULL ? view->Handle() : 0;
 }
 
-
-extern "C" void
-Java_org_eclipse_swt_internal_haiku_HaikuWindow_setAndGetFrame(
-	JNIEnv* env, jobject object, jlong handle, jintArray _frame,
-	jbooleanArray _moveResize)
-{
-	HaikuJNIContext haikuJniContext(env);
-
-	jint* frame = env->GetIntArrayElements(_frame, NULL);
-	if (frame == NULL)
-		return;
-
-	jboolean* moveResize = env->GetBooleanArrayElements(_moveResize, NULL);
-	if (frame == NULL) {
-		env->ReleaseIntArrayElements(_frame, frame, JNI_ABORT);
-		return;
-	}
-
-	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
-	BRect newFrame;
-	if (window->Lock()) {
-		BRect oldFrame = window->Frame();
-		if (moveResize[0]) {
-			BPoint leftTop(frame[0], frame[1]);
-			if (leftTop != oldFrame.LeftTop())
-				window->MoveTo(leftTop);
-			else
-				moveResize[0] = false;
-		}
-
-		if (moveResize[1]) {
-			BSize size(frame[2] - 1, frame[3] - 1);
-			if (size != oldFrame.Size())
-				window->ResizeTo(size.width, size.height);
-			else
-				moveResize[1] = false;
-		}
-
-		newFrame = window->Frame();
-
-		window->Unlock();
-	} else {
-		moveResize[0] = false;
-		moveResize[1] = false;
-	}
-
-	frame[0] = (jint)newFrame.left;
-	frame[1] = (jint)newFrame.top;
-	frame[2] = (jint)newFrame.IntegerWidth() + 1;
-	frame[3] = (jint)newFrame.IntegerHeight() + 1;
-
-	env->ReleaseIntArrayElements(_frame, frame, JNI_COMMIT);
-	env->ReleaseBooleanArrayElements(_moveResize, moveResize, JNI_COMMIT);
-}
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_setVisible(
 	JNIEnv* env, jobject object, jlong handle, jboolean visible)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
-	HaikuWindow* window = (HaikuWindow*)(addr_t)handle;
+	HaikuWindow* window = HaikuWindow::Get(handle);
 	if (window->Lock()) {
 		bool isVisible = !window->IsHidden();
 		if (isVisible != visible) {

@@ -137,7 +137,10 @@ void deregister () {
  */
 public Rectangle getClientArea () {
 	checkWidget ();
-	return HaikuView.getFrame(clientHandle());
+	Rectangle result = HaikuControl.getFrame(clientHandle());
+	result.x = 0;
+	result.y = 0;
+	return result;
 }
 
 /**

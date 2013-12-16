@@ -107,7 +107,7 @@ public Composite (Composite parent, int style) {
 
 void addChild(long childHandle)
 {
-	HaikuView.addChild(handle, childHandle);
+	HaikuComposite.addChild(handle, childHandle);
 }
 
 /**
@@ -233,7 +233,7 @@ public int getBackgroundMode () {
 
 Control [] _getChildren () {
 	long parentHandle = parentingHandle ();
-	long[] childHandles = HaikuView.getChildren(parentHandle);
+	long[] childHandles = HaikuComposite.getChildren(parentHandle);
 	if (childHandles == null) return new Control[0];
 	Set<Control> children = new HashSet<>();
 	for (int i = 0; i < childHandles.length; i++) {
@@ -596,7 +596,7 @@ void releaseWidget () {
 
 void removeChild(long childHandle)
 {
-	HaikuView.removeChild(handle, childHandle);
+	HaikuComposite.removeChild(handle, childHandle);
 }
 
 void removeControl (Control control) {

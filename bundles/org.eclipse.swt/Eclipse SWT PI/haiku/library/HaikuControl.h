@@ -13,62 +13,41 @@
  *     Ingo Weinhold
  *******************************************************************************/
 
+#ifndef INC_HAIKU_CONTROL_H
+#define INC_HAIKU_CONTROL_H
 
-#include "HaikuJNIContext.h"
 
-#include <TLS.h>
+#include <Rect.h>
+#include <Size.h>
+
+#include "HaikuWidget.h"
 
 
 namespace swt {
 namespace haiku {
 
 
-int32 HaikuJNIContext::fTLSSlot = -1;
+class HaikuControl : public HaikuWidget {
+public:
+								HaikuControl();
+	virtual						~HaikuControl();
 
+	static	HaikuControl*		Get(jlong handle)
+									{ return GetAs<HaikuControl>(handle); }
 
-HaikuJNIContext::HaikuJNIContext(JNIEnv* env
-	TRACE_HAIKU_JNI_ONLY(,const char* functionName))
-	:
-	fEnv(env)
-#ifdef TRACE_HAIKU_JNI
-	, fFunctionName(functionName)
-#endif
-{
-#ifdef TRACE_HAIKU_JNI
-	fprintf(stderr, "XXX Haiku: %s\n", fFunctionName);
-#endif
+	virtual	bool				Lock() = 0;
+	virtual	void				Unlock() = 0;
 
-	HaikuJNIContext** tls = (HaikuJNIContext**)tls_address(fTLSSlot);
-	fPrevious = *tls;
-	*tls = this;
-}
-
-
-HaikuJNIContext::~HaikuJNIContext()
-{
-	tls_set(fTLSSlot, fPrevious);
-
-#ifdef TRACE_HAIKU_JNI
-	fprintf(stderr, "XXX Haiku: %s done\n", fFunctionName);
-#endif
-}
-
-
-/*static*/ bool
-HaikuJNIContext::Init()
-{
-	if (fTLSSlot < 0)
-		fTLSSlot = tls_allocate();
-	return fTLSSlot >= 0;
-}
-
-
-/*static*/ HaikuJNIContext*
-HaikuJNIContext::Current()
-{
-	return (HaikuJNIContext*)tls_get(fTLSSlot);
-}
+	virtual	BSize				ControlPreferredSize(jint wHint, jint hHint)
+									= 0;
+	virtual	BRect				ControlFrame() = 0;
+	virtual	void				ControlMoveTo(const BPoint& point) = 0;
+	virtual	void				ControlResizeTo(const BSize& size) = 0;
+};
 
 
 }	// namespace haiku
 }	// namespace swt
+
+
+#endif /* INC_HAIKU_CONTROL_H */

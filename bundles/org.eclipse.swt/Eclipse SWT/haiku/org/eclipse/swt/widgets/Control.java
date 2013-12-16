@@ -236,7 +236,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 
 Point computeNativeSize (long handle, int wHint, int hHint, boolean changed) {
 	if (wHint != SWT.DEFAULT && hHint != SWT.DEFAULT) return new Point(wHint, hHint);
-	return HaikuView.getPreferredSize(handle, wHint, hHint);
+	return HaikuControl.getPreferredSize(handle, wHint, hHint);
 }
 
 void addToParent() {
@@ -293,7 +293,7 @@ public Accessible getAccessible () {
  */
 public Rectangle getBounds () {
 	checkWidget ();
-	return HaikuView.getFrame(topHandle());
+	return HaikuControl.getFrame(topHandle());
 }
 
 /**
@@ -351,7 +351,7 @@ public void setBounds (int x, int y, int width, int height) {
 int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
 	int bounds[] = new int[]{x, y, width, height};
 	boolean moveResize[] = new boolean[]{move, resize};
-	HaikuView.setAndGetFrame(topHandle(), bounds, moveResize);
+	HaikuControl.setAndGetFrame(topHandle(), bounds, moveResize);
 
 	int result = 0;
 	if (moveResize[0]) {

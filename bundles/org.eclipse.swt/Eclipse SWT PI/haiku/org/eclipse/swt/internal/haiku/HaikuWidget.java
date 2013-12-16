@@ -18,13 +18,6 @@ package org.eclipse.swt.internal.haiku;
 import org.eclipse.swt.SWT;
 
 
-public class HaikuLabel {
-	public static native long create(long displayHandle);
-
-	/*
-	 * aligment is -1 (left), 0 (center), or 1 (right).
-	 */
-	public static native void setAlignment(long handle, int alignment);
-
-	public static native void setText(long handle, String text);
+public class HaikuWidget {
+	public static native void delete(long handle);
 }

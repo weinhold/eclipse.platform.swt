@@ -18,12 +18,18 @@
 
 #include <StringView.h>
 
+#include <private/shared/AutoLocker.h>
+
+#include "HaikuComposite.h"
 #include "HaikuDisplay.h"
 #include "HaikuJNIContext.h"
 #include "HaikuUtils.h"
 
 
 using namespace swt::haiku;
+
+
+typedef HaikuViewComposite<BStringView> HaikuLabel;
 
 
 // #pragma mark - native methods
@@ -33,20 +39,12 @@ extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_create(
 	JNIEnv* env, jobject object, jlong displayHandle)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
-	return (jlong)(addr_t)new(std::nothrow) BStringView(NULL, "");
-}
-
-
-extern "C" void
-Java_org_eclipse_swt_internal_haiku_HaikuLabel_delete(JNIEnv* env,
-	jobject object, jlong handle)
-{
-	HaikuJNIContext haikuJniContext(env);
-
-	BStringView* view = (BStringView*)(addr_t)handle;
-	delete view;
+	HaikuLabel* label = new(std::nothrow) HaikuLabel((const char*)NULL, "");
+	if (label == NULL)
+		return 0;
+	return label->Handle();
 }
 
 
@@ -54,16 +52,14 @@ extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_setAlignment(
 	JNIEnv* env, jobject object, jlong handle, jint alignment)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
-	BStringView* view = (BStringView*)(addr_t)handle;
-	bool locked = view->LockLooper();
-	view->SetAlignment(
+	HaikuLabel* label = HaikuLabel::Get(handle);
+	AutoLocker<HaikuLabel> labelLocker(label);
+	label->SetAlignment(
 		alignment == 0
 			? B_ALIGN_CENTER
 			: (alignment < 0 ? B_ALIGN_LEFT : B_ALIGN_RIGHT));
-	if (locked)
-		view->UnlockLooper();
 }
 
 
@@ -71,11 +67,9 @@ extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_setText(
 	JNIEnv* env, jobject object, jlong handle, jstring text)
 {
-	HaikuJNIContext haikuJniContext(env);
+	HAIKU_JNI_ENTER(env);
 
-	BStringView* view = (BStringView*)(addr_t)handle;
-	bool locked = view->LockLooper();
-	view->SetText(HaikuUtils::FromJavaString(text));
-	if (locked)
-		view->UnlockLooper();
+	HaikuLabel* label = HaikuLabel::Get(handle);
+	AutoLocker<HaikuLabel> labelLocker(label);
+	label->SetText(HaikuUtils::FromJavaString(text));
 }

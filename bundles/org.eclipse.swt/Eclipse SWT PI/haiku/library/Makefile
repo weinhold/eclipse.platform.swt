@@ -45,6 +45,7 @@ SWTPI_LIB = lib$(SWTPI_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).so
 #CAIROLIBS = `pkg-config --libs-only-L cairo` -lcairo
 
 HAIKUCFLAGS = 
+HAIKUCXXFLAGS = -std=c++11
 HAIKULIBS = -lbe -ltextencoding
 
 #CDE_LIBS = -L$(CDE_HOME)/lib -R$(CDE_HOME)/lib -lXt -lX11 -lDtSvc
@@ -82,7 +83,8 @@ SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 #CDE_OBJECTS = swt.o cde.o cde_structs.o cde_stats.o
 #AWT_OBJECTS = swt_awt.o
 SWTPI_OBJECTS = HaikuApplication.o HaikuDisplay.o HaikuJNIContext.o \
-	HaikuLabel.o HaikuMessage.o HaikuUtils.o HaikuView.o HaikuWindow.o swt.o
+	HaikuComposite.o HaikuControl.o HaikuLabel.o HaikuMessage.o HaikuUtils.o \
+	HaikuWidget.o HaikuWindow.o swt.o
 #CAIRO_OBJECTS = swt.o cairo.o cairo_structs.o cairo_stats.o
 #ATK_OBJECTS = swt.o atk.o atk_structs.o atk_custom.o atk_stats.o
 #GNOME_OBJECTS = swt.o gnome.o gnome_structs.o gnome_stats.o
@@ -99,7 +101,7 @@ CFLAGS = -O -Wall \
 		-I$(JAVA_HOME)/include/haiku \
 		-fPIC \
 		${SWT_PTR_CFLAGS}
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS = $(CFLAGS) $(HAIKUCXXFLAGS)
 LFLAGS = -shared -fPIC
 
 ifndef NO_STRIP
@@ -129,12 +131,6 @@ swt.o: swt.c swt.h
 	$(CC) $(CFLAGS) -c swt.c
 os.o: os.c os.h swt.h os_custom.h
 	$(CC) $(CFLAGS) $(HAIKUCFLAGS) -c os.c
-os_structs.o: os_structs.c os_structs.h os.h swt.h
-	$(CC) $(CFLAGS) $(HAIKUCFLAGS) -c os_structs.c 
-os_custom.o: os_custom.c os_structs.h os.h swt.h
-	$(CC) $(CFLAGS) $(HAIKUCFLAGS) -c os_custom.c
-os_stats.o: os_stats.c os_structs.h os.h os_stats.h swt.h
-	$(CC) $(CFLAGS) $(HAIKUCFLAGS) -c os_stats.c
 
 ##
 ## CAIRO libs

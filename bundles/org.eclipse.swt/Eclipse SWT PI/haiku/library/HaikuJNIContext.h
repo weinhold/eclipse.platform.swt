@@ -22,13 +22,25 @@
 #include "swt.h"
 
 
+// define to enable tracing for JNI function
+#define TRACE_HAIKU_JNI
+
+#ifdef TRACE_HAIKU_JNI
+#	define TRACE_HAIKU_JNI_ONLY(...)	__VA_ARGS__
+#else
+#	define TRACE_HAIKU_JNI_ONLY(...)
+#endif
+
+
 namespace swt {
 namespace haiku {
 
 
 class HaikuJNIContext {
 public:
-								HaikuJNIContext(JNIEnv* env);
+								HaikuJNIContext(JNIEnv* env
+									TRACE_HAIKU_JNI_ONLY(
+										, const char* functionName));
 								~HaikuJNIContext();
 
 	static	bool				Init();
@@ -45,11 +57,25 @@ private:
 
 			HaikuJNIContext*	fPrevious;
 			JNIEnv*				fEnv;
+#ifdef TRACE_HAIKU_JNI
+			const char*			fFileName;
+			int					fLineNumber;
+			const char*			fFunctionName;
+#endif
 };
 
 
 }	// namespace haiku
 }	// namespace swt
+
+
+#ifdef TRACE_HAIKU_JNI
+#	define HAIKU_JNI_ENTER(env)	\
+		HaikuJNIContext haikuJniContext(env, __PRETTY_FUNCTION__)
+#else
+#	define HAIKU_JNI_ENTER(env)	\
+		HaikuJNIContext haikuJniContext(env)
+#endif
 
 
 #endif /* INC_HAIKU_JNI_CONTEXT_H */

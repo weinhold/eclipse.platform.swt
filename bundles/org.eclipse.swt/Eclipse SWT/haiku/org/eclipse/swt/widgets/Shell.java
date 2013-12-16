@@ -119,7 +119,7 @@ import org.eclipse.swt.events.*;
  */
 public class Shell extends Decorations {
 
-	private long windowHandle;
+	private long rootViewHandle;
 
 /**
  * Constructs a new instance of this class. This is equivalent
@@ -440,13 +440,13 @@ void closeWidget () {
 
 void createHandle (int index) {
 	state |= HANDLE | CANVAS;
-	if (windowHandle == 0) {
-		windowHandle = HaikuWindow.create(display.getDisplayHandle());
-		if (windowHandle == 0) error(SWT.ERROR_NO_HANDLES);
+	if (handle == 0) {
+		handle = HaikuWindow.create(display.getDisplayHandle());
+		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
 	}
 
-	handle = HaikuWindow.createRootView(windowHandle);
-	if (handle == 0) error(SWT.ERROR_NO_HANDLES);
+	rootViewHandle = HaikuWindow.createRootView(handle);
+	if (rootViewHandle == 0) error(SWT.ERROR_NO_HANDLES);
 
 	// TODO: Implement!
 	HaikuUtils.partiallyImplemented();
@@ -491,11 +491,6 @@ public int getAlpha () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return 255;  
-}
-
-public Rectangle getBounds () {
-	checkWidget ();
-	return HaikuWindow.getFrame(windowHandle);
 }
 
 /**
@@ -659,13 +654,10 @@ public void open () {
 
 void register () {
 	super.register ();
-	display.addWidget (windowHandle, this);
 }
 
 void releaseHandle () {
 	super.releaseHandle ();
-	HaikuWindow.delete(windowHandle);
-	windowHandle = 0;
 }
 
 void releaseChildren (boolean destroy) {
@@ -752,23 +744,6 @@ public void setActive () {
 public void setAlpha (int alpha) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
-}
-
-int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
-	int bounds[] = new int[]{x, y, width, height};
-	boolean moveResize[] = new boolean[]{move, resize};
-	HaikuWindow.setAndGetFrame(windowHandle, bounds, moveResize);
-
-	int result = 0;
-	if (moveResize[0]) {
-		sendEvent (SWT.Move);
-//		result |= MOVED;
-	}
-	if (moveResize[1]) {
-		sendEvent (SWT.Resize);
-//		result |= RESIZED;
-	}
-	return result;
 }
 
 /**
@@ -907,12 +882,11 @@ public void setRegion (Region region) {
 
 public void setVisible (boolean visible) {
 	checkWidget();
-	HaikuWindow.setVisible(windowHandle, visible);
+	HaikuWindow.setVisible(handle, visible);
 }
 
 void deregister () {
 	super.deregister ();
-	display.removeWidget (windowHandle);
 }
 
 public void dispose () {
@@ -921,7 +895,7 @@ public void dispose () {
 	* more than once.  If this happens, fail silently.
 	*/
 	if (isDisposed()) return;
-	HaikuWindow.setVisible(windowHandle, false);
+	HaikuWindow.setVisible(handle, false);
 	super.dispose ();
 	// TODO: Missing: Call to fixActiveShell().
 	HaikuUtils.partiallyImplemented();

@@ -20,27 +20,9 @@ import org.eclipse.swt.graphics.Rectangle;
 
 
 public class HaikuWindow {
-	public static Rectangle getFrame(long handle) {
-		int[] bounds = new int[4];
-		HaikuView.setAndGetFrame(handle, bounds, new boolean[2]);
-		return new Rectangle (bounds[0], bounds[1], bounds[2], bounds[3]);
-	}
-
 	public static native long create(long displayHandle);
 
 	public static native long createRootView(long handle);
-
-	public static native void delete(long handle);
-
-	/*
-	 * frame is an int[4] (x, y, width, height), specifying the new position
-	 * and size. It is also an out parameter, returing the new position and
-	 * size.
-	 * moveResize is a boolean[2] (move, resize), specifying whether the window
-	 * shall be moved and/or resized. It is also an out parameter, indicating
-	 * whether the window has been moved and/or resized.
-	 */
-	public static native void setAndGetFrame(long handle, int[] frame, boolean moveResize[]);
 
 	public static native void setVisible(long handle, boolean visible);
 }
