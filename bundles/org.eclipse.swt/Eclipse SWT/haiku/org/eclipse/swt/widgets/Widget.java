@@ -70,8 +70,8 @@ public abstract class Widget {
 //	static final int DISABLED = 1<<4;
 //	static final int MENU = 1<<5;
 //	static final int OBSCURED = 1<<6;
-//	static final int MOVED = 1<<7;
-//	static final int RESIZED = 1<<8;
+	static final int MOVED = 1<<7;
+	static final int RESIZED = 1<<8;
 //	static final int ZERO_WIDTH = 1<<9;
 //	static final int ZERO_HEIGHT = 1<<10;
 //	static final int HIDDEN = 1<<11;
@@ -81,9 +81,15 @@ public abstract class Widget {
 //	static final int PARENT_BACKGROUND = 1<<15;
 //	static final int THEME_BACKGROUND = 1<<16;
 
+	/* A layout was requested on this widget */
+	static final int LAYOUT_NEEDED	= 1<<17;
+	
 	/* The preferred size of a child has changed */
 	static final int LAYOUT_CHANGED = 1<<18;
 	
+	/* A layout was requested in this widget hierachy */
+	static final int LAYOUT_CHILD = 1<<19;
+
 	/* More global state flags */
 	static final int RELEASED = 1<<20;
 	static final int DISPOSE_SENT = 1<<21;
@@ -902,6 +908,12 @@ public String toString () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+}
+
+void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
 }
 
 }

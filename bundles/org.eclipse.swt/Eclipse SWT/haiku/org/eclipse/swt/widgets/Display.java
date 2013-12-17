@@ -12,9 +12,11 @@ package org.eclipse.swt.widgets;
 
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -115,6 +117,9 @@ public class Display extends Device {
 
 	/* Display Shutdown */
 	Queue<Runnable> disposeList;
+
+	/* Deferred Layout list */
+	List<Composite> layoutDeferred;
 
 	/* System Tray */
 	Tray tray;
@@ -223,6 +228,11 @@ public void addFilter (int eventType, Listener listener) {
 	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (filterTable == null) filterTable = new EventTable ();
 	filterTable.hook (eventType, listener);
+}
+
+void addLayoutDeferred (Composite comp) {
+	if (layoutDeferred == null) layoutDeferred = new ArrayList<>();
+	layoutDeferred.add(comp);
 }
 
 /**
@@ -1495,6 +1505,8 @@ public boolean readAndDispatch () {
 	// immediately sleeps after readAndDispatch() returned true, even if the
 	// shell was disposed.
 	checkDevice ();
+	runSkin ();
+	runDeferredLayouts ();
 	HaikuUtils.partiallyImplemented();
 	return HaikuDisplay.handleNextEvent(deviceHandle);
 }
@@ -1624,6 +1636,17 @@ public void removeListener (int eventType, Listener listener) {
 Widget removeWidget (long handle) {
 	if (handle == 0) return null;
 	return widgetTable.remove(handle);
+}
+
+boolean runDeferredLayouts () {
+	if (layoutDeferred == null || layoutDeferred.isEmpty()) return false;
+	List<Composite> temp = layoutDeferred;
+	layoutDeferred = null;
+	for (Composite comp : temp) {
+		if (!comp.isDisposed()) comp.setLayoutDeferred (false);
+	}
+	update ();
+	return true;
 }
 
 /**
@@ -1938,22 +1961,22 @@ void wakeThread () {
 }
 
 
-private boolean callbackWindowQuitRequested(long windowHandle) {
+private boolean haikuWindowQuitRequested(long windowHandle) {
 	Shell shell = (Shell)getWidget(windowHandle);
 	if (shell == null) return false;
-	return shell.windowQuitRequested();
+	return shell.haikuWindowQuitRequested(windowHandle);
 }
 
-private void callbackControlFrameMoved(long handle) {
-	Control control = (Control)getWidget(handle);
-	if (control == null) return;
-	control.controlFrameMoved();
+private void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.haikuWidgetFrameMoved(handle, newX, newY);
 }
 
-private void callbackControlFrameResized(long handle) {
-	Control control = (Control)getWidget(handle);
-	if (control == null) return;
-	control.controlFrameResized();
+private void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.haikuWidgetFrameResized(handle, newWidth, newHeight);
 }
 
 }

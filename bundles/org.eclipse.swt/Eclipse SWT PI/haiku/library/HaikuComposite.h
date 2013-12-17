@@ -66,12 +66,14 @@ public:
 
 	virtual void FrameMoved(BPoint newPosition)
 	{
-		HaikuJNIContext::CurrentDisplay()->CallbackControlFrameMoved(this);
+		HaikuJNIContext::CurrentDisplay()->CallbackWidgetFrameMoved(this,
+			newPosition);
 	}
 
 	virtual void FrameResized(float newWidth, float newHeight)
 	{
-		HaikuJNIContext::CurrentDisplay()->CallbackControlFrameResized(this);
+		HaikuJNIContext::CurrentDisplay()->CallbackWidgetFrameResized(this,
+			BSize(newWidth, newHeight));
 	}
 
 	virtual bool Lock()

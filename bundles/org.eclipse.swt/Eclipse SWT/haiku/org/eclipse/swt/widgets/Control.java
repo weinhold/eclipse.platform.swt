@@ -44,6 +44,7 @@ import org.eclipse.swt.internal.haiku.*;
  */
 public abstract class Control extends Widget implements Drawable {
 	Composite parent;
+	Object layoutData;
 
 Control () {
 }
@@ -296,6 +297,10 @@ public Rectangle getBounds () {
 	return HaikuControl.getFrame(topHandle());
 }
 
+void markLayout (boolean changed, boolean all) {
+	/* Do nothing */
+}
+
 /**
  * Sets the receiver's size and location to the rectangular
  * area specified by the argument. The <code>x</code> and 
@@ -356,11 +361,11 @@ int setBounds (int x, int y, int width, int height, boolean move, boolean resize
 	int result = 0;
 	if (moveResize[0]) {
 		sendEvent (SWT.Move);
-//		result |= MOVED;
+		result |= MOVED;
 	}
 	if (moveResize[1]) {
 		sendEvent (SWT.Resize);
-//		result |= RESIZED;
+		result |= RESIZED;
 	}
 	return result;
 }
@@ -613,8 +618,8 @@ public void pack (boolean changed) {
  * </ul>
  */
 public void setLayoutData (Object layoutData) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	this.layoutData = layoutData;
 }
 
 /**
@@ -1657,9 +1662,8 @@ public Color getForeground () {
  * </ul>
  */
 public Object getLayoutData () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return layoutData;
 }
 
 /**
@@ -2027,6 +2031,7 @@ void releaseParent () {
 
 void releaseWidget () {
 	super.releaseWidget ();
+	layoutData = null;
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 }
@@ -2545,12 +2550,8 @@ public void update () {
 	HaikuUtils.notImplemented();
 }
 
-void controlFrameMoved() {
-	sendEvent(SWT.Move);
-}
-
-void controlFrameResized() {
-	sendEvent(SWT.Resize);
+void updateLayout (boolean all) {
+	/* Do nothing */
 }
 
 }

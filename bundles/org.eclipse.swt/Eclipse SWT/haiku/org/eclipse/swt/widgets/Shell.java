@@ -121,6 +121,9 @@ public class Shell extends Decorations {
 
 	private long rootViewHandle;
 
+	// Last known shell bounds; used for detecting user moves/resizes.
+	private int oldX, oldY, oldWidth, oldHeight;
+
 /**
  * Constructs a new instance of this class. This is equivalent
  * to calling <code>Shell((Display) null)</code>.
@@ -448,8 +451,18 @@ void createHandle (int index) {
 	rootViewHandle = HaikuWindow.createRootView(handle);
 	if (rootViewHandle == 0) error(SWT.ERROR_NO_HANDLES);
 
+	Rectangle bounds = getBounds();
+	oldX = bounds.x;
+	oldY = bounds.y;
+	oldWidth = bounds.width;
+	oldHeight = bounds.height;
+
 	// TODO: Implement!
 	HaikuUtils.partiallyImplemented();
+}
+
+Composite findDeferredControl () {
+	return layoutCount > 0 ? this : null;
 }
 
 /**
@@ -746,6 +759,22 @@ public void setAlpha (int alpha) {
 	HaikuUtils.notImplemented();
 }
 
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+	if (move && x == oldX && y == oldY) move = false;
+	if (resize && width == oldWidth && height == oldHeight) resize = false;
+	if (!move && !resize) return 0;
+	int result = super.setBounds(x, y, width, height, move, resize);
+	if ((result & RESIZED) != 0) {
+		oldX = x;
+		oldY = y;
+	}
+	if ((result & MOVED) != 0) {
+		oldWidth = width;
+		oldHeight = height;
+	}
+	return result;
+}
+
 /**
  * Sets the full screen state of the receiver.
  * If the argument is <code>true</code> causes the receiver
@@ -927,7 +956,29 @@ public void forceActive () {
 	HaikuUtils.notImplemented();
 }
 
-boolean windowQuitRequested() {
+void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+	if (handle != this.handle) return;
+	if (newX != oldX || newY != oldY) {
+		// moved by the user
+		oldX = newX;
+		oldY = newY;
+		sendEvent(SWT.Move);
+	}
+}
+
+void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
+	if (handle != this.handle) return;
+	if (newWidth != oldWidth || newHeight != oldHeight) {
+		// resized by the user
+		oldWidth = newWidth;
+		oldHeight = newHeight;
+		sendEvent(SWT.Resize);
+		markLayout (false, false);
+		updateLayout (false);
+	}
+}
+
+boolean haikuWindowQuitRequested(long handle) {
 	if (isDisposed()) return false;
 	close();
 	return false;

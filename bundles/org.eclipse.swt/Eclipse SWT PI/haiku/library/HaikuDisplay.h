@@ -19,6 +19,9 @@
 
 #include <pthread.h>
 
+#include <Point.h>
+#include <Size.h>
+
 #include "swt.h"
 
 #include "HaikuMessage.h"
@@ -31,7 +34,7 @@ namespace swt {
 namespace haiku {
 
 
-class HaikuControl;
+class HaikuWidget;
 
 
 class HaikuDisplay {
@@ -52,10 +55,11 @@ public:
 
 			bool				HandleNextMessage();
 
-			void				CallbackControlFrameMoved(
-									HaikuControl* control);
-			void				CallbackControlFrameResized(
-									HaikuControl* control);
+			void				CallbackWidgetFrameMoved(
+									HaikuWidget* widget,
+									const BPoint& newPosition);
+			void				CallbackWidgetFrameResized(
+									HaikuWidget* widget, const BSize& newSize);
 
 			bool				CallbackWindowQuitRequested(
 									HaikuWindow* window);
@@ -74,9 +78,9 @@ private:
 			DispatchContext*	fContext;
 
 			jobject				fObject;
+			jmethodID			fWidgetFrameMovedCallback;
+			jmethodID			fWidgetFrameResizedCallback;
 			jmethodID			fWindowQuitRequestedCallback;
-			jmethodID			fControlFrameMovedCallback;
-			jmethodID			fControlFrameResizedCallback;
 };
 
 

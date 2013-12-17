@@ -45,9 +45,9 @@ HaikuDisplay::HaikuDisplay()
 	fQueue(),
 	fContext(NULL),
 	fObject(NULL),
-	fWindowQuitRequestedCallback(NULL),
-	fControlFrameMovedCallback(NULL),
-	fControlFrameResizedCallback(NULL)
+	fWidgetFrameMovedCallback(NULL),
+	fWidgetFrameResizedCallback(NULL),
+	fWindowQuitRequestedCallback(NULL)
 {
 	pthread_mutex_init(&fMutex, NULL);
 	pthread_cond_init(&fNotEmptyCondition, NULL);
@@ -140,18 +140,22 @@ HaikuDisplay::HandleNextMessage()
 
 
 void
-HaikuDisplay::CallbackControlFrameMoved(HaikuControl* control)
+HaikuDisplay::CallbackWidgetFrameMoved(HaikuWidget* widget,
+	const BPoint& newPosition)
 {
 	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
-		fControlFrameMovedCallback, control->Handle());
+		fWidgetFrameMovedCallback, widget->Handle(), (jint)newPosition.x,
+		(jint)newPosition.y);
 }
 
 
 void
-HaikuDisplay::CallbackControlFrameResized(HaikuControl* control)
+HaikuDisplay::CallbackWidgetFrameResized(HaikuWidget* widget,
+	const BSize& newSize)
 {
 	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
-		fControlFrameResizedCallback, control->Handle());
+		fWidgetFrameResizedCallback, widget->Handle(), (jint)newSize.width + 1,
+		(jint)newSize.height + 1);
 }
 
 
@@ -181,12 +185,12 @@ HaikuDisplay::_Init(jobject object)
 		if (variable == NULL)									\
 			return false;
 
-	GET_METHOD_ID(fWindowQuitRequestedCallback, "callbackWindowQuitRequested",
+	GET_METHOD_ID(fWidgetFrameMovedCallback, "haikuWidgetFrameMoved",
+		"(JII)V");
+	GET_METHOD_ID(fWidgetFrameResizedCallback, "haikuWidgetFrameResized",
+		"(JII)V");
+	GET_METHOD_ID(fWindowQuitRequestedCallback, "haikuWindowQuitRequested",
 		"(J)Z");
-	GET_METHOD_ID(fControlFrameMovedCallback, "callbackControlFrameMoved",
-		"(J)V");
-	GET_METHOD_ID(fControlFrameResizedCallback, "callbackControlFrameResized",
-		"(J)V");
 
 	#undef GET_METHOD_ID
 

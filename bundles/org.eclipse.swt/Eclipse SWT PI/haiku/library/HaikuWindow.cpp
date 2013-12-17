@@ -88,14 +88,14 @@ HaikuWindow::QuitRequested()
 void
 HaikuWindow::FrameMoved(BPoint newPosition)
 {
-	fDisplay->CallbackControlFrameMoved(this);
+	fDisplay->CallbackWidgetFrameMoved(this, newPosition);
 }
 
 
 void
 HaikuWindow::FrameResized(float newWidth, float newHeight)
 {
-	fDisplay->CallbackControlFrameResized(this);
+	fDisplay->CallbackWidgetFrameResized(this, BSize(newWidth, newHeight));
 }
 
 
