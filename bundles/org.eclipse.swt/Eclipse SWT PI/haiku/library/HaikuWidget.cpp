@@ -52,7 +52,7 @@ HaikuWidget::Delete()
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuWidget_delete(
-	JNIEnv* env, jobject object, jlong handle, jint wHint, jint hHint)
+	JNIEnv* env, jobject object, jlong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
