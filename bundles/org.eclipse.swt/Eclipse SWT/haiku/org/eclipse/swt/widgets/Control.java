@@ -524,8 +524,8 @@ public void setRegion (Region region) {
  * </ul>
  */
 public void setSize (int width, int height) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	setBounds (0, 0, Math.max (0, width), Math.max (0, height), false, true);
 }
 
 
