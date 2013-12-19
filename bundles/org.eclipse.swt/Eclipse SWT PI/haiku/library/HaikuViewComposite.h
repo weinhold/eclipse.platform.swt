@@ -17,125 +17,27 @@
 #define INC_HAIKU_VIEW_COMPOSITE_H
 
 
-#include <algorithm>
-
-#include <interface/View.h>
-
 #include "HaikuComposite.h"
-#include "HaikuDisplay.h"
-#include "HaikuJNIContext.h"
-#include "HaikuViewGraphicsContext.h"
-#include "SWTDefs.h"
+#include "HaikuViewControl.h"
 
 
 namespace swt {
 namespace haiku {
 
 
-template<typename ViewClass>
-class HaikuViewComposite : public ViewClass, public HaikuComposite {
+template<typename ViewClass, typename CompositeClass = HaikuComposite>
+class HaikuViewComposite : public HaikuViewControl<ViewClass, CompositeClass> {
 public:
 	template<typename... Arguments>
 	HaikuViewComposite(const Arguments... arguments)
 		:
-		ViewClass(arguments...),
-		HaikuComposite()
+		HaikuViewControl<ViewClass, CompositeClass>(arguments...)
 	{
 	}
 
 	static HaikuViewComposite* Get(jlong handle)
 	{
-		return GetAs<HaikuViewComposite>(handle);
-	}
-
-	virtual void Draw(BRect updateRect)
-	{
-		ViewClass::Draw(updateRect);
-		HaikuViewGraphicsContext graphicsContext(this);
-		HaikuJNIContext::CurrentDisplay()->CallbackControlDraw(this,
-			&graphicsContext, updateRect);
-	}
-
-	virtual void FrameMoved(BPoint newPosition)
-	{
-		HaikuJNIContext::CurrentDisplay()->CallbackWidgetFrameMoved(this,
-			newPosition);
-	}
-
-	virtual void FrameResized(float newWidth, float newHeight)
-	{
-		HaikuJNIContext::CurrentDisplay()->CallbackWidgetFrameResized(this,
-			BSize(newWidth, newHeight));
-	}
-
-	virtual bool Lock()
-	{
-		return this->LockLooper();
-	}
-
-	virtual void Unlock()
-	{
-		return this->UnlockLooper();
-	}
-
-	virtual BSize ControlPreferredSize(jint wHint, jint hHint)
-	{
-		// If hints have been specified, make sure they lie within the
-		// min/max range for the view.
-		if (wHint >= 0 || hHint >= 0) {
-			BSize min = this->MinSize();
-			BSize max = this->MaxSize();
-			if (wHint >= 0) {
-				wHint = std::max(wHint, (jint)min.width + 1);
-				wHint = std::min(wHint, (jint)max.width + 1);
-			}
-			if (hHint >= 0) {
-				hHint = std::max(hHint, (jint)min.height + 1);
-				hHint = std::min(hHint, (jint)max.height + 1);
-			}
-		}
-
-		// The Haiku API doesn't support getting the width for a height, so we
-		// always get the preferred width, if the width isn't given.
-		BSize preferred = this->PreferredSize();
-		BSize size;
-		size.width = wHint >= 0 ? float(wHint - 1) : preferred.width;
-
-		if (this->HasHeightForWidth())
-			this->GetHeightForWidth(size.width, NULL, NULL, &size.height);
-		else
-			size.height = hHint >= 0 ? hHint - 1 : preferred.height;
-
-		return size;
-	}
-
-	virtual BRect ControlFrame()
-	{
-		return this->Frame();
-	}
-
-	virtual void ControlMoveTo(const BPoint& point)
-	{
-		return this->MoveTo(point);
-	}
-
-	virtual void ControlResizeTo(const BSize& size)
-	{
-		return this->ResizeTo(size);
-	}
-
-	virtual void ControlSetPaintStyle(int32 style)
-	{
-		uint32 viewFlags = this->Flags();
-		if ((style & SWT_NO_REDRAW_RESIZE) != 0)
-			viewFlags &= B_FULL_UPDATE_ON_RESIZE;
-		else
-			viewFlags |= B_FULL_UPDATE_ON_RESIZE;
-
-		this->SetFlags(viewFlags);
-
-		if ((style & SWT_NO_BACKGROUND) != 0)
-			this->SetViewColor(B_TRANSPARENT_32_BIT);
+		return HaikuWidget::GetAs<HaikuViewComposite>(handle);
 	}
 
 	virtual bool CompositeAddChild(HaikuControl* child)
