@@ -114,7 +114,12 @@ HaikuWindow::CreateRootView()
 		return NULL;
 	}
 
-	fRootView->ResizeTo(Bounds().Size());
+	// Set the root view's frame to set fill the window. We also set the min and
+	// preferred sizes to explicit values, so they aren't indetermined.
+	BSize size = Bounds().Size();
+	fRootView->SetExplicitMinSize(BSize(-1, -1));
+	fRootView->SetExplicitPreferredSize(size);
+	fRootView->ResizeTo(size);
 
 	return fRootView;
 }
