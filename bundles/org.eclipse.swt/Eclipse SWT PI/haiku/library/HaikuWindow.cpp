@@ -121,6 +121,12 @@ HaikuWindow::CreateRootView()
 	fRootView->SetExplicitPreferredSize(size);
 	fRootView->ResizeTo(size);
 
+	// Set the root view's view and low color to panel background, which is a
+	// more reasonable default.
+	rgb_color color = ui_color(B_PANEL_BACKGROUND_COLOR);
+	fRootView->SetViewColor(color);
+	fRootView->SetLowColor(color);
+
 	return fRootView;
 }
 
