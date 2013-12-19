@@ -238,15 +238,15 @@ public void setAlignment (int alignment) {
 
 void setAlignment () {
 	if ((style & SWT.LEFT) != 0) {
-		HaikuLabel.setAlignment(handle, -1);
+		HaikuLabel.setAlignment(handle, OS.B_ALIGN_LEFT);
 		return;
 	}
 	if ((style & SWT.CENTER) != 0) {
-		HaikuLabel.setAlignment(handle, 0);
+		HaikuLabel.setAlignment(handle, OS.B_ALIGN_CENTER);
 		return;
 	}
 	if ((style & SWT.RIGHT) != 0) {
-		HaikuLabel.setAlignment(handle, 1);
+		HaikuLabel.setAlignment(handle, OS.B_ALIGN_RIGHT);
 		return;
 	}
 }

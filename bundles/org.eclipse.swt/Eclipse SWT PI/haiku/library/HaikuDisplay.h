@@ -34,6 +34,8 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuControl;
+class HaikuGraphicsContext;
 class HaikuWidget;
 
 
@@ -61,6 +63,11 @@ public:
 			void				CallbackWidgetFrameResized(
 									HaikuWidget* widget, const BSize& newSize);
 
+			void				CallbackControlDraw(
+									HaikuControl* control,
+									HaikuGraphicsContext* graphicsContext,
+									const BRect& updateRect);
+
 			bool				CallbackWindowQuitRequested(
 									HaikuWindow* window);
 
@@ -80,6 +87,7 @@ private:
 			jobject				fObject;
 			jmethodID			fWidgetFrameMovedCallback;
 			jmethodID			fWidgetFrameResizedCallback;
+			jmethodID			fControlDrawCallback;
 			jmethodID			fWindowQuitRequestedCallback;
 };
 

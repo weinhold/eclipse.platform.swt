@@ -13,43 +13,48 @@
  *     Ingo Weinhold
  *******************************************************************************/
 
-#ifndef INC_HAIKU_CONTROL_H
-#define INC_HAIKU_CONTROL_H
+#ifndef INC_HAIKU_VIEW_GRAPHICS_CONTEXT_H
+#define INC_HAIKU_VIEW_GRAPHICS_CONTEXT_H
 
 
-#include <Rect.h>
-#include <Size.h>
-
-#include "HaikuWidget.h"
+#include "HaikuGraphicsContext.h"
 
 
 namespace swt {
 namespace haiku {
 
 
-class HaikuControl : public HaikuWidget {
+class HaikuViewGraphicsContext : public HaikuGraphicsContext {
 public:
-								HaikuControl();
-	virtual						~HaikuControl();
+								HaikuViewGraphicsContext(BView* view);
+	virtual						~HaikuViewGraphicsContext();
 
-	static	HaikuControl*		Get(jlong handle)
-									{ return GetAs<HaikuControl>(handle); }
+	static	HaikuViewGraphicsContext* Get(jlong handle);
 
-	virtual	bool				Lock() = 0;
-	virtual	void				Unlock() = 0;
+	virtual	bool				Lock();
+	virtual	void				Unlock();
 
-	virtual	BSize				ControlPreferredSize(jint wHint, jint hHint)
-									= 0;
-	virtual	BRect				ControlFrame() = 0;
-	virtual	void				ControlMoveTo(const BPoint& point) = 0;
-	virtual	void				ControlResizeTo(const BSize& size) = 0;
+	virtual	rgb_color			ForegroundColor();
+	virtual	void				SetForegroundColor(const rgb_color& color);
 
-	virtual	void				ControlSetPaintStyle(int32 style) = 0;
+	virtual	void				DrawRectangle(const BRect& rect);
+	virtual	void				DrawString(const BPoint& point,
+									const char* string, bool isTransparent);
+
+private:
+			BView*				fView;
 };
+
+
+/*static*/ inline HaikuViewGraphicsContext*
+HaikuViewGraphicsContext::Get(jlong handle)
+{
+	return GetAs<HaikuViewGraphicsContext>(handle);
+}
 
 
 }	// namespace haiku
 }	// namespace swt
 
 
-#endif /* INC_HAIKU_CONTROL_H */
+#endif /* INC_HAIKU_VIEW_GRAPHICS_CONTEXT_H */

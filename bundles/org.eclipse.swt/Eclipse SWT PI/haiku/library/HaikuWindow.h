@@ -21,7 +21,7 @@
 
 #include <interface/Window.h>
 
-#include "HaikuComposite.h"
+#include "HaikuViewComposite.h"
 
 
 namespace swt {
@@ -65,6 +65,8 @@ public:
 	virtual	BRect				ControlFrame();
 	virtual	void				ControlMoveTo(const BPoint& point);
 	virtual	void				ControlResizeTo(const BSize& size);
+
+	virtual	void				ControlSetPaintStyle(int32 style);
 
 	// HaikuComposite interface 
 	virtual	bool				CompositeAddChild(HaikuControl* child);

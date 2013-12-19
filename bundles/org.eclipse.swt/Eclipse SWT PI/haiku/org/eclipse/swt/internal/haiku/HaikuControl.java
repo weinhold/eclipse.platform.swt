@@ -38,4 +38,6 @@ public class HaikuControl {
 	 * whether the view has been moved and/or resized.
 	 */
 	public static native void setAndGetFrame(long handle, int[] frame, boolean moveResize[]);
+
+	public static native void setPaintStyle(long handle, int style);
 }

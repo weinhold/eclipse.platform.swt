@@ -1961,12 +1961,6 @@ void wakeThread () {
 }
 
 
-private boolean haikuWindowQuitRequested(long windowHandle) {
-	Shell shell = (Shell)getWidget(windowHandle);
-	if (shell == null) return false;
-	return shell.haikuWindowQuitRequested(windowHandle);
-}
-
 private void haikuWidgetFrameMoved(long handle, int newX, int newY) {
 	Widget widget = getWidget(handle);
 	if (widget == null) return;
@@ -1977,6 +1971,18 @@ private void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
 	Widget widget = getWidget(handle);
 	if (widget == null) return;
 	widget.haikuWidgetFrameResized(handle, newWidth, newHeight);
+}
+
+private void haikuControlDrawCallback(long handle, long gcHandle, int x, int y, int width, int height) {
+	Control control = (Control)getWidget(handle);
+	if (control == null) return;
+	control.haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
+}
+
+private boolean haikuWindowQuitRequested(long windowHandle) {
+	Shell shell = (Shell)getWidget(windowHandle);
+	if (shell == null) return false;
+	return shell.haikuWindowQuitRequested(windowHandle);
 }
 
 }

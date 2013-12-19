@@ -12,23 +12,13 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
-package org.eclipse.swt.internal.haiku;
+
+#ifndef INC_SWT_DEFS_H
+#define INC_SWT_DEFS_H
 
 
-import org.eclipse.swt.internal.*;
+#define SWT_NO_BACKGROUND		(1 << 18)
+#define SWT_NO_REDRAW_RESIZE	(1 << 20)
 
-public class OS {
-	public static int B_ALIGN_LEFT;
-	public static int B_ALIGN_RIGHT;
-	public static int B_ALIGN_CENTER;
 
-	static {
-		Library.loadLibrary("swt-pi");
-		init();
-	}
-
-	static void loadLibrary() {
-	}
-
-	private static native void init();
-}
+#endif /* INC_SWT_DEFS_H */

@@ -47,6 +47,7 @@ HaikuDisplay::HaikuDisplay()
 	fObject(NULL),
 	fWidgetFrameMovedCallback(NULL),
 	fWidgetFrameResizedCallback(NULL),
+	fControlDrawCallback(NULL),
 	fWindowQuitRequestedCallback(NULL)
 {
 	pthread_mutex_init(&fMutex, NULL);
@@ -159,6 +160,17 @@ HaikuDisplay::CallbackWidgetFrameResized(HaikuWidget* widget,
 }
 
 
+void
+HaikuDisplay::CallbackControlDraw(HaikuControl* control,
+	HaikuGraphicsContext* graphicsContext, const BRect& updateRect)
+{
+	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
+		fControlDrawCallback, control->Handle(), graphicsContext->Handle(),
+		(jint)updateRect.left, (jint)updateRect.top,
+		(jint)updateRect.Width() + 1, (jint)updateRect.Height() + 1);
+}
+
+
 bool
 HaikuDisplay::CallbackWindowQuitRequested(HaikuWindow* window)
 {
@@ -189,6 +201,8 @@ HaikuDisplay::_Init(jobject object)
 		"(JII)V");
 	GET_METHOD_ID(fWidgetFrameResizedCallback, "haikuWidgetFrameResized",
 		"(JII)V");
+	GET_METHOD_ID(fControlDrawCallback, "haikuControlDrawCallback",
+		"(JJIIII)V");
 	GET_METHOD_ID(fWindowQuitRequestedCallback, "haikuWindowQuitRequested",
 		"(J)Z");
 

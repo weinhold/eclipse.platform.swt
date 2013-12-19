@@ -31,24 +31,41 @@ namespace haiku {
 
 
 jclass HaikuUtils::sPointClass = NULL;
+jclass HaikuUtils::sColorClass = NULL;
 jmethodID HaikuUtils::sPointConstructor = NULL;
+jmethodID HaikuUtils::sColorConstructor = NULL;
 
 
 /*static*/ bool
 HaikuUtils::Init(JNIEnv* env)
 {
-	// get the Point class and constructor
-	jclass clazz = env->FindClass("org/eclipse/swt/graphics/Point");
-	if (clazz == NULL)
-		return false;
+	#define GET_CLASS(variable, name)					\
+	{													\
+		jclass clazz = env->FindClass(name);			\
+		if (clazz == NULL)								\
+			return false;								\
+		variable = (jclass)env->NewGlobalRef(clazz);	\
+		if (variable == NULL)							\
+			return false;								\
+	}
+	#define GET_CONSTRUCTOR(variable, clazz, signature)				\
+		variable = env->GetMethodID(clazz, "<init>", signature);	\
+		if (variable == NULL)										\
+			return false;
+	#define GET_CLASS_AND_CONSTRUCTOR(classVariable, ctorVariable, className, \
+			ctorSignature)												\
+		GET_CLASS(classVariable, className)								\
+		GET_CONSTRUCTOR(ctorVariable, classVariable, ctorSignature)
+	
 
-	sPointClass = (jclass)env->NewGlobalRef(clazz);
-	if (sPointClass == NULL)
-		return false;
+	GET_CLASS_AND_CONSTRUCTOR(sPointClass, sPointConstructor,
+		"org/eclipse/swt/graphics/Point", "(II)V")
+	GET_CLASS_AND_CONSTRUCTOR(sColorClass, sColorConstructor,
+		"org/eclipse/swt/internal/haiku/HaikuColor", "(BBB)V")
 
-	sPointConstructor = env->GetMethodID(sPointClass, "<init>", "(II)V");
-	if (sPointConstructor == NULL)
-		return false;
+	#undef GET_CLASS
+	#undef GET_CONSTRUCTOR
+	#undef GET_CLASS_AND_CONSTRUCTOR
 
 	return true;
 }

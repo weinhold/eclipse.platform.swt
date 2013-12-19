@@ -30,10 +30,10 @@ public final class GCData {
 //	public Device device;
 //	public int style, state = -1;
 //
-//	public HaikuColor foreground;
-//	public HaikuColor background;
+	public HaikuColor foregroundColor;
+//	public HaikuColor backgroundColor;
 //	public Font font;
-//	public Pattern foregroundPattern;
+	public Pattern foregroundPattern;
 //	public Pattern backgroundPattern;
 //	public float lineWidth;
 //	public int lineStyle = SWT.LINE_SOLID;

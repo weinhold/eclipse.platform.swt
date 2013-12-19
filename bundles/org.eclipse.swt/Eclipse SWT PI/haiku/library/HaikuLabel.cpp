@@ -20,10 +20,10 @@
 
 #include <private/shared/AutoLocker.h>
 
-#include "HaikuComposite.h"
 #include "HaikuDisplay.h"
 #include "HaikuJNIContext.h"
 #include "HaikuUtils.h"
+#include "HaikuViewComposite.h"
 
 
 using namespace swt::haiku;
@@ -56,10 +56,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuLabel_setAlignment(
 
 	HaikuLabel* label = HaikuLabel::Get(handle);
 	AutoLocker<HaikuLabel> labelLocker(label);
-	label->SetAlignment(
-		alignment == 0
-			? B_ALIGN_CENTER
-			: (alignment < 0 ? B_ALIGN_LEFT : B_ALIGN_RIGHT));
+	label->SetAlignment((enum alignment)alignment);
 }
 
 

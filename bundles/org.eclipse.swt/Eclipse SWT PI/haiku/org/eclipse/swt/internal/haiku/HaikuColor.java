@@ -16,11 +16,18 @@ package org.eclipse.swt.internal.haiku;
 
 
 public class HaikuColor {
-	/** @field cast=(uint8) */
 	public byte red; 
-	/** @field cast=(uint8) */
 	public byte green;
-	/** @field cast=(uint8) */
 	public byte blue;
-//	public static final int sizeof = OS.HaikuColor_sizeof();
+
+	public HaikuColor()
+	{
+	}
+
+	public HaikuColor(byte red, byte green, byte blue)
+	{
+		this.red = red;
+		this.green = green;
+		this.blue = blue;
+	}
 }

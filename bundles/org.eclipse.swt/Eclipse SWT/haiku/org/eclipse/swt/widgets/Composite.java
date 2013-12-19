@@ -88,8 +88,7 @@ Composite () {
  * @see Widget#getStyle
  */
 public Composite (Composite parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
 }
 
 void addChild(long childHandle)
@@ -144,6 +143,12 @@ public void changed (Control[] changed) {
 	}
 }
 
+static int checkStyle (int style) {
+	style &= ~SWT.DOUBLE_BUFFERED;
+	style &= ~SWT.TRANSPARENT;
+	return style;
+}
+
 public Point computeSize (int wHint, int hHint, boolean changed) {
 	checkWidget ();
 	display.runSkin();
@@ -170,9 +175,10 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 }
 
 void createHandle (int index) {
+	state |= HANDLE;
 	createHandle (index, true, false);
 	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	HaikuUtils.partiallyImplemented();
 }
 
 void createHandle (int index, boolean fixed, boolean scrolled) {

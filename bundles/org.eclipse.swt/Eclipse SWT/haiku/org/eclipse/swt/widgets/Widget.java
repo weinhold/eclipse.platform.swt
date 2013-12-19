@@ -197,8 +197,10 @@ public void addListener (int eventType, Listener listener) {
  * @see #removeDisposeListener
  */
 public void addDisposeListener (DisposeListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Dispose, typedListener);
 }
 
 static int checkBits (int style, int int0, int int1, int int2, int int3, int int4, int int5) {
@@ -224,6 +226,9 @@ void checkOrientation (Widget parent) {
 	style = checkBits (style, SWT.LEFT_TO_RIGHT, SWT.RIGHT_TO_LEFT, 0, 0, 0, 0);
 
 	// TODO: No RTL support in Haiku yet.
+	if ((style & SWT.RIGHT_TO_LEFT) != 0) {
+		HaikuUtils.missingFeature("RTL text");
+	}
 	style &= ~SWT.RIGHT_TO_LEFT;
 	style |= SWT.LEFT_TO_RIGHT;			
 }
@@ -374,6 +379,10 @@ void deregister () {
 
 void error (int code) {
 	SWT.error (code);
+}
+
+boolean filters (int eventType) {
+	return display.filters (eventType);
 }
 
 /**

@@ -15,20 +15,17 @@
 package org.eclipse.swt.internal.haiku;
 
 
-import org.eclipse.swt.internal.*;
+import org.eclipse.swt.SWT;
 
-public class OS {
-	public static int B_ALIGN_LEFT;
-	public static int B_ALIGN_RIGHT;
-	public static int B_ALIGN_CENTER;
 
-	static {
-		Library.loadLibrary("swt-pi");
-		init();
-	}
+public class HaikuGraphicsContext {
+	public static native void delete(long handle);
 
-	static void loadLibrary() {
-	}
+	public static native void drawRectangle(long handle, int x, int y, int width, int height);
 
-	private static native void init();
+	public static native void drawString(long handle, int x, int y, String string, boolean isTransparent);
+
+	public static native HaikuColor getForegroundColor(long handle);
+
+	public static native void setForegroundColor(long handle, byte red, byte green, byte blue);
 }

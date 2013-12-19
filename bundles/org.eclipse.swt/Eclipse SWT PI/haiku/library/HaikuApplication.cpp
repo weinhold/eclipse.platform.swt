@@ -51,23 +51,18 @@ HaikuApplication::~HaikuApplication()
 static HaikuApplication* sApplication = NULL;
 
 
+// #pragma mark - native methods
+
+
 extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuApplication_create(JNIEnv* env,
 	jobject object)
 {
-	if (!HaikuJNIContext::Init())
-		return 0;
-
 	HAIKU_JNI_ENTER(env);
 
-	if (!HaikuUtils::Init(env))
-		return 0;
-
 	sApplication = new(std::nothrow) HaikuApplication;
-	if (sApplication == NULL) {
-		HaikuUtils::Cleanup(env);
+	if (sApplication == NULL)
 		return 0;
-	}
 
 	// unlock, so we can run the message loop in another thread
 	sApplication->Unlock();
@@ -90,8 +85,6 @@ Java_org_eclipse_swt_internal_haiku_HaikuApplication_delete(JNIEnv* env,
 		while (wait_for_thread(thread, NULL) == B_INTERRUPTED) {
 		}
 	}
-
-	HaikuUtils::Cleanup(env);
 }
 
 

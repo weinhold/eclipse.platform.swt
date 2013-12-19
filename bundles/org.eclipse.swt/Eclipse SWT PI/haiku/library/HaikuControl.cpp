@@ -113,3 +113,16 @@ Java_org_eclipse_swt_internal_haiku_HaikuControl_setAndGetFrame(
 	env->ReleaseIntArrayElements(_frame, frame, JNI_COMMIT);
 	env->ReleaseBooleanArrayElements(_moveResize, moveResize, JNI_COMMIT);
 }
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuControl_setPaintStyle(
+	JNIEnv* env, jobject object, jlong handle, jint style)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuControl* control = HaikuControl::Get(handle);
+	AutoLocker<HaikuControl> controlLocker(control);
+
+	control->ControlSetPaintStyle(style);
+}

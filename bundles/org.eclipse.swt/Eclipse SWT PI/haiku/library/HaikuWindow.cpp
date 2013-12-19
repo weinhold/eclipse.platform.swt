@@ -203,6 +203,13 @@ HaikuWindow::ControlResizeTo(const BSize& size)
 }
 
 
+void
+HaikuWindow::ControlSetPaintStyle(int32 style)
+{
+	return fRootView->ControlSetPaintStyle(style);
+}
+
+
 bool
 HaikuWindow::CompositeAddChild(HaikuControl* child)
 {

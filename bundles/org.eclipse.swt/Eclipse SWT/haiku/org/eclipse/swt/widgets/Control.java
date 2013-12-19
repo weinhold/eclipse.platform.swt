@@ -97,6 +97,9 @@ boolean drawGripper (GC gc, int x, int y, int width, int height, boolean vertica
 	return false;
 }
 
+void drawWidget (GC gc) {
+}
+
 /**
  * Returns the orientation of the receiver, which will be one of the
  * constants <code>SWT.LEFT_TO_RIGHT</code> or <code>SWT.RIGHT_TO_LEFT</code>.
@@ -138,6 +141,10 @@ public int getTextDirection() {
 void hookEvents () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
+}
+
+boolean hooksPaint () {
+	return hooks (SWT.Paint) || filters (SWT.Paint);
 }
 
 /**
@@ -243,12 +250,18 @@ Point computeNativeSize (long handle, int wHint, int hHint, boolean changed) {
 void addToParent() {
 }
 
+void checkBorder () {
+	if (getBorderWidth () == 0) style &= ~SWT.BORDER;
+}
+
 void createWidget (int index) {
 	checkOrientation (parent);
 	super.createWidget (index);
+	checkBorder();
 	if (parent != null) {
 		parent.addChild(topHandle());
 	}
+	HaikuControl.setPaintStyle(paintHandle(), style);
 	// TODO: Implement!
 	HaikuUtils.partiallyImplemented();
 }
@@ -1023,8 +1036,10 @@ public void addMouseWheelListener (MouseWheelListener listener) {
  * @see #removePaintListener
  */
 public void addPaintListener(PaintListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.Paint,typedListener);
 }
 
 /**
@@ -1350,8 +1365,10 @@ public void removeMouseWheelListener (MouseWheelListener listener) {
  * @see #addPaintListener
  */
 public void removePaintListener(PaintListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook(SWT.Paint, listener);
 }
 
 /**
@@ -1944,6 +1961,10 @@ public boolean isVisible () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return false;
+}
+
+long paintHandle () {
+	return handle;
 }
 
 void register () {
@@ -2552,6 +2573,24 @@ public void update () {
 
 void updateLayout (boolean all) {
 	/* Do nothing */
+}
+
+void haikuControlDrawCallback(long handle, long gcHandle, int x, int y, int width, int height) {
+	if (!hooksPaint ()) return;
+	Event event = new Event ();
+	event.count = 1;
+	event.x = x;
+	event.y = y;
+	event.width = width;
+	event.height = height;
+//	if ((style & SWT.MIRRORED) != 0) event.x = getClientWidth () - event.width - event.x;
+	GCData data = new GCData ();
+//	data.damageRgn = ...;
+	GC gc = event.gc = GC.haiku_new (gcHandle, data);
+	drawWidget (gc);
+	sendEvent (SWT.Paint, event);
+	// Note: No need to dispose the GC. The caller does that.
+	event.gc = null;
 }
 
 }

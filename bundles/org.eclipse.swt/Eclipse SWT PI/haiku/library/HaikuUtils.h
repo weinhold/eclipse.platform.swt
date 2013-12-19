@@ -17,6 +17,7 @@
 #define INC_HAIKU_UTILS_H
 
 
+#include <InterfaceDefs.h>
 #include <Point.h>
 #include <Size.h>
 #include <String.h>
@@ -40,9 +41,16 @@ public:
 	static	jobject				CreatePoint(JNIEnv *env, const BPoint& point);
 	static	jobject				CreatePoint(JNIEnv *env, const BSize& size);
 
+	static	jobject				CreateColor(JNIEnv *env, jbyte red, jbyte green,
+									jbyte blue);
+	static	jobject				CreateColor(JNIEnv *env,
+									const rgb_color& color);
+
 private:
 	static	jclass				sPointClass;
+	static	jclass				sColorClass;
 	static	jmethodID			sPointConstructor;
+	static	jmethodID			sColorConstructor;
 };
 
 
@@ -64,6 +72,20 @@ HaikuUtils::CreatePoint(JNIEnv *env, const BPoint& point)
 HaikuUtils::CreatePoint(JNIEnv *env, const BSize& size)
 {
 	return CreatePoint(env, (jint)size.width + 1, (jint)size.height + 1);
+}
+
+
+/*static*/ inline jobject
+HaikuUtils::CreateColor(JNIEnv *env, jbyte red, jbyte green, jbyte blue)
+{
+	return env->NewObject(sColorClass, sColorConstructor, red, green, blue);
+}
+
+
+/*static*/ inline jobject
+HaikuUtils::CreateColor(JNIEnv *env, const rgb_color& color)
+{
+	return CreateColor(env, color.red, color.green, color.blue);
 }
 
 

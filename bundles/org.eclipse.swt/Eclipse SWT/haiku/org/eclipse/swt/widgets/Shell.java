@@ -665,8 +665,13 @@ public void open () {
 	HaikuUtils.missingFeature("activate");
 }
 
+long paintHandle () {
+	return rootViewHandle;
+}
+
 void register () {
 	super.register ();
+	display.addWidget (rootViewHandle, this);
 }
 
 void releaseHandle () {
@@ -916,6 +921,7 @@ public void setVisible (boolean visible) {
 
 void deregister () {
 	super.deregister ();
+	display.removeWidget (rootViewHandle);
 }
 
 public void dispose () {

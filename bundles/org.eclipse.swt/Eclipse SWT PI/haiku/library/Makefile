@@ -82,9 +82,21 @@ HAIKULIBS = -lbe -ltextencoding
 SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 #CDE_OBJECTS = swt.o cde.o cde_structs.o cde_stats.o
 #AWT_OBJECTS = swt_awt.o
-SWTPI_OBJECTS = HaikuApplication.o HaikuDisplay.o HaikuJNIContext.o \
-	HaikuComposite.o HaikuControl.o HaikuLabel.o HaikuMessage.o HaikuUtils.o \
-	HaikuWidget.o HaikuWindow.o swt.o
+SWTPI_OBJECTS = \
+	HaikuApplication.o \
+	HaikuDisplay.o \
+	HaikuJNIContext.o \
+	HaikuComposite.o \
+	HaikuControl.o \
+	HaikuGraphicsContext.o \
+	HaikuLabel.o \
+	HaikuMessage.o \
+	HaikuUtils.o \
+	HaikuViewGraphicsContext.o \
+	HaikuWidget.o \
+	HaikuWindow.o \
+	OS.o \
+	swt.o
 #CAIRO_OBJECTS = swt.o cairo.o cairo_structs.o cairo_stats.o
 #ATK_OBJECTS = swt.o atk.o atk_structs.o atk_custom.o atk_stats.o
 #GNOME_OBJECTS = swt.o gnome.o gnome_structs.o gnome_stats.o
