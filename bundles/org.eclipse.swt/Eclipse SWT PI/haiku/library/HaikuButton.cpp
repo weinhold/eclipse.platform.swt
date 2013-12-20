@@ -224,6 +224,19 @@ public:
 	{
 	}
 
+	virtual void SetValue(int32 value)
+	{
+		if (value == Value())
+			return;
+
+		HaikuViewButton<BRadioButton>::SetValue(value);
+
+		// Deselecting the button doesn't trigger Invoke(), but SWT is expecting
+		// a selection event.
+		if (value == B_CONTROL_OFF)
+			ButtonInvokedCallback();
+	}
+
 	virtual void SetAlignmentStyle(int style)
 	{
 		// TODO: BRadioButton doesn't support any alternative alignment.
