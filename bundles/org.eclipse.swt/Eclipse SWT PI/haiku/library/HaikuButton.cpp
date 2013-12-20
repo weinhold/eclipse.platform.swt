@@ -218,9 +218,10 @@ public:
 
 class HaikuRadioButton : public HaikuViewButton<BRadioButton> {
 public:
-	HaikuRadioButton()
+	HaikuRadioButton(bool inRadioGroup)
 		:
-		HaikuViewButton<BRadioButton>("", (BMessage*)NULL)
+		HaikuViewButton<BRadioButton>("", (BMessage*)NULL),
+		fInRadioGroup(inRadioGroup)
 	{
 	}
 
@@ -229,7 +230,14 @@ public:
 		if (value == Value())
 			return;
 
-		HaikuViewButton<BRadioButton>::SetValue(value);
+		if (fInRadioGroup) {
+			HaikuViewButton<BRadioButton>::SetValue(value);
+		} else {
+			// Skip BRadioButton::SetValue() to avoid the radio group behavior.
+			// Unfortunately SetValue() invalidates the whole control. Only the
+			// knob needs to be invalidated, but we don't know its whereabouts.
+			BControl::SetValue(value);
+		}
 
 		// Deselecting the button doesn't trigger Invoke(), but SWT is expecting
 		// a selection event.
@@ -241,6 +249,9 @@ public:
 	{
 		// TODO: BRadioButton doesn't support any alternative alignment.
 	}
+
+private:
+	bool	fInRadioGroup;
 };
 
 
@@ -355,11 +366,11 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createPushButton(
 
 extern "C" jlong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createRadioButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle)
+	JNIEnv* env, jclass clazz, jlong displayHandle, jboolean inRadioGroup)
 {
 	HAIKU_JNI_ENTER(env);
 
-	HaikuRadioButton* button = new(std::nothrow) HaikuRadioButton;
+	HaikuRadioButton* button = new(std::nothrow) HaikuRadioButton(inRadioGroup);
 	if (button == NULL)
 		return 0;
 	return button->Handle();

@@ -25,7 +25,7 @@ public class HaikuButton {
 
 	public static native long createPushButton(long displayHandle);
 
-	public static native long createRadioButton(long displayHandle);
+	public static native long createRadioButton(long displayHandle, boolean inRadioGroup);
 
 	public static native long createToggleButton(long displayHandle);
 

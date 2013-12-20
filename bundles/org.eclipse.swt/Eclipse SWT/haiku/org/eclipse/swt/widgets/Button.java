@@ -151,7 +151,8 @@ void createHandle (int index) {
 	} else if ((style & SWT.CHECK) != 0) {
 		handle = HaikuButton.createCheckButton(display.getDisplayHandle());
 	} else if ((style & SWT.RADIO) != 0) {
-		handle = HaikuButton.createRadioButton(display.getDisplayHandle());
+		handle = HaikuButton.createRadioButton(display.getDisplayHandle(),
+			(parent.style & SWT.NO_RADIO_GROUP) == 0);
 	} else if ((style & SWT.TOGGLE) != 0) {
 		handle = HaikuButton.createToggleButton(display.getDisplayHandle());
 	} else {

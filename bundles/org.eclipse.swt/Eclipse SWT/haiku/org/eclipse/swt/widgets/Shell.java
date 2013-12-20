@@ -256,9 +256,7 @@ public Shell (Display display, int style) {
 		error (SWT.ERROR_THREAD_INVALID_ACCESS);
 	}
 	this.display = display;
-
-	// TODO: Implement!
-	HaikuUtils.missingFeature("style check");
+	this.style = checkStyle (null, style);
 
 	reskinWidget();
 	createWidget(0);
@@ -389,6 +387,25 @@ public static Shell internal_new (Display display, long /*int*/ handle) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+static int checkStyle (Shell parent, int style) {
+	style = Decorations.checkStyle (style);
+	style &= ~SWT.TRANSPARENT;
+	if ((style & SWT.ON_TOP) != 0) style &= ~(SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.MAX);
+	int mask = SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL | SWT.PRIMARY_MODAL;
+	if ((style & SWT.SHEET) != 0) {
+		style &= ~SWT.SHEET;
+		style |= parent == null ? SWT.SHELL_TRIM : SWT.DIALOG_TRIM;
+		if ((style & mask) == 0) {
+			style |= parent == null ? SWT.APPLICATION_MODAL : SWT.PRIMARY_MODAL;
+		}
+	}
+	int bits = style & ~mask;
+	if ((style & SWT.SYSTEM_MODAL) != 0) return bits | SWT.SYSTEM_MODAL;
+	if ((style & SWT.APPLICATION_MODAL) != 0) return bits | SWT.APPLICATION_MODAL;
+	if ((style & SWT.PRIMARY_MODAL) != 0) return bits | SWT.PRIMARY_MODAL;
+	return bits;
 }
 
 /**
