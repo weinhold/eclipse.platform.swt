@@ -13,18 +13,38 @@
  *     Ingo Weinhold
  *******************************************************************************/
 
-#ifndef INC_SWT_DEFS_H
-#define INC_SWT_DEFS_H
+#ifndef INC_HAIKU_BUTTON_H
+#define INC_HAIKU_BUTTON_H
 
 
-#define SWT_NO_BACKGROUND		(1 << 18)
-#define SWT_NO_REDRAW_RESIZE	(1 << 20)
-
-#define SWT_LEFT				(1 << 14)
-#define SWT_RIGHT				(1 << 17)
-#define SWT_UP					(1 << 7)
-#define SWT_DOWN				(1 << 10)
-#define SWT_CENTER				(1 << 24)
+#include "HaikuComposite.h"
 
 
-#endif /* INC_SWT_DEFS_H */
+class BControl;
+
+
+namespace swt {
+namespace haiku {
+
+
+class HaikuButton : public HaikuControl {
+public:
+								HaikuButton();
+	virtual						~HaikuButton();
+
+	static	HaikuButton*		Get(jlong handle)
+									{ return GetAs<HaikuButton>(handle); }
+
+	virtual	BControl*			GetBControl() = 0;
+
+	virtual	void				SetAlignmentStyle(int style) = 0;
+	virtual	void				SetGrayed(bool grayed) = 0;
+
+};
+
+
+}	// namespace haiku
+}	// namespace swt
+
+
+#endif /* INC_HAIKU_BUTTON_H */

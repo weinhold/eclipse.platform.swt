@@ -86,6 +86,7 @@ SWTPI_OBJECTS = \
 	HaikuApplication.o \
 	HaikuDisplay.o \
 	HaikuJNIContext.o \
+	HaikuButton.o \
 	HaikuComposite.o \
 	HaikuControl.o \
 	HaikuGraphicsContext.o \

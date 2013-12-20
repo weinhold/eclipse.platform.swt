@@ -34,6 +34,7 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuButton;
 class HaikuControl;
 class HaikuGraphicsContext;
 class HaikuWidget;
@@ -68,6 +69,9 @@ public:
 									HaikuGraphicsContext* graphicsContext,
 									const BRect& updateRect);
 
+			void				CallbackButtonInvoked(HaikuButton* button,
+									bool selected);
+
 			bool				CallbackWindowQuitRequested(
 									HaikuWindow* window);
 
@@ -88,6 +92,7 @@ private:
 			jmethodID			fWidgetFrameMovedCallback;
 			jmethodID			fWidgetFrameResizedCallback;
 			jmethodID			fControlDrawCallback;
+			jmethodID			fButtonInvokedCallback;
 			jmethodID			fWindowQuitRequestedCallback;
 };
 

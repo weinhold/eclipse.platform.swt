@@ -12,19 +12,30 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
-
-#ifndef INC_SWT_DEFS_H
-#define INC_SWT_DEFS_H
+package org.eclipse.swt.internal.haiku;
 
 
-#define SWT_NO_BACKGROUND		(1 << 18)
-#define SWT_NO_REDRAW_RESIZE	(1 << 20)
-
-#define SWT_LEFT				(1 << 14)
-#define SWT_RIGHT				(1 << 17)
-#define SWT_UP					(1 << 7)
-#define SWT_DOWN				(1 << 10)
-#define SWT_CENTER				(1 << 24)
+import org.eclipse.swt.SWT;
 
 
-#endif /* INC_SWT_DEFS_H */
+public class HaikuButton {
+	public static native long createArrowButton(long displayHandle);
+
+	public static native long createCheckButton(long displayHandle);
+
+	public static native long createPushButton(long displayHandle);
+
+	public static native long createRadioButton(long displayHandle);
+
+	public static native long createToggleButton(long displayHandle);
+
+	public static native boolean isSelected(long handle);
+
+	public static native void setAlignmentStyle(long handle, int style);
+
+	public static native void setGrayed(long handle, boolean grayed);
+
+	public static native void setSelected(long handle, boolean selected);
+
+	public static native void setText(long handle, String text);
+}

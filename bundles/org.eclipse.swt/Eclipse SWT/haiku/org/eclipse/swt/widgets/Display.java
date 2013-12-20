@@ -1979,6 +1979,12 @@ private void haikuControlDrawCallback(long handle, long gcHandle, int x, int y, 
 	control.haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
 }
 
+private void haikuButtonInvokedCallback(long handle, boolean selected) {
+	Button button = (Button)getWidget(handle);
+	if (button == null) return;
+	button.haikuButtonInvokedCallback(handle, selected);
+}
+
 private boolean haikuWindowQuitRequested(long windowHandle) {
 	Shell shell = (Shell)getWidget(windowHandle);
 	if (shell == null) return false;

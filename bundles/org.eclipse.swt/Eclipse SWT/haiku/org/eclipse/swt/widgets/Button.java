@@ -45,6 +45,9 @@ import org.eclipse.swt.events.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Button extends Control {
+	private boolean grayed;
+	private String text;
+	private Image image;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -85,8 +88,22 @@ public class Button extends Control {
  * @see Widget#getStyle
  */
 public Button (Composite parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+}
+
+static int checkStyle (int style) {
+	style = checkBits (style, SWT.PUSH, SWT.ARROW, SWT.CHECK, SWT.RADIO, SWT.TOGGLE, 0);
+	if ((style & (SWT.PUSH | SWT.TOGGLE)) != 0) {
+		return checkBits (style, SWT.CENTER, SWT.LEFT, SWT.RIGHT, 0, 0, 0);
+	}
+	if ((style & (SWT.CHECK | SWT.RADIO)) != 0) {
+		return checkBits (style, SWT.LEFT, SWT.RIGHT, SWT.CENTER, 0, 0, 0);
+	}
+	if ((style & SWT.ARROW) != 0) {
+		style |= SWT.NO_FOCUS;
+		return checkBits (style, SWT.UP, SWT.DOWN, SWT.LEFT, SWT.RIGHT, 0, 0);
+	}
+	return style;
 }
 
 /**
@@ -120,8 +137,33 @@ public Button (Composite parent, int style) {
  * @see SelectionEvent
  */
 public void addSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Selection,typedListener);
+	addListener (SWT.DefaultSelection,typedListener);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	if ((style & SWT.ARROW) != 0) {
+		handle = HaikuButton.createArrowButton(display.getDisplayHandle());
+	} else if ((style & SWT.CHECK) != 0) {
+		handle = HaikuButton.createCheckButton(display.getDisplayHandle());
+	} else if ((style & SWT.RADIO) != 0) {
+		handle = HaikuButton.createRadioButton(display.getDisplayHandle());
+	} else if ((style & SWT.TOGGLE) != 0) {
+		handle = HaikuButton.createToggleButton(display.getDisplayHandle());
+	} else {
+		handle = HaikuButton.createPushButton(display.getDisplayHandle());
+	}
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+	_setAlignment(style);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	text = "";
 }
 
 /**
@@ -141,8 +183,17 @@ public void addSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public int getAlignment () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if ((style & SWT.ARROW) != 0) {
+		if ((style & SWT.UP) != 0) return SWT.UP;
+		if ((style & SWT.DOWN) != 0) return SWT.DOWN;
+		if ((style & SWT.LEFT) != 0) return SWT.LEFT;
+		if ((style & SWT.RIGHT) != 0) return SWT.RIGHT;
+		return SWT.UP;
+	}
+	if ((style & SWT.LEFT) != 0) return SWT.LEFT;
+	if ((style & SWT.CENTER) != 0) return SWT.CENTER;
+	if ((style & SWT.RIGHT) != 0) return SWT.RIGHT;
 	return SWT.LEFT;
 }
 
@@ -161,9 +212,9 @@ public int getAlignment () {
  * @since 3.4
  */
 public boolean getGrayed () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & SWT.CHECK) == 0) return false;
+	return grayed;
 }
 
 /**
@@ -178,9 +229,8 @@ public boolean getGrayed () {
  * </ul>
  */
 public Image getImage () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget ();
+	return image;
 }
 
 /**
@@ -200,9 +250,9 @@ public Image getImage () {
  * </ul>
  */
 public boolean getSelection () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget ();
+	if ((style & (SWT.CHECK | SWT.RADIO | SWT.TOGGLE)) == 0) return false;
+	return HaikuButton.isSelected(handle);
 }
 
 /**
@@ -218,9 +268,9 @@ public boolean getSelection () {
  * </ul>
  */
 public String getText () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	if ((style & SWT.ARROW) != 0) return "";
+	return text;
 }
 
 /**
@@ -241,8 +291,11 @@ public String getText () {
  * @see #addSelectionListener
  */
 public void removeSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Selection, listener);
+	eventTable.unhook (SWT.DefaultSelection,listener);	
 }
 
 /**
@@ -262,8 +315,24 @@ public void removeSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public void setAlignment (int alignment) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	_setAlignment (alignment);
+}
+
+void _setAlignment (int alignment) {
+	int mask;
+	if ((style & SWT.ARROW) != 0) {
+		mask = SWT.UP | SWT.DOWN | SWT.LEFT | SWT.RIGHT | SWT.CENTER;
+		alignment = checkBits(alignment, SWT.UP, SWT.DOWN, SWT.LEFT, SWT.RIGHT, 0, 0);
+	} else {
+		mask = SWT.LEFT | SWT.RIGHT | SWT.CENTER;
+		alignment = checkBits(alignment, SWT.LEFT, SWT.RIGHT, SWT.CENTER, 0, 0, 0);
+	}
+	alignment &= mask;
+	if (alignment == 0) return;
+	style &= ~mask;
+	style |= alignment;
+	HaikuButton.setAlignmentStyle(handle, alignment);
 }
 
 /**
@@ -281,8 +350,10 @@ public void setAlignment (int alignment) {
  * @since 3.4
  */
 public void setGrayed (boolean grayed) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.CHECK) == 0) return;
+	this.grayed = grayed;
+	HaikuButton.setGrayed(handle, grayed);
 }
 
 /**
@@ -309,6 +380,11 @@ public void setImage (Image image) {
 	HaikuUtils.notImplemented();
 }
 
+void setOrientation (boolean create) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 /**
  * Sets the selection state of the receiver, if it is of type <code>CHECK</code>, 
  * <code>RADIO</code>, or <code>TOGGLE</code>.
@@ -326,8 +402,9 @@ public void setImage (Image image) {
  * </ul>
  */
 public void setSelection (boolean selected) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO | SWT.TOGGLE)) == 0) return;
+	HaikuButton.setSelected(handle, selected);
 }
 
 /**
@@ -362,8 +439,16 @@ public void setSelection (boolean selected) {
  * </ul>
  */
 public void setText (String string) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.ARROW) != 0) return;
+	text = string;
+	HaikuButton.setText(handle, text);
+}
+
+void haikuButtonInvokedCallback(long handle, boolean selected) {
+	if (handle != this.handle) return;
+	sendSelectionEvent (SWT.Selection);
 }
 
 }

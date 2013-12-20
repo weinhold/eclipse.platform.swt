@@ -836,9 +836,19 @@ void sendEvent (int eventType, Event event, boolean send) {
 	}
 }
 
+void sendSelectionEvent (int eventType) {
+	sendSelectionEvent (eventType, null, false);
+}
+
 void sendSelectionEvent (int eventType, Event event, boolean send) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (eventTable == null && !display.filters (eventType)) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	sendEvent (eventType, event, send);
+
+	// TODO: Add input state, if available
+	HaikuUtils.partiallyImplemented();
 }
 
 /**
