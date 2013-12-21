@@ -37,6 +37,9 @@ public:
 
 			BMessage*			Message() const
 									{ return fMessage; }
+			void				SetMessage(BMessage* message)
+									{ fMessage = message; }
+
 			HaikuWindow*		Window() const
 									{ return fWindow; }
 			BHandler*			Handler() const

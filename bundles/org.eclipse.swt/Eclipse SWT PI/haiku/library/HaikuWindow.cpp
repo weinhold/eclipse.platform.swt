@@ -55,8 +55,9 @@ void
 HaikuWindow::DispatchMessage(BMessage* message, BHandler* handler)
 {
 	// Only redirect the messages to the display message queue as long as not
-	// marked for deletion.
-	if (fDeleted) {
+	// marked for deletion. Also let delayed messages pass.
+	if (fDeleted
+		|| (fDelayedMessage != NULL && fDelayedMessage->Message() == message)) {
 		BWindow::DispatchMessage(message, handler);
 		return;
 	}
@@ -135,9 +136,15 @@ void
 HaikuWindow::DispatchDelayedMessage(HaikuMessage* message)
 {
 	fDelayedMessage = message;
-	BWindow::DispatchMessage(message->Message(), message->Handler());
+	bool detached;
+	DispatchExternalMessage(message->Message(), message->Handler(), detached);
 		// TODO: Check whether the handler is still valid!
 	fDelayedMessage = NULL;
+
+	if (detached) {
+		delete message->Message();
+		message->SetMessage(NULL);
+	}
 }
 
 
