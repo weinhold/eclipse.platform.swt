@@ -179,8 +179,21 @@ class HaikuCheckButton : public HaikuViewButton<BCheckBox> {
 public:
 	HaikuCheckButton()
 		:
-		HaikuViewButton<BCheckBox>("")
+		HaikuViewButton<BCheckBox>(""),
+		fGrayed(false)
 	{
+		SetPartialStateToOff(true);
+	}
+
+	virtual void SetValue(int32 value)
+	{
+		if (value == Value())
+			return;
+
+		if (fGrayed && value == B_CONTROL_ON)
+			value = B_CONTROL_PARTIALLY_ON;
+
+		HaikuViewButton<BCheckBox>::SetValue(value);
 	}
 
 	virtual void SetAlignmentStyle(int style)
@@ -190,8 +203,17 @@ public:
 
 	virtual void SetGrayed(bool grayed)
 	{
-		// TODO: Not supported by BCheckBox (yet).
+		if (grayed == fGrayed)
+			return;
+
+		fGrayed = grayed;
+
+		if (Value() != B_CONTROL_OFF)
+			SetValue(fGrayed ? B_CONTROL_PARTIALLY_ON : B_CONTROL_ON);
 	}
+
+private:
+	bool	fGrayed;
 };
 
 
@@ -398,7 +420,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_isSelected(
 
 	HaikuButton* button = HaikuButton::Get(handle);
 	AutoLocker<HaikuButton> buttonLocker(button);
-	return button->GetBControl()->Value() == B_CONTROL_ON;
+	return button->GetBControl()->Value() != B_CONTROL_OFF;
+		// We treat B_CONTROL_PARTIALLY_ON as selected, since that's how we map
+		// selected + grayed.
 }
 
 
