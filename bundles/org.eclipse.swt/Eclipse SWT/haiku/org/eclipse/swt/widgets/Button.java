@@ -274,6 +274,12 @@ public String getText () {
 	return text;
 }
 
+void releaseWidget () {
+	super.releaseWidget ();
+	image = null;
+	text = null;
+}
+
 /**
  * Removes the listener from the collection of listeners who will
  * be notified when the control is selected by the user.
@@ -377,8 +383,13 @@ public void setGrayed (boolean grayed) {
  * </ul>
  */
 public void setImage (Image image) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if ((style & SWT.ARROW) != 0) return;
+	if (image != null) {
+		if (image.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
+	}
+	HaikuButton.setImage(handle, image != null ? image.handle : 0);
+	this.image = image;
 }
 
 void setOrientation (boolean create) {

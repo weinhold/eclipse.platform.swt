@@ -27,6 +27,9 @@ namespace swt {
 namespace haiku {
 
 
+class HaikuImage;
+
+
 class HaikuButton : public HaikuControl {
 public:
 								HaikuButton();
@@ -39,6 +42,7 @@ public:
 
 	virtual	void				SetAlignmentStyle(int style) = 0;
 	virtual	void				SetGrayed(bool grayed) = 0;
+	virtual	void				SetImage(HaikuImage* image) = 0;
 
 };
 

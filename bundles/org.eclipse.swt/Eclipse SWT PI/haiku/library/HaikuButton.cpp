@@ -25,6 +25,7 @@
 
 #include <private/shared/AutoLocker.h>
 
+#include "HaikuImage.h"
 #include "HaikuUtils.h"
 #include "HaikuViewControl.h"
 
@@ -77,6 +78,11 @@ public:
 	virtual void SetGrayed(bool grayed)
 	{
 		// not supported for most button types
+	}
+
+	virtual void SetImage(HaikuImage* image)
+	{
+		this->SetIcon(image != NULL ? image->Bitmap() : NULL);
 	}
 
 protected:
@@ -447,6 +453,18 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setGrayed(
 	HaikuButton* button = HaikuButton::Get(handle);
 	AutoLocker<HaikuButton> buttonLocker(button);
 	button->SetGrayed(grayed);
+}
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuButton_setImage(
+	JNIEnv* env, jclass clazz, jlong handle, long imageHandle)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuButton* button = HaikuButton::Get(handle);
+	AutoLocker<HaikuButton> buttonLocker(button);
+	button->SetImage(imageHandle != 0 ? HaikuImage::Get(imageHandle) : NULL);
 }
 
 

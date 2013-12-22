@@ -35,6 +35,8 @@ public class HaikuButton {
 
 	public static native void setGrayed(long handle, boolean grayed);
 
+	public static native void setImage(long handle, long imageHandle);
+
 	public static native void setSelected(long handle, boolean selected);
 
 	public static native void setText(long handle, String text);
