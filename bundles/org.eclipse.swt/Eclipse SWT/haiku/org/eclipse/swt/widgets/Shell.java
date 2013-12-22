@@ -582,6 +582,10 @@ public boolean getModified () {
 	return false;
 }
 
+Shell _getShell() {
+	return this;
+}
+
 /** 
  * Returns the region that defines the shape of the shell,
  * or <code>null</code> if the shell has the default shape.

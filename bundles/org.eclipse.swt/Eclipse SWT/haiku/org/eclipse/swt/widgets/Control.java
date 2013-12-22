@@ -1775,9 +1775,12 @@ public Region getRegion () {
  * @see #getParent
  */
 public Shell getShell() {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getShell();
+}
+
+Shell _getShell() {
+	return parent._getShell();
 }
 
 /**
