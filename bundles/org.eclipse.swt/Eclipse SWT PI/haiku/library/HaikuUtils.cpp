@@ -32,8 +32,10 @@ namespace haiku {
 
 jclass HaikuUtils::sPointClass = NULL;
 jclass HaikuUtils::sColorClass = NULL;
+jclass HaikuUtils::sSWTExceptionClass = NULL;
 jmethodID HaikuUtils::sPointConstructor = NULL;
 jmethodID HaikuUtils::sColorConstructor = NULL;
+jmethodID HaikuUtils::sSWTExceptionConstructor = NULL;
 
 
 /*static*/ bool
@@ -62,6 +64,8 @@ HaikuUtils::Init(JNIEnv* env)
 		"org/eclipse/swt/graphics/Point", "(II)V")
 	GET_CLASS_AND_CONSTRUCTOR(sColorClass, sColorConstructor,
 		"org/eclipse/swt/internal/haiku/HaikuColor", "(BBB)V")
+	GET_CLASS_AND_CONSTRUCTOR(sSWTExceptionClass, sSWTExceptionConstructor,
+		"org/eclipse/swt/SWTException", "(I)V")
 
 	#undef GET_CLASS
 	#undef GET_CONSTRUCTOR
@@ -129,6 +133,16 @@ HaikuUtils::ToJavaString(JNIEnv* env, const BString& string)
 	return env->NewStringUTF(string.String());
 		// TODO: This isn't modified UTF-8! Use convert_from_utf8() to convert
 		// to UTF-16 instead!
+}
+
+
+/*static*/ void
+HaikuUtils::ThrowSWTException(JNIEnv *env, jint code)
+{
+	jobject exception = env->NewObject(sSWTExceptionClass,
+		sSWTExceptionConstructor, code);
+	if (exception != NULL)
+		env->Throw(static_cast<jthrowable>(exception));
 }
 
 

@@ -47,11 +47,15 @@ public:
 	static	jobject				CreateColor(JNIEnv *env,
 									const rgb_color& color);
 
+	static	void				ThrowSWTException(JNIEnv *env, jint code);
+
 private:
 	static	jclass				sPointClass;
 	static	jclass				sColorClass;
+	static	jclass				sSWTExceptionClass;
 	static	jmethodID			sPointConstructor;
 	static	jmethodID			sColorConstructor;
+	static	jmethodID			sSWTExceptionConstructor;
 };
 
 
