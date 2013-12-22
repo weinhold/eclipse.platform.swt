@@ -248,18 +248,7 @@ public Shell (Display display) {
  * @see SWT#SHEET
  */
 public Shell (Display display, int style) {
-	super ();
-	checkSubclass ();
-	if (display == null) display = Display.getCurrent ();
-	if (display == null) display = Display.getDefault ();
-	if (!display.isValidThread ()) {
-		error (SWT.ERROR_THREAD_INVALID_ACCESS);
-	}
-	this.display = display;
-	this.style = checkStyle (null, style);
-
-	reskinWidget();
-	createWidget(0);
+	this (display, null, style, 0);
 }
 
 /**
@@ -337,31 +326,26 @@ public Shell (Shell parent) {
  * @see SWT#SHEET
  */
 public Shell (Shell parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	this (parent != null ? parent.display : null, parent, style, 0);
 }
 
-/**	 
- * Invokes platform specific functionality to allocate a new shell
- * that is embedded.
- * <p>
- * <b>IMPORTANT:</b> This method is <em>not</em> part of the public
- * API for <code>Shell</code>. It is marked public only so that it
- * can be shared within the packages provided by SWT. It is not
- * available on all platforms, and should never be called from
- * application code.
- * </p>
- *
- * @param display the display for the shell
- * @param handle the handle for the shell
- * @return a new shell object containing the specified display and handle
- * 
- * @noreference This method is not intended to be referenced by clients.
- */
-public static Shell haiku_new (Display display, long /*int*/ handle) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+Shell (Display display, Shell parent, int style, long /*int*/ handle) {
+	super ();
+	checkSubclass ();
+	if (display == null) display = Display.getCurrent ();
+	if (display == null) display = Display.getDefault ();
+	if (!display.isValidThread ()) {
+		error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	}
+	if (parent != null && parent.isDisposed ()) {
+		error (SWT.ERROR_INVALID_ARGUMENT);	
+	}
+	this.style = checkStyle (null, style);
+	this.parent = parent;
+	this.display = display;
+
+	reskinWidget();
+	createWidget(0);
 }
 
 /**	 
@@ -467,6 +451,10 @@ void createHandle (int index) {
 
 	rootViewHandle = HaikuWindow.createRootView(handle);
 	if (rootViewHandle == 0) error(SWT.ERROR_NO_HANDLES);
+
+	if (parent != null) {
+		HaikuUtils.missingFeature("window subset");
+	}
 
 	Rectangle bounds = getBounds();
 	oldX = bounds.x;
@@ -641,9 +629,28 @@ public int getImeInputMode () {
  * </ul>
  */
 public Shell [] getShells () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	int count = 0;
+	Shell [] shells = display.getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Control shell = shells [i];
+		do {
+			shell = shell.getParent ();
+		} while (shell != null && shell != this);
+		if (shell == this) count++;
+	}
+	int index = 0;
+	Shell [] result = new Shell [count];
+	for (int i=0; i<shells.length; i++) {
+		Control shell = shells [i];
+		do {
+			shell = shell.getParent ();
+		} while (shell != null && shell != this);
+		if (shell == this) {
+			result [index++] = shells [i];
+		}
+	}
+	return result;
 }
 
 void hookEvents () {
