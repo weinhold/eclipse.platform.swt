@@ -46,7 +46,7 @@ SWTPI_LIB = lib$(SWTPI_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).so
 
 HAIKUCFLAGS = 
 HAIKUCXXFLAGS = -std=c++11
-HAIKULIBS = -lbe -ltextencoding
+HAIKULIBS = -lbe -ltextencoding -ltranslation
 
 #CDE_LIBS = -L$(CDE_HOME)/lib -R$(CDE_HOME)/lib -lXt -lX11 -lDtSvc
 
@@ -90,6 +90,7 @@ SWTPI_OBJECTS = \
 	HaikuComposite.o \
 	HaikuControl.o \
 	HaikuGraphicsContext.o \
+	HaikuImage.o \
 	HaikuLabel.o \
 	HaikuMessage.o \
 	HaikuUtils.o \

@@ -13,21 +13,48 @@
  *     Ingo Weinhold
  *******************************************************************************/
 
-#ifndef INC_SWT_DEFS_H
-#define INC_SWT_DEFS_H
+#ifndef INC_HAIKU_IMAGE_H
+#define INC_HAIKU_IMAGE_H
 
 
-#define SWT_NO_BACKGROUND		(1 << 18)
-#define SWT_NO_REDRAW_RESIZE	(1 << 20)
+#include <SupportDefs.h>
 
-#define SWT_LEFT				(1 << 14)
-#define SWT_RIGHT				(1 << 17)
-#define SWT_UP					(1 << 7)
-#define SWT_DOWN				(1 << 10)
-#define SWT_CENTER				(1 << 24)
+#include "swt.h"
 
-#define	SWT_ERROR_IO					39
-#define	SWT_ERROR_INVALID_IMAGE			40
-#define	SWT_ERROR_UNSUPPORTED_FORMAT	42
 
-#endif /* INC_SWT_DEFS_H */
+class BBitmap;
+class BPositionIO;
+
+
+namespace swt {
+namespace haiku {
+
+
+class HaikuWindow;
+
+
+class HaikuImage {
+public:
+								HaikuImage();
+	virtual						~HaikuImage();
+
+			jlong				Handle() const
+									{ return (jlong)(addr_t)this; }
+	static	HaikuImage*			Get(jlong handle)
+									{ return (HaikuImage*)(addr_t)handle; }
+
+			BBitmap*			Bitmap() const
+									{ return fBitmap; }
+
+			status_t			Load(BPositionIO& data);
+
+private:
+			BBitmap*			fBitmap;
+};
+
+
+}	// namespace haiku
+}	// namespace swt
+
+
+#endif /* INC_HAIKU_IMAGE_H */

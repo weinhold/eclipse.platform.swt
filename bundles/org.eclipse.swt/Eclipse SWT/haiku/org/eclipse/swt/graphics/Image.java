@@ -348,8 +348,11 @@ public Image(Device device, InputStream stream) {
  */
 public Image(Device device, String filename) {
 	super(device);
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	handle = (long /*int*/)HaikuImage.load(filename);
+	if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+	type = SWT.BITMAP;
+	init();
 }
 
 /**
@@ -449,28 +452,6 @@ public ImageData getImageData() {
  * @noreference This method is not intended to be referenced by clients.
  */
 public static Image haiku_new(Device device, int type, long /*int*/ imageHandle, long /*int*/ mask) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
-}
-
-/**	 
- * Invokes platform specific functionality to allocate a new image.
- * <p>
- * <b>IMPORTANT:</b> This method is <em>not</em> part of the public
- * API for <code>Image</code>. It is marked public only so that it
- * can be shared within the packages provided by SWT. It is not
- * available on all platforms, and should never be called from
- * application code.
- * </p>
- *
- * @param device the device on which to allocate the color
- * @param type the type of the image (<code>SWT.BITMAP</code> or <code>SWT.ICON</code>)
- * @param pixbuf an GdkPixbuf
- *
- * @noreference This method is not intended to be referenced by clients.
- */
-public static Image gtk_new_from_pixbuf(Device device, int type, long /*int*/ pixbuf) {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;

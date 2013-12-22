@@ -12,22 +12,14 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
-
-#ifndef INC_SWT_DEFS_H
-#define INC_SWT_DEFS_H
+package org.eclipse.swt.internal.haiku;
 
 
-#define SWT_NO_BACKGROUND		(1 << 18)
-#define SWT_NO_REDRAW_RESIZE	(1 << 20)
+import org.eclipse.swt.SWT;
 
-#define SWT_LEFT				(1 << 14)
-#define SWT_RIGHT				(1 << 17)
-#define SWT_UP					(1 << 7)
-#define SWT_DOWN				(1 << 10)
-#define SWT_CENTER				(1 << 24)
 
-#define	SWT_ERROR_IO					39
-#define	SWT_ERROR_INVALID_IMAGE			40
-#define	SWT_ERROR_UNSUPPORTED_FORMAT	42
+public class HaikuImage {
+	public static native void delete(long handle);
 
-#endif /* INC_SWT_DEFS_H */
+	public static native long load(String fileName);
+}
