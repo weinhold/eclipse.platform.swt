@@ -35,11 +35,11 @@ public:
 								HaikuGraphicsContext();
 	virtual						~HaikuGraphicsContext();
 
-			jlong				Handle() const
-									{ return (jlong)(addr_t)this; }
-	static	HaikuGraphicsContext* Get(jlong handle);
+			jintLong			Handle() const
+									{ return (jintLong)(addr_t)this; }
+	static	HaikuGraphicsContext* Get(jintLong handle);
 	template<typename Target>
-	static	Target*				GetAs(jlong handle);
+	static	Target*				GetAs(jintLong handle);
 
 	virtual	bool				Lock() = 0;
 	virtual	void				Unlock() = 0;
@@ -54,7 +54,7 @@ public:
 
 
 /*static*/ inline HaikuGraphicsContext*
-HaikuGraphicsContext::Get(jlong handle)
+HaikuGraphicsContext::Get(jintLong handle)
 {
 	return (HaikuGraphicsContext*)(addr_t)handle;
 }
@@ -62,7 +62,7 @@ HaikuGraphicsContext::Get(jlong handle)
 
 template<typename Target>
 /*static*/ inline Target*
-HaikuGraphicsContext::GetAs(jlong handle)
+HaikuGraphicsContext::GetAs(jintLong handle)
 {
 	return static_cast<Target*>(Get(handle));
 }

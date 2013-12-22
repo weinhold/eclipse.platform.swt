@@ -19,25 +19,25 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuButton {
-	public static native long createArrowButton(long displayHandle);
+	public static native long /*int*/ createArrowButton(long /*int*/ displayHandle);
 
-	public static native long createCheckButton(long displayHandle);
+	public static native long /*int*/ createCheckButton(long /*int*/ displayHandle);
 
-	public static native long createPushButton(long displayHandle);
+	public static native long /*int*/ createPushButton(long /*int*/ displayHandle);
 
-	public static native long createRadioButton(long displayHandle, boolean inRadioGroup);
+	public static native long /*int*/ createRadioButton(long /*int*/ displayHandle, boolean inRadioGroup);
 
-	public static native long createToggleButton(long displayHandle);
+	public static native long /*int*/ createToggleButton(long /*int*/ displayHandle);
 
-	public static native boolean isSelected(long handle);
+	public static native boolean isSelected(long /*int*/ handle);
 
-	public static native void setAlignmentStyle(long handle, int style);
+	public static native void setAlignmentStyle(long /*int*/ handle, int style);
 
-	public static native void setGrayed(long handle, boolean grayed);
+	public static native void setGrayed(long /*int*/ handle, boolean grayed);
 
-	public static native void setImage(long handle, long imageHandle);
+	public static native void setImage(long /*int*/ handle, long /*int*/ imageHandle);
 
-	public static native void setSelected(long handle, boolean selected);
+	public static native void setSelected(long /*int*/ handle, boolean selected);
 
-	public static native void setText(long handle, String text);
+	public static native void setText(long /*int*/ handle, String text);
 }

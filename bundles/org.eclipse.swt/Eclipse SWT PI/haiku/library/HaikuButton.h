@@ -35,7 +35,7 @@ public:
 								HaikuButton();
 	virtual						~HaikuButton();
 
-	static	HaikuButton*		Get(jlong handle)
+	static	HaikuButton*		Get(jintLong handle)
 									{ return GetAs<HaikuButton>(handle); }
 
 	virtual	BControl*			GetBControl() = 0;

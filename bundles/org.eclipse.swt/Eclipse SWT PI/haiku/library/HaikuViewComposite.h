@@ -35,7 +35,7 @@ public:
 	{
 	}
 
-	static HaikuViewComposite* Get(jlong handle)
+	static HaikuViewComposite* Get(jintLong handle)
 	{
 		return HaikuWidget::GetAs<HaikuViewComposite>(handle);
 	}

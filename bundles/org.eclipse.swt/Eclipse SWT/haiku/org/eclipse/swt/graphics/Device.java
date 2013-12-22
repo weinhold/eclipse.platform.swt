@@ -37,7 +37,7 @@ public abstract class Device implements Drawable {
 	 * 
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	protected long deviceHandle;
+	protected long /*int*/ deviceHandle;
 
 	/* Debugging */
 	public static boolean DEBUG;

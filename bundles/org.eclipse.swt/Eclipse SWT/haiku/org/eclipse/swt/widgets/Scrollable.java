@@ -72,7 +72,7 @@ public Scrollable (Composite parent, int style) {
 	super (parent, style);
 }
 
-long clientHandle () {
+long /*int*/ clientHandle () {
 	return handle;
 }
 

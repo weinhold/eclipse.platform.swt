@@ -19,9 +19,9 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuLabel {
-	public static native long create(long displayHandle);
+	public static native long /*int*/ create(long /*int*/ displayHandle);
 
-	public static native void setAlignment(long handle, int alignment);
+	public static native void setAlignment(long /*int*/ handle, int alignment);
 
-	public static native void setText(long handle, String text);
+	public static native void setText(long /*int*/ handle, String text);
 }

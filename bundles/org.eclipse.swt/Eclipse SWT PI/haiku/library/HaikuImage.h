@@ -38,9 +38,9 @@ public:
 								HaikuImage();
 	virtual						~HaikuImage();
 
-			jlong				Handle() const
-									{ return (jlong)(addr_t)this; }
-	static	HaikuImage*			Get(jlong handle)
+			jintLong			Handle() const
+									{ return (jintLong)(addr_t)this; }
+	static	HaikuImage*			Get(jintLong handle)
 									{ return (HaikuImage*)(addr_t)handle; }
 
 			BBitmap*			Bitmap() const

@@ -251,9 +251,9 @@ HaikuWindow::CompositeGetChildren(BObjectList<HaikuControl>& children)
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_create(
-	JNIEnv* env, jobject object, jlong displayHandle)
+	JNIEnv* env, jobject object, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -263,9 +263,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuWindow_create(
 }
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_createRootView(JNIEnv* env,
-	jobject object, jlong handle)
+	jobject object, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -282,7 +282,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuWindow_createRootView(JNIEnv* env,
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuWindow_setVisible(
-	JNIEnv* env, jobject object, jlong handle, jboolean visible)
+	JNIEnv* env, jobject object, jintLong handle, jboolean visible)
 {
 	HAIKU_JNI_ENTER(env);
 

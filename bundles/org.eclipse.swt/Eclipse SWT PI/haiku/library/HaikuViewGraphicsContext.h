@@ -29,7 +29,7 @@ public:
 								HaikuViewGraphicsContext(BView* view);
 	virtual						~HaikuViewGraphicsContext();
 
-	static	HaikuViewGraphicsContext* Get(jlong handle);
+	static	HaikuViewGraphicsContext* Get(jintLong handle);
 
 	virtual	bool				Lock();
 	virtual	void				Unlock();
@@ -47,7 +47,7 @@ private:
 
 
 /*static*/ inline HaikuViewGraphicsContext*
-HaikuViewGraphicsContext::Get(jlong handle)
+HaikuViewGraphicsContext::Get(jintLong handle)
 {
 	return GetAs<HaikuViewGraphicsContext>(handle);
 }

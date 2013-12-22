@@ -21,13 +21,13 @@ import org.eclipse.swt.graphics.Rectangle;
 
 
 public class HaikuControl {
-	public static Rectangle getFrame(long handle) {
+	public static Rectangle getFrame(long /*int*/ handle) {
 		int[] bounds = new int[4];
 		setAndGetFrame(handle, bounds, new boolean[2]);
 		return new Rectangle (bounds[0], bounds[1], bounds[2], bounds[3]);
 	}
 
-	public static native Point getPreferredSize(long handle, int wHint, int hHint);
+	public static native Point getPreferredSize(long /*int*/ handle, int wHint, int hHint);
 
 	/*
 	 * frame is an int[4] (x, y, width, height), specifying the new position
@@ -37,7 +37,7 @@ public class HaikuControl {
 	 * shall be moved and/or resized. It is also an out parameter, indicating
 	 * whether the view has been moved and/or resized.
 	 */
-	public static native void setAndGetFrame(long handle, int[] frame, boolean moveResize[]);
+	public static native void setAndGetFrame(long /*int*/ handle, int[] frame, boolean moveResize[]);
 
-	public static native void setPaintStyle(long handle, int style);
+	public static native void setPaintStyle(long /*int*/ handle, int style);
 }

@@ -110,7 +110,7 @@ public class Display extends Device {
 	EventTable eventTable, filterTable;
 
 	/* Widget Table */
-	private Map<Long, Widget> widgetTable = new HashMap<>();
+	private Map<Long /*Integer*/, Widget> widgetTable = new HashMap<>();
 
 	/* Sync/Async Widget Communication */
 	Thread thread;
@@ -266,7 +266,7 @@ public void addListener (int eventType, Listener listener) {
 	eventTable.hook (eventType, listener);
 }
 
-void addWidget (long handle, Widget widget) {
+void addWidget (long /*int*/ handle, Widget widget) {
 	widgetTable.put(handle, widget);
 }
 
@@ -492,7 +492,7 @@ void error (int code) {
  * 
  * @noreference This method is not intended to be referenced by clients.
  */
-public Widget findWidget (long handle) {
+public Widget findWidget (long /*int*/ handle) {
 	checkDevice ();
 	return getWidget(handle);
 }
@@ -772,7 +772,7 @@ public int getDismissalAlignment () {
 	return SWT.RIGHT;
 }
 
-long getDisplayHandle () {
+long /*int*/ getDisplayHandle () {
 	return deviceHandle;
 }
 
@@ -1162,7 +1162,7 @@ public boolean getTouchEnabled() {
 	return false;
 }
 
-public Widget getWidget (long handle) {
+public Widget getWidget (long /*int*/ handle) {
 	return widgetTable.get(handle);
 }
 
@@ -1633,7 +1633,7 @@ public void removeListener (int eventType, Listener listener) {
 	eventTable.unhook (eventType, listener);
 }
 
-Widget removeWidget (long handle) {
+Widget removeWidget (long /*int*/ handle) {
 	if (handle == 0) return null;
 	return widgetTable.remove(handle);
 }
@@ -1961,31 +1961,31 @@ void wakeThread () {
 }
 
 
-private void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+private void haikuWidgetFrameMoved(long /*int*/ handle, int newX, int newY) {
 	Widget widget = getWidget(handle);
 	if (widget == null) return;
 	widget.haikuWidgetFrameMoved(handle, newX, newY);
 }
 
-private void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
+private void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newHeight) {
 	Widget widget = getWidget(handle);
 	if (widget == null) return;
 	widget.haikuWidgetFrameResized(handle, newWidth, newHeight);
 }
 
-private void haikuControlDrawCallback(long handle, long gcHandle, int x, int y, int width, int height) {
+private void haikuControlDrawCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
 	Control control = (Control)getWidget(handle);
 	if (control == null) return;
 	control.haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
 }
 
-private void haikuButtonInvokedCallback(long handle, boolean selected) {
+private void haikuButtonInvokedCallback(long /*int*/ handle, boolean selected) {
 	Button button = (Button)getWidget(handle);
 	if (button == null) return;
 	button.haikuButtonInvokedCallback(handle, selected);
 }
 
-private boolean haikuWindowQuitRequested(long windowHandle) {
+private boolean haikuWindowQuitRequested(long /*int*/ windowHandle) {
 	Shell shell = (Shell)getWidget(windowHandle);
 	if (shell == null) return false;
 	return shell.haikuWindowQuitRequested(windowHandle);

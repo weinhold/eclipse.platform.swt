@@ -19,9 +19,9 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuComposite {
-	public static native void addChild(long handle, long childHandle);
+	public static native void addChild(long /*int*/ handle, long /*int*/ childHandle);
 
-	public static native long[] getChildren(long handle);
+	public static native long /*int*/[] getChildren(long /*int*/ handle);
 
-	public static native void removeChild(long handle, long childHandle);
+	public static native void removeChild(long /*int*/ handle, long /*int*/ childHandle);
 }

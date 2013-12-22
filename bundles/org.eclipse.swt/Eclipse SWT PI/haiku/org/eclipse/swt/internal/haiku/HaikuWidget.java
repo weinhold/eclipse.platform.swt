@@ -19,5 +19,5 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuWidget {
-	public static native void delete(long handle);
+	public static native void delete(long /*int*/ handle);
 }

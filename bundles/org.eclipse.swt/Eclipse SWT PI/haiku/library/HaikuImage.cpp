@@ -71,7 +71,7 @@ HaikuImage::Load(BPositionIO& data)
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuImage_load(
 	JNIEnv* env, jobject object, jstring fileName)
 {
@@ -120,7 +120,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuImage_load(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuImage_delete(
-	JNIEnv* env, jobject object, jlong handle)
+	JNIEnv* env, jobject object, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 

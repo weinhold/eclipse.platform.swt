@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	static HaikuViewControl* Get(jlong handle)
+	static HaikuViewControl* Get(jintLong handle)
 	{
 		return HaikuWidget::GetAs<HaikuViewControl>(handle);
 	}

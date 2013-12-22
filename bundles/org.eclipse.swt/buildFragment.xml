@@ -484,6 +484,7 @@
     	<replace dir="${copy.src.dir}" includes="**/*.java" value="int[] /*long[]*/" token="long[] /*int[]*/"/>
     	<replace dir="${copy.src.dir}" includes="**/*.java" value="float /*double*/" token="double /*float*/"/>
     	<replace dir="${copy.src.dir}" includes="**/*.java" value="float[] /*double[]*/" token="double[] /*float[]*/"/>
+    	<replace dir="${copy.src.dir}" includes="**/*.java" value="Integer /*Long*/" token="Long /*Integer*/"/>
     </target>
 
 	<target name="build.sources" depends="init">

@@ -51,7 +51,7 @@ HaikuControl::~HaikuControl()
 
 extern "C" jobject
 Java_org_eclipse_swt_internal_haiku_HaikuControl_getPreferredSize(
-	JNIEnv* env, jobject object, jlong handle, jint wHint, jint hHint)
+	JNIEnv* env, jobject object, jintLong handle, jint wHint, jint hHint)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -66,7 +66,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuControl_getPreferredSize(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuControl_setAndGetFrame(
-	JNIEnv* env, jobject object, jlong handle, jintArray _frame,
+	JNIEnv* env, jobject object, jintLong handle, jintArray _frame,
 	jbooleanArray _moveResize)
 {
 	HAIKU_JNI_ENTER(env);
@@ -117,7 +117,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuControl_setAndGetFrame(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuControl_setPaintStyle(
-	JNIEnv* env, jobject object, jlong handle, jint style)
+	JNIEnv* env, jobject object, jintLong handle, jint style)
 {
 	HAIKU_JNI_ENTER(env);
 

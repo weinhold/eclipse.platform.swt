@@ -32,12 +32,12 @@ public:
 								HaikuWidget();
 	virtual						~HaikuWidget();
 
-			jlong				Handle() const
-									{ return (jlong)(addr_t)this; }
-	static	HaikuWidget*		Get(jlong handle)
+			jintLong			Handle() const
+									{ return (jintLong)(addr_t)this; }
+	static	HaikuWidget*		Get(jintLong handle)
 									{ return (HaikuWidget*)(addr_t)handle; }
 	template<typename Target>
-	static	Target*				GetAs(jlong handle);
+	static	Target*				GetAs(jintLong handle);
 
 	virtual	void				Delete();
 };
@@ -45,7 +45,7 @@ public:
 
 template<typename Target>
 /*static*/ inline Target*
-HaikuWidget::GetAs(jlong handle)
+HaikuWidget::GetAs(jintLong handle)
 {
 	return static_cast<Target*>(Get(handle));
 }

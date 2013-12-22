@@ -91,7 +91,7 @@ public Composite (Composite parent, int style) {
 	super (parent, checkStyle (style));
 }
 
-void addChild(long childHandle)
+void addChild(long /*int*/ childHandle)
 {
 	HaikuComposite.addChild(handle, childHandle);
 }
@@ -253,8 +253,8 @@ public int getBackgroundMode () {
 }
 
 Control [] _getChildren () {
-	long parentHandle = parentingHandle ();
-	long[] childHandles = HaikuComposite.getChildren(parentHandle);
+	long /*int*/ parentHandle = parentingHandle ();
+	long[] /*int[]*/ childHandles = HaikuComposite.getChildren(parentHandle);
 	if (childHandles == null) return new Control[0];
 	Set<Control> children = new HashSet<>();
 	for (int i = 0; i < childHandles.length; i++) {
@@ -651,7 +651,7 @@ Point minimumSize (int wHint, int hHint, boolean changed) {
 	return new Point (width, height);
 }
 
-long parentingHandle () {
+long /*int*/ parentingHandle () {
 	return handle;
 }
 
@@ -680,7 +680,7 @@ void releaseWidget () {
 	HaikuUtils.partiallyImplemented();
 }
 
-void removeChild(long childHandle)
+void removeChild(long /*int*/ childHandle)
 {
 	HaikuComposite.removeChild(handle, childHandle);
 }

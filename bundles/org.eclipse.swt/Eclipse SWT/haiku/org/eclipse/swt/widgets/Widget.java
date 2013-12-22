@@ -56,7 +56,7 @@ public abstract class Widget {
 	 * 
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	public long handle;
+	public long /*int*/ handle;
 	int style, state;
 	Display display;
 	EventTable eventTable;
@@ -913,7 +913,7 @@ public void setData (String key, Object value) {
 void setOrientation (boolean create) {
 }
 
-long topHandle () {
+long /*int*/ topHandle () {
 	return handle;
 }
 
@@ -929,10 +929,10 @@ public String toString () {
 	return null;
 }
 
-void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+void haikuWidgetFrameMoved(long /*int*/ handle, int newX, int newY) {
 }
 
-void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
+void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newHeight) {
 }
 
 }

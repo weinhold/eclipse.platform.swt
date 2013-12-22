@@ -242,7 +242,7 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
 	return computeNativeSize (handle, wHint, hHint, changed);	
 }
 
-Point computeNativeSize (long handle, int wHint, int hHint, boolean changed) {
+Point computeNativeSize (long /*int*/ handle, int wHint, int hHint, boolean changed) {
 	if (wHint != SWT.DEFAULT && hHint != SWT.DEFAULT) return new Point(wHint, hHint);
 	return HaikuControl.getPreferredSize(handle, wHint, hHint);
 }
@@ -1963,7 +1963,7 @@ public boolean isVisible () {
 	return false;
 }
 
-long paintHandle () {
+long /*int*/ paintHandle () {
 	return handle;
 }
 
@@ -2575,7 +2575,7 @@ void updateLayout (boolean all) {
 	/* Do nothing */
 }
 
-void haikuControlDrawCallback(long handle, long gcHandle, int x, int y, int width, int height) {
+void haikuControlDrawCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
 	if (!hooksPaint ()) return;
 	Event event = new Event ();
 	event.count = 1;

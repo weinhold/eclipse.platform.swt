@@ -19,13 +19,13 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuGraphicsContext {
-	public static native void delete(long handle);
+	public static native void delete(long /*int*/ handle);
 
-	public static native void drawRectangle(long handle, int x, int y, int width, int height);
+	public static native void drawRectangle(long /*int*/ handle, int x, int y, int width, int height);
 
-	public static native void drawString(long handle, int x, int y, String string, boolean isTransparent);
+	public static native void drawString(long /*int*/ handle, int x, int y, String string, boolean isTransparent);
 
-	public static native HaikuColor getForegroundColor(long handle);
+	public static native HaikuColor getForegroundColor(long /*int*/ handle);
 
-	public static native void setForegroundColor(long handle, byte red, byte green, byte blue);
+	public static native void setForegroundColor(long /*int*/ handle, byte red, byte green, byte blue);
 }

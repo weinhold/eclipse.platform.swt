@@ -23,7 +23,7 @@ public class HaikuApplication {
 	private static HaikuApplication Application;
 
 	private Thread thread;
-	private long handle;
+	private long /*int*/ handle;
 	private int referenceCount;
 
 	static {
@@ -47,7 +47,7 @@ public class HaikuApplication {
 		thread.start();
 	}
 
-	public long getHandle() {
+	public long /*int*/ getHandle() {
 		return handle;
 	}
 
@@ -67,7 +67,7 @@ public class HaikuApplication {
 		}
 	}
 
-	private native long create();
+	private native long /*int*/ create();
 
 	private native void delete();
 

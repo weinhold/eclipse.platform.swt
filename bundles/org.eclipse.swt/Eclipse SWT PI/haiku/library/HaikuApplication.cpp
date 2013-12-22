@@ -54,7 +54,7 @@ static HaikuApplication* sApplication = NULL;
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuApplication_create(JNIEnv* env,
 	jobject object)
 {
@@ -66,7 +66,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuApplication_create(JNIEnv* env,
 
 	// unlock, so we can run the message loop in another thread
 	sApplication->Unlock();
-	return (jlong)(addr_t)sApplication;
+	return (jintLong)(addr_t)sApplication;
 }
 
 

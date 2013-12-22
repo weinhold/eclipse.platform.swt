@@ -20,11 +20,11 @@ import org.eclipse.swt.widgets.Display;
 
 
 public class HaikuDisplay {
-	public static native boolean checkPendingEvents(long handle, boolean wait);
+	public static native boolean checkPendingEvents(long /*int*/ handle, boolean wait);
 
-	public static native long create(long applicationHandle, Display display);
+	public static native long /*int*/ create(long /*int*/ applicationHandle, Display display);
 
-	public static native void delete(long handle);
+	public static native void delete(long /*int*/ handle);
 
-	public static native boolean handleNextEvent(long handle);
+	public static native boolean handleNextEvent(long /*int*/ handle);
 }

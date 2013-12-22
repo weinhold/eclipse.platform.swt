@@ -19,7 +19,7 @@ import org.eclipse.swt.SWT;
 
 
 public class HaikuImage {
-	public static native void delete(long handle);
+	public static native void delete(long /*int*/ handle);
 
-	public static native long load(String fileName);
+	public static native long /*int*/ load(String fileName);
 }

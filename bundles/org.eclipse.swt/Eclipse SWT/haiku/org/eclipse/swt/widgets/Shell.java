@@ -119,7 +119,7 @@ import org.eclipse.swt.events.*;
  */
 public class Shell extends Decorations {
 
-	private long rootViewHandle;
+	private long /*int*/ rootViewHandle;
 
 	// Last known shell bounds; used for detecting user moves/resizes.
 	private int oldX, oldY, oldWidth, oldHeight;
@@ -682,7 +682,7 @@ public void open () {
 	HaikuUtils.missingFeature("activate");
 }
 
-long paintHandle () {
+long /*int*/ paintHandle () {
 	return rootViewHandle;
 }
 
@@ -979,7 +979,7 @@ public void forceActive () {
 	HaikuUtils.notImplemented();
 }
 
-void haikuWidgetFrameMoved(long handle, int newX, int newY) {
+void haikuWidgetFrameMoved(long /*int*/ handle, int newX, int newY) {
 	if (handle != this.handle) return;
 	if (newX != oldX || newY != oldY) {
 		// moved by the user
@@ -989,7 +989,7 @@ void haikuWidgetFrameMoved(long handle, int newX, int newY) {
 	}
 }
 
-void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
+void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newHeight) {
 	if (handle != this.handle) return;
 	if (newWidth != oldWidth || newHeight != oldHeight) {
 		// resized by the user
@@ -1001,7 +1001,7 @@ void haikuWidgetFrameResized(long handle, int newWidth, int newHeight) {
 	}
 }
 
-boolean haikuWindowQuitRequested(long handle) {
+boolean haikuWindowQuitRequested(long /*int*/ handle) {
 	if (isDisposed()) return false;
 	close();
 	return false;

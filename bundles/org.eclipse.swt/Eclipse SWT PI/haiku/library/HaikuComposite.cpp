@@ -53,7 +53,7 @@ HaikuComposite::~HaikuComposite()
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuComposite_addChild(
-	JNIEnv* env, jobject object, jlong handle, jlong childHandle)
+	JNIEnv* env, jobject object, jintLong handle, jintLong childHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -66,7 +66,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuComposite_addChild(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuComposite_removeChild(
-	JNIEnv* env, jobject object, jlong handle, jlong childHandle)
+	JNIEnv* env, jobject object, jintLong handle, jintLong childHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -77,9 +77,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuComposite_removeChild(
 }
 
 
-extern "C" jlongArray
+extern "C" jintLongArray
 Java_org_eclipse_swt_internal_haiku_HaikuComposite_getChildren(
-	JNIEnv* env, jobject object, jlong handle)
+	JNIEnv* env, jobject object, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -92,11 +92,12 @@ Java_org_eclipse_swt_internal_haiku_HaikuComposite_getChildren(
 	if (count == 0)
 		return 0;
 
-	jlongArray handleArray = env->NewLongArray(count);
+	jintLongArray handleArray = env->NewIntLongArray(count);
 	if (handleArray == NULL)
 		return NULL;
 
-	jlong* handles = (jlong*)env->GetPrimitiveArrayCritical(handleArray, NULL);
+	jintLong* handles = (jintLong*)env->GetPrimitiveArrayCritical(handleArray,
+		NULL);
 	if (handles == NULL)
 		return NULL;
 

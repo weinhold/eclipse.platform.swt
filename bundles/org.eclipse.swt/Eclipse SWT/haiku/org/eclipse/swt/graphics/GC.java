@@ -68,7 +68,7 @@ public final class GC extends Resource {
 	 * 
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
-	public long handle;
+	public long /*int*/ handle;
 
 	private Drawable drawable;
 	private GCData data;
@@ -169,7 +169,7 @@ public GC(Drawable drawable, int style) {
  * 
  * @noreference This method is not intended to be referenced by clients.
  */
-public static GC haiku_new(long handle, GCData data) {
+public static GC haiku_new(long /*int*/ handle, GCData data) {
 	GC gc = new GC();
 	gc.init(null, data, handle);
 	return gc;
@@ -194,7 +194,7 @@ public static GC haiku_new(long handle, GCData data) {
  */
 public static GC haiku_new(Drawable drawable, GCData data) {
 	GC gc = new GC();
-	long handle = drawable.internal_new_GC(data);
+	long /*int*/ handle = drawable.internal_new_GC(data);
 	gc.init(drawable, data, handle);
 	return gc;
 }
@@ -1491,7 +1491,7 @@ public int hashCode() {
 	return (int)/*64*/handle;
 }
 
-void init(Drawable drawable, GCData data, long handle) {
+void init(Drawable drawable, GCData data, long /*int*/ handle) {
 	this.handle = handle;
 	this.drawable = drawable;
 	this.data = data;

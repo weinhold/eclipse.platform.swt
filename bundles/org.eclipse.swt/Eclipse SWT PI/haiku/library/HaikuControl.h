@@ -32,7 +32,7 @@ public:
 								HaikuControl();
 	virtual						~HaikuControl();
 
-	static	HaikuControl*		Get(jlong handle)
+	static	HaikuControl*		Get(jintLong handle)
 									{ return GetAs<HaikuControl>(handle); }
 
 	virtual	bool				Lock() = 0;

@@ -48,7 +48,7 @@ HaikuGraphicsContext::~HaikuGraphicsContext()
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_delete(
-	JNIEnv* env, jclass clazz, jlong handle)
+	JNIEnv* env, jclass clazz, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -59,7 +59,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_delete(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_drawRectangle(
-	JNIEnv* env, jclass clazz, jlong handle, jint x, jint y, jint width,
+	JNIEnv* env, jclass clazz, jintLong handle, jint x, jint y, jint width,
 	jint height)
 {
 	HAIKU_JNI_ENTER(env);
@@ -72,7 +72,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_drawRectangle(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_drawString(
-	JNIEnv* env, jclass clazz, jlong handle, jint x, jint y, jstring string,
+	JNIEnv* env, jclass clazz, jintLong handle, jint x, jint y, jstring string,
 	jboolean isTransparent)
 {
 	HAIKU_JNI_ENTER(env);
@@ -86,7 +86,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_drawString(
 
 extern "C" jobject
 Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_getForegroundColor(
-	JNIEnv* env, jclass clazz, jlong handle)
+	JNIEnv* env, jclass clazz, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -101,7 +101,8 @@ Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_getForegroundColor(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_setForegroundColor(
-	JNIEnv* env, jclass clazz, jlong handle, jbyte red, jbyte green, jbyte blue)
+	JNIEnv* env, jclass clazz, jintLong handle, jbyte red, jbyte green,
+	jbyte blue)
 {
 	HAIKU_JNI_ENTER(env);
 

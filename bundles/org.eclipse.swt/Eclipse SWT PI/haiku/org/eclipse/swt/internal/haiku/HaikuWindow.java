@@ -20,9 +20,9 @@ import org.eclipse.swt.graphics.Rectangle;
 
 
 public class HaikuWindow {
-	public static native long create(long displayHandle);
+	public static native long /*int*/ create(long /*int*/ displayHandle);
 
-	public static native long createRootView(long handle);
+	public static native long /*int*/ createRootView(long /*int*/ handle);
 
-	public static native void setVisible(long handle, boolean visible);
+	public static native void setVisible(long /*int*/ handle, boolean visible);
 }

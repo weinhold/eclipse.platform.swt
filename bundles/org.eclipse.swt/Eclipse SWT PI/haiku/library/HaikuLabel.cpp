@@ -35,9 +35,9 @@ typedef HaikuViewComposite<BStringView> HaikuLabel;
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_create(
-	JNIEnv* env, jobject object, jlong displayHandle)
+	JNIEnv* env, jobject object, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -50,7 +50,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuLabel_create(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_setAlignment(
-	JNIEnv* env, jobject object, jlong handle, jint alignment)
+	JNIEnv* env, jobject object, jintLong handle, jint alignment)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -62,7 +62,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuLabel_setAlignment(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuLabel_setText(
-	JNIEnv* env, jobject object, jlong handle, jstring text)
+	JNIEnv* env, jobject object, jintLong handle, jstring text)
 {
 	HAIKU_JNI_ENTER(env);
 

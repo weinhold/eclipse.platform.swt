@@ -208,15 +208,15 @@ HaikuDisplay::_Init(jobject object)
 			return false;
 
 	GET_METHOD_ID(fWidgetFrameMovedCallback, "haikuWidgetFrameMoved",
-		"(JII)V");
+		"(" I_J "II)V");
 	GET_METHOD_ID(fWidgetFrameResizedCallback, "haikuWidgetFrameResized",
-		"(JII)V");
+		"(" I_J "II)V");
 	GET_METHOD_ID(fControlDrawCallback, "haikuControlDrawCallback",
-		"(JJIIII)V");
+		"(" I_J I_J "IIII)V");
 	GET_METHOD_ID(fButtonInvokedCallback, "haikuButtonInvokedCallback",
-		"(JZ)V");
+		"(" I_J "Z)V");
 	GET_METHOD_ID(fWindowQuitRequestedCallback, "haikuWindowQuitRequested",
-		"(J)Z");
+		"(" I_J ")Z");
 
 	#undef GET_METHOD_ID
 
@@ -253,22 +253,23 @@ HaikuDisplay::_GetMessage(bool pop, bool wait)
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_create(
-	JNIEnv* env, jobject object, jlong applicationHandle, jobject displayObject)
+	JNIEnv* env, jobject object, jintLong applicationHandle,
+	jobject displayObject)
 {
 	HAIKU_JNI_ENTER(env);
 
 	HaikuDisplay* display = HaikuDisplay::Create(displayObject);
 	haikuJniContext.SetDisplay(display);
 
-	return (jlong)(addr_t)display;
+	return (jintLong)(addr_t)display;
 }
 
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_delete(
-	JNIEnv* env, jobject object, jlong handle)
+	JNIEnv* env, jobject object, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -281,7 +282,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuDisplay_delete(
 
 extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_checkPendingEvents(
-	JNIEnv* env, jobject object, jlong handle, jboolean wait)
+	JNIEnv* env, jobject object, jintLong handle, jboolean wait)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -292,7 +293,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuDisplay_checkPendingEvents(
 
 extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuDisplay_handleNextEvent(
-	JNIEnv* env, jobject object, jlong handle)
+	JNIEnv* env, jobject object, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 

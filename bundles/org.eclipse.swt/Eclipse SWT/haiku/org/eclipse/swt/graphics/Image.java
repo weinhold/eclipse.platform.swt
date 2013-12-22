@@ -349,7 +349,7 @@ public Image(Device device, InputStream stream) {
 public Image(Device device, String filename) {
 	super(device);
 	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	handle = (long /*int*/)HaikuImage.load(filename);
+	handle = HaikuImage.load(filename);
 	if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
 	type = SWT.BITMAP;
 	init();

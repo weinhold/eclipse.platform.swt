@@ -33,7 +33,7 @@ public:
 								HaikuComposite();
 	virtual						~HaikuComposite();
 
-	static	HaikuComposite*		Get(jlong handle)
+	static	HaikuComposite*		Get(jintLong handle)
 									{ return GetAs<HaikuComposite>(handle); }
 
 	virtual	bool				CompositeAddChild(HaikuControl* child) = 0;

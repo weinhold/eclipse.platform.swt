@@ -51,7 +51,7 @@ public:
 
 			void				DispatchDelayedMessage(HaikuMessage* message);
 
-	static	HaikuWindow*		Get(jlong handle)
+	static	HaikuWindow*		Get(jintLong handle)
 									{ return GetAs<HaikuWindow>(handle); }
 
 	// HaikuWidget interface 

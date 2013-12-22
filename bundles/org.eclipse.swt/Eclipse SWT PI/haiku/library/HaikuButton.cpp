@@ -353,9 +353,9 @@ private:
 // #pragma mark - native methods
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createArrowButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle)
+	JNIEnv* env, jclass clazz, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -366,9 +366,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createArrowButton(
 }
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createCheckButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle)
+	JNIEnv* env, jclass clazz, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -379,9 +379,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createCheckButton(
 }
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createPushButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle)
+	JNIEnv* env, jclass clazz, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -392,9 +392,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createPushButton(
 }
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createRadioButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle, jboolean inRadioGroup)
+	JNIEnv* env, jclass clazz, jintLong displayHandle, jboolean inRadioGroup)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -405,9 +405,9 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createRadioButton(
 }
 
 
-extern "C" jlong
+extern "C" jintLong
 Java_org_eclipse_swt_internal_haiku_HaikuButton_createToggleButton(
-	JNIEnv* env, jclass clazz, jlong displayHandle)
+	JNIEnv* env, jclass clazz, jintLong displayHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -420,7 +420,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createToggleButton(
 
 extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuButton_isSelected(
-	JNIEnv* env, jclass clazz, jlong handle, jint alignment)
+	JNIEnv* env, jclass clazz, jintLong handle, jint alignment)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -434,7 +434,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_isSelected(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setAlignmentStyle(
-	JNIEnv* env, jclass clazz, jlong handle, jint style)
+	JNIEnv* env, jclass clazz, jintLong handle, jint style)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -446,7 +446,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setAlignmentStyle(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setGrayed(
-	JNIEnv* env, jclass clazz, jlong handle, jboolean grayed)
+	JNIEnv* env, jclass clazz, jintLong handle, jboolean grayed)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -458,7 +458,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setGrayed(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setImage(
-	JNIEnv* env, jclass clazz, jlong handle, long imageHandle)
+	JNIEnv* env, jclass clazz, jintLong handle, long imageHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -470,7 +470,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setImage(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setSelected(
-	JNIEnv* env, jclass clazz, jlong handle, jboolean selected)
+	JNIEnv* env, jclass clazz, jintLong handle, jboolean selected)
 {
 	HAIKU_JNI_ENTER(env);
 
@@ -482,7 +482,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setSelected(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setText(
-	JNIEnv* env, jclass clazz, jlong handle, jstring text)
+	JNIEnv* env, jclass clazz, jintLong handle, jstring text)
 {
 	HAIKU_JNI_ENTER(env);
 
