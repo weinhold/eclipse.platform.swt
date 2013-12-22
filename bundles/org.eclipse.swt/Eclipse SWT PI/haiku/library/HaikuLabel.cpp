@@ -68,5 +68,5 @@ Java_org_eclipse_swt_internal_haiku_HaikuLabel_setText(
 
 	HaikuLabel* label = HaikuLabel::Get(handle);
 	AutoLocker<HaikuLabel> labelLocker(label);
-	label->SetText(HaikuUtils::FromJavaString(text));
+	label->SetText(HaikuUtils::FromJavaString(env, text));
 }

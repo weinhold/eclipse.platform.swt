@@ -470,5 +470,5 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setText(
 
 	HaikuButton* button = HaikuButton::Get(handle);
 	AutoLocker<HaikuButton> buttonLocker(button);
-	button->GetBControl()->SetLabel(HaikuUtils::FromJavaString(text));
+	button->GetBControl()->SetLabel(HaikuUtils::FromJavaString(env, text));
 }

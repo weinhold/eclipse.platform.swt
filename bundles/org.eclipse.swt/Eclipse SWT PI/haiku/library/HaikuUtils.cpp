@@ -83,9 +83,8 @@ HaikuUtils::Cleanup(JNIEnv* env)
 
 
 /*static*/ BString
-HaikuUtils::FromJavaString(jstring javaString)
+HaikuUtils::FromJavaString(JNIEnv* env, jstring javaString)
 {
-	JNIEnv* env = HaikuJNIContext::CurrentEnv();
 	const jchar* javaUtf16 = env->GetStringChars(javaString, NULL);
 	const jchar* utf16 = javaUtf16;
 	jsize utf16Count = env->GetStringLength(javaString);
@@ -125,9 +124,8 @@ HaikuUtils::FromJavaString(jstring javaString)
 
 
 /*static*/ jstring
-HaikuUtils::ToJavaString(const BString& string)
+HaikuUtils::ToJavaString(JNIEnv* env, const BString& string)
 {
-	JNIEnv* env = HaikuJNIContext::CurrentEnv();
 	return env->NewStringUTF(string.String());
 		// TODO: This isn't modified UTF-8! Use convert_from_utf8() to convert
 		// to UTF-16 instead!

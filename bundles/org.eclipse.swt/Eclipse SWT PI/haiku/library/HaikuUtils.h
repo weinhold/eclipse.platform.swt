@@ -34,8 +34,9 @@ public:
 	static	bool				Init(JNIEnv* env);
 	static	void				Cleanup(JNIEnv* env);
 
-	static	BString				FromJavaString(jstring javaString);
-	static	jstring				ToJavaString(const BString& string);
+	static	BString				FromJavaString(JNIEnv* env, jstring javaString);
+	static	jstring				ToJavaString(JNIEnv* env,
+									const BString& string);
 
 	static	jobject				CreatePoint(JNIEnv *env, jint x, jint y);
 	static	jobject				CreatePoint(JNIEnv *env, const BPoint& point);

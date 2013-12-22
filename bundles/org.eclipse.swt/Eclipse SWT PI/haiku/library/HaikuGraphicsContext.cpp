@@ -80,7 +80,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuGraphicsContext_drawString(
 	HaikuGraphicsContext* graphicsContext = HaikuGraphicsContext::Get(handle);
 	AutoLocker<HaikuGraphicsContext> graphicsContextLocker(graphicsContext);
 	graphicsContext->DrawString(BPoint(x, y),
-		HaikuUtils::FromJavaString(string), isTransparent);
+		HaikuUtils::FromJavaString(env, string), isTransparent);
 }
 
 
