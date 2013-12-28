@@ -61,6 +61,8 @@ public:
 	virtual	bool				Lock();
 	virtual	void				Unlock();
 
+	virtual	BView*				ControlGetView();
+
 	virtual	BSize				ControlPreferredSize(jint wHint, jint hHint);
 	virtual	BRect				ControlFrame();
 	virtual	void				ControlMoveTo(const BPoint& point);

@@ -23,6 +23,9 @@
 #include "HaikuWidget.h"
 
 
+class BView;
+
+
 namespace swt {
 namespace haiku {
 
@@ -37,6 +40,8 @@ public:
 
 	virtual	bool				Lock() = 0;
 	virtual	void				Unlock() = 0;
+
+	virtual	BView*				ControlGetView() = 0;
 
 	virtual	BSize				ControlPreferredSize(jint wHint, jint hHint)
 									= 0;

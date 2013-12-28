@@ -78,6 +78,11 @@ public:
 		return this->UnlockLooper();
 	}
 
+	virtual BView* ControlGetView()
+	{
+		return this;
+	}
+
 	virtual BSize ControlPreferredSize(jint wHint, jint hHint)
 	{
 		// The Haiku API doesn't support getting the width for a height, so we

@@ -188,6 +188,13 @@ HaikuWindow::Unlock()
 }
 
 
+BView*
+HaikuWindow::ControlGetView()
+{
+	return fRootView;
+}
+
+
 BSize
 HaikuWindow::ControlPreferredSize(jint wHint, jint hHint)
 {
