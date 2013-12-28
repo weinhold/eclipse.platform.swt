@@ -93,6 +93,8 @@ SWTPI_OBJECTS = \
 	HaikuImage.o \
 	HaikuLabel.o \
 	HaikuMessage.o \
+	HaikuToolBar.o \
+	HaikuToolItem.o \
 	HaikuUtils.o \
 	HaikuViewGraphicsContext.o \
 	HaikuWidget.o \

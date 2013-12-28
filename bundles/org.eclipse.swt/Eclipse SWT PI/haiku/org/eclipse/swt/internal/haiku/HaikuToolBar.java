@@ -12,49 +12,20 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
-
-#ifndef INC_HAIKU_BUTTON_H
-#define INC_HAIKU_BUTTON_H
+package org.eclipse.swt.internal.haiku;
 
 
-#include "HaikuComposite.h"
+import org.eclipse.swt.SWT;
 
 
-class BControl;
+public class HaikuToolBar {
+	public static native void addItem(long /*int*/ handle, long /*int*/ itemHandle, int index);
 
+	public static native long /*int*/ create(long /*int*/ displayHandle, boolean horizontal);
 
-namespace swt {
-namespace haiku {
+	public static native int getItemCount(long /*int*/ handle);
 
+	public static native long[] /*int[]*/ getItems(long /*int*/ handle);
 
-class HaikuImage;
-
-
-class HaikuButton : public HaikuControl {
-public:
-								HaikuButton();
-	virtual						~HaikuButton();
-
-	static	HaikuButton*		Get(jintLong handle)
-									{ return GetAs<HaikuButton>(handle); }
-
-	virtual	BControl*			GetBControl() = 0;
-
-	virtual	void				SetAlignmentStyle(int style) = 0;
-	virtual	void				SetGrayed(bool grayed) = 0;
-	virtual	void				SetImage(HaikuImage* image) = 0;
-};
-
-
-class HaikuButtonFactory {
-public:
-	static	HaikuButton*		CreatePushButton();
-	static	HaikuButton*		CreateToggleButton();
-};
-
-
-}	// namespace haiku
-}	// namespace swt
-
-
-#endif /* INC_HAIKU_BUTTON_H */
+	public static native int removeItem(long /*int*/ handle, long /*int*/ itemHandle);
+}

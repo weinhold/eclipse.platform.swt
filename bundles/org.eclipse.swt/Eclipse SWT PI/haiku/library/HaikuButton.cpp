@@ -345,6 +345,24 @@ private:
 };
 
 
+// pragma mark - HaikuButtonFactory
+
+
+
+/*static*/ HaikuButton*
+HaikuButtonFactory::CreatePushButton()
+{
+	return new(std::nothrow) HaikuPushButton;
+}
+
+
+/*static*/ HaikuButton*
+HaikuButtonFactory::CreateToggleButton()
+{
+	return new(std::nothrow) HaikuToggleButton;
+}
+
+
 }	// namespace haiku
 }	// namespace swt
 

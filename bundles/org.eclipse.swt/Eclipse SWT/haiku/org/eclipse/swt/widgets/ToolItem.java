@@ -38,6 +38,11 @@ import org.eclipse.swt.events.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ToolItem extends Item {
+	private ToolBar parent;
+	private Control control;
+	private long /*int*/ controlHandle;
+	private Image hotImage, disabledImage;
+	private String toolTipText;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -74,9 +79,9 @@ public class ToolItem extends Item {
  * @see Widget#getStyle
  */
 public ToolItem (ToolBar parent, int style) {
-	// TODO: Implement!
-	super(parent, style);
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	createWidget (parent.getItemCount ());
 }
 
 /**
@@ -116,9 +121,13 @@ public ToolItem (ToolBar parent, int style) {
  * @see Widget#getStyle
  */
 public ToolItem (ToolBar parent, int style, int index) {
-	// TODO: Implement!
-	super(parent, style);
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	int count = parent.getItemCount ();
+	if (!(0 <= index && index <= count)) {
+		error (SWT.ERROR_INVALID_RANGE);
+	}
+	createWidget (index);
 }
 
 /**
@@ -153,8 +162,60 @@ public ToolItem (ToolBar parent, int style, int index) {
  * @see SelectionEvent
  */
 public void addSelectionListener(SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Selection,typedListener);
+	addListener (SWT.DefaultSelection,typedListener);
+}
+
+static int checkStyle (int style) {
+	return checkBits (style, SWT.PUSH, SWT.CHECK, SWT.RADIO, SWT.SEPARATOR, SWT.DROP_DOWN, 0);
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	int bits = SWT.SEPARATOR | SWT.RADIO | SWT.CHECK | SWT.PUSH | SWT.DROP_DOWN;
+	switch (style & bits) {
+		case SWT.SEPARATOR:
+			boolean horizontal = (parent.style & SWT.VERTICAL) == 0;
+			handle = HaikuToolItem.createSeparatorItem(display.getDisplayHandle(), horizontal);
+			break;
+		case SWT.DROP_DOWN:
+			handle = HaikuToolItem.createDropDownItem(display.getDisplayHandle());
+			break;
+		case SWT.RADIO:
+			handle = HaikuToolItem.createRadioItem(display.getDisplayHandle());
+			break;
+		case SWT.CHECK:
+			handle = HaikuToolItem.createCheckItem(display.getDisplayHandle());
+			break;
+		case SWT.PUSH:
+		default:
+			handle = HaikuToolItem.createPushItem(display.getDisplayHandle());
+			break;
+	}
+
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+
+	controlHandle = HaikuToolItem.getControl(handle);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	HaikuToolBar.addItem(parent.handle, handle, index);
+	parent.relayout ();
+}
+
+public void dispose () {
+	if (isDisposed ()) return;
+	ToolBar parent = this.parent;
+	super.dispose ();
+	parent.relayout ();
 }
 
 /**
@@ -169,9 +230,8 @@ public void addSelectionListener(SelectionListener listener) {
  * </ul>
  */
 public Rectangle getBounds () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return HaikuControl.getFrame(controlHandle);
 }
 
 /**
@@ -186,9 +246,8 @@ public Rectangle getBounds () {
  * </ul>
  */
 public Control getControl () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return control;
 }
 
 /**
@@ -206,9 +265,8 @@ public Control getControl () {
  * </ul>
  */
 public Image getDisabledImage () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return disabledImage;
 }
 
 /**
@@ -227,9 +285,8 @@ public Image getDisabledImage () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -247,9 +304,8 @@ public boolean getEnabled () {
  * </ul>
  */
 public Image getHotImage () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return hotImage;
 }
 
 /**
@@ -263,9 +319,9 @@ public Image getHotImage () {
  * </ul>
  */
 public ToolBar getParent () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (parent == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	return parent;
 }
 
 /**
@@ -286,9 +342,9 @@ public ToolBar getParent () {
  * </ul>
  */
 public boolean getSelection () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return false;
+	return HaikuToolItem.isSelected(handle);
 }
 
 /**
@@ -302,9 +358,8 @@ public boolean getSelection () {
  * </ul>
  */
 public String getToolTipText () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return toolTipText;
 }
 
 /**
@@ -318,9 +373,8 @@ public String getToolTipText () {
  * </ul>
  */
 public int getWidth () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return getBounds().width;
 }
 
 /**
@@ -339,9 +393,26 @@ public int getWidth () {
  * @see #getEnabled
  */
 public boolean isEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	return getEnabled () && parent.isEnabled ();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	controlHandle = 0;
+}
+
+void releaseParent () {
+	HaikuToolBar.removeItem(parent.handle, handle);
+	parent.relayout ();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	parent = null;
+	control = null;
+	hotImage = disabledImage = null;
+	toolTipText = null;
 }
 
 /**
@@ -362,8 +433,11 @@ public boolean isEnabled () {
  * @see #addSelectionListener
  */
 public void removeSelectionListener(SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Selection, listener);
+	eventTable.unhook (SWT.DefaultSelection,listener);	
 }
 
 /**
@@ -382,8 +456,19 @@ public void removeSelectionListener(SelectionListener listener) {
  * </ul>
  */
 public void setControl (Control control) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if (control != null) {
+		if (control.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
+		if (control.parent != parent) error (SWT.ERROR_INVALID_PARENT);
+	}
+	if ((style & SWT.SEPARATOR) == 0) return;
+	if (this.control == control) return;
+	this.control = control;
+	int index = HaikuToolBar.removeItem(parent.handle, handle);
+	HaikuToolItem.setControl(handle, control != null ? control.handle : 0);
+	controlHandle = HaikuToolItem.getControl(handle);
+	HaikuToolBar.addItem(parent.handle, handle, index);
+	parent.relayout ();
 }
 
 /**
@@ -404,8 +489,10 @@ public void setControl (Control control) {
  * </ul>
  */
 public void setDisabledImage (Image image) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	disabledImage = image;
+	HaikuToolItem.setDisabledImage(handle, image != null ? image.handle : 0);
 }
 
 /**
@@ -425,8 +512,16 @@ public void setDisabledImage (Image image) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	HaikuControl.setEnabled(controlHandle, enabled);
+	// TODO: Update focus.
+	HaikuUtils.missingFeature("update focus");
 }
 
 /**
@@ -447,8 +542,18 @@ public void setEnabled (boolean enabled) {
  * </ul>
  */
 public void setHotImage (Image image) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	hotImage = image;
+	HaikuToolItem.setHotImage(handle, image != null ? image.handle : 0);
+}
+
+public void setImage (Image image) {
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	super.setImage (image);
+	HaikuToolItem.setImage(handle, image != null ? image.handle : 0);
+	parent.relayout ();
 }
 
 /**
@@ -467,8 +572,9 @@ public void setHotImage (Image image) {
  * </ul>
  */
 public void setSelection (boolean selected) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return;
+	HaikuToolItem.setSelected(handle, selected);
 }
 
 /**
@@ -497,8 +603,15 @@ public void setSelection (boolean selected) {
  * </ul>
  */
 public void setText (String string) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if (string.equals(this.text)) return;
+	super.setText (string);
+	HaikuToolItem.setText(handle, string);
+	// TODO: Implement mnemonics support!
+	HaikuUtils.missingFeature("mnemonics");
+	parent.relayout ();
 }
 
 /**
@@ -522,8 +635,10 @@ public void setText (String string) {
  * </ul>
  */
 public void setToolTipText (String string) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (toolTipText == string || (toolTipText != null && toolTipText.equals(string))) return;
+	toolTipText = string;
+	HaikuToolItem.setToolTipText(handle, string);
 }
 
 /**
@@ -544,8 +659,14 @@ public void setToolTipText (String string) {
  * </ul>
  */
 public void setWidth (int width) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) == 0) return;
+	if (width < 0) return;
+	Rectangle bounds = getBounds();
+	int boundsArray[] = new int[]{bounds.x, bounds.y, width, bounds.height};
+	boolean moveResize[] = new boolean[]{false, true};
+	HaikuControl.setAndGetFrame(controlHandle, boundsArray, moveResize);
+	parent.relayout ();
 }
 
 }
