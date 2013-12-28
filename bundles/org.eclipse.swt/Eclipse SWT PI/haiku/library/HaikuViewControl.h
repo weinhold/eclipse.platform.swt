@@ -80,21 +80,6 @@ public:
 
 	virtual BSize ControlPreferredSize(jint wHint, jint hHint)
 	{
-		// If hints have been specified, make sure they lie within the
-		// min/max range for the view.
-		if (wHint >= 0 || hHint >= 0) {
-			BSize min = this->MinSize();
-			BSize max = this->MaxSize();
-			if (wHint >= 0) {
-				wHint = std::max(wHint, (jint)min.width + 1);
-				wHint = std::min(wHint, (jint)max.width + 1);
-			}
-			if (hHint >= 0) {
-				hHint = std::max(hHint, (jint)min.height + 1);
-				hHint = std::min(hHint, (jint)max.height + 1);
-			}
-		}
-
 		// The Haiku API doesn't support getting the width for a height, so we
 		// always get the preferred width, if the width isn't given.
 		BSize preferred = this->PreferredSize();
