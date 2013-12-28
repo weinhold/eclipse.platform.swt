@@ -458,7 +458,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setGrayed(
 
 extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuButton_setImage(
-	JNIEnv* env, jclass clazz, jintLong handle, long imageHandle)
+	JNIEnv* env, jclass clazz, jintLong handle, jintLong imageHandle)
 {
 	HAIKU_JNI_ENTER(env);
 
