@@ -49,6 +49,7 @@ public:
 	virtual	void				ControlMoveTo(const BPoint& point) = 0;
 	virtual	void				ControlResizeTo(const BSize& size) = 0;
 
+	virtual	void				ControlSetEnabled(bool enabled) = 0;
 	virtual	void				ControlSetPaintStyle(int32 style) = 0;
 };
 

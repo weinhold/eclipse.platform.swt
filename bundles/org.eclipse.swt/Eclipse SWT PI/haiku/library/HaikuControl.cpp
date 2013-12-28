@@ -65,6 +65,18 @@ Java_org_eclipse_swt_internal_haiku_HaikuControl_getPreferredSize(
 
 
 extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuControl_relayout(
+	JNIEnv* env, jobject object, jintLong handle)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuControl* control = HaikuControl::Get(handle);
+	AutoLocker<HaikuControl> controlLocker(control);
+	control->ControlGetView()->Relayout();
+}
+
+
+extern "C" void
 Java_org_eclipse_swt_internal_haiku_HaikuControl_setAndGetFrame(
 	JNIEnv* env, jobject object, jintLong handle, jintArray _frame,
 	jbooleanArray _moveResize)
@@ -112,6 +124,19 @@ Java_org_eclipse_swt_internal_haiku_HaikuControl_setAndGetFrame(
 
 	env->ReleaseIntArrayElements(_frame, frame, JNI_COMMIT);
 	env->ReleaseBooleanArrayElements(_moveResize, moveResize, JNI_COMMIT);
+}
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuControl_setEnabled(
+	JNIEnv* env, jobject object, jintLong handle, jboolean enabled)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuControl* control = HaikuControl::Get(handle);
+	AutoLocker<HaikuControl> controlLocker(control);
+
+	control->ControlSetEnabled(enabled);
 }
 
 

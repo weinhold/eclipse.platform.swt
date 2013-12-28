@@ -67,7 +67,7 @@ public abstract class Widget {
 	static final int CANVAS = 1<<1;
 //	static final int KEYED_DATA = 1<<2;
 	static final int HANDLE = 1<<3;
-//	static final int DISABLED = 1<<4;
+	static final int DISABLED = 1<<4;
 //	static final int MENU = 1<<5;
 //	static final int OBSCURED = 1<<6;
 	static final int MOVED = 1<<7;

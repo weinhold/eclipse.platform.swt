@@ -1631,9 +1631,8 @@ public boolean getDragDetect () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -2035,6 +2034,10 @@ public void redraw (int x, int y, int width, int height, boolean all) {
 	HaikuUtils.notImplemented();
 }
 
+void relayout () {
+	HaikuControl.relayout(handle);
+}
+
 void release (boolean destroy) {
 	super.release (destroy);
 	// TODO: Implement!
@@ -2185,8 +2188,16 @@ public void setDragDetect (boolean dragDetect) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	HaikuControl.setEnabled(handle, enabled);
+	// TODO: Update focus.
+	HaikuUtils.missingFeature("update focus");
 }
 
 /**

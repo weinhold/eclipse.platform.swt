@@ -114,6 +114,12 @@ public:
 		return this->ResizeTo(size);
 	}
 
+	virtual void ControlSetEnabled(bool enabled)
+	{
+// TODO: Use SFINAE magic to call SetEnabled(), if the class supports it!
+//		this->SetEnabled(enabled);
+	}
+
 	virtual void ControlSetPaintStyle(int32 style)
 	{
 		uint32 viewFlags = this->Flags();

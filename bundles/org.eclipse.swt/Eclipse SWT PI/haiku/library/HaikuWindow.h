@@ -68,6 +68,7 @@ public:
 	virtual	void				ControlMoveTo(const BPoint& point);
 	virtual	void				ControlResizeTo(const BSize& size);
 
+	virtual	void				ControlSetEnabled(bool enabled);
 	virtual	void				ControlSetPaintStyle(int32 style);
 
 	// HaikuComposite interface 

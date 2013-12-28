@@ -29,6 +29,8 @@ public class HaikuControl {
 
 	public static native Point getPreferredSize(long /*int*/ handle, int wHint, int hHint);
 
+	public static native void relayout(long /*int*/ handle);
+
 	/*
 	 * frame is an int[4] (x, y, width, height), specifying the new position
 	 * and size. It is also an out parameter, returing the new position and
@@ -38,6 +40,8 @@ public class HaikuControl {
 	 * whether the view has been moved and/or resized.
 	 */
 	public static native void setAndGetFrame(long /*int*/ handle, int[] frame, boolean moveResize[]);
+
+	public static native void setEnabled(long /*int*/ handle, boolean enabled);
 
 	public static native void setPaintStyle(long /*int*/ handle, int style);
 }

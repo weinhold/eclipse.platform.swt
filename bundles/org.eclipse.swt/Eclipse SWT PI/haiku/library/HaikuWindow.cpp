@@ -226,7 +226,14 @@ HaikuWindow::ControlResizeTo(const BSize& size)
 void
 HaikuWindow::ControlSetPaintStyle(int32 style)
 {
-	return fRootView->ControlSetPaintStyle(style);
+	fRootView->ControlSetPaintStyle(style);
+}
+
+
+void
+HaikuWindow::ControlSetEnabled(bool enabled)
+{
+	fRootView->ControlSetEnabled(enabled);
 }
 
 
