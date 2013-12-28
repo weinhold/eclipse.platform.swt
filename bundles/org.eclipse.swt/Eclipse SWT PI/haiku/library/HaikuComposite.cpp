@@ -88,22 +88,5 @@ Java_org_eclipse_swt_internal_haiku_HaikuComposite_getChildren(
 
 	BObjectList<HaikuControl> children;
 	parent->CompositeGetChildren(children);
-	int32 count = children.CountItems();
-	if (count == 0)
-		return 0;
-
-	jintLongArray handleArray = env->NewIntLongArray(count);
-	if (handleArray == NULL)
-		return NULL;
-
-	jintLong* handles = (jintLong*)env->GetPrimitiveArrayCritical(handleArray,
-		NULL);
-	if (handles == NULL)
-		return NULL;
-
-	for (int32 i = 0; i < count; i++)
-		handles[i] = children.ItemAt(i)->Handle();
-
-	env->ReleasePrimitiveArrayCritical(handleArray, handles, JNI_COMMIT);
-	return handleArray;
+	return HaikuUtils::CreateHandleArray(env, children);
 }

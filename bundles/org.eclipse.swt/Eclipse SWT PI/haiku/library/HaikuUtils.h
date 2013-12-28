@@ -18,6 +18,7 @@
 
 
 #include <InterfaceDefs.h>
+#include <ObjectList.h>
 #include <Point.h>
 #include <Size.h>
 #include <String.h>
@@ -49,6 +50,10 @@ public:
 
 	static	void				ThrowSWTException(JNIEnv *env, jint code);
 	static	void				ThrowOutOfMemoryError(JNIEnv *env);
+
+	template<typename ObjectType>
+	static	jintLongArray		CreateHandleArray(JNIEnv* env,
+									const BObjectList<ObjectType>& objects);
 
 private:
 	static	jclass				sPointClass;
@@ -94,6 +99,32 @@ HaikuUtils::CreateColor(JNIEnv *env, jbyte red, jbyte green, jbyte blue)
 HaikuUtils::CreateColor(JNIEnv *env, const rgb_color& color)
 {
 	return CreateColor(env, color.red, color.green, color.blue);
+}
+
+
+template<typename ObjectType>
+/*static*/ jintLongArray
+HaikuUtils::CreateHandleArray(JNIEnv* env,
+	const BObjectList<ObjectType>& objects)
+{
+	int32 count = objects.CountItems();
+	if (count == 0)
+		return 0;
+
+	jintLongArray handleArray = env->NewIntLongArray(count);
+	if (handleArray == NULL)
+		return 0;
+
+	jintLong* handles = (jintLong*)env->GetPrimitiveArrayCritical(handleArray,
+		NULL);
+	if (handles == NULL)
+		return 0;
+
+	for (int32 i = 0; i < count; i++)
+		handles[i] = objects.ItemAt(i)->Handle();
+
+	env->ReleasePrimitiveArrayCritical(handleArray, handles, JNI_COMMIT);
+	return handleArray;
 }
 
 
