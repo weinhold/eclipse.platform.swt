@@ -48,14 +48,17 @@ public:
 									const rgb_color& color);
 
 	static	void				ThrowSWTException(JNIEnv *env, jint code);
+	static	void				ThrowOutOfMemoryError(JNIEnv *env);
 
 private:
 	static	jclass				sPointClass;
 	static	jclass				sColorClass;
 	static	jclass				sSWTExceptionClass;
+	static	jclass				sOutOfMemoryErrorClass;
 	static	jmethodID			sPointConstructor;
 	static	jmethodID			sColorConstructor;
 	static	jmethodID			sSWTExceptionConstructor;
+	static	jmethodID			sOutOfMemoryErrorConstructor;
 };
 
 

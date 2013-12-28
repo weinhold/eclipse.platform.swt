@@ -33,9 +33,11 @@ namespace haiku {
 jclass HaikuUtils::sPointClass = NULL;
 jclass HaikuUtils::sColorClass = NULL;
 jclass HaikuUtils::sSWTExceptionClass = NULL;
+jclass HaikuUtils::sOutOfMemoryErrorClass = NULL;
 jmethodID HaikuUtils::sPointConstructor = NULL;
 jmethodID HaikuUtils::sColorConstructor = NULL;
 jmethodID HaikuUtils::sSWTExceptionConstructor = NULL;
+jmethodID HaikuUtils::sOutOfMemoryErrorConstructor = NULL;
 
 
 /*static*/ bool
@@ -66,6 +68,8 @@ HaikuUtils::Init(JNIEnv* env)
 		"org/eclipse/swt/internal/haiku/HaikuColor", "(BBB)V")
 	GET_CLASS_AND_CONSTRUCTOR(sSWTExceptionClass, sSWTExceptionConstructor,
 		"org/eclipse/swt/SWTException", "(I)V")
+	GET_CLASS_AND_CONSTRUCTOR(sOutOfMemoryErrorClass,
+		sOutOfMemoryErrorConstructor, "java/lang/OutOfMemoryError", "()V")
 
 	#undef GET_CLASS
 	#undef GET_CONSTRUCTOR
@@ -141,6 +145,16 @@ HaikuUtils::ThrowSWTException(JNIEnv *env, jint code)
 {
 	jobject exception = env->NewObject(sSWTExceptionClass,
 		sSWTExceptionConstructor, code);
+	if (exception != NULL)
+		env->Throw(static_cast<jthrowable>(exception));
+}
+
+
+/*static*/ void
+HaikuUtils::ThrowOutOfMemoryError(JNIEnv *env)
+{
+	jobject exception = env->NewObject(sOutOfMemoryErrorClass,
+		sOutOfMemoryErrorConstructor);
 	if (exception != NULL)
 		env->Throw(static_cast<jthrowable>(exception));
 }
