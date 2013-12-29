@@ -160,6 +160,7 @@ void createHandle (int index) {
 	}
 	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 	_setAlignment(style);
+	if ((style & SWT.FLAT) != 0) HaikuButton.setFlat(handle, true);
 }
 
 void createWidget (int index) {

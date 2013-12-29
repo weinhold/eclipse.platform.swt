@@ -41,6 +41,7 @@ public:
 	virtual	BControl*			GetBControl() = 0;
 
 	virtual	void				SetAlignmentStyle(int style) = 0;
+	virtual	void				SetFlat(bool flat) = 0;
 	virtual	void				SetGrayed(bool grayed) = 0;
 	virtual	void				SetImage(HaikuImage* image) = 0;
 };

@@ -100,6 +100,7 @@ public:
 		HaikuAbstractToolItem(),
 		fButton(button)
 	{
+		fButton->SetFlat(true);
 	}
 
 	~HaikuButtonToolItem()

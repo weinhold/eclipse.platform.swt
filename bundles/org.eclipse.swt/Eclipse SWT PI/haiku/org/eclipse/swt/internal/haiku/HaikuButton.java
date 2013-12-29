@@ -33,6 +33,8 @@ public class HaikuButton {
 
 	public static native void setAlignmentStyle(long /*int*/ handle, int style);
 
+	public static native void setFlat(long /*int*/ handle, boolean flat);
+
 	public static native void setGrayed(long /*int*/ handle, boolean grayed);
 
 	public static native void setImage(long /*int*/ handle, long /*int*/ imageHandle);

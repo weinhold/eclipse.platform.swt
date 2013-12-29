@@ -75,6 +75,11 @@ public:
 		return this;
 	}
 
+	virtual void SetFlat(bool flat)
+	{
+		// not supported for most button types
+	}
+
 	virtual void SetGrayed(bool grayed)
 	{
 		// not supported for most button types
@@ -170,6 +175,11 @@ public:
 		}
 	}
 
+	virtual void SetFlat(bool flat)
+	{
+		// TODO:...
+	}
+
 private:
 	static const int32	kFrameMargin = 1;
 							// margin between frame and arrow area on each side
@@ -238,6 +248,11 @@ public:
 	{
 		// TODO: BButton doesn't support any alternative alignment.
 	}
+
+	virtual void SetFlat(bool flat)
+	{
+		BButton::SetFlat(flat);
+	}
 };
 
 
@@ -293,6 +308,11 @@ public:
 		HaikuPushButton()
 	{
 		SetBehavior(BButton::B_TOGGLE_BEHAVIOR);
+	}
+
+	virtual void SetFlat(bool flat)
+	{
+		BButton::SetFlat(flat);
 	}
 };
 
@@ -411,6 +431,18 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_setAlignmentStyle(
 	HaikuButton* button = HaikuButton::Get(handle);
 	AutoLocker<HaikuButton> buttonLocker(button);
 	button->SetAlignmentStyle(style);
+}
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_haiku_HaikuButton_setFlat(
+	JNIEnv* env, jclass clazz, jintLong handle, jboolean flat)
+{
+	HAIKU_JNI_ENTER(env);
+
+	HaikuButton* button = HaikuButton::Get(handle);
+	AutoLocker<HaikuButton> buttonLocker(button);
+	button->SetFlat(flat);
 }
 
 
