@@ -290,58 +290,10 @@ class HaikuToggleButton : public HaikuPushButton {
 public:
 	HaikuToggleButton()
 		:
-		HaikuPushButton(),
-		fWasPressed(false)
+		HaikuPushButton()
 	{
+		SetBehavior(BButton::B_TOGGLE_BEHAVIOR);
 	}
-
-	virtual void MouseDown(BPoint point)
-	{
-		if (!IsEnabled())
-			return;
-
-		fWasPressed = Value() == B_CONTROL_ON;
-		SetValue(fWasPressed ? B_CONTROL_OFF : B_CONTROL_ON);
-
-		Invalidate();
-		SetTracking(true);
-		SetMouseEventMask(B_POINTER_EVENTS, B_LOCK_WINDOW_FOCUS);
-	}
-
-	virtual void MouseUp(BPoint point)
-	{
-		if (!IsTracking())
-			return;
-
-		if (Bounds().Contains(point)) {
-			SetValue(fWasPressed ? B_CONTROL_OFF : B_CONTROL_ON);
-			Invoke();
-		}
-
-		SetTracking(false);
-	}
-
-	virtual void MouseMoved(BPoint point, uint32 transit,
-		const BMessage* message)
-	{
-		if (!IsTracking())
-			return;
-
-		bool pressed = Bounds().Contains(point) ^ fWasPressed;
-		SetValue(pressed ? B_CONTROL_ON : B_CONTROL_OFF);
-	}
-
-	virtual status_t Invoke(BMessage* message = NULL)
-	{
-		// Skip BButton::Invoke(), so it doesn't reset the value.
-		status_t error = BControl::Invoke(message);
-		ButtonInvokedCallback();
-		return error;
-	}
-
-private:
-	bool	fWasPressed;
-				// the state before mouse down; valid only while tracking mouse
 };
 
 
