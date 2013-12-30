@@ -108,6 +108,7 @@ public class Display extends Device {
 
 	/* Events Dispatching */
 	EventTable eventTable, filterTable;
+	Queue<Event> eventQueue;
 
 	/* Widget Table */
 	private Map<Long /*Integer*/, Widget> widgetTable = new HashMap<>();
@@ -1470,8 +1471,14 @@ public boolean post (Event event) {
 }
 
 void postEvent (Event event) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	/*
+	* Place the event at the end of the event queue.
+	* This code is always called in the Display's
+	* thread so it must be re-entrant but does not
+	* need to be synchronized.
+	*/
+	if (eventQueue == null) eventQueue = new ArrayDeque<>();
+	eventQueue.add(event);
 }
 
 /**
@@ -1508,7 +1515,12 @@ public boolean readAndDispatch () {
 	runSkin ();
 	runDeferredLayouts ();
 	HaikuUtils.partiallyImplemented();
-	return HaikuDisplay.handleNextEvent(deviceHandle);
+	boolean events = HaikuDisplay.handleNextEvent(deviceHandle);
+	if (events) {
+		runDeferredEvents ();
+		return true;
+	}
+	return false;
 }
 
 static void register (Display display) {
@@ -1636,6 +1648,40 @@ public void removeListener (int eventType, Listener listener) {
 Widget removeWidget (long /*int*/ handle) {
 	if (handle == 0) return null;
 	return widgetTable.remove(handle);
+}
+
+boolean runDeferredEvents () {
+	boolean run = false;
+	/*
+	* Run deferred events.  This code is always
+	* called in the Display's thread so it must
+	* be re-enterant but need not be synchronized.
+	*/
+	while (eventQueue != null && !eventQueue.isEmpty()) {
+		
+		/* Take an event off the queue */
+		Event event = eventQueue.remove();
+
+		/* Run the event */
+		Widget widget = event.widget;
+		if (widget != null && !widget.isDisposed ()) {
+			Widget item = event.item;
+			if (item == null || !item.isDisposed ()) {
+				run = true;
+				widget.sendEvent (event);
+			}
+		}
+
+		/*
+		* At this point, the event queue could
+		* be null due to a recursive invokation
+		* when running the event.
+		*/
+	}
+
+	/* Clear the queue */
+	eventQueue = null;
+	return run;
 }
 
 boolean runDeferredLayouts () {
