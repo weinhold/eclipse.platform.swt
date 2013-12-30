@@ -69,7 +69,7 @@ public:
 									HaikuGraphicsContext* graphicsContext,
 									const BRect& updateRect);
 
-			void				CallbackButtonInvoked(HaikuButton* button,
+			void				CallbackWidgetInvoked(HaikuButton* button,
 									bool selected);
 
 			bool				CallbackWindowQuitRequested(
@@ -92,7 +92,7 @@ private:
 			jmethodID			fWidgetFrameMovedCallback;
 			jmethodID			fWidgetFrameResizedCallback;
 			jmethodID			fControlDrawCallback;
-			jmethodID			fButtonInvokedCallback;
+			jmethodID			fWidgetInvokedCallback;
 			jmethodID			fWindowQuitRequestedCallback;
 };
 

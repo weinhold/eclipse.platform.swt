@@ -49,7 +49,7 @@ HaikuDisplay::HaikuDisplay()
 	fWidgetFrameMovedCallback(NULL),
 	fWidgetFrameResizedCallback(NULL),
 	fControlDrawCallback(NULL),
-	fButtonInvokedCallback(NULL),
+	fWidgetInvokedCallback(NULL),
 	fWindowQuitRequestedCallback(NULL)
 {
 	pthread_mutex_init(&fMutex, NULL);
@@ -174,10 +174,10 @@ HaikuDisplay::CallbackControlDraw(HaikuControl* control,
 
 
 void
-HaikuDisplay::CallbackButtonInvoked(HaikuButton* button, bool selected)
+HaikuDisplay::CallbackWidgetInvoked(HaikuButton* button, bool selected)
 {
 	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
-		fButtonInvokedCallback, button->Handle(), selected);
+		fWidgetInvokedCallback, button->Handle(), selected);
 }
 
 
@@ -213,7 +213,7 @@ HaikuDisplay::_Init(jobject object)
 		"(" I_J "II)V");
 	GET_METHOD_ID(fControlDrawCallback, "haikuControlDrawCallback",
 		"(" I_J I_J "IIII)V");
-	GET_METHOD_ID(fButtonInvokedCallback, "haikuButtonInvokedCallback",
+	GET_METHOD_ID(fWidgetInvokedCallback, "haikuWidgetInvokedCallback",
 		"(" I_J "Z)V");
 	GET_METHOD_ID(fWindowQuitRequestedCallback, "haikuWindowQuitRequested",
 		"(" I_J ")Z");

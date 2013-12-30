@@ -93,7 +93,7 @@ public:
 protected:
 	void ButtonInvokedCallback()
 	{
-		HaikuJNIContext::CurrentDisplay()->CallbackButtonInvoked(this,
+		HaikuJNIContext::CurrentDisplay()->CallbackWidgetInvoked(this,
 			this->Value() == B_CONTROL_ON);
 	}
 

@@ -211,6 +211,13 @@ void createWidget (int index) {
 	parent.relayout ();
 }
 
+void deregister () {
+	super.deregister();
+	if ((style & SWT.SEPARATOR) == 0) {
+		display.removeWidget(controlHandle);
+	}
+}
+
 public void dispose () {
 	if (isDisposed ()) return;
 	ToolBar parent = this.parent;
@@ -395,6 +402,13 @@ public int getWidth () {
 public boolean isEnabled () {
 	checkWidget();
 	return getEnabled () && parent.isEnabled ();
+}
+
+void register () {
+	super.register();
+	if ((style & SWT.SEPARATOR) == 0) {
+		display.addWidget(controlHandle, this);
+	}
 }
 
 void releaseHandle () {
@@ -667,6 +681,12 @@ public void setWidth (int width) {
 	boolean moveResize[] = new boolean[]{false, true};
 	HaikuControl.setAndGetFrame(controlHandle, boundsArray, moveResize);
 	parent.relayout ();
+}
+
+void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if (handle != controlHandle) return;
+	sendSelectionEvent (SWT.Selection);
 }
 
 }

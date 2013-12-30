@@ -459,7 +459,7 @@ public void setText (String string) {
 	HaikuButton.setText(handle, text);
 }
 
-void haikuButtonInvokedCallback(long /*int*/ handle, boolean selected) {
+void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
 	if (handle != this.handle) return;
 	sendSelectionEvent (SWT.Selection);
 }

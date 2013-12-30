@@ -2019,22 +2019,22 @@ private void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newH
 	widget.haikuWidgetFrameResized(handle, newWidth, newHeight);
 }
 
+private void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.haikuWidgetInvokedCallback(handle, selected);
+}
+
 private void haikuControlDrawCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
-	Control control = (Control)getWidget(handle);
-	if (control == null) return;
-	control.haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
+	Widget widget = getWidget(handle);
+	if (!(widget instanceof Control)) return;
+	((Control)widget).haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
 }
 
-private void haikuButtonInvokedCallback(long /*int*/ handle, boolean selected) {
-	Button button = (Button)getWidget(handle);
-	if (button == null) return;
-	button.haikuButtonInvokedCallback(handle, selected);
-}
-
-private boolean haikuWindowQuitRequested(long /*int*/ windowHandle) {
-	Shell shell = (Shell)getWidget(windowHandle);
-	if (shell == null) return false;
-	return shell.haikuWindowQuitRequested(windowHandle);
+private boolean haikuWindowQuitRequested(long /*int*/ handle) {
+	Widget widget = getWidget(handle);
+	if (!(widget instanceof Control)) return false;
+	return ((Shell)widget).haikuWindowQuitRequested(handle);
 }
 
 }
