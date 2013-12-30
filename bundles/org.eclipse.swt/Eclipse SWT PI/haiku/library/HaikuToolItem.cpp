@@ -18,6 +18,7 @@
 
 #include "swt.h"
 
+#include <Button.h>
 #include <Control.h>
 #include <SeparatorView.h>
 
@@ -154,7 +155,7 @@ public:
 		return fButton != NULL;
 	}
 
-private:
+protected:
 	HaikuButton*	fButton;
 };
 
@@ -181,6 +182,11 @@ public:
 		:
 		HaikuButtonToolItem(HaikuButtonFactory::CreatePushButton())
 	{
+		if (fButton != NULL) {
+			BButton* button = dynamic_cast<BButton*>(fButton->GetBControl());
+			if (button != NULL)
+				button->SetBehavior(BButton::B_POP_UP_BEHAVIOR);
+		}
 	}
 };
 
