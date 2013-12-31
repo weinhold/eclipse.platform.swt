@@ -49,7 +49,7 @@ public:
 
 class HaikuButtonFactory {
 public:
-	static	HaikuButton*		CreatePushButton();
+	static	HaikuButton*		CreatePushButton(bool withPopUp = false);
 	static	HaikuButton*		CreateToggleButton();
 };
 

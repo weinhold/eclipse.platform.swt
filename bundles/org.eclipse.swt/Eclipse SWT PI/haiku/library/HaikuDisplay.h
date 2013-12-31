@@ -70,7 +70,7 @@ public:
 									const BRect& updateRect);
 
 			void				CallbackWidgetInvoked(HaikuButton* button,
-									bool selected);
+									bool selected, uint32 what);
 
 			bool				CallbackWindowQuitRequested(
 									HaikuWindow* window);

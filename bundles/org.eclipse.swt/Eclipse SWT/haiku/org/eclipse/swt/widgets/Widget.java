@@ -934,7 +934,7 @@ void haikuWidgetFrameMoved(long /*int*/ handle, int newX, int newY) {
 void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newHeight) {
 }
 
-void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
+void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected, int what) {
 }
 
 }

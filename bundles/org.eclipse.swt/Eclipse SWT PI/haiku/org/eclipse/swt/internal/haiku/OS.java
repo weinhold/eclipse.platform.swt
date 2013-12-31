@@ -22,6 +22,8 @@ public class OS {
 	public static int B_ALIGN_RIGHT;
 	public static int B_ALIGN_CENTER;
 
+	public static int B_CONTROL_INVOKED;
+
 	static {
 		Library.loadLibrary("swt-pi");
 		init();

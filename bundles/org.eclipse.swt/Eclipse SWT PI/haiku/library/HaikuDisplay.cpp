@@ -174,10 +174,11 @@ HaikuDisplay::CallbackControlDraw(HaikuControl* control,
 
 
 void
-HaikuDisplay::CallbackWidgetInvoked(HaikuButton* button, bool selected)
+HaikuDisplay::CallbackWidgetInvoked(HaikuButton* button, bool selected,
+	uint32 what)
 {
 	HaikuJNIContext::CurrentEnv()->CallVoidMethod(fObject,
-		fWidgetInvokedCallback, button->Handle(), selected);
+		fWidgetInvokedCallback, button->Handle(), selected, (jint)what);
 }
 
 
@@ -214,7 +215,7 @@ HaikuDisplay::_Init(jobject object)
 	GET_METHOD_ID(fControlDrawCallback, "haikuControlDrawCallback",
 		"(" I_J I_J "IIII)V");
 	GET_METHOD_ID(fWidgetInvokedCallback, "haikuWidgetInvokedCallback",
-		"(" I_J "Z)V");
+		"(" I_J "ZI)V");
 	GET_METHOD_ID(fWindowQuitRequestedCallback, "haikuWindowQuitRequested",
 		"(" I_J ")Z");
 

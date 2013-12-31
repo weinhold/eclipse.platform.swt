@@ -18,7 +18,6 @@
 
 #include "swt.h"
 
-#include <Button.h>
 #include <Control.h>
 #include <SeparatorView.h>
 
@@ -181,13 +180,8 @@ class HaikuDropDownToolItem : public HaikuButtonToolItem {
 public:
 	HaikuDropDownToolItem()
 		:
-		HaikuButtonToolItem(HaikuButtonFactory::CreatePushButton())
+		HaikuButtonToolItem(HaikuButtonFactory::CreatePushButton(true))
 	{
-		if (fButton != NULL) {
-			BButton* button = dynamic_cast<BButton*>(fButton->GetBControl());
-			if (button != NULL)
-				button->SetBehavior(BButton::B_POP_UP_BEHAVIOR);
-		}
 	}
 };
 

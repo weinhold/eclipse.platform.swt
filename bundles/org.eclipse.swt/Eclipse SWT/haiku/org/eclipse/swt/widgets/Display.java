@@ -2019,10 +2019,10 @@ private void haikuWidgetFrameResized(long /*int*/ handle, int newWidth, int newH
 	widget.haikuWidgetFrameResized(handle, newWidth, newHeight);
 }
 
-private void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
+private void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected, int what) {
 	Widget widget = getWidget(handle);
 	if (widget == null) return;
-	widget.haikuWidgetInvokedCallback(handle, selected);
+	widget.haikuWidgetInvokedCallback(handle, selected, what);
 }
 
 private void haikuControlDrawCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {

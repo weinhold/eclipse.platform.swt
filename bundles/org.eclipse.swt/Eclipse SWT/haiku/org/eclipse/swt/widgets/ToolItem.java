@@ -703,12 +703,16 @@ public void setWidth (int width) {
 	parent.relayout ();
 }
 
-void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
+void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected, int what) {
 	if ((style & SWT.SEPARATOR) != 0) return;
 	if (handle != controlHandle) return;
 	Event event = new Event();
 	if ((style & SWT.DROP_DOWN) != 0) {
-// TODO: Determine whether the arrow was pressed!
+		if (what != OS.B_CONTROL_INVOKED) {
+			event.detail = SWT.ARROW;
+			// TODO: Set x/y coordinated!
+			HaikuUtils.missingFeature("mouse coordinates");
+		}
 	} else if ((style & SWT.RADIO) != 0) {
 		if ((parent.getStyle () & SWT.NO_RADIO_GROUP) == 0) {
 			selectRadio ();

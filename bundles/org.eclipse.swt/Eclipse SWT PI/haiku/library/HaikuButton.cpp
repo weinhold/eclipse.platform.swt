@@ -30,6 +30,11 @@
 #include "HaikuViewControl.h"
 
 
+enum {
+	MESSAGE_BUTTON_POP_UP	= 'bupu',
+};
+
+
 using namespace swt::haiku;
 
 
@@ -66,7 +71,8 @@ public:
 	virtual status_t Invoke(BMessage* message = NULL)
 	{
 		status_t error = ViewClass::Invoke(message);
-		ButtonInvokedCallback();
+		ButtonInvokedCallback(
+			message != NULL ? message->what : B_CONTROL_INVOKED);
 		return error;
 	}
 
@@ -91,10 +97,10 @@ public:
 	}
 
 protected:
-	void ButtonInvokedCallback()
+	void ButtonInvokedCallback(uint32 what)
 	{
 		HaikuJNIContext::CurrentDisplay()->CallbackWidgetInvoked(this,
-			this->Value() == B_CONTROL_ON);
+			this->Value() == B_CONTROL_ON, what);
 	}
 
 private:
@@ -238,10 +244,14 @@ private:
 
 class HaikuPushButton : public HaikuViewButton<BButton> {
 public:
-	HaikuPushButton()
+	HaikuPushButton(bool withPopUp = false)
 		:
 		HaikuViewButton<BButton>("")
 	{
+		if (withPopUp) {
+			SetBehavior(B_POP_UP_BEHAVIOR);
+			SetPopUpMessage(new BMessage(MESSAGE_BUTTON_POP_UP));
+		}
 	}
 
 	virtual void SetAlignmentStyle(int style)
@@ -285,7 +295,7 @@ public:
 		// Deselecting the button doesn't trigger Invoke(), but SWT is expecting
 		// a selection event.
 		if (value == B_CONTROL_OFF)
-			ButtonInvokedCallback();
+			ButtonInvokedCallback(B_CONTROL_INVOKED);
 	}
 
 	virtual void SetAlignmentStyle(int style)
@@ -322,9 +332,9 @@ public:
 
 
 /*static*/ HaikuButton*
-HaikuButtonFactory::CreatePushButton()
+HaikuButtonFactory::CreatePushButton(bool withPopUp)
 {
-	return new(std::nothrow) HaikuPushButton;
+	return new(std::nothrow) HaikuPushButton(withPopUp);
 }
 
 
