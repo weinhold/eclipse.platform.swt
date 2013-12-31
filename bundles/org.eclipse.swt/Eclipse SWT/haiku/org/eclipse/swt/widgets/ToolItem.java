@@ -454,6 +454,17 @@ public void removeSelectionListener(SelectionListener listener) {
 	eventTable.unhook (SWT.DefaultSelection,listener);	
 }
 
+void selectRadio () {
+	int index = 0;
+	ToolItem [] items = parent.getItems ();
+	while (index < items.length && items [index] != this) index++;
+	int i = index - 1;
+	while (i >= 0 && items [i].setRadioSelection (false)) --i;
+	int j = index + 1;
+	while (j < items.length && items [j].setRadioSelection (false)) j++;
+	setSelection (true);
+}
+
 /**
  * Sets the control that is used to fill the bounds of
  * the item when the item is a <code>SEPARATOR</code>.
@@ -568,6 +579,15 @@ public void setImage (Image image) {
 	super.setImage (image);
 	HaikuToolItem.setImage(handle, image != null ? image.handle : 0);
 	parent.relayout ();
+}
+
+boolean setRadioSelection (boolean value) {
+	if ((style & SWT.RADIO) == 0) return false;
+	if (getSelection () != value) {
+		setSelection (value);
+		sendSelectionEvent (SWT.Selection);
+	}
+	return true;
 }
 
 /**
@@ -686,7 +706,15 @@ public void setWidth (int width) {
 void haikuWidgetInvokedCallback(long /*int*/ handle, boolean selected) {
 	if ((style & SWT.SEPARATOR) != 0) return;
 	if (handle != controlHandle) return;
-	sendSelectionEvent (SWT.Selection);
+	Event event = new Event();
+	if ((style & SWT.DROP_DOWN) != 0) {
+// TODO: Determine whether the arrow was pressed!
+	} else if ((style & SWT.RADIO) != 0) {
+		if ((parent.getStyle () & SWT.NO_RADIO_GROUP) == 0) {
+			selectRadio ();
+		}
+	}
+	sendSelectionEvent (SWT.Selection, event, false);
 }
 
 }
