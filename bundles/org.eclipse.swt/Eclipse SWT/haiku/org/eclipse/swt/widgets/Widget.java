@@ -511,9 +511,8 @@ public Listener[] getListeners (int eventType) {
  * </ul>
  */
 public int getStyle () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget ();
+	return style;
 }
 
 /**
