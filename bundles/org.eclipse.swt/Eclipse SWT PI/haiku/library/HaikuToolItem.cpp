@@ -127,7 +127,8 @@ public:
 
 	virtual void ToolItemSetSelected(bool selected)
 	{
-		fButton->GetBControl()->SetValue(B_CONTROL_ON);
+		fButton->GetBControl()->SetValue(
+			selected ? B_CONTROL_ON : B_CONTROL_OFF);
 	}
 
 	virtual void ToolItemSetText(const char* text)
