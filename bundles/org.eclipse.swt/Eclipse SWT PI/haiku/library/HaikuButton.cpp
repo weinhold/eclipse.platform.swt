@@ -420,7 +420,7 @@ Java_org_eclipse_swt_internal_haiku_HaikuButton_createToggleButton(
 
 extern "C" jboolean
 Java_org_eclipse_swt_internal_haiku_HaikuButton_isSelected(
-	JNIEnv* env, jclass clazz, jintLong handle, jint alignment)
+	JNIEnv* env, jclass clazz, jintLong handle)
 {
 	HAIKU_JNI_ENTER(env);
 
