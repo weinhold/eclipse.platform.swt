@@ -51,9 +51,9 @@ public:
 	static	void				ThrowSWTException(JNIEnv *env, jint code);
 	static	void				ThrowOutOfMemoryError(JNIEnv *env);
 
-	template<typename ObjectType>
+	template<typename ListType>
 	static	jintLongArray		CreateHandleArray(JNIEnv* env,
-									const BObjectList<ObjectType>& objects);
+									const ListType& objects);
 
 private:
 	static	jclass				sPointClass;
@@ -102,10 +102,9 @@ HaikuUtils::CreateColor(JNIEnv *env, const rgb_color& color)
 }
 
 
-template<typename ObjectType>
+template<typename ListType>
 /*static*/ jintLongArray
-HaikuUtils::CreateHandleArray(JNIEnv* env,
-	const BObjectList<ObjectType>& objects)
+HaikuUtils::CreateHandleArray(JNIEnv* env, const ListType& objects)
 {
 	int32 count = objects.CountItems();
 	if (count == 0)
