@@ -267,6 +267,11 @@ public void addListener (int eventType, Listener listener) {
 	eventTable.hook (eventType, listener);
 }
 
+void addPopup (Menu menu) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
+}
+
 void addWidget (long /*int*/ handle, Widget widget) {
 	widgetTable.put(handle, widget);
 }
@@ -1643,6 +1648,11 @@ public void removeListener (int eventType, Listener listener) {
 	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
 	if (eventTable == null) return;
 	eventTable.unhook (eventType, listener);
+}
+
+void removePopup (Menu menu) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 Widget removeWidget (long /*int*/ handle) {

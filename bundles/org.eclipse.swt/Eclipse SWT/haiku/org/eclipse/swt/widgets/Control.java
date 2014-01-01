@@ -1969,6 +1969,10 @@ long /*int*/ paintHandle () {
 	return handle;
 }
 
+Decorations menuShell () {
+	return parent.menuShell ();
+}
+
 void register () {
 	super.register ();
 	// TODO: Implement!

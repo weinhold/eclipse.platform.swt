@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.haiku.*;
 import org.eclipse.swt.*;
@@ -39,6 +41,9 @@ import org.eclipse.swt.graphics.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Menu extends Widget {
+	Decorations parent;
+	MenuItem cascade, selectedItem;
+	int x, y;
 
 /**
  * Constructs a new instance of this class given its parent,
@@ -65,8 +70,7 @@ public class Menu extends Widget {
  * @see Widget#getStyle
  */
 public Menu (Control parent) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	this (checkNull (parent).menuShell (), SWT.POP_UP);
 }
 
 /**
@@ -107,8 +111,9 @@ public Menu (Control parent) {
  * @see Widget#getStyle
  */
 public Menu (Decorations parent, int style) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	createWidget (0);
 }
 
 /**
@@ -136,8 +141,7 @@ public Menu (Decorations parent, int style) {
  * @see Widget#getStyle
  */
 public Menu (Menu parentMenu) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	this (checkNull (parentMenu).parent, SWT.DROP_DOWN);
 }
 
 /**
@@ -165,8 +169,26 @@ public Menu (Menu parentMenu) {
  * @see Widget#getStyle
  */
 public Menu (MenuItem parentItem) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	this (checkNull (parentItem).parent);
+}
+
+static Control checkNull (Control control) {
+	if (control == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+	return control;
+}
+
+static Menu checkNull (Menu menu) {
+	if (menu == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+	return menu;
+}
+
+static MenuItem checkNull (MenuItem item) {
+	if (item == null) SWT.error (SWT.ERROR_NULL_ARGUMENT);
+	return item;
+}
+
+static int checkStyle (int style) {
+	return checkBits (style, SWT.POP_UP, SWT.BAR, SWT.DROP_DOWN, 0, 0, 0);
 }
 
 /**
@@ -189,8 +211,11 @@ public Menu (MenuItem parentItem) {
  * @see #removeMenuListener
  */
 public void addMenuListener (MenuListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Hide,typedListener);
+	addListener (SWT.Show,typedListener);
 }
 
 /**
@@ -213,8 +238,28 @@ public void addMenuListener (MenuListener listener) {
  * @see #removeHelpListener
  */
 public void addHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Help, typedListener);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	if ((style & SWT.BAR) != 0) {
+		handle = HaikuMenu.createMenuBar(display.getDisplayHandle());
+	} else if ((style & SWT.DROP_DOWN) != 0) {
+		handle = HaikuMenu.createDropDownMenu(display.getDisplayHandle());
+	} else {
+		handle = HaikuMenu.createPopUpMenu(display.getDisplayHandle());
+	}
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+}
+
+void createWidget (int index) {
+	checkOrientation (parent);
+	super.createWidget (index);
+	parent.addMenu (this);
 }
 
 /**
@@ -230,8 +275,7 @@ public void addHelpListener (HelpListener listener) {
  * </ul>
  */
 public MenuItem getDefaultItem () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
 	return null;
 }
 
@@ -251,9 +295,8 @@ public MenuItem getDefaultItem () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -272,9 +315,9 @@ public boolean getEnabled () {
  * </ul>
  */
 public MenuItem getItem (int index) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (!(0 <= index && index < getItemCount())) error (SWT.ERROR_INVALID_RANGE);
+	return _getItems()[index];
 }
 
 /**
@@ -288,9 +331,8 @@ public MenuItem getItem (int index) {
  * </ul>
  */
 public int getItemCount () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return HaikuMenu.getItemCount(handle);
 }
 
 /**
@@ -310,15 +352,19 @@ public int getItemCount () {
  * </ul>
  */
 public MenuItem [] getItems () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getItems ();
 }
 
-String getNameText () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+MenuItem [] _getItems () {
+	long[] /*int[]*/ itemHandles = HaikuMenu.getItems(handle);
+	if (itemHandles == null || itemHandles.length == 0) return new MenuItem[0];
+	List<MenuItem> items = new ArrayList<>();
+	for (int i = 0; i < itemHandles.length; i++) {
+		Widget widget = display.getWidget(itemHandles[i]);
+		if (widget != null) items.add((MenuItem)widget);
+	}
+	return items.toArray(new MenuItem[items.size()]);
 }
 
 /**
@@ -335,9 +381,8 @@ String getNameText () {
  * @since 3.7
  */
 public int getOrientation () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return style & (SWT.LEFT_TO_RIGHT | SWT.RIGHT_TO_LEFT);
 }
 
 /**
@@ -351,9 +396,8 @@ public int getOrientation () {
  * </ul>
  */
 public Decorations getParent () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return parent;
 }
 
 /**
@@ -369,9 +413,8 @@ public Decorations getParent () {
  * </ul>
  */
 public MenuItem getParentItem () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return cascade;
 }
 
 /**
@@ -387,9 +430,9 @@ public MenuItem getParentItem () {
  * </ul>
  */
 public Menu getParentMenu () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (cascade == null) return null;
+	return cascade.getParent ();
 }
 
 /**
@@ -408,9 +451,8 @@ public Menu getParentMenu () {
  * @see #getParent
  */
 public Shell getShell () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return parent.getShell ();
 }
 
 /**
@@ -431,9 +473,8 @@ public Shell getShell () {
  * </ul>
  */
 public boolean getVisible () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	return HaikuMenu.isVisible(handle);
 }
 
 /**
@@ -454,8 +495,12 @@ public boolean getVisible () {
  * </ul>
  */
 public int indexOf (MenuItem item) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (item == null) error (SWT.ERROR_NULL_ARGUMENT);
+	MenuItem [] items = getItems ();
+	for (int i=0; i<items.length; i++) {
+		if (items [i] == item) return i;
+	}
 	return -1;
 }
 
@@ -475,9 +520,12 @@ public int indexOf (MenuItem item) {
  * @see #getEnabled
  */
 public boolean isEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	Menu parentMenu = getParentMenu ();
+	if (parentMenu == null) {
+		return getEnabled () && parent.isEnabled ();
+	}
+	return getEnabled () && parentMenu.isEnabled ();
 }
 
 /**
@@ -495,9 +543,38 @@ public boolean isEnabled () {
  * @see #getVisible
  */
 public boolean isVisible () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	return getVisible ();
+}
+
+void releaseChildren (boolean destroy) {
+	MenuItem [] items = getItems ();
+	for (int i=0; i<items.length; i++) {
+		MenuItem item = items [i];
+		if (item != null && !item.isDisposed ()) {
+			item.release (false);
+		}
+	}
+	super.releaseChildren (destroy);
+}
+
+void releaseParent () {
+	super.releaseParent ();
+	if (cascade != null) cascade.setMenu (null);
+	if ((style & SWT.BAR) != 0 && this == parent.menuBar) {
+		parent.setMenuBar (null);
+	}  else {
+		if ((style & SWT.POP_UP) != 0) {
+			display.removePopup (this);
+		}
+	}
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	if (parent != null) parent.removeMenu (this); 
+	parent = null;
+	cascade = null;
 }
 
 /**
@@ -518,8 +595,11 @@ public boolean isVisible () {
  * @see #addMenuListener
  */
 public void removeMenuListener (MenuListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Hide, listener);
+	eventTable.unhook (SWT.Show, listener);
 }
 
 /**
@@ -540,8 +620,19 @@ public void removeMenuListener (MenuListener listener) {
  * @see #addHelpListener
  */
 public void removeHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Help, listener);
+}
+
+void reskinChildren (int flags) {
+	MenuItem [] items = getItems ();
+	for (int i=0; i<items.length; i++) {
+		MenuItem item = items [i];
+		item.reskin (flags);
+	}
+	super.reskinChildren (flags);
 }
 
 /**
@@ -559,8 +650,7 @@ public void removeHelpListener (HelpListener listener) {
  * </ul>
  */
 public void setDefaultItem (MenuItem item) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
 }
 
 /**
@@ -577,8 +667,14 @@ public void setDefaultItem (MenuItem item) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	HaikuControl.setEnabled(handle, enabled);
 }
 
 /**
@@ -602,8 +698,10 @@ public void setEnabled (boolean enabled) {
  * </ul>
  */
 public void setLocation (int x, int y) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & (SWT.BAR | SWT.DROP_DOWN)) != 0) return;
+	this.x = x;
+	this.y = y;
 }
 
 /**
@@ -631,8 +729,9 @@ public void setLocation (int x, int y) {
  * @since 2.1
  */
 public void setLocation (Point location) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setLocation (location.x, location.y);
 }
 
 /**
@@ -650,8 +749,30 @@ public void setLocation (Point location) {
  * @since 3.7  
  */
 public void setOrientation (int orientation) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+    checkWidget ();    
+    if ((style & (SWT.BAR | SWT.DROP_DOWN)) != 0) return;
+    _setOrientation (orientation);
+}
+
+void _setOrientation (int orientation) {
+    int flags = SWT.RIGHT_TO_LEFT | SWT.LEFT_TO_RIGHT;
+    if ((orientation & flags) == 0 || (orientation & flags) == flags) return;
+    style &= ~flags;
+    style |= orientation & flags;
+    setOrientation (false);
+}
+
+void setOrientation (boolean create) {
+    if ((style & SWT.RIGHT_TO_LEFT) != 0 || !create) {
+    	if ((style & SWT.RIGHT_TO_LEFT) != 0) {
+    		// TODO: RTL support!
+    		HaikuUtils.missingFeature("RTL support");
+    	}
+        MenuItem [] items = getItems ();
+        for (int i = 0; i < items.length; i++) {
+            items [i].setOrientation (create);
+        }
+    }
 }
 
 /**
@@ -671,8 +792,14 @@ public void setOrientation (int orientation) {
  * </ul>
  */
 public void setVisible (boolean visible) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & (SWT.BAR | SWT.DROP_DOWN)) != 0) return;
+	if (visible) {
+		display.addPopup (this);
+	} else {
+		display.removePopup (this);
+	}
+	HaikuMenu.setVisible(handle, visible);
 }
 
 }

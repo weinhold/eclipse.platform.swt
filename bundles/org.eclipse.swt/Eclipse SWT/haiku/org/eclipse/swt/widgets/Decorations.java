@@ -95,7 +95,8 @@ import org.eclipse.swt.graphics.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Decorations extends Canvas {
-	
+	Menu menuBar;
+
 Decorations () {
 	/* Do nothing */
 }
@@ -140,6 +141,11 @@ Decorations () {
  */
 public Decorations (Composite parent, int style) {
 	super (parent, checkStyle (style));
+}
+
+void addMenu (Menu menu) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 static int checkStyle (int style) {
@@ -311,6 +317,15 @@ public String getText () {
 	// TODO: Implement!
 	HaikuUtils.notImplemented();
 	return null;
+}
+
+Decorations menuShell () {
+	return this;
+}
+
+void removeMenu (Menu menu) {
+	// TODO: Implement!
+	HaikuUtils.notImplemented();
 }
 
 void releaseChildren (boolean destroy) {

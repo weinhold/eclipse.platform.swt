@@ -37,7 +37,9 @@ import org.eclipse.swt.events.*;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class MenuItem extends Item {
-	
+	Menu parent, menu;
+	int accelerator, userId;
+
 /**
  * Constructs a new instance of this class given its parent
  * (which must be a <code>Menu</code>) and a style value
@@ -73,9 +75,9 @@ public class MenuItem extends Item {
  * @see Widget#getStyle
  */
 public MenuItem (Menu parent, int style) {
-	// TODO: Implement!
-	super (parent, style);
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	createWidget (parent.getItemCount ());
 }
 
 /**
@@ -115,9 +117,13 @@ public MenuItem (Menu parent, int style) {
  * @see Widget#getStyle
  */
 public MenuItem (Menu parent, int style, int index) {
-	// TODO: Implement!
-	super (parent, style);
-	HaikuUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	int count = parent.getItemCount ();
+	if (!(0 <= index && index <= count)) {
+		error (SWT.ERROR_INVALID_RANGE);
+	}
+	createWidget (index);
 }
 
 /**
@@ -140,8 +146,10 @@ public MenuItem (Menu parent, int style, int index) {
  * @see #removeArmListener
  */
 public void addArmListener (ArmListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Arm, typedListener);
 }
 
 /**
@@ -164,8 +172,10 @@ public void addArmListener (ArmListener listener) {
  * @see #removeHelpListener
  */
 public void addHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Help, typedListener);
 }
 
 /**
@@ -199,8 +209,42 @@ public void addHelpListener (HelpListener listener) {
  * @see SelectionEvent
  */
 public void addSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener(listener);
+	addListener (SWT.Selection,typedListener);
+	addListener (SWT.DefaultSelection,typedListener);
+}
+
+static int checkStyle (int style) {
+	return checkBits (style, SWT.PUSH, SWT.CHECK, SWT.RADIO, SWT.SEPARATOR, SWT.CASCADE, 0);
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	int bits = SWT.CHECK | SWT.RADIO | SWT.PUSH | SWT.SEPARATOR;
+	switch (style & bits) {
+		case SWT.SEPARATOR:
+			boolean horizontal = (parent.style & SWT.VERTICAL) == 0;
+			handle = HaikuMenuItem.createSeparatorItem(display.getDisplayHandle(), horizontal);
+			break;
+		case SWT.RADIO:
+			handle = HaikuToolItem.createRadioItem(display.getDisplayHandle());
+			break;
+		case SWT.CHECK:
+			handle = HaikuToolItem.createCheckItem(display.getDisplayHandle());
+			break;
+		case SWT.PUSH:
+		default:
+			handle = HaikuToolItem.createPushItem(display.getDisplayHandle());
+			break;
+	}
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+	HaikuMenu.addItem(parent.handle, handle, index);
 }
 
 /**
@@ -219,9 +263,8 @@ public void addSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public int getAccelerator () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return accelerator;
 }
 
 /**
@@ -240,9 +283,8 @@ public int getAccelerator () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -258,9 +300,8 @@ public boolean getEnabled () {
  * @since 3.7
  */
 public int getID () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return userId;
 }
 
 /**
@@ -278,9 +319,8 @@ public int getID () {
  * </ul>
  */
 public Menu getMenu () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return menu;
 }
 
 /**
@@ -294,9 +334,8 @@ public Menu getMenu () {
  * </ul>
  */
 public Menu getParent () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return null;
+	checkWidget();
+	return parent;
 }
 
 /**
@@ -314,9 +353,9 @@ public Menu getParent () {
  * </ul>
  */
 public boolean getSelection () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return false;
+	return HaikuMenuItem.isSelected(handle);
 }
 
 /**
@@ -335,9 +374,30 @@ public boolean getSelection () {
  * @see #getEnabled
  */
 public boolean isEnabled () {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
-	return false;
+	return getEnabled () && parent.isEnabled ();
+}
+
+void releaseChildren (boolean destroy) {
+	if (menu != null) {
+		menu.release (false);
+		menu = null;
+	}
+	super.releaseChildren (destroy);
+}
+
+void releaseParent () {
+	super.releaseParent ();
+	if (menu != null) {
+		if (menu.selectedItem == this) menu.selectedItem = null;
+		menu.dispose ();
+	}
+	menu = null;
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	accelerator = 0;
+	parent = null;
 }
 
 /**
@@ -358,8 +418,10 @@ public boolean isEnabled () {
  * @see #addArmListener
  */
 public void removeArmListener (ArmListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Arm, listener);
 }
 
 /**
@@ -380,8 +442,10 @@ public void removeArmListener (ArmListener listener) {
  * @see #addHelpListener
  */
 public void removeHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Help, listener);
 }
 
 /**
@@ -402,8 +466,18 @@ public void removeHelpListener (HelpListener listener) {
  * @see #addSelectionListener
  */
 public void removeSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Selection, listener);
+	eventTable.unhook (SWT.DefaultSelection,listener);	
+}
+
+void reskinChildren (int flags) {
+	if (menu != null) {
+		menu.reskin (flags);
+	}
+	super.reskinChildren (flags);
 }
 
 /**
@@ -423,8 +497,10 @@ public void removeSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public void setAccelerator (int accelerator) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (this.accelerator == accelerator) return;
+	this.accelerator = accelerator;
+	HaikuMenuItem.setAccelerator(handle, accelerator);
 }
 
 /**
@@ -441,8 +517,14 @@ public void setAccelerator (int accelerator) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	HaikuMenuItem.setEnabled(handle, enabled);
 }
 
 /**
@@ -459,8 +541,9 @@ public void setEnabled (boolean enabled) {
  * @since 3.7
  */
 public void setID (int id) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (id < 0) error(SWT.ERROR_INVALID_ARGUMENT);
+	userId = id;
 }
 
 /**
@@ -481,8 +564,10 @@ public void setID (int id) {
  * </ul>
  */
 public void setImage (Image image) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	super.setImage (image);
+	HaikuToolItem.setImage(handle, image != null ? image.handle : 0);
 }
 
 /**
@@ -511,8 +596,11 @@ public void setImage (Image image) {
  * </ul>
  */
 public void setMenu (Menu menu) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget ();
+	if ((style & SWT.CASCADE) == 0) error (SWT.ERROR_MENUITEM_NOT_CASCADE);
+	if (menu == this.menu) return;
+	this.menu = menu;
+	HaikuMenuItem.setSubMenu(handle, menu != null ? menu.handle : 0);
 }
 
 /**
@@ -529,8 +617,9 @@ public void setMenu (Menu menu) {
  * </ul>
  */
 public void setSelection (boolean selected) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return;
+	HaikuMenuItem.setSelected(handle, selected);
 }
 
 /**
@@ -571,8 +660,14 @@ public void setSelection (boolean selected) {
  * @see #setAccelerator
  */
 public void setText (String string) {
-	// TODO: Implement!
-	HaikuUtils.notImplemented();
+	checkWidget();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if (string.equals(this.text)) return;
+	super.setText (string);
+	HaikuMenuItem.setText(handle, string);
+	// TODO: Implement mnemonics support!
+	HaikuUtils.missingFeature("mnemonics");
 }
 
 }
