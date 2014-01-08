@@ -45,4 +45,6 @@ public class QtControl {
 	public static native void setEnabled(long /*int*/ handle, boolean enabled);
 
 	public static native void setStyle(long /*int*/ handle, int style);
+
+	public static native void setVisible(long /*int*/ handle, boolean visible);
 }

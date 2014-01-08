@@ -1931,9 +1931,8 @@ public boolean getTouchEnabled() {
  * </ul>
  */
 public boolean getVisible () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	return (state & HIDDEN) == 0;
 }
 
 /**	 
@@ -2558,8 +2557,24 @@ public void setTouchEnabled(boolean enabled) {
  * </ul>
  */
 public void setVisible (boolean visible) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (((state & HIDDEN) == 0) == visible) return;
+	long /*int*/ topHandle = topHandle();
+	if (visible) {
+		/*
+		* It is possible (but unlikely), that application
+		* code could have disposed the widget in the show
+		* event.  If this happens, just return.
+		*/
+		sendEvent (SWT.Show);
+		if (isDisposed ()) return;
+		state &= ~HIDDEN;
+		QtControl.setVisible(topHandle, true);
+	} else {
+		state |= HIDDEN;
+		QtControl.setVisible(topHandle, false);
+		sendEvent (SWT.Hide);
+	}
 }
 
 /**

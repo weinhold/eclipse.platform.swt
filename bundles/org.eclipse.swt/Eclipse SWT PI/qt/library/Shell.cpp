@@ -133,16 +133,3 @@ Java_org_eclipse_swt_internal_qt_QtShell_getCentralWidget(JNIEnv* env,
 
 	SWT_QT_JNI_EXIT(env, 0)
 }
-
-
-extern "C" void
-Java_org_eclipse_swt_internal_qt_QtShell_setVisible(
-	JNIEnv* env, jclass clazz, jintLong handle, jboolean visible)
-{
-	SWT_QT_JNI_ENTER(env)
-
-	Shell* shell = Shell::get(handle);
-	shell->setVisible(visible);
-
-	SWT_QT_JNI_EXIT(env,)
-}

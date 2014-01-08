@@ -19,6 +19,4 @@ public class QtShell {
 	public static native long /*int*/ create(long /*int*/ displayHandle);
 
 	public static native long /*int*/ getCentralWidget(long /*int*/ handle);
-
-	public static native void setVisible(long /*int*/ handle, boolean visible);
 }

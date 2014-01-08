@@ -75,7 +75,7 @@ public abstract class Widget {
 	static final int RESIZED = 1<<8;
 //	static final int ZERO_WIDTH = 1<<9;
 //	static final int ZERO_HEIGHT = 1<<10;
-//	static final int HIDDEN = 1<<11;
+	static final int HIDDEN = 1<<11;
 //	static final int FOREGROUND = 1<<12;
 //	static final int BACKGROUND = 1<<13;
 //	static final int FONT = 1<<14;

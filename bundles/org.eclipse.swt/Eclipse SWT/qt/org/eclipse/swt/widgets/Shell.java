@@ -17,6 +17,7 @@ import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
+import org.eclipse.swt.internal.qt.QtControl;
 import org.eclipse.swt.internal.qt.QtShell;
 import org.eclipse.swt.internal.qt.QtUtils;
 
@@ -474,7 +475,7 @@ void closeWidget () {
 }
 
 void createHandle (int index) {
-	state |= HANDLE | CANVAS;
+	state |= HANDLE | CANVAS | HIDDEN;
 	if (handle == 0) {
 		handle = QtShell.create(display.getDisplayHandle());
 		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
@@ -508,7 +509,7 @@ public void dispose () {
 	* more than once.  If this happens, fail silently.
 	*/
 	if (isDisposed()) return;
-	QtShell.setVisible(handle, false);
+	QtControl.setVisible(handle, false);
 	super.dispose ();
 	// TODO: Missing: Call to fixActiveShell().
 	QtUtils.partiallyImplemented();
@@ -709,11 +710,6 @@ public Shell [] getShells () {
 public boolean isEnabled () {
 	checkWidget ();
 	return getEnabled ();
-}
-
-public boolean isVisible () {
-	checkWidget();
-	return getVisible ();
 }
 
 /**
@@ -1026,11 +1022,6 @@ public void setModified (boolean modified) {
 public void setRegion (Region region) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
-}
-
-public void setVisible (boolean visible) {
-	checkWidget();
-	QtShell.setVisible(handle, visible);
 }
 
 /**

@@ -44,6 +44,8 @@ public:
 
 	virtual	QWidget*			swtGetQWidget() = 0;
 
+	virtual	void				swtSetVisible(bool visible) = 0;
+
 	virtual	QSize				swtGetPreferredSize(jint wHint, jint hHint) = 0;
 	virtual	QRect				swtGetGeometry() = 0;
 	virtual	void				swtMoveTo(const QPoint& point) = 0;

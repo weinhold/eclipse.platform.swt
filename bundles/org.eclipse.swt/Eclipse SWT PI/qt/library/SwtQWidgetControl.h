@@ -63,6 +63,11 @@ public:
 		return this;
 	}
 
+	virtual void swtSetVisible(bool visible)
+	{
+		this->setVisible(visible);
+	}
+
 	virtual QSize swtGetPreferredSize(jint wHint, jint hHint)
 	{
 		// The Qt API doesn't support getting the width for a height, so we

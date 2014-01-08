@@ -165,3 +165,16 @@ Java_org_eclipse_swt_internal_qt_QtControl_setStyle(
 
 	SWT_QT_JNI_EXIT(env,)
 }
+
+
+extern "C" void
+Java_org_eclipse_swt_internal_qt_QtControl_setVisible(
+	JNIEnv* env, jclass clazz, jintLong handle, jboolean visible)
+{
+	SWT_QT_JNI_ENTER(env)
+
+	Control* control = Control::get(handle);
+	control->swtSetVisible(visible);
+
+	SWT_QT_JNI_EXIT(env,)
+}
