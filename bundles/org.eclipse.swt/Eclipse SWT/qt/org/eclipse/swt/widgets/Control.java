@@ -2707,7 +2707,6 @@ void updateLayout (boolean all) {
 }
 
 void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
-System.err.println("Control.qtControlPaintCallback()");
 	if (!hooksPaint ()) return;
 	Event event = new Event ();
 	event.count = 1;
