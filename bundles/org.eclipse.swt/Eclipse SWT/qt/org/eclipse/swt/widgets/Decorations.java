@@ -95,7 +95,10 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Decorations extends Canvas {
-	
+	String text;
+	boolean minimized, maximized;
+	Menu menuBar;
+
 Decorations () {
 	/* Do nothing */
 }
@@ -139,6 +142,30 @@ Decorations () {
  * @see Widget#getStyle
  */
 public Decorations (Composite parent, int style) {
+	super (parent, checkStyle (style));
+}
+
+void addMenu (Menu menu) {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+static int checkStyle (int style) {
+	if ((style & SWT.NO_TRIM) != 0) {
+		style &= ~(SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.MAX | SWT.RESIZE | SWT.BORDER);
+	}
+	if ((style & (SWT.MENU | SWT.MIN | SWT.MAX | SWT.CLOSE)) != 0) {
+		style |= SWT.TITLE;
+	}
+	return style;
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -237,9 +264,8 @@ public Image [] getImages () {
  * @see #setMaximized
  */
 public boolean getMaximized () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	return maximized;
 }
 
 /**
@@ -254,9 +280,8 @@ public boolean getMaximized () {
  * </ul>
  */
 public Menu getMenuBar () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return menuBar;
 }
 
 /**
@@ -274,9 +299,12 @@ public Menu getMenuBar () {
  * @see #setMinimized
  */
 public boolean getMinimized () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	return minimized;
+}
+
+String getNameText () {
+	return getText ();
 }
 
 /**
@@ -293,9 +321,39 @@ public boolean getMinimized () {
  * </ul>
  */
 public String getText () {
+	checkWidget();
+	return text;
+}
+
+Decorations menuShell () {
+	return this;
+}
+
+void removeMenu (Menu menu) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
-	return null;
+}
+
+void releaseChildren (boolean destroy) {
+	if (menuBar != null) {
+		menuBar.release (false);
+		menuBar = null;
+	}
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	QtUtils.partiallyImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
 }
 
 /**
@@ -403,8 +461,8 @@ public void setImages (Image [] images) {
  * @see #setMinimized
  */
 public void setMaximized (boolean maximized) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	this.maximized = maximized;
 }
 
 /**
@@ -423,8 +481,13 @@ public void setMaximized (boolean maximized) {
  * </ul>
  */
 public void setMenuBar (Menu menu) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (menuBar == menu) return;
+	if (menu != null) {
+		if ((menu.style & SWT.BAR) == 0) error (SWT.ERROR_MENU_NOT_BAR);
+		if (menu.parent != this) error (SWT.ERROR_INVALID_PARENT);
+	}
+	menuBar = menu;
 }
 
 /**
@@ -451,6 +514,12 @@ public void setMenuBar (Menu menu) {
  * @see #setMaximized
  */
 public void setMinimized (boolean minimized) {
+	checkWidget();
+	this.minimized = minimized;
+}
+
+void setOrientation (boolean create) {
+    super.setOrientation (create);
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -471,8 +540,9 @@ public void setMinimized (boolean minimized) {
  * </ul>
  */
 public void setText (String string) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	text = string;
 }
 
 }

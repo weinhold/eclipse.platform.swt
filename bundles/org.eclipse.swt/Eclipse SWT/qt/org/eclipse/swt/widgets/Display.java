@@ -11,6 +11,14 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.SWTException;
@@ -22,6 +30,8 @@ import org.eclipse.swt.graphics.GCData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.qt.QtApplication;
+import org.eclipse.swt.internal.qt.QtDisplay;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -103,12 +113,73 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Display extends Device {
+	private QtApplication application;
+
+	/* Events Dispatching and Callback */
+	private EventTable eventTable, filterTable;
+	private Queue<Event> eventQueue;
+
+	static String APP_NAME = "SWT"; //$NON-NLS-1$
+	static String APP_VERSION = ""; //$NON-NLS-1$
+
+	/* Widget Table */
+	private Map<Long /*Integer*/, Widget> widgetTable = new HashMap<>();
+
+	/* Focus */
+	Shell activeShell;
+
+	/* Sync/Async Widget Communication */
+	Synchronizer synchronizer = new Synchronizer (this);
+	Thread thread;
+
+	/* Display Shutdown */
+	Runnable [] disposeList;
+	
+	/* Deferred Layout list */
+	Composite[] layoutDeferred;
+	int layoutDeferredCount;
 
 	/* System Tray */
 	Tray tray;
 
+	/* Multiple Displays. */
+	static Display Default;
+	static Display [] Displays = new Display [4];
+
+	/* Skinning support */
+	private java.util.List<Widget> skinList;
+	
 	/* Package name */
 	static final String PACKAGE_PREFIX = "org.eclipse.swt.widgets."; //$NON-NLS-1$
+
+	/* Display Data */
+	Object data;
+	String [] keys;
+	Object [] values;
+
+	/*
+	* TEMPORARY CODE.  Install the runnable that
+	* gets the current display. This code will
+	* be removed in the future.
+	*/
+	static {
+		DeviceFinder = new Runnable () {
+			public void run () {
+				Device device = getCurrent ();
+				if (device == null) {
+					device = getDefault ();
+				}
+				setDevice (device);
+			}
+		};
+	}
+
+/*
+* TEMPORARY CODE.
+*/
+static void setDevice (Device device) {
+	CurrentDevice = device;
+}
 
 /**
  * Constructs a new instance of this class.
@@ -179,8 +250,20 @@ public Display (DeviceData data) {
  * @since 3.0 
  */
 public void addFilter (int eventType, Listener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (filterTable == null) filterTable = new EventTable ();
+	filterTable.hook (eventType, listener);
+}
+
+void addLayoutDeferred (Composite comp) {
+	if (layoutDeferred == null) layoutDeferred = new Composite [64];
+	if (layoutDeferredCount == layoutDeferred.length) {
+		Composite [] temp = new Composite [layoutDeferred.length + 64];
+		System.arraycopy (layoutDeferred, 0, temp, 0, layoutDeferred.length);
+		layoutDeferred = temp;
+	}
+	layoutDeferred[layoutDeferredCount++] = comp;
 }
 
 /**
@@ -208,8 +291,21 @@ public void addFilter (int eventType, Listener listener) {
  * @since 2.0 
  */
 public void addListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) eventTable = new EventTable ();
+	eventTable.hook (eventType, listener);
+}
+
+void addSkinnableWidget (Widget widget) {
+	if (skinList == null) {
+		skinList = 	new ArrayList<>();
+	}
+	skinList.add(widget);
+}
+
+void addWidget (long /*int*/ handle, Widget widget) {
+	widgetTable.put(handle, widget);
 }
 
 /**
@@ -235,8 +331,10 @@ public void addListener (int eventType, Listener listener) {
  * @see #syncExec
  */
 public void asyncExec (Runnable runnable) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (Device.class) {
+		if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+		synchronizer.asyncExec (runnable);
+	}
 }
 
 /**
@@ -253,6 +351,23 @@ public void beep () {
 	QtUtils.notImplemented();
 }
 
+protected void checkDevice () {
+	if (thread == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	if (thread != Thread.currentThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+}
+
+static void checkDisplay (Thread thread, boolean multiple) {
+	synchronized (Device.class) {
+		for (int i=0; i<Displays.length; i++) {
+			if (Displays [i] != null) {
+				if (!multiple) SWT.error (SWT.ERROR_NOT_IMPLEMENTED, null, " [multiple displays]"); //$NON-NLS-1$
+				if (Displays [i].thread == thread) SWT.error (SWT.ERROR_THREAD_INVALID_ACCESS);
+			}
+		}
+	}
+}
+
 /**
  * Checks that this class can be subclassed.
  * <p>
@@ -266,8 +381,7 @@ public void beep () {
  * @see Widget#checkSubclass
  */
 protected void checkSubclass () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (!isValidClass (getClass ())) error (SWT.ERROR_INVALID_SUBCLASS);
 }
 
 /**
@@ -284,8 +398,10 @@ protected void checkSubclass () {
  * @since 2.0
  */
 public void close () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	Event event = new Event ();
+	sendEvent (SWT.Close, event);
+	if (event.doit) dispose ();
 }
 
 /**
@@ -301,8 +417,28 @@ public void close () {
  * @see #init
  */
 protected void create (DeviceData data) {
+	checkSubclass ();
+	checkDisplay(thread = Thread.currentThread (), false);
+	createDisplay (data);
+	register (this);
+	if (Default == null) Default = this;
+}
+
+void createDisplay (DeviceData data) {
+	application = QtApplication.getInstance();
+	deviceHandle = QtDisplay.create(this);
+	if (deviceHandle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+
 	// TODO: Implement!
-	QtUtils.notImplemented();
+	QtUtils.partiallyImplemented();
+}
+
+static void deregister (Display display) {
+	synchronized (Device.class) {
+		for (int i=0; i<Displays.length; i++) {
+			if (display == Displays [i]) Displays [i] = null;
+		}
+	}
 }
 
 /**
@@ -316,8 +452,16 @@ protected void create (DeviceData data) {
  * @see #release
  */
 protected void destroy () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (this == Default) Default = null;
+	deregister (this);
+	destroyDisplay ();
+}
+
+void destroyDisplay () {
+	QtDisplay.delete(deviceHandle);
+	deviceHandle = 0;
+
+	application.releaseReference();
 }
 
 /**
@@ -331,9 +475,15 @@ protected void destroy () {
  * @return the display for the given thread
  */
 public static Display findDisplay (Thread thread) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		for (int i=0; i<Displays.length; i++) {
+			Display display = Displays [i];
+			if (display != null && display.thread == thread) {
+				return display;
+			}
+		}
+		return null;
+	}
 }
 
 /**
@@ -350,8 +500,18 @@ public static Display findDisplay (Thread thread) {
  * </ul>
  */
 public void disposeExec (Runnable runnable) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (disposeList == null) disposeList = new Runnable [4];
+	for (int i=0; i<disposeList.length; i++) {
+		if (disposeList [i] == null) {
+			disposeList [i] = runnable;
+			return;
+		}
+	}
+	Runnable [] newDisposeList = new Runnable [disposeList.length + 4];
+	System.arraycopy (disposeList, 0, newDisposeList, 0, disposeList.length);
+	newDisposeList [disposeList.length] = runnable;
+	disposeList = newDisposeList;
 }
 
 /**
@@ -364,6 +524,16 @@ public void disposeExec (Runnable runnable) {
  */
 void error (int code) {
 	SWT.error (code);
+}
+
+boolean filterEvent (Event event) {
+	if (filterTable != null) filterTable.sendEvent (event);
+	return false;
+}
+
+boolean filters (int eventType) {
+	if (filterTable == null) return false;
+	return filterTable.hooks (eventType);
 }
 
 /**
@@ -387,9 +557,8 @@ void error (int code) {
  * @noreference This method is not intended to be referenced by clients.
  */
 public Widget findWidget (long /*int*/ handle) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return getWidget (handle);
 }
 
 /**
@@ -417,8 +586,7 @@ public Widget findWidget (long /*int*/ handle) {
  * @since 3.1
  */
 public Widget findWidget (long /*int*/ handle, long /*int*/ id) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -442,8 +610,7 @@ public Widget findWidget (long /*int*/ handle, long /*int*/ id) {
  * @since 3.3
  */
 public Widget findWidget (Widget widget, long /*int*/ id) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -460,9 +627,8 @@ public Widget findWidget (Widget widget, long /*int*/ id) {
  * </ul>
  */
 public Shell getActiveShell () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return activeShell;
 }
 
 /**
@@ -490,9 +656,7 @@ public Rectangle getBounds () {
  * @return the current display
  */
 public static Display getCurrent () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	return findDisplay (Thread.currentThread ());
 }
 
 /**
@@ -574,8 +738,12 @@ public Point [] getCursorSizes () {
  * @see #disposeExec(Runnable)
  */
 public Object getData (String key) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (key == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (keys == null) return null;
+	for (int i=0; i<keys.length; i++) {
+		if (keys [i].equals (key)) return values [i];
+	}
 	return null;
 }
 
@@ -603,9 +771,8 @@ public Object getData (String key) {
  * @see #disposeExec(Runnable)
  */
 public Object getData () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return data;
 }
 
 /**
@@ -616,12 +783,13 @@ public Object getData () {
  * @return the default display
  */
 public static Display getDefault () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		if (Default == null) Default = new Display ();
+		return Default;
+	}
 }
 
-static boolean isValidClass (Class clazz) {
+static boolean isValidClass (Class<?> clazz) {
 	String name = clazz.getName ();
 	int index = name.lastIndexOf ('.');
 	return name.substring (0, index + 1).equals (PACKAGE_PREFIX);
@@ -640,8 +808,7 @@ static boolean isValidClass (Class clazz) {
  * @since 3.7
  */
 public Menu getMenuBar () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -666,6 +833,10 @@ public int getDismissalAlignment () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return SWT.RIGHT;
+}
+
+long /*int*/ getDisplayHandle () {
+	return deviceHandle;
 }
 
 /**
@@ -767,6 +938,16 @@ public Point [] getIconSizes () {
 	return new Point [] {new Point (16, 16), new Point (32, 32)}; 
 }
 
+int getLastEventTime () {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+	return 0;
+}
+
+int getMessageCount () {
+	return synchronizer.getMessageCount ();
+}
+
 /**
  * Returns an array of monitors attached to the device.
  * 
@@ -805,9 +986,14 @@ public Monitor getPrimaryMonitor () {
  * </ul>
  */
 public Shell [] getShells () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	Set<Shell> shells = new HashSet<>();
+	for (Widget widget: widgetTable.values()) {
+		if (widget instanceof Shell) {
+			shells.add((Shell)widget);
+		}
+	}
+	return shells.toArray(new Shell[shells.size()]);
 }
 
 /**
@@ -823,9 +1009,8 @@ public Shell [] getShells () {
  * @since 3.4
  */
 public Synchronizer getSynchronizer () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return synchronizer;
 }
 
 /**
@@ -844,9 +1029,10 @@ public Synchronizer getSynchronizer () {
  * </ul>
  */
 public Thread getSyncThread () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+		return synchronizer.syncThread;
+	}
 }
 
 /**
@@ -968,8 +1154,7 @@ public Image getSystemImage (int id) {
  * @since 3.7
  */
 public Menu getSystemMenu () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice();
 	return null;
 }
 
@@ -986,8 +1171,7 @@ public Menu getSystemMenu () {
  * @since 3.6
  */
 public TaskBar getSystemTaskBar () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
 	return null;
 }
 
@@ -1004,9 +1188,9 @@ public TaskBar getSystemTaskBar () {
  * @since 3.0
  */
 public Tray getSystemTray () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	if (tray != null) return tray;
+	return tray = new Tray (this, SWT.NONE);
 }
 
 /**
@@ -1019,9 +1203,10 @@ public Tray getSystemTray () {
  * </ul>
  */
 public Thread getThread () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	synchronized (Device.class) {
+		if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+		return thread;
+	}
 }
 
 /**	 
@@ -1038,9 +1223,12 @@ public Thread getThread () {
  * @since 3.7
  */
 public boolean getTouchEnabled() {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice();
 	return false;
+}
+
+public Widget getWidget (long /*int*/ handle) {
+	return widgetTable.get(handle);
 }
 
 /**
@@ -1053,6 +1241,7 @@ public boolean getTouchEnabled() {
  * @see #create
  */
 protected void init () {
+	super.init ();
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -1106,9 +1295,7 @@ public long /*int*/ internal_new_GC (GCData data) {
 }
 
 boolean isValidThread () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	return thread == Thread.currentThread ();
 }
 
 /**
@@ -1148,9 +1335,9 @@ boolean isValidThread () {
  * @since 2.1.2
  */
 public Point map (Control from, Control to, Point point) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);	
+	return map (from, to, point.x, point.y);
 }
 
 /**
@@ -1232,9 +1419,9 @@ public Point map (Control from, Control to, int x, int y) {
  * @since 2.1.2
  */
 public Rectangle map (Control from, Control to, Rectangle rectangle) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice();
+	if (rectangle == null) error (SWT.ERROR_NULL_ARGUMENT);
+	return map (from, to, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 }
 
 /**
@@ -1347,6 +1534,17 @@ public boolean post (Event event) {
 	return false;
 }
 
+void postEvent (Event event) {
+	/*
+	* Place the event at the end of the event queue.
+	* This code is always called in the Display's
+	* thread so it must be re-entrant but does not
+	* need to be synchronized.
+	*/
+	if (eventQueue == null) eventQueue = new ArrayDeque<>();
+	eventQueue.add(event);
+}
+
 /**
  * Reads an event from the operating system's event queue,
  * dispatches it appropriately, and returns <code>true</code>
@@ -1372,9 +1570,32 @@ public boolean post (Event event) {
  * @see #wake
  */
 public boolean readAndDispatch () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkDevice ();
+	runSkin ();
+	runDeferredLayouts ();
+	boolean events = false;
+	events |= runPopups ();
+	events |= QtDisplay.handleNextEvent(deviceHandle);
+	if (events) {
+		runDeferredEvents ();
+		return true;
+	}
+	return isDisposed () || runAsyncMessages (false);
+}
+
+static void register (Display display) {
+	synchronized (Device.class) {
+		for (int i=0; i<Displays.length; i++) {
+			if (Displays [i] == null) {
+				Displays [i] = display;
+				return;
+			}
+		}
+		Display [] newDisplays = new Display [Displays.length + 4];
+		System.arraycopy (Displays, 0, newDisplays, 0, Displays.length);
+		newDisplays [Displays.length] = display;
+		Displays = newDisplays;
+	}
 }
 
 /**
@@ -1402,6 +1623,28 @@ public boolean readAndDispatch () {
  * @see #destroy
  */
 protected void release () {
+	sendEvent (SWT.Dispose, new Event ());
+	Shell [] shells = getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Shell shell = shells [i];
+		if (!shell.isDisposed ())  shell.dispose ();
+	}
+	if (tray != null) tray.dispose ();
+	tray = null;
+	while (readAndDispatch ()) {}
+	if (disposeList != null) {
+		for (int i=0; i<disposeList.length; i++) {
+			if (disposeList [i] != null) disposeList [i].run ();
+		}
+	}
+	disposeList = null;
+	synchronizer.releaseSynchronizer ();
+	synchronizer = null;
+	releaseDisplay ();
+	super.release ();
+}
+
+void releaseDisplay () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -1430,8 +1673,11 @@ protected void release () {
  * @since 3.0
  */
 public void removeFilter (int eventType, Listener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (filterTable == null) return;
+	filterTable.unhook (eventType, listener);
+	if (filterTable.size () == 0) filterTable = null;
 }
 
 /**
@@ -1457,8 +1703,108 @@ public void removeFilter (int eventType, Listener listener) {
  * @since 2.0 
  */
 public void removeListener (int eventType, Listener listener) {
+	checkDevice ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, listener);
+}
+
+Widget removeWidget (long /*int*/ handle) {
+	if (handle == 0) return null;
+	return widgetTable.remove(handle);
+}
+
+boolean runAsyncMessages (boolean all) {
+	return synchronizer.runAsyncMessages (all);
+}
+
+boolean runDeferredEvents () {
+	boolean run = false;
+	/*
+	* Run deferred events.  This code is always
+	* called in the Display's thread so it must
+	* be re-entrant but need not be synchronized.
+	*/
+	while (eventQueue != null && !eventQueue.isEmpty()) {
+		
+		/* Take an event off the queue */
+		Event event = eventQueue.remove();
+
+		/* Run the event */
+		Widget widget = event.widget;
+		if (widget != null && !widget.isDisposed ()) {
+			Widget item = event.item;
+			if (item == null || !item.isDisposed ()) {
+				run = true;
+				widget.sendEvent (event);
+			}
+		}
+
+		/*
+		* At this point, the event queue could
+		* be null due to a recursive invocation
+		* when running the event.
+		*/
+	}
+
+	/* Clear the queue */
+	eventQueue = null;
+	return run;
+}
+
+boolean runDeferredLayouts () {
+	if (layoutDeferredCount != 0) {
+		Composite[] temp = layoutDeferred;
+		int count = layoutDeferredCount;
+		layoutDeferred = null;
+		layoutDeferredCount = 0;
+		for (int i = 0; i < count; i++) {
+			Composite comp = temp[i];
+			if (!comp.isDisposed()) comp.setLayoutDeferred (false);
+		}
+		update ();
+		return true;
+	}	
+	return false;
+}
+
+boolean runPopups () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+	return false;
+}
+
+boolean runSkin () {
+	if (skinList == null) {
+		return false;
+	}
+
+	java.util.List<Widget> oldSkinWidgets = skinList;
+	skinList = null;
+	if (eventTable != null && eventTable.hooks(SWT.Skin)) {
+		for (Widget widget: oldSkinWidgets) {
+			if (widget != null && !widget.isDisposed()) {
+				widget.state &= ~Widget.SKIN_NEEDED;
+				Event event = new Event ();
+				event.widget = widget;
+				sendEvent (SWT.Skin, event);
+			}
+		}
+	}
+	return true;
+}
+
+void sendEvent (int eventType, Event event) {
+	if (eventTable == null && filterTable == null) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	event.display = this;
+	event.type = eventType;
+	if (event.time == 0) event.time = getLastEventTime ();
+	if (!filterEvent (event)) {
+		if (eventTable != null) eventTable.sendEvent (event);
+	}
 }
 
 /**
@@ -1471,9 +1817,7 @@ public void removeListener (int eventType, Listener listener) {
  * @since 3.6
  */
 public static String getAppName () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	return APP_NAME;
 }
 	
 /**
@@ -1486,9 +1830,7 @@ public static String getAppName () {
  * @since 3.6
  */
 public static String getAppVersion () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	return APP_VERSION;
 }
 
 /**
@@ -1506,8 +1848,7 @@ public static String getAppVersion () {
  * @param name the new app name or <code>null</code>
  */
 public static void setAppName (String name) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	APP_NAME = name;
 }
 
 /**
@@ -1518,8 +1859,7 @@ public static void setAppName (String name) {
  * @since 3.6
  */
 public static void setAppVersion (String version) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	APP_VERSION = version;
 }
 
 /**
@@ -1588,8 +1928,51 @@ public void setCursorLocation (Point point) {
  * @see #disposeExec(Runnable)
  */
 public void setData (String key, Object value) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (key == null) error (SWT.ERROR_NULL_ARGUMENT);
+
+	/* Remove the key/value pair */
+	if (value == null) {
+		if (keys == null) return;
+		int index = 0;
+		while (index < keys.length && !keys [index].equals (key)) index++;
+		if (index == keys.length) return;
+		if (keys.length == 1) {
+			keys = null;
+			values = null;
+		} else {
+			String [] newKeys = new String [keys.length - 1];
+			Object [] newValues = new Object [values.length - 1];
+			System.arraycopy (keys, 0, newKeys, 0, index);
+			System.arraycopy (keys, index + 1, newKeys, index, newKeys.length - index);
+			System.arraycopy (values, 0, newValues, 0, index);
+			System.arraycopy (values, index + 1, newValues, index, newValues.length - index);
+			keys = newKeys;
+			values = newValues;
+		}
+		return;
+	}
+	
+	/* Add the key/value pair */
+	if (keys == null) {
+		keys = new String [] {key};
+		values = new Object [] {value};
+		return;
+	}
+	for (int i=0; i<keys.length; i++) {
+		if (keys [i].equals (key)) {
+			values [i] = value;
+			return;
+		}
+	}
+	String [] newKeys = new String [keys.length + 1];
+	Object [] newValues = new Object [values.length + 1];
+	System.arraycopy (keys, 0, newKeys, 0, keys.length);
+	System.arraycopy (values, 0, newValues, 0, values.length);
+	newKeys [keys.length] = key;
+	newValues [values.length] = value;
+	keys = newKeys;
+	values = newValues;
 }
 
 /**
@@ -1616,8 +1999,8 @@ public void setData (String key, Object value) {
  * @see #disposeExec(Runnable)
  */
 public void setData (Object data) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	this.data = data;
 }
 
 /**
@@ -1636,8 +2019,17 @@ public void setData (Object data) {
  * </ul>
  */
 public void setSynchronizer (Synchronizer synchronizer) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (synchronizer == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (synchronizer == this.synchronizer) return;
+	Synchronizer oldSynchronizer;
+	synchronized (Device.class) {
+		oldSynchronizer = this.synchronizer;
+		this.synchronizer = synchronizer;
+	}
+	if (oldSynchronizer != null) {
+		oldSynchronizer.runAsyncMessages(true);
+	}
 }
 
 /**
@@ -1655,9 +2047,8 @@ public void setSynchronizer (Synchronizer synchronizer) {
  * @see #wake
  */
 public boolean sleep () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkDevice ();
+	return QtDisplay.checkPendingEvents(deviceHandle, true);
 }
 
 /**
@@ -1683,8 +2074,12 @@ public boolean sleep () {
  * @see #asyncExec
  */
 public void syncExec (Runnable runnable) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	Synchronizer synchronizer;
+	synchronized (Device.class) {
+		if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+		synchronizer = this.synchronizer;
+	}
+	synchronizer.syncExec (runnable);
 }
 
 /**
@@ -1745,13 +2140,46 @@ public void update () {
  * @see #sleep
  */
 public void wake () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (Device.class) {
+		if (isDisposed ()) error (SWT.ERROR_DEVICE_DISPOSED);
+		if (thread == Thread.currentThread ()) return;
+		wakeThread ();
+	}
 }
 
 void wakeThread () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void qtWidgetMoved(long /*int*/ handle, int newX, int newY) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.qtWidgetMoved(handle, newX, newY);
+}
+
+void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.qtWidgetResized(handle, newWidth, newHeight);
+}
+
+//private void qtWidgetInvokedCallback(long /*int*/ handle, boolean selected, int what) {
+//	Widget widget = getWidget(handle);
+//	if (widget == null) return;
+//	widget.haikuWidgetInvokedCallback(handle, selected, what);
+//}
+
+//private void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
+//	Widget widget = getWidget(handle);
+//	if (!(widget instanceof Control)) return;
+//	((Control)widget).haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
+//}
+
+boolean qtShellCloseRequested(long /*int*/ handle) {
+	Widget widget = getWidget(handle);
+	if (!(widget instanceof Control)) return false;
+	return ((Shell)widget).qtShellCloseRequested(handle);
 }
 
 }

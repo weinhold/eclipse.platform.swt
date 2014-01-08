@@ -11,9 +11,16 @@
 package org.eclipse.swt.widgets;
 
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.internal.qt.*;
-import org.eclipse.swt.graphics.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.qt.QtComposite;
+import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
  * Instances of this class are controls which are capable
@@ -46,19 +53,8 @@ import org.eclipse.swt.graphics.*;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  */
 public class Composite extends Scrollable {
-	/**
-	 * the handle to the OS resource 
-	 * (Warning: This field is platform dependent)
-	 * <p>
-	 * <b>IMPORTANT:</b> This field is <em>not</em> part of the SWT
-	 * public API. It is marked public only so that it can be shared
-	 * within the packages provided by SWT. It is not available on all
-	 * platforms and should never be accessed from application code.
-	 * </p>
-	 * 
-	 * @noreference This field is not intended to be referenced by clients.
-	 */
-	public long /*int*/  embeddedHandle;
+	Layout layout;
+	int layoutCount;
 
 Composite () {
 	/* Do nothing */
@@ -97,8 +93,12 @@ Composite () {
  * @see Widget#getStyle
  */
 public Composite (Composite parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	super (parent, style);
+}
+
+void addChild(long /*int*/ childHandle)
+{
+	QtComposite.addChild(handle, childHandle);
 }
 
 /**
@@ -120,6 +120,77 @@ public Composite (Composite parent, int style) {
  * @since 3.1
  */
 public void changed (Control[] changed) {
+	checkWidget ();
+	if (changed == null) error (SWT.ERROR_INVALID_ARGUMENT);
+	for (int i=0; i<changed.length; i++) {
+		Control control = changed [i];
+		if (control == null) error (SWT.ERROR_INVALID_ARGUMENT);
+		if (control.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+		boolean ancestor = false;
+		Composite composite = control.parent;
+		while (composite != null) {
+			ancestor = composite == this;
+			if (ancestor) break;
+			composite = composite.parent;
+		}
+		if (!ancestor) error (SWT.ERROR_INVALID_PARENT);
+	}
+	for (int i=0; i<changed.length; i++) {
+		Control child = changed [i];
+		Composite composite = child.parent;
+		while (child != this) {
+			if (composite.layout == null || !composite.layout.flushCache (child)) {
+				composite.state |= LAYOUT_CHANGED;
+			}
+			child = composite;
+			composite = child.parent;
+		}
+	}
+}
+
+protected void checkSubclass () {
+	/* Do nothing - Subclassing is allowed */
+}
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget ();
+	display.runSkin();
+	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
+	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
+	Point size;
+	if (layout != null) {
+		if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
+			changed |= (state & LAYOUT_CHANGED) != 0;
+			size = layout.computeSize (this, wHint, hHint, changed);
+			state &= ~LAYOUT_CHANGED;
+		} else {
+			size = new Point (wHint, hHint);
+		}
+	} else {
+		size = minimumSize (wHint, hHint, changed);
+		if (size.x == 0) size.x = DEFAULT_WIDTH;
+		if (size.y == 0) size.y = DEFAULT_HEIGHT;
+	}
+	if (wHint != SWT.DEFAULT) size.x = wHint;
+	if (hHint != SWT.DEFAULT) size.y = hHint;
+	Rectangle trim = computeTrim (0, 0, size.x, size.y);
+	return new Point (trim.width, trim.height);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	createHandle (index, true, false);
+	// TODO: Implement!
+	QtUtils.partiallyImplemented();
+}
+
+void createHandle (int index, boolean fixed, boolean scrolled) {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void deregister () {
+	super.deregister ();
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -156,6 +227,10 @@ public void drawBackground (GC gc, int x, int y, int width, int height, int offs
 	QtUtils.notImplemented();
 }
 
+Composite findDeferredControl () {
+	return layoutCount > 0 ? this : parent.findDeferredControl ();
+}
+
 /**
  * Returns the receiver's background drawing mode. This
  * will be one of the following constants defined in class
@@ -180,6 +255,20 @@ public int getBackgroundMode () {
 	return 0;
 }
 
+Control [] _getChildren () {
+	long /*int*/ parentHandle = parentingHandle ();
+	long[] /*int[]*/ childHandles = QtComposite.getChildren(parentHandle);
+	if (childHandles == null) return new Control[0];
+	Set<Control> children = new HashSet<>();
+	for (int i = 0; i < childHandles.length; i++) {
+		Widget widget = display.getWidget (childHandles[i]);
+		if (widget != null && widget != this && widget instanceof Control) {
+			children.add((Control)widget);
+		}
+	}
+	return children.toArray(new Control[children.size()]);
+}
+
 /**
  * Returns a (possibly empty) array containing the receiver's children.
  * Children are returned in the order that they are drawn.  The topmost
@@ -202,9 +291,8 @@ public int getBackgroundMode () {
  * </ul>
  */
 public Control [] getChildren () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getChildren ();
 }
 
 /**
@@ -219,9 +307,8 @@ public Control [] getChildren () {
  * </ul>
  */
 public Layout getLayout () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return layout;
 }
 
 /**
@@ -241,9 +328,8 @@ public Layout getLayout () {
  * @since 3.1
  */
 public boolean getLayoutDeferred () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return layoutCount > 0 ;
 }
 
 /**
@@ -283,9 +369,8 @@ public Control [] getTabList () {
  * @since 3.1
  */
 public boolean isLayoutDeferred () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return findDeferredControl () != null;
 }
 
 /**
@@ -308,8 +393,8 @@ public boolean isLayoutDeferred () {
  * </ul>
  */
 public void layout () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	layout (true);
 }
 
 /**
@@ -344,8 +429,9 @@ public void layout () {
  * </ul>
  */
 public void layout (boolean changed) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (layout == null) return;
+	layout (changed, false);
 }
 
 /**
@@ -384,8 +470,10 @@ public void layout (boolean changed) {
  * @since 3.1
  */
 public void layout (boolean changed, boolean all) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (layout == null && !all) return;
+	markLayout (changed, all);
+	updateLayout (all);
 }
 
 /**
@@ -417,8 +505,9 @@ public void layout (boolean changed, boolean all) {
  * @since 3.1
  */
 public void layout (Control [] changed) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (changed == null) error (SWT.ERROR_INVALID_ARGUMENT);
+	layout (changed, SWT.NONE);
 }
 
 /**
@@ -480,13 +569,131 @@ public void layout (Control [] changed) {
  * @since 3.6
  */
 public void layout (Control [] changed, int flags) {
+	checkWidget ();
+	if (changed != null) {
+		for (int i=0; i<changed.length; i++) {
+			Control control = changed [i];
+			if (control == null) error (SWT.ERROR_INVALID_ARGUMENT);
+			if (control.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+			boolean ancestor = false;
+			Composite composite = control.parent;
+			while (composite != null) {
+				ancestor = composite == this;
+				if (ancestor) break;
+				composite = composite.parent;
+			}
+			if (!ancestor) error (SWT.ERROR_INVALID_PARENT);
+		}
+		int updateCount = 0;
+		Composite [] update = new Composite [16];
+		for (int i=0; i<changed.length; i++) {
+			Control child = changed [i];
+			Composite composite = child.parent;
+			while (child != this) {
+				if (composite.layout != null) {
+					composite.state |= LAYOUT_NEEDED;
+					if (!composite.layout.flushCache (child)) {
+						composite.state |= LAYOUT_CHANGED;
+					}
+				}
+				if (updateCount == update.length) {
+					Composite [] newUpdate = new Composite [update.length + 16];
+					System.arraycopy (update, 0, newUpdate, 0, update.length);
+					update = newUpdate;
+				}
+				child = update [updateCount++] = composite;
+				composite = child.parent;
+			}
+		}
+		if ((flags & SWT.DEFER) != 0) {
+			setLayoutDeferred (true);
+			display.addLayoutDeferred (this);
+		}
+		for (int i=updateCount-1; i>=0; i--) {
+			update [i].updateLayout (false);
+		}
+	} else {
+		if (layout == null && (flags & SWT.ALL) == 0) return;
+		markLayout ((flags & SWT.CHANGED) != 0, (flags & SWT.ALL) != 0);
+		if ((flags & SWT.DEFER) != 0) {
+			setLayoutDeferred (true);
+			display.addLayoutDeferred (this);
+		}
+		updateLayout ((flags & SWT.ALL) != 0);
+	}
+}
+
+void markLayout (boolean changed, boolean all) {
+	if (layout != null) {
+		state |= LAYOUT_NEEDED;
+		if (changed) state |= LAYOUT_CHANGED;
+	}
+	if (all) {
+		Control [] children = _getChildren ();
+		for (int i=0; i<children.length; i++) {
+			children [i].markLayout (changed, all);
+		}
+	}
+}
+
+Point minimumSize (int wHint, int hHint, boolean changed) {
+	Control [] children = _getChildren ();
+	Rectangle clientArea = getClientArea ();
+	int width = 0, height = 0;
+	for (int i=0; i<children.length; i++) {
+		Rectangle rect = children [i].getBounds ();
+		width = Math.max (width, rect.x - clientArea.x + rect.width);
+		height = Math.max (height, rect.y - clientArea.y + rect.height);
+	}
+	return new Point (width, height);
+}
+
+long /*int*/ parentingHandle () {
+	return handle;
+}
+
+void register () {
+	super.register ();
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	layout = null;
+	// TODO: Implement!
+	QtUtils.partiallyImplemented();
+}
+
+void removeChild(long /*int*/ childHandle)
+{
+	QtComposite.removeChild(handle, childHandle);
 }
 
 void removeControl (Control control) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void reskinChildren (int flags) {
+	super.reskinChildren (flags);
+	Control [] children = _getChildren ();
+	for (int i=0; i<children.length; i++) {
+		Control child = children [i];
+		if (child != null) child.reskin (flags);
+	}
 }
 
 /**
@@ -511,6 +718,15 @@ public void setBackgroundMode (int mode) {
 	QtUtils.notImplemented();
 }
 
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+	int result = super.setBounds (x, y, width, height, move, resize);
+	if ((result & RESIZED) != 0 && layout != null) {
+		markLayout (false, false);
+		updateLayout (false);
+	}
+	return result;
+}
+
 /**
  * Sets the layout which is associated with the receiver to be
  * the argument which may be null.
@@ -523,8 +739,8 @@ public void setBackgroundMode (int mode) {
  * </ul>
  */
 public void setLayout (Layout layout) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	this.layout = layout;
 }
 
 /**
@@ -550,6 +766,20 @@ public void setLayout (Layout layout) {
  * @since 3.1
  */
 public void setLayoutDeferred (boolean defer) {
+	checkWidget();
+	if (!defer) {
+		if (--layoutCount == 0) {
+			if ((state & LAYOUT_CHILD) != 0 || (state & LAYOUT_NEEDED) != 0) {
+				updateLayout (true);
+			}
+		}
+	} else {
+		layoutCount++;
+	}
+}
+
+void setOrientation (boolean create) {
+	super.setOrientation (create);
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -572,6 +802,27 @@ public void setLayoutDeferred (boolean defer) {
 public void setTabList (Control [] tabList) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void updateLayout (boolean all) {
+	Composite parent = findDeferredControl ();
+	if (parent != null) {
+		parent.state |= LAYOUT_CHILD;
+		return;
+	}
+	if ((state & LAYOUT_NEEDED) != 0) {
+		boolean changed = (state & LAYOUT_CHANGED) != 0;
+		state &= ~(LAYOUT_NEEDED | LAYOUT_CHANGED);
+		display.runSkin();
+		layout.layout (this, changed);
+	}
+	if (all) {
+		state &= ~LAYOUT_CHILD;
+		Control [] children = _getChildren ();
+		for (int i=0; i<children.length; i++) {
+			children [i].updateLayout (all);
+		}
+	}
 }
 
 }

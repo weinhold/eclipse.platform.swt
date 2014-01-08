@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
+import org.eclipse.swt.internal.qt.QtControl;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -68,6 +69,9 @@ import org.eclipse.swt.internal.qt.QtUtils;
  */
 public abstract class Control extends Widget implements Drawable {
 	Composite parent;
+	String toolTipText;
+	Object layoutData;
+	Accessible accessible;
 
 Control () {
 }
@@ -103,8 +107,13 @@ Control () {
  * @see Widget#getStyle
  */
 public Control (Composite parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	super (parent, style);
+	this.parent = parent;
+	createWidget (0);
+}
+
+void deregister () {
+	super.deregister ();
 }
 
 boolean drawGripper (GC gc, int x, int y, int width, int height, boolean vertical) {
@@ -127,9 +136,8 @@ boolean drawGripper (GC gc, int x, int y, int width, int height, boolean vertica
  * @since 3.7
  */
 public int getOrientation () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return style & (SWT.LEFT_TO_RIGHT | SWT.RIGHT_TO_LEFT);
 }
 
 /**
@@ -146,9 +154,12 @@ public int getOrientation () {
  * @since 3.102
  */
 public int getTextDirection() {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return 0;
+	checkWidget ();
+	return style & (SWT.LEFT_TO_RIGHT | SWT.RIGHT_TO_LEFT);
+}
+
+boolean hooksPaint () {
+	return hooks (SWT.Paint) || filters (SWT.Paint);
 }
 
 /**
@@ -172,6 +183,18 @@ public boolean print (GC gc) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return false;
+}
+
+void checkBorder () {
+	if (getBorderWidth () == 0) style &= ~SWT.BORDER;
+}
+
+void checkBuffered () {
+	style &= ~SWT.DOUBLE_BUFFERED;
+}
+
+void checkMirrored () {
+	if ((style & SWT.RIGHT_TO_LEFT) != 0) style |= SWT.MIRRORED;
 }
 
 /**
@@ -202,9 +225,7 @@ public boolean print (GC gc) {
  * @see "computeTrim, getClientArea for controls that implement them"
  */
 public Point computeSize (int wHint, int hHint) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return new Point(wHint, hHint);
+	return computeSize (wHint, hHint, true);
 }
 
 /**
@@ -242,9 +263,28 @@ public Point computeSize (int wHint, int hHint) {
  * @see "computeTrim, getClientArea for controls that implement them"
  */
 public Point computeSize (int wHint, int hHint, boolean changed) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return new Point(wHint, hHint);
+	checkWidget();
+	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
+	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
+	return computeNativeSize (handle, wHint, hHint, changed);	
+}
+
+Point computeNativeSize (long /*int*/ handle, int wHint, int hHint, boolean changed) {
+	if (wHint != SWT.DEFAULT && hHint != SWT.DEFAULT) return new Point(wHint, hHint);
+	return QtControl.getPreferredSize(handle, wHint, hHint);
+}
+
+void createWidget (int index) {
+	state |= DRAG_DETECT;
+	checkOrientation (parent);
+	super.createWidget (index);
+	checkBuffered ();
+	checkMirrored ();
+	checkBorder ();
+	if (parent != null) {
+		parent.addChild(topHandle());
+	}
+	QtControl.setStyle(paintHandle(), style);
 }
 
 /**
@@ -268,9 +308,11 @@ public Point computeSize (int wHint, int hHint, boolean changed) {
  * @since 2.0
  */
 public Accessible getAccessible () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget ();
+	if (accessible == null) {
+		accessible = Accessible.internal_new_Accessible (this);
+	}
+	return accessible;
 }
 
 /**
@@ -287,9 +329,12 @@ public Accessible getAccessible () {
  * </ul>
  */
 public Rectangle getBounds () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget ();
+	return QtControl.getBounds(topHandle());
+}
+
+void markLayout (boolean changed, boolean all) {
+	/* Do nothing */
 }
 
 /**
@@ -311,8 +356,9 @@ public Rectangle getBounds () {
  * </ul>
  */
 public void setBounds (Rectangle rect) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (rect == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (rect.x, rect.y, Math.max (0, rect.width), Math.max (0, rect.height), true, true);
 }
 
 /**
@@ -339,8 +385,25 @@ public void setBounds (Rectangle rect) {
  * </ul>
  */
 public void setBounds (int x, int y, int width, int height) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	setBounds (x, y, Math.max (0, width), Math.max (0, height), true, true);
+}
+
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+	int bounds[] = new int[]{x, y, width, height};
+	boolean moveResize[] = new boolean[]{move, resize};
+	QtControl.setAndGetBounds(topHandle(), bounds, moveResize);
+
+	int result = 0;
+	if (moveResize[0]) {
+		sendEvent (SWT.Move);
+		result |= MOVED;
+	}
+	if (moveResize[1]) {
+		sendEvent (SWT.Resize);
+		result |= RESIZED;
+	}
+	return result;
 }
 
 /**
@@ -357,9 +420,8 @@ public void setBounds (int x, int y, int width, int height) {
  * </ul>
  */
 public Point getLocation () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return new Point (0, 0);
+	Rectangle bounds = QtControl.getBounds(topHandle());
+	return new Point(bounds.x, bounds.y);
 }
 
 /**
@@ -377,8 +439,9 @@ public Point getLocation () {
  * </ul>
  */
 public void setLocation (Point location) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (location.x, location.y, 0, 0, true, false);
 }
 
 /**
@@ -397,8 +460,8 @@ public void setLocation (Point location) {
  * </ul>
  */
 public void setLocation(int x, int y) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	setBounds (x, y, 0, 0, true, false);
 }
 
 /**
@@ -415,9 +478,8 @@ public void setLocation(int x, int y) {
  * </ul>
  */
 public Point getSize () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return new Point (0, 0);
+	Rectangle bounds = QtControl.getBounds(topHandle());
+	return new Point(bounds.width, bounds.height);
 }
 
 /**
@@ -439,8 +501,9 @@ public Point getSize () {
  * </ul>
  */
 public void setSize (Point size) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
+	setBounds (0, 0, Math.max (0, size.x), Math.max (0, size.y), false, true);
 }
 
 /**
@@ -482,8 +545,8 @@ public void setRegion (Region region) {
  * </ul>
  */
 public void setSize (int width, int height) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	setBounds (0, 0, Math.max (0, width), Math.max (0, height), false, true);
 }
 
 
@@ -575,8 +638,7 @@ public void pack () {
  * @see #computeSize(int, int, boolean)
  */
 public void pack (boolean changed) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	setSize (computeSize (SWT.DEFAULT, SWT.DEFAULT, changed));
 }
 
 /**
@@ -590,8 +652,8 @@ public void pack (boolean changed) {
  * </ul>
  */
 public void setLayoutData (Object layoutData) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	this.layoutData = layoutData;
 }
 
 /**
@@ -633,9 +695,9 @@ public Point toControl (int x, int y) {
  * </ul>
  */
 public Point toControl (Point point) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget ();
+	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
+	return toControl (point.x, point.y);
 }
 
 /**
@@ -677,9 +739,9 @@ public Point toDisplay (int x, int y) {
  * </ul>
  */
 public Point toDisplay (Point point) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
+	return toDisplay (point.x, point.y);
 }
  
 /**
@@ -702,8 +764,11 @@ public Point toDisplay (Point point) {
  * @see #removeControlListener
  */
 public void addControlListener(ControlListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Resize,typedListener);
+	addListener (SWT.Move,typedListener);
 }
 
 /**
@@ -728,8 +793,10 @@ public void addControlListener(ControlListener listener) {
  * @since 3.3
  */
 public void addDragDetectListener (DragDetectListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.DragDetect,typedListener);
 }
 
 /**
@@ -752,8 +819,11 @@ public void addDragDetectListener (DragDetectListener listener) {
  * @see #removeFocusListener
  */
 public void addFocusListener(FocusListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.FocusIn,typedListener);
+	addListener(SWT.FocusOut,typedListener);
 }
 
 /**
@@ -785,8 +855,10 @@ public void addFocusListener(FocusListener listener) {
  * @since 3.7
  */
 public void addGestureListener (GestureListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Gesture, typedListener);
 }
 
 /**
@@ -809,8 +881,10 @@ public void addGestureListener (GestureListener listener) {
  * @see #removeHelpListener
  */
 public void addHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Help, typedListener);
 }
 
 /**
@@ -844,8 +918,11 @@ public void addHelpListener (HelpListener listener) {
  * @see #removeKeyListener
  */
 public void addKeyListener(KeyListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.KeyUp,typedListener);
+	addListener(SWT.KeyDown,typedListener);
 }
 
 /**
@@ -870,8 +947,10 @@ public void addKeyListener(KeyListener listener) {
  * @since 3.3
  */
 public void addMenuDetectListener (MenuDetectListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.MenuDetect, typedListener);
 }
 
 /**
@@ -894,8 +973,12 @@ public void addMenuDetectListener (MenuDetectListener listener) {
  * @see #removeMouseListener
  */
 public void addMouseListener(MouseListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.MouseDown,typedListener);
+	addListener(SWT.MouseUp,typedListener);
+	addListener(SWT.MouseDoubleClick,typedListener);
 }
 
 /**
@@ -918,8 +1001,10 @@ public void addMouseListener(MouseListener listener) {
  * @see #removeMouseMoveListener
  */
 public void addMouseMoveListener(MouseMoveListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.MouseMove,typedListener);
 }
 
 /**
@@ -942,8 +1027,12 @@ public void addMouseMoveListener(MouseMoveListener listener) {
  * @see #removeMouseTrackListener
  */
 public void addMouseTrackListener (MouseTrackListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.MouseEnter,typedListener);
+	addListener (SWT.MouseExit,typedListener);
+	addListener (SWT.MouseHover,typedListener);
 }
 
 /**
@@ -968,8 +1057,10 @@ public void addMouseTrackListener (MouseTrackListener listener) {
  * @since 3.3
  */
 public void addMouseWheelListener (MouseWheelListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.MouseWheel, typedListener);
 }
 
 /**
@@ -992,8 +1083,10 @@ public void addMouseWheelListener (MouseWheelListener listener) {
  * @see #removePaintListener
  */
 public void addPaintListener(PaintListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener(SWT.Paint,typedListener);
 }
 
 /**
@@ -1024,8 +1117,10 @@ public void addPaintListener(PaintListener listener) {
  * @since 3.7
  */
 public void addTouchListener (TouchListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Touch,typedListener);
 }
 
 /**
@@ -1048,8 +1143,10 @@ public void addTouchListener (TouchListener listener) {
  * @see #removeTraverseListener
  */
 public void addTraverseListener (TraverseListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Traverse,typedListener);
 }
 
 /**
@@ -1070,8 +1167,11 @@ public void addTraverseListener (TraverseListener listener) {
  * @see #addControlListener
  */
 public void removeControlListener (ControlListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Move, listener);
+	eventTable.unhook (SWT.Resize, listener);
 }
 
 /**
@@ -1094,8 +1194,10 @@ public void removeControlListener (ControlListener listener) {
  * @since 3.3
  */
 public void removeDragDetectListener(DragDetectListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.DragDetect, listener);
 }
 
 /**
@@ -1116,8 +1218,11 @@ public void removeDragDetectListener(DragDetectListener listener) {
  * @see #addFocusListener
  */
 public void removeFocusListener(FocusListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.FocusIn, listener);
+	eventTable.unhook (SWT.FocusOut, listener);
 }
 
 /**
@@ -1140,8 +1245,10 @@ public void removeFocusListener(FocusListener listener) {
  * @since 3.7
  */
 public void removeGestureListener (GestureListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook(SWT.Gesture, listener);
 }
 /**
  * Removes the listener from the collection of listeners who will
@@ -1161,8 +1268,10 @@ public void removeGestureListener (GestureListener listener) {
  * @see #addHelpListener
  */
 public void removeHelpListener (HelpListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Help, listener);
 }
 /**
  * Removes the listener from the collection of listeners who will
@@ -1182,8 +1291,11 @@ public void removeHelpListener (HelpListener listener) {
  * @see #addKeyListener
  */
 public void removeKeyListener(KeyListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.KeyUp, listener);
+	eventTable.unhook (SWT.KeyDown, listener);
 }
 /**
  * Removes the listener from the collection of listeners who will
@@ -1206,8 +1318,10 @@ public void removeKeyListener(KeyListener listener) {
  * @since 3.3
  */
 public void removeMenuDetectListener (MenuDetectListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.MenuDetect, listener);
 }
 /**
  * Removes the listener from the collection of listeners who will
@@ -1227,8 +1341,12 @@ public void removeMenuDetectListener (MenuDetectListener listener) {
  * @see #addMouseListener
  */
 public void removeMouseListener (MouseListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.MouseDown, listener);
+	eventTable.unhook (SWT.MouseUp, listener);
+	eventTable.unhook (SWT.MouseDoubleClick, listener);
 }
 /**
  * Removes the listener from the collection of listeners who will
@@ -1248,8 +1366,10 @@ public void removeMouseListener (MouseListener listener) {
  * @see #addMouseMoveListener
  */
 public void removeMouseMoveListener(MouseMoveListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.MouseMove, listener);
 }
 
 /**
@@ -1270,8 +1390,12 @@ public void removeMouseMoveListener(MouseMoveListener listener) {
  * @see #addMouseTrackListener
  */
 public void removeMouseTrackListener(MouseTrackListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.MouseEnter, listener);
+	eventTable.unhook (SWT.MouseExit, listener);
+	eventTable.unhook (SWT.MouseHover, listener);
 }
 
 /**
@@ -1294,8 +1418,10 @@ public void removeMouseTrackListener(MouseTrackListener listener) {
  * @since 3.3
  */
 public void removeMouseWheelListener (MouseWheelListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.MouseWheel, listener);
 }
 
 /**
@@ -1316,8 +1442,10 @@ public void removeMouseWheelListener (MouseWheelListener listener) {
  * @see #addPaintListener
  */
 public void removePaintListener(PaintListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook(SWT.Paint, listener);
 }
 
 /**
@@ -1340,8 +1468,10 @@ public void removePaintListener(PaintListener listener) {
  * @since 3.7
  */
 public void removeTouchListener(TouchListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Touch, listener);
 }
 
 /**
@@ -1362,8 +1492,10 @@ public void removeTouchListener(TouchListener listener) {
  * @see #addTraverseListener
  */
 public void removeTraverseListener(TraverseListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Traverse, listener);
 }
 
 /**
@@ -1403,9 +1535,9 @@ public void removeTraverseListener(TraverseListener listener) {
  * @since 3.3
  */
 public boolean dragDetect (Event event) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	if (event == null) error (SWT.ERROR_NULL_ARGUMENT);
+	return dragDetect (event.button, event.count, event.stateMask, event.x, event.y);
 }
 
 /**
@@ -1445,6 +1577,18 @@ public boolean dragDetect (Event event) {
  * @since 3.3
  */
 public boolean dragDetect (MouseEvent event) {
+	checkWidget ();
+	if (event == null) error (SWT.ERROR_NULL_ARGUMENT);
+	return dragDetect (event.button, event.count, event.stateMask, event.x, event.y);
+}
+
+boolean dragDetect (int button, int count, int stateMask, int x, int y) {
+	if (button != 1 || count != 1) return false;
+	if (!dragDetect (x, y, false, true, null)) return false;
+	return sendDragEvent (button, stateMask, x, y, true);
+}
+
+boolean dragDetect (int x, int y, boolean filter, boolean dragOnTimeout, boolean [] consume) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return false;
@@ -1518,8 +1662,7 @@ public Image getBackgroundImage () {
  * </ul>
  */
 public int getBorderWidth () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
 	return 0;
 }
 
@@ -1559,9 +1702,8 @@ public Cursor getCursor () {
  * @since 3.3
  */
 public boolean getDragDetect () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DRAG_DETECT) != 0;
 }
 
 /**
@@ -1580,9 +1722,8 @@ public boolean getDragDetect () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -1628,9 +1769,8 @@ public Color getForeground () {
  * </ul>
  */
 public Object getLayoutData () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return layoutData;
 }
 
 /**
@@ -1685,9 +1825,8 @@ public Monitor getMonitor () {
  * </ul>
  */
 public Composite getParent () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return parent;
 }
 
 /** 
@@ -1725,9 +1864,12 @@ public Region getRegion () {
  * @see #getParent
  */
 public Shell getShell() {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getShell();
+}
+
+Shell _getShell() {
+	return parent._getShell();
 }
 
 /**
@@ -1742,9 +1884,8 @@ public Shell getShell() {
  * </ul>
  */
 public String getToolTipText () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return toolTipText;
 }
 
 /**
@@ -1768,8 +1909,7 @@ public String getToolTipText () {
  * @since 3.7
  */
 public boolean getTouchEnabled() {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
 	return false;
 }
 
@@ -1871,9 +2011,8 @@ public boolean isReparentable () {
  * @see #getEnabled
  */
 public boolean isEnabled () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return getEnabled () && parent.isEnabled ();
 }
 
 /**
@@ -1908,9 +2047,20 @@ public boolean isFocusControl () {
  * @see #getVisible
  */
 public boolean isVisible () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	return getVisible () && parent.isVisible ();
+}
+
+Decorations menuShell () {
+	return parent.menuShell ();
+}
+
+long /*int*/ paintHandle () {
+	return handle;
+}
+
+void register () {
+	super.register ();
 }
 
 /**
@@ -1970,6 +2120,35 @@ public void redraw () {
 public void redraw (int x, int y, int width, int height, boolean all) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void release (boolean destroy) {
+	super.release (destroy);
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	parent = null;
+}
+
+void releaseParent () {
+	parent.removeControl (this);
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	toolTipText = null;
+	layoutData = null;
+	if (accessible != null) {
+		accessible.internal_dispose_Accessible ();
+	}
+	accessible = null;
+}
+
+boolean sendDragEvent (int button, int stateMask, int x, int y, boolean isStateMask) {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+	return false;
 }
 
 /**
@@ -2079,8 +2258,12 @@ public void setCursor (Cursor cursor) {
  * @since 3.3
  */
 public void setDragDetect (boolean dragDetect) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (dragDetect) {
+		state |= DRAG_DETECT;
+	} else {
+		state &= ~DRAG_DETECT;
+	}
 }
 
 /**
@@ -2097,8 +2280,16 @@ public void setDragDetect (boolean dragDetect) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	QtControl.setEnabled(handle, enabled);
+	// TODO: Update focus.
+	QtUtils.missingFeature("update focus");
 }
 
 /**
@@ -2116,9 +2307,9 @@ public void setEnabled (boolean enabled) {
  * @see #forceFocus
  */
 public boolean setFocus () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & SWT.NO_FOCUS) != 0) return false;
+	return forceFocus ();
 }
 
 /**
@@ -2193,6 +2384,11 @@ public void setMenu (Menu menu) {
 	QtUtils.notImplemented();
 }
 
+void setOrientation (boolean create) {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
 /**
  * Sets the orientation of the receiver, which must be one
  * of the constants <code>SWT.LEFT_TO_RIGHT</code> or <code>SWT.RIGHT_TO_LEFT</code>.
@@ -2208,8 +2404,14 @@ public void setMenu (Menu menu) {
  * @since 3.7
  */
 public void setOrientation (int orientation) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	int flags = SWT.RIGHT_TO_LEFT | SWT.LEFT_TO_RIGHT;
+	if ((orientation & flags) == 0 || (orientation & flags) == flags) return;
+	style &= ~flags;
+	style |= orientation & flags;
+	setOrientation (false);
+	style &= ~SWT.MIRRORED;
+	checkMirrored ();
 }
 
 /**
@@ -2313,8 +2515,10 @@ public void setTextDirection(int textDirection) {
  * </ul>
  */
 public void setToolTipText (String string) {
+	checkWidget();
+	toolTipText = string;
 	// TODO: Implement!
-	QtUtils.notImplemented();
+	QtUtils.partiallyImplemented();
 }
 
 /**
@@ -2334,8 +2538,7 @@ public void setToolTipText (String string) {
  * @since 3.7
  */
 public void setTouchEnabled(boolean enabled) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
 }
 
 /**
@@ -2479,6 +2682,10 @@ public boolean traverse (int traversal, KeyEvent event) {
 public void update () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void updateLayout (boolean all) {
+	/* Do nothing */
 }
 
 }

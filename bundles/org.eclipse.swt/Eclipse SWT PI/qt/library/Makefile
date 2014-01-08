@@ -44,8 +44,9 @@ SWTPI_LIB = lib$(SWTPI_PREFIX)-$(WS_PREFIX)-$(SWT_VERSION).so
 #CAIROCFLAGS = `pkg-config --cflags cairo`
 #CAIROLIBS = `pkg-config --libs-only-L cairo` -lcairo
 
-QTCFLAGS = 
-QTLIBS = 
+QTCFLAGS = -I/usr/include/qt5/QtCore -I/usr/include/qt5/QtGui -I/usr/include/qt5/QtWidgets -I/usr/include/qt5
+QTCXXFLAGS = -std=c++11
+QTLIBS = -lQt5Core -lQt5Gui -lQt5Widgets
 
 #CDE_LIBS = -L$(CDE_HOME)/lib -R$(CDE_HOME)/lib -lXt -lX11 -lDtSvc
 
@@ -81,7 +82,17 @@ QTLIBS =
 SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 #CDE_OBJECTS = swt.o cde.o cde_structs.o cde_stats.o
 #AWT_OBJECTS = swt_awt.o
-SWTPI_OBJECTS = swt.o
+SWTPI_OBJECTS = \
+	swt.o \
+	Application.o \
+	Composite.o \
+	Control.o \
+	Display.o \
+	JNIContext.o \
+	OS.o \
+	Shell.o \
+	Utils.o \
+	Widget.o
 #CAIRO_OBJECTS = swt.o cairo.o cairo_structs.o cairo_stats.o
 #ATK_OBJECTS = swt.o atk.o atk_structs.o atk_custom.o atk_stats.o
 #GNOME_OBJECTS = swt.o gnome.o gnome_structs.o gnome_stats.o
@@ -97,7 +108,9 @@ CFLAGS = -O -Wall \
 		-I$(JAVA_HOME)/include \
 		-I$(JAVA_HOME)/include/qt \
 		-fPIC \
-		${SWT_PTR_CFLAGS}
+		${SWT_PTR_CFLAGS} \
+		$(QTCFLAGS)
+CXXFLAGS = $(CFLAGS) $(QTCXXFLAGS)
 LFLAGS = -shared -fPIC
 
 ifndef NO_STRIP

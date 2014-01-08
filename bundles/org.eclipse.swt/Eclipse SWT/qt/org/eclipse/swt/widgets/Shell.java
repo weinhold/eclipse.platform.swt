@@ -15,7 +15,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
+import org.eclipse.swt.internal.qt.QtShell;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -119,6 +121,11 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Shell extends Decorations {
+
+	private long /*int*/ centralWidgetHandle;
+
+	// Last known shell bounds; used for detecting user moves/resizes.
+	private int oldX, oldY, oldWidth, oldHeight;
 
 /**
  * Constructs a new instance of this class. This is equivalent
@@ -243,8 +250,7 @@ public Shell (Display display) {
  * @see SWT#SHEET
  */
 public Shell (Display display, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	this (display, null, style, 0);
 }
 
 /**
@@ -322,8 +328,26 @@ public Shell (Shell parent) {
  * @see SWT#SHEET
  */
 public Shell (Shell parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	this (parent != null ? parent.display : null, parent, style, 0);
+}
+
+Shell (Display display, Shell parent, int style, long /*int*/ handle) {
+	super ();
+	checkSubclass ();
+	if (display == null) display = Display.getCurrent ();
+	if (display == null) display = Display.getDefault ();
+	if (!display.isValidThread ()) {
+		error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	}
+	if (parent != null && parent.isDisposed ()) {
+		error (SWT.ERROR_INVALID_ARGUMENT);	
+	}
+	this.style = checkStyle (null, style);
+	this.parent = parent;
+	this.display = display;
+
+	reskinWidget();
+	createWidget(0);
 }
 
 /**	 
@@ -347,6 +371,25 @@ public static Shell qt_new (Display display, long /*int*/ handle) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return null;
+}
+
+static int checkStyle (Shell parent, int style) {
+	style = Decorations.checkStyle (style);
+	style &= ~SWT.TRANSPARENT;
+	if ((style & SWT.ON_TOP) != 0) style &= ~(SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.MAX);
+	int mask = SWT.SYSTEM_MODAL | SWT.APPLICATION_MODAL | SWT.PRIMARY_MODAL;
+	if ((style & SWT.SHEET) != 0) {
+		style &= ~SWT.SHEET;
+		style |= parent == null ? SWT.SHELL_TRIM : SWT.DIALOG_TRIM;
+		if ((style & mask) == 0) {
+			style |= parent == null ? SWT.APPLICATION_MODAL : SWT.PRIMARY_MODAL;
+		}
+	}
+	int bits = style & ~mask;
+	if ((style & SWT.SYSTEM_MODAL) != 0) return bits | SWT.SYSTEM_MODAL;
+	if ((style & SWT.APPLICATION_MODAL) != 0) return bits | SWT.APPLICATION_MODAL;
+	if ((style & SWT.PRIMARY_MODAL) != 0) return bits | SWT.PRIMARY_MODAL;
+	return bits;
 }
 
 /**	 
@@ -394,8 +437,14 @@ public static Shell internal_new (Display display, long /*int*/ handle) {
  * @see #removeShellListener
  */
 public void addShellListener (ShellListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Close,typedListener);
+	addListener (SWT.Iconify,typedListener);
+	addListener (SWT.Deiconify,typedListener);
+	addListener (SWT.Activate, typedListener);
+	addListener (SWT.Deactivate, typedListener);
 }
 
 /**
@@ -414,8 +463,59 @@ public void addShellListener (ShellListener listener) {
  * @see #dispose
  */
 public void close () {
+	checkWidget ();
+	closeWidget ();
+}
+
+void closeWidget () {
+	Event event = new Event ();
+	sendEvent (SWT.Close, event);
+	if (event.doit && !isDisposed ()) dispose ();
+}
+
+void createHandle (int index) {
+	state |= HANDLE | CANVAS;
+	if (handle == 0) {
+		handle = QtShell.create(display.getDisplayHandle());
+		if (handle == 0) error(SWT.ERROR_NO_HANDLES);
+	}
+
+	centralWidgetHandle = QtShell.getCentralWidget(handle);
+	if (centralWidgetHandle == 0) error(SWT.ERROR_NO_HANDLES);
+
+	if (parent != null) {
+		QtUtils.missingFeature("window subset");
+	}
+
+	Rectangle bounds = getBounds();
+	oldX = bounds.x;
+	oldY = bounds.y;
+	oldWidth = bounds.width;
+	oldHeight = bounds.height;
+
 	// TODO: Implement!
-	QtUtils.notImplemented();
+	QtUtils.partiallyImplemented();
+}
+
+void deregister () {
+	super.deregister ();
+	display.removeWidget (centralWidgetHandle);
+}
+
+public void dispose () {
+	/*
+	* Note:  It is valid to attempt to dispose a widget
+	* more than once.  If this happens, fail silently.
+	*/
+	if (isDisposed()) return;
+	QtShell.setVisible(handle, false);
+	super.dispose ();
+	// TODO: Missing: Call to fixActiveShell().
+	QtUtils.partiallyImplemented();
+}
+
+Composite findDeferredControl () {
+	return layoutCount > 0 ? this : null;
 }
 
 /**
@@ -477,6 +577,11 @@ public boolean getFullScreen () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return false;
+}
+
+public boolean getMaximized () {
+	checkWidget();
+	return !getFullScreen() && super.getMaximized ();
 }
 
 /**
@@ -561,6 +666,10 @@ public int getImeInputMode () {
 	return SWT.NONE;
 }
 
+Shell _getShell() {
+	return this;
+}
+
 /**
  * Returns an array containing all shells which are 
  * descendants of the receiver.
@@ -573,9 +682,38 @@ public int getImeInputMode () {
  * </ul>
  */
 public Shell [] getShells () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	int count = 0;
+	Shell [] shells = display.getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Control shell = shells [i];
+		do {
+			shell = shell.getParent ();
+		} while (shell != null && shell != this);
+		if (shell == this) count++;
+	}
+	int index = 0;
+	Shell [] result = new Shell [count];
+	for (int i=0; i<shells.length; i++) {
+		Control shell = shells [i];
+		do {
+			shell = shell.getParent ();
+		} while (shell != null && shell != this);
+		if (shell == this) {
+			result [index++] = shells [i];
+		}
+	}
+	return result;
+}
+
+public boolean isEnabled () {
+	checkWidget ();
+	return getEnabled ();
+}
+
+public boolean isVisible () {
+	checkWidget();
+	return getVisible ();
 }
 
 /**
@@ -600,6 +738,50 @@ public Shell [] getShells () {
  * @see Shell#forceActive
  */
 public void open () {
+	checkWidget ();
+
+	// TODO: Implement!
+	QtUtils.missingFeature("bring to front");
+
+	setVisible (true);
+	if (isDisposed ()) return;
+
+	// TODO: Implement!
+	QtUtils.missingFeature("activate");
+}
+
+long /*int*/ paintHandle () {
+	return centralWidgetHandle;
+}
+
+void register () {
+	super.register ();
+	display.addWidget (centralWidgetHandle, this);
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+}
+
+void releaseChildren (boolean destroy) {
+	Shell [] shells = getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Shell shell = shells [i];
+		if (shell != null && !shell.isDisposed ()) {
+			shell.release (false);
+		}
+	}
+	super.releaseChildren (destroy);
+	// TODO: Release tool tips!
+	QtUtils.partiallyImplemented();
+}
+
+void releaseParent () {
+	/* Do nothing */
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -622,8 +804,25 @@ public void open () {
  * @see #addShellListener
  */
 public void removeShellListener (ShellListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Close, listener);
+	eventTable.unhook (SWT.Iconify,listener);
+	eventTable.unhook (SWT.Deiconify,listener);
+	eventTable.unhook (SWT.Activate, listener);
+	eventTable.unhook (SWT.Deactivate, listener);
+}
+
+void reskinChildren (int flags) {
+	Shell [] shells = getShells ();
+	for (int i=0; i<shells.length; i++) {
+		Shell shell = shells [i];
+		if (shell != null) shell.reskin (flags);
+	}
+	// TODO: Reskin tool tips.
+	QtUtils.partiallyImplemented();
+	super.reskinChildren (flags);
 }
 
 /**
@@ -670,6 +869,27 @@ public void setActive () {
  * @since 3.4
  */
 public void setAlpha (int alpha) {
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+int setBounds (int x, int y, int width, int height, boolean move, boolean resize) {
+	if (move && x == oldX && y == oldY) move = false;
+	if (resize && width == oldWidth && height == oldHeight) resize = false;
+	if (!move && !resize) return 0;
+	int result = super.setBounds(x, y, width, height, move, resize);
+	if ((result & RESIZED) != 0) {
+		oldX = x;
+		oldY = y;
+	}
+	if ((result & MOVED) != 0) {
+		oldWidth = width;
+		oldHeight = height;
+	}
+	return result;
+}
+
+public void setEnabled (boolean enabled) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -808,6 +1028,11 @@ public void setRegion (Region region) {
 	QtUtils.notImplemented();
 }
 
+public void setVisible (boolean visible) {
+	checkWidget();
+	QtShell.setVisible(handle, visible);
+}
+
 /**
  * If the receiver is visible, moves it to the top of the 
  * drawing order for the display on which it was created 
@@ -832,6 +1057,34 @@ public void setRegion (Region region) {
 public void forceActive () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
+}
+
+void qtWidgetMoved(long /*int*/ handle, int newX, int newY) {
+	if (handle != this.handle) return;
+	if (newX != oldX || newY != oldY) {
+		// moved by the user
+		oldX = newX;
+		oldY = newY;
+		sendEvent(SWT.Move);
+	}
+}
+
+void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
+	if (handle != this.handle) return;
+	if (newWidth != oldWidth || newHeight != oldHeight) {
+		// resized by the user
+		oldWidth = newWidth;
+		oldHeight = newHeight;
+		sendEvent(SWT.Resize);
+		markLayout (false, false);
+		updateLayout (false);
+	}
+}
+
+boolean qtShellCloseRequested(long /*int*/ handle) {
+	if (isDisposed()) return false;
+	close();
+	return false;
 }
 
 }

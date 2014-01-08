@@ -11,10 +11,11 @@
 package org.eclipse.swt.widgets;
 
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.internal.*;
-import org.eclipse.swt.internal.qt.*;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.internal.SWTEventListener;
+import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
  * This class is the abstract superclass of all user interface objects.  
@@ -57,9 +58,51 @@ public abstract class Widget {
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public long /*int*/ handle;
-	int style;
+	int style, state;
 	Display display;
 	EventTable eventTable;
+	Object data;
+
+	/* Global state flags */
+	static final int DISPOSED = 1<<0;
+	static final int CANVAS = 1<<1;
+	static final int KEYED_DATA = 1<<2;
+	static final int HANDLE = 1<<3;
+	static final int DISABLED = 1<<4;
+//	static final int MENU = 1<<5;
+//	static final int OBSCURED = 1<<6;
+	static final int MOVED = 1<<7;
+	static final int RESIZED = 1<<8;
+//	static final int ZERO_WIDTH = 1<<9;
+//	static final int ZERO_HEIGHT = 1<<10;
+//	static final int HIDDEN = 1<<11;
+//	static final int FOREGROUND = 1<<12;
+//	static final int BACKGROUND = 1<<13;
+//	static final int FONT = 1<<14;
+//	static final int PARENT_BACKGROUND = 1<<15;
+//	static final int THEME_BACKGROUND = 1<<16;
+
+	/* A layout was requested on this widget */
+	static final int LAYOUT_NEEDED	= 1<<17;
+	
+	/* The preferred size of a child has changed */
+	static final int LAYOUT_CHANGED = 1<<18;
+	
+	/* A layout was requested in this widget hierachy */
+	static final int LAYOUT_CHILD = 1<<19;
+
+	/* More global state flags */
+	static final int RELEASED = 1<<20;
+	static final int DISPOSE_SENT = 1<<21;
+//	static final int FOREIGN_HANDLE = 1<<22;
+	static final int DRAG_DETECT = 1<<23;
+
+	/* Notify of the opportunity to skin this widget */
+	static final int SKIN_NEEDED = 1<<24;
+
+	/* Default size for widgets */
+	static final int DEFAULT_WIDTH	= 64;
+	static final int DEFAULT_HEIGHT	= 64;
 
 /**
  * Prevents uninitialized instances from being created outside the package.
@@ -96,8 +139,16 @@ Widget () {}
  * @see #getStyle
  */
 public Widget (Widget parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkSubclass ();
+	checkParent (parent);
+	this.style = style;
+	display = parent.display;
+	reskinWidget ();
+}
+
+void _addListener (int eventType, Listener listener) {
+	if (eventTable == null) eventTable = new EventTable ();
+	eventTable.hook (eventType, listener);
 }
 
 /**
@@ -125,8 +176,9 @@ public Widget (Widget parent, int style) {
  * @see #notifyListeners
  */
 public void addListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	_addListener (eventType, listener);
 }
 
 /**
@@ -149,8 +201,10 @@ public void addListener (int eventType, Listener listener) {
  * @see #removeDisposeListener
  */
 public void addDisposeListener (DisposeListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Dispose, typedListener);
 }
 
 static int checkBits (int style, int int0, int int1, int int2, int int3, int int4, int int5) {
@@ -163,6 +217,21 @@ static int checkBits (int style, int int0, int int1, int int2, int int3, int int
 	if ((style & int4) != 0) style = (style & ~mask) | int4;
 	if ((style & int5) != 0) style = (style & ~mask) | int5;
 	return style;
+}
+
+void checkOpen () {
+	/* Do nothing */
+}
+
+void checkOrientation (Widget parent) {
+	style &= ~SWT.MIRRORED;
+	if ((style & (SWT.LEFT_TO_RIGHT | SWT.RIGHT_TO_LEFT)) == 0) {
+		if (parent != null) {
+			if ((parent.style & SWT.LEFT_TO_RIGHT) != 0) style |= SWT.LEFT_TO_RIGHT;
+			if ((parent.style & SWT.RIGHT_TO_LEFT) != 0) style |= SWT.RIGHT_TO_LEFT;
+		}
+	}
+	style = checkBits (style, SWT.LEFT_TO_RIGHT, SWT.RIGHT_TO_LEFT, 0, 0, 0, 0);
 }
 
 /**
@@ -178,8 +247,10 @@ static int checkBits (int style, int int0, int int1, int int2, int int3, int int
  * </ul>
  */
 void checkParent (Widget parent) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (parent == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (parent.isDisposed ()) error (SWT.ERROR_INVALID_ARGUMENT);
+	parent.checkWidget ();
+	parent.checkOpen ();
 }
 
 /**
@@ -212,8 +283,7 @@ void checkParent (Widget parent) {
  * </ul>
  */
 protected void checkSubclass () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
 }
 
 /**
@@ -239,8 +309,29 @@ protected void checkSubclass () {
  * </ul>
  */
 protected void checkWidget () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	Display display = this.display;
+	if (display == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	if (display.thread != Thread.currentThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	if ((state & DISPOSED) != 0) error (SWT.ERROR_WIDGET_DISPOSED);
+}
+
+void createHandle (int index) {
+}
+
+void createWidget (int index) {
+	createHandle (index);
+	setOrientation (true);
+	hookEvents ();
+	register ();
+}
+
+void deregister () {
+	if (handle == 0) return;
+	if ((state & HANDLE) != 0) display.removeWidget (handle);
+}
+
+void destroyWidget () {
+	releaseHandle ();
 }
 
 /**
@@ -268,12 +359,21 @@ protected void checkWidget () {
  * @see #checkWidget
  */
 public void dispose () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	/*
+	* Note:  It is valid to attempt to dispose a widget
+	* more than once.  If this happens, fail silently.
+	*/
+	if (isDisposed ()) return;
+	if (!isValidThread ()) error (SWT.ERROR_THREAD_INVALID_ACCESS);
+	release (true);
 }
 
 void error (int code) {
 	SWT.error (code);
+}
+
+boolean filters (int eventType) {
+	return display.filters (eventType);
 }
 
 /**
@@ -299,9 +399,8 @@ void error (int code) {
  * @see #setData(Object)
  */
 public Object getData () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return (state & KEYED_DATA) != 0 ? ((Object []) data) [0] : data;
 }
 /**
  * Returns the application defined property of the receiver
@@ -328,8 +427,14 @@ public Object getData () {
  * @see #setData(String, Object)
  */
 public Object getData (String key) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (key == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((state & KEYED_DATA) != 0) {
+		Object [] table = (Object []) data;
+		for (int i=1; i<table.length; i+=2) {
+			if (key.equals (table [i])) return table [i+1];
+		}
+	}
 	return null;
 }
 
@@ -349,9 +454,9 @@ public Object getData (String key) {
  * </ul>
  */
 public Display getDisplay () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	Display display = this.display;
+	if (display == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	return display;
 }
 
 /**
@@ -376,9 +481,20 @@ public Display getDisplay () {
  * @since 3.4
  */
 public Listener[] getListeners (int eventType) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (eventTable == null) return new Listener[0];
+	return eventTable.getListeners(eventType);
+}
+
+String getName () {
+	String string = getClass ().getName ();
+	int index = string.lastIndexOf ('.');
+	if (index == -1) return string;	
+	return string.substring (index + 1, string.length ());
+}
+
+String getNameText () {
+	return ""; //$NON-NLS-1$
 }
 
 /**
@@ -402,9 +518,8 @@ public Listener[] getListeners (int eventType) {
  * </ul>
  */
 public int getStyle () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return 0;
+	checkWidget ();
+	return style;
 }
 
 /**
@@ -419,9 +534,7 @@ public int getStyle () {
  * @return <code>true</code> when the widget is disposed and <code>false</code> otherwise
  */
 public boolean isDisposed () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	return (state & DISPOSED) != 0;
 }
 
 /**
@@ -441,13 +554,19 @@ public boolean isDisposed () {
  * @see SWT
  */
 public boolean isListening (int eventType) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return hooks (eventType);
+}
+
+boolean isValidThread () {
+	return getDisplay ().isValidThread ();
 }
 
 boolean isValidSubclass() {
 	return Display.isValidClass(getClass());
+}
+
+void hookEvents () {
 }
 
 /*
@@ -464,9 +583,8 @@ boolean isValidSubclass() {
  * @see #isListening
  */
 boolean hooks (int eventType) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	if (eventTable == null) return false;
+	return eventTable.hooks (eventType);
 }
 
 /**
@@ -490,33 +608,62 @@ boolean hooks (int eventType) {
  * @see #removeListener(int, Listener)
  */
 public void notifyListeners (int eventType, Event event) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (event == null) event = new Event ();
+	sendEvent (eventType, event);
+}
+
+void postEvent (int eventType) {
+	sendEvent (eventType, null, false);
+}
+
+void postEvent (int eventType, Event event) {
+	sendEvent (eventType, event, false);
+}
+
+void register () {
+	if (handle == 0) return;
+	if ((state & HANDLE) != 0) display.addWidget (handle, this);
 }
 
 void release (boolean destroy) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if ((state & DISPOSE_SENT) == 0) {
+		state |= DISPOSE_SENT;
+		sendEvent (SWT.Dispose);
+	}
+	if ((state & DISPOSED) == 0) {
+		releaseChildren (destroy);
+	}
+	if ((state & RELEASED) == 0) {
+		state |= RELEASED;
+		if (destroy) {
+			releaseParent ();
+			releaseWidget ();
+			destroyWidget ();
+		} else {
+			releaseWidget ();
+			releaseHandle ();
+		}
+	}
 }
 
 void releaseChildren (boolean destroy) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
 }
 
 void releaseHandle () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	handle = 0;
+	state |= DISPOSED;
+	display = null;
 }
 
 void releaseParent () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	/* Do nothing */
 }
 
 void releaseWidget () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	deregister ();
+	eventTable = null;
+	data = null;
 }
 
 /**
@@ -542,8 +689,10 @@ void releaseWidget () {
  * @see #notifyListeners
  */
 public void removeListener (int eventType, Listener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, listener);
 }
 
 /**
@@ -573,8 +722,10 @@ public void removeListener (int eventType, Listener listener) {
  * @noreference This method is not intended to be referenced by clients.
  */
 protected void removeListener (int eventType, SWTEventListener handler) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (handler == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (eventType, handler);
 }
 
 /**
@@ -606,18 +757,19 @@ protected void removeListener (int eventType, SWTEventListener handler) {
  * @since 3.6
  */
 public void reskin (int flags) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	reskinWidget ();
+	if ((flags & SWT.ALL) != 0) reskinChildren (flags);
 }
 
 void reskinChildren (int flags) {	
-	// TODO: Implement!
-	QtUtils.notImplemented();
 }
 
 void reskinWidget() {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if ((state & SKIN_NEEDED) != SKIN_NEEDED) {
+		this.state |= SKIN_NEEDED;
+		display.addSkinnableWidget(this);
+	}
 }
 
 /**
@@ -638,13 +790,58 @@ void reskinWidget() {
  * @see #addDisposeListener
  */
 public void removeDisposeListener (DisposeListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Dispose, listener);
+}
+
+void sendEvent (Event event) {
+	Display display = event.display;
+	if (!display.filterEvent (event)) {
+		if (eventTable != null) eventTable.sendEvent (event);
+	}
+}
+
+void sendEvent (int eventType) {
+	sendEvent (eventType, null, true);
+}
+
+void sendEvent (int eventType, Event event) {
+	sendEvent (eventType, event, true);
+}
+
+void sendEvent (int eventType, Event event, boolean send) {
+	if (eventTable == null && !display.filters (eventType)) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	event.type = eventType;
+	event.display = display;
+	event.widget = this;
+	if (event.time == 0) {
+		event.time = display.getLastEventTime ();
+	}
+	if (send) {
+		sendEvent (event);
+	} else {
+		display.postEvent (event);
+	}
+}
+
+void sendSelectionEvent (int eventType) {
+	sendSelectionEvent (eventType, null, false);
 }
 
 void sendSelectionEvent (int eventType, Event event, boolean send) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (eventTable == null && !display.filters (eventType)) {
+		return;
+	}
+	if (event == null) event = new Event ();
+	sendEvent (eventType, event, send);
+
+	// TODO: Add input state, if available
+	QtUtils.partiallyImplemented();
 }
 
 /**
@@ -670,8 +867,12 @@ void sendSelectionEvent (int eventType, Event event, boolean send) {
  * @see #getData()
  */
 public void setData (Object data) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((state & KEYED_DATA) != 0) {
+		((Object []) this.data) [0] = data;
+	} else {
+		this.data = data;
+	}
 }
 
 /**
@@ -699,8 +900,60 @@ public void setData (Object data) {
  * @see #getData(String)
  */
 public void setData (String key, Object value) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (key == null) error (SWT.ERROR_NULL_ARGUMENT);
+
+	int index = 1;
+	Object [] table = null;
+	if ((state & KEYED_DATA) != 0) {
+		table = (Object []) data;
+		while (index < table.length) {
+			if (key.equals (table [index])) break;
+			index += 2;
+		}
+	}
+	if (value != null) {
+		if ((state & KEYED_DATA) != 0) {
+			if (index == table.length) {
+				Object [] newTable = new Object [table.length + 2];
+				System.arraycopy (table, 0, newTable, 0, table.length);
+				data = table = newTable;
+			}
+		} else {
+			table = new Object [3];
+			table [0] = data;
+			data = table;
+			state |= KEYED_DATA;
+		}
+		table [index] = key;
+		table [index + 1] = value;
+	} else {
+		if ((state & KEYED_DATA) != 0) {
+			if (index != table.length) {
+				int length = table.length - 2;
+				if (length == 1) {
+					data = table [0];
+					state &= ~KEYED_DATA;
+				} else {
+					Object [] newTable = new Object [length];
+					System.arraycopy (table, 0, newTable, 0, index);
+					System.arraycopy (table, index + 2, newTable, index, length - index);
+					data = newTable;
+				}
+			}
+		}
+	}
+	if (key.equals(SWT.SKIN_CLASS) || key.equals(SWT.SKIN_ID)) this.reskin(SWT.ALL);
+}
+
+/*
+ * Propagates the widget's orientation to the OS and its children.
+ */
+void setOrientation (boolean create) {
+}
+
+long /*int*/ topHandle () {
+	return handle;
 }
 
 /**
@@ -710,9 +963,18 @@ public void setData (String key, Object value) {
  * @return a string representation of the receiver
  */
 public String toString () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	String string = "*Disposed*";
+	if (!isDisposed ()) {
+		string = "*Wrong Thread*";
+		if (isValidThread ()) string = getNameText ();
+	}
+	return getName () + " {" + string + "}";
+}
+
+void qtWidgetMoved(long /*int*/ handle, int newX, int newY) {
+}
+
+void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
 }
 
 }

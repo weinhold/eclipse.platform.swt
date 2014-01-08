@@ -68,8 +68,7 @@ Canvas () {}
  * @see Widget#getStyle
  */
 public Canvas (Composite parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	super (parent, style);
 }
 
 /** 
@@ -94,8 +93,7 @@ public Canvas (Composite parent, int style) {
  * @since 3.2
  */
 public void drawBackground (GC gc, int x, int y, int width, int height) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	drawBackground (gc, x, y, width, height, 0, 0);
 }
 
 /**
@@ -138,6 +136,12 @@ public IME getIME () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return null;
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	QtUtils.notImplemented();
 }
 
 /**

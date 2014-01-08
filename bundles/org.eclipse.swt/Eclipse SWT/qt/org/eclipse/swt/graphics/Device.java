@@ -24,18 +24,72 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  */
 public abstract class Device implements Drawable {
+	/**
+	 * the handle to the platform Display
+	 * (Warning: This field is platform dependent)
+	 * <p>
+	 * <b>IMPORTANT:</b> This field is <em>not</em> part of the SWT
+	 * public API. It is marked protected only so that it can be shared
+	 * within the packages provided by SWT. It is not available on all
+	 * platforms and should never be accessed from application code.
+	 * </p>
+	 * 
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	protected long /*int*/ deviceHandle;
+
 
 	/* Debugging */
 	public static boolean DEBUG;
+	boolean debug = DEBUG;
 	boolean tracking = DEBUG;
+	Error [] errors;
+	Object [] objects;
+	Object trackingLock;
+
+	/* Disposed flag */
+	boolean disposed;
+	
+	/* Warning and Error Handlers */
+	int warningLevel;
+
+	static Device[] Devices = new Device[4];
+
+	/*
+	* The following colors are listed in the Windows
+	* Programmer's Reference as the colors in the default
+	* palette.
+	*/
+	Color COLOR_BLACK, COLOR_DARK_RED, COLOR_DARK_GREEN, COLOR_DARK_YELLOW, COLOR_DARK_BLUE;
+	Color COLOR_DARK_MAGENTA, COLOR_DARK_CYAN, COLOR_GRAY, COLOR_DARK_GRAY, COLOR_RED;
+	Color COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE;
+
+/*
+* TEMPORARY CODE. When a graphics object is
+* created and the device parameter is null,
+* the current Display is used. This presents
+* a problem because SWT graphics does not
+* reference classes in SWT widgets. The correct
+* fix is to remove this feature. Unfortunately,
+* too many application programs rely on this
+* feature.
+*/
+protected static Device CurrentDevice;
+protected static Runnable DeviceFinder;
+static {
+	try {
+		Class.forName ("org.eclipse.swt.widgets.Display");
+	} catch (ClassNotFoundException e) {}
+}	
 
 /*
 * TEMPORARY CODE.
 */
 static synchronized Device getDevice () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	if (DeviceFinder != null) DeviceFinder.run();
+	Device device = CurrentDevice;
+	CurrentDevice = null;
+	return device;
 }
 
 /**
@@ -66,8 +120,20 @@ public Device() {
  * @see DeviceData
  */
 public Device(DeviceData data) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (Device.class) {
+		if (data != null) {
+			debug = data.debug;
+			tracking = data.tracking;
+		}
+		if (tracking) {
+			errors = new Error [128];
+			objects = new Object [128];
+			trackingLock = new Object ();
+		}
+		create (data);
+		init ();
+		register (this);
+	}
 }
 
 /**
@@ -90,8 +156,7 @@ public Device(DeviceData data) {
  * </ul>
  */
 protected void checkDevice () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (disposed) SWT.error(SWT.ERROR_DEVICE_DISPOSED);
 }
 
 /**
@@ -110,8 +175,6 @@ protected void checkDevice () {
  * @see #init
  */
 protected void create (DeviceData data) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
 }
 
 /**
@@ -125,13 +188,50 @@ protected void create (DeviceData data) {
  * @see #checkDevice
  */
 public void dispose () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (Device.class) {
+		if (isDisposed()) return;
+		checkDevice ();
+		release ();
+		destroy ();
+		deregister (this);
+		deviceHandle = 0;
+		disposed = true;
+		if (tracking) {
+			synchronized (trackingLock) {
+				objects = null;
+				errors = null;
+				trackingLock = null;
+			}
+		}
+	}
 }
 
 void dispose_Object (Object object) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (trackingLock) {
+		for (int i=0; i<objects.length; i++) {
+			if (objects [i] == object) {
+				objects [i] = null;
+				errors [i] = null;
+				return;
+			}
+		}
+	}
+}
+
+static synchronized Device findDevice (long /*int*/ deviceHandle) {
+	for (int i=0; i<Devices.length; i++) {
+		Device device = Devices [i];
+		if (device != null && device.deviceHandle == deviceHandle) {
+			return device;
+		}
+	}
+	return null;
+}
+
+synchronized static void deregister (Device device) {
+	for (int i=0; i<Devices.length; i++) {
+		if (device == Devices [i]) Devices [i] = null;
+	}
 }
 
 /**
@@ -149,8 +249,6 @@ void dispose_Object (Object object) {
  * @see #release
  */
 protected void destroy () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
 }
 
 /**
@@ -163,9 +261,8 @@ protected void destroy () {
  * </ul>
  */
 public Rectangle getBounds () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return new Rectangle(0, 0, 0, 0);
 }
 
 /**
@@ -182,9 +279,32 @@ public Rectangle getBounds () {
  * @see DeviceData
  */
 public DeviceData getDeviceData () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice();
+	DeviceData data = new DeviceData ();
+	data.debug = debug;
+	data.tracking = tracking;
+	if (tracking) {
+		synchronized (trackingLock) {
+			int count = 0, length = objects.length;
+			for (int i=0; i<length; i++) {
+				if (objects [i] != null) count++;
+			}
+			int index = 0;
+			data.objects = new Object [count];
+			data.errors = new Error [count];
+			for (int i=0; i<length; i++) {
+				if (objects [i] != null) {
+					data.objects [index] = objects [i];
+					data.errors [index] = errors [i];
+					index++;
+				}
+			}
+		}
+	} else {
+		data.objects = new Object [0];
+		data.errors = new Error [0];
+	}
+	return data;
 }
 
 /**
@@ -200,9 +320,8 @@ public DeviceData getDeviceData () {
  * @see #getBounds
  */
 public Rectangle getClientArea () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	return getBounds ();
 }
 
 /**
@@ -218,8 +337,7 @@ public Rectangle getClientArea () {
  * </ul>
  */
 public int getDepth () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
 	return 0;
 }
 
@@ -278,9 +396,26 @@ public FontData[] getFontList (String faceName, boolean scalable) {
  * @see SWT
  */
 public Color getSystemColor (int id) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkDevice ();
+	switch (id) {
+		case SWT.COLOR_BLACK: 				return COLOR_BLACK;
+		case SWT.COLOR_DARK_RED: 			return COLOR_DARK_RED;
+		case SWT.COLOR_DARK_GREEN:	 		return COLOR_DARK_GREEN;
+		case SWT.COLOR_DARK_YELLOW: 		return COLOR_DARK_YELLOW;
+		case SWT.COLOR_DARK_BLUE: 			return COLOR_DARK_BLUE;
+		case SWT.COLOR_DARK_MAGENTA: 		return COLOR_DARK_MAGENTA;
+		case SWT.COLOR_DARK_CYAN: 			return COLOR_DARK_CYAN;
+		case SWT.COLOR_GRAY: 				return COLOR_GRAY;
+		case SWT.COLOR_DARK_GRAY: 			return COLOR_DARK_GRAY;
+		case SWT.COLOR_RED: 				return COLOR_RED;
+		case SWT.COLOR_GREEN: 				return COLOR_GREEN;
+		case SWT.COLOR_YELLOW: 				return COLOR_YELLOW;
+		case SWT.COLOR_BLUE: 				return COLOR_BLUE;
+		case SWT.COLOR_MAGENTA: 			return COLOR_MAGENTA;
+		case SWT.COLOR_CYAN: 				return COLOR_CYAN;
+		case SWT.COLOR_WHITE: 				return COLOR_WHITE;
+	}
+	return COLOR_BLACK;
 }
 
 /**
@@ -321,9 +456,8 @@ public Font getSystemFont () {
  * </ul>
  */
 public boolean getWarnings () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkDevice ();
+	return warningLevel == 0;
 }
 
 /**
@@ -339,6 +473,24 @@ public boolean getWarnings () {
  * @see #create
  */
 protected void init () {
+	/* Create the standard colors */
+	COLOR_BLACK = new Color (this, 0,0,0);
+	COLOR_DARK_RED = new Color (this, 0x80,0,0);
+	COLOR_DARK_GREEN = new Color (this, 0,0x80,0);
+	COLOR_DARK_YELLOW = new Color (this, 0x80,0x80,0);
+	COLOR_DARK_BLUE = new Color (this, 0,0,0x80);
+	COLOR_DARK_MAGENTA = new Color (this, 0x80,0,0x80);
+	COLOR_DARK_CYAN = new Color (this, 0,0x80,0x80);
+	COLOR_GRAY = new Color (this, 0xC0,0xC0,0xC0);
+	COLOR_DARK_GRAY = new Color (this, 0x80,0x80,0x80);
+	COLOR_RED = new Color (this, 0xFF,0,0);
+	COLOR_GREEN = new Color (this, 0,0xFF,0);
+	COLOR_YELLOW = new Color (this, 0xFF,0xFF,0);
+	COLOR_BLUE = new Color (this, 0,0,0xFF);
+	COLOR_MAGENTA = new Color (this, 0xFF,0,0xFF);
+	COLOR_CYAN = new Color (this, 0,0xFF,0xFF);
+	COLOR_WHITE = new Color (this, 0xFF,0xFF,0xFF);
+
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -388,9 +540,9 @@ public abstract void internal_dispose_GC (long /*int*/ hDC, GCData data);
  * @return <code>true</code> when the device is disposed and <code>false</code> otherwise
  */
 public boolean isDisposed () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	synchronized (Device.class) {
+		return disposed;
+	}
 }
 
 /**
@@ -416,8 +568,36 @@ public boolean loadFont (String path) {
 }
 
 void new_Object (Object object) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	synchronized (trackingLock) {
+		for (int i=0; i<objects.length; i++) {
+			if (objects [i] == null) {
+				objects [i] = object;
+				errors [i] = new Error ();
+				return;
+			}
+		}
+		Object [] newObjects = new Object [objects.length + 128];
+		System.arraycopy (objects, 0, newObjects, 0, objects.length);
+		newObjects [objects.length] = object;
+		objects = newObjects;
+		Error [] newErrors = new Error [errors.length + 128];
+		System.arraycopy (errors, 0, newErrors, 0, errors.length);
+		newErrors [errors.length] = new Error ();
+		errors = newErrors;
+	}
+}
+
+static synchronized void register (Device device) {
+	for (int i=0; i<Devices.length; i++) {
+		if (Devices [i] == null) {
+			Devices [i] = device;
+			return;
+		}
+	}
+	Device [] newDevices = new Device [Devices.length + 4];
+	System.arraycopy (Devices, 0, newDevices, 0, Devices.length);
+	newDevices [Devices.length] = device;
+	Devices = newDevices;
 }
 
 /**
@@ -444,6 +624,26 @@ void new_Object (Object object) {
  * @see #destroy
  */
 protected void release () {
+	if (COLOR_BLACK != null) COLOR_BLACK.dispose();
+	if (COLOR_DARK_RED != null) COLOR_DARK_RED.dispose();
+	if (COLOR_DARK_GREEN != null) COLOR_DARK_GREEN.dispose();
+	if (COLOR_DARK_YELLOW != null) COLOR_DARK_YELLOW.dispose();
+	if (COLOR_DARK_BLUE != null) COLOR_DARK_BLUE.dispose();
+	if (COLOR_DARK_MAGENTA != null) COLOR_DARK_MAGENTA.dispose();
+	if (COLOR_DARK_CYAN != null) COLOR_DARK_CYAN.dispose();
+	if (COLOR_GRAY != null) COLOR_GRAY.dispose();
+	if (COLOR_DARK_GRAY != null) COLOR_DARK_GRAY.dispose();
+	if (COLOR_RED != null) COLOR_RED.dispose();
+	if (COLOR_GREEN != null) COLOR_GREEN.dispose();
+	if (COLOR_YELLOW != null) COLOR_YELLOW.dispose();
+	if (COLOR_BLUE != null) COLOR_BLUE.dispose();
+	if (COLOR_MAGENTA != null) COLOR_MAGENTA.dispose();
+	if (COLOR_CYAN != null) COLOR_CYAN.dispose();
+	if (COLOR_WHITE != null) COLOR_WHITE.dispose();
+	COLOR_BLACK = COLOR_DARK_RED = COLOR_DARK_GREEN = COLOR_DARK_YELLOW = COLOR_DARK_BLUE =
+	COLOR_DARK_MAGENTA = COLOR_DARK_CYAN = COLOR_GRAY = COLOR_DARK_GRAY = COLOR_RED =
+	COLOR_GREEN = COLOR_YELLOW = COLOR_BLUE = COLOR_MAGENTA = COLOR_CYAN = COLOR_WHITE = null;
+
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -461,8 +661,18 @@ protected void release () {
  * </ul>
  */
 public void setWarnings (boolean warnings) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkDevice ();
+	if (warnings) {
+		if (--warningLevel == 0) {
+			if (debug) return;
+			QtUtils.partiallyImplemented();
+		}
+	} else {
+		if (warningLevel++ == 0) {
+			if (debug) return;
+			QtUtils.partiallyImplemented();
+		}
+	}
 }
 
 }

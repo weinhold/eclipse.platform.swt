@@ -40,6 +40,7 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Menu extends Widget {
+	Decorations parent;
 
 /**
  * Constructs a new instance of this class given its parent,

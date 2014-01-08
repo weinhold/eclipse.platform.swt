@@ -72,6 +72,10 @@ public Scrollable (Composite parent, int style) {
 	super (parent, style);
 }
 
+long /*int*/ clientHandle () {
+	return handle;
+}
+
 /**
  * Given a desired <em>client area</em> for the receiver
  * (as described by the arguments), returns the bounding
@@ -102,7 +106,19 @@ public Scrollable (Composite parent, int style) {
 public Rectangle computeTrim (int x, int y, int width, int height) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
-	return null;
+	return new Rectangle(x, y, width, height);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void deregister () {
+	super.deregister ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
 }
 
 /**
@@ -120,9 +136,11 @@ public Rectangle computeTrim (int x, int y, int width, int height) {
  * @see #computeTrim
  */
 public Rectangle getClientArea () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget ();
+	Rectangle result = QtControl.getBounds(clientHandle());
+	result.x = 0;
+	result.y = 0;
+	return result;
 }
 
 /**
@@ -164,8 +182,7 @@ public ScrollBar getHorizontalBar () {
  * @since 3.8
  */
 public int getScrollbarsMode () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
 	return SWT.NONE;
 }
 
@@ -184,6 +201,30 @@ public ScrollBar getVerticalBar () {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 	return null;
+}
+
+void register () {
+	super.register ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void releaseChildren (boolean destroy) {
+	super.releaseChildren (destroy);
+	// TODO: Implement!
+	QtUtils.notImplemented();
+}
+
+void setOrientation (boolean create) {
+	super.setOrientation (create);
+	// TODO: Implement!
+	QtUtils.notImplemented();
 }
 
 }
