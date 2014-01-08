@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.swt.graphics;
 
+import org.eclipse.swt.internal.qt.QtColor;
+
 
 
 /**
@@ -28,10 +30,10 @@ public final class GCData {
 //	public Device device;
 //	public int style, state = -1;
 //
-//	public QtColor foreground;
-//	public QtColor background;
+	public QtColor foregroundColor;
+//	public QtColor backgroundColor;
 //	public Font font;
-//	public Pattern foregroundPattern;
+	public Pattern foregroundPattern;
 //	public Pattern backgroundPattern;
 //	public float lineWidth;
 //	public int lineStyle = SWT.LINE_SOLID;

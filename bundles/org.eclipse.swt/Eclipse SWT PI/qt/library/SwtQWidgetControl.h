@@ -20,10 +20,12 @@
 #include <algorithm>
 
 #include <QMoveEvent>
+#include <QPaintEvent>
 #include <QResizeEvent>
 
 #include "Control.h"
 #include "Display.h"
+#include "GraphicsContext.h"
 #include "JNIContext.h"
 #include "SWTDefs.h"
 
@@ -50,11 +52,21 @@ public:
 
 	virtual void moveEvent(QMoveEvent* event)
 	{
+		WidgetClass::moveEvent(event);
 		Display::current()->callbackWidgetMoved(this, event->pos());
+	}
+
+	virtual void paintEvent(QPaintEvent* event)
+	{
+		WidgetClass::paintEvent(event);
+		GraphicsContext graphicsContext(this);
+		Display::current()->callbackControlPaint(this, &graphicsContext,
+			event->rect(), event->region());
 	}
 
 	virtual	void resizeEvent(QResizeEvent* event)
 	{
+		WidgetClass::resizeEvent(event);
 		Display::current()->callbackWidgetResized(this, event->size());
 	}
 

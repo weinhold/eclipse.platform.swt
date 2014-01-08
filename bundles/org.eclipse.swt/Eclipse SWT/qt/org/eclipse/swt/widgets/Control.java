@@ -122,6 +122,9 @@ boolean drawGripper (GC gc, int x, int y, int width, int height, boolean vertica
 	return false;
 }
 
+void drawWidget (GC gc) {
+}
+
 /**
  * Returns the orientation of the receiver, which will be one of the
  * constants <code>SWT.LEFT_TO_RIGHT</code> or <code>SWT.RIGHT_TO_LEFT</code>.
@@ -2701,6 +2704,26 @@ public void update () {
 
 void updateLayout (boolean all) {
 	/* Do nothing */
+}
+
+void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
+System.err.println("Control.qtControlPaintCallback()");
+	if (!hooksPaint ()) return;
+	Event event = new Event ();
+	event.count = 1;
+	event.x = x;
+	event.y = y;
+	event.width = width;
+	event.height = height;
+	// TODO:...
+//	if ((style & SWT.MIRRORED) != 0) event.x = getClientWidth () - event.width - event.x;
+	GCData data = new GCData ();
+//	data.damageRgn = ...;
+	GC gc = event.gc = GC.qt_new (gcHandle, data);
+	drawWidget (gc);
+	sendEvent (SWT.Paint, event);
+	// Note: No need to dispose the GC. The caller does that.
+	event.gc = null;
 }
 
 }

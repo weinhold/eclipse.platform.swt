@@ -20,6 +20,8 @@
 #include <pthread.h>
 
 #include <QPoint>
+#include <QRect>
+#include <QRegion>
 #include <QSize>
 
 #include "swt.h"
@@ -54,13 +56,13 @@ public:
 									const QPoint& newPosition);
 			void				callbackWidgetResized(Widget* widget,
 									const QSize& newSize);
-
-//			void				callbackControlPaint(Control* control,
-//									GraphicsContext* graphicsContext,
-//									const QRect& updateRect);
-//
 //			void				callbackWidgetInvoked(Button* button,
 //									bool selected, int what);
+
+			void				callbackControlPaint(Control* control,
+									GraphicsContext* graphicsContext,
+									const QRect& updateRect,
+									const QRegion& updateRegion);
 
 			bool				callbackShellCloseRequested(Shell* shell);
 

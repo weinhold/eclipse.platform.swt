@@ -88,6 +88,7 @@ SWTPI_OBJECTS = \
 	Composite.o \
 	Control.o \
 	Display.o \
+	GraphicsContext.o \
 	JNIContext.o \
 	Label.o \
 	OS.o \

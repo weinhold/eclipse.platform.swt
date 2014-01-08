@@ -14,6 +14,8 @@ package org.eclipse.swt.graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.internal.qt.QtColor;
+import org.eclipse.swt.internal.qt.QtGraphicsContext;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -70,6 +72,27 @@ public final class GC extends Resource {
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public long /*int*/ handle;
+
+	private Drawable drawable;
+	private GCData data;
+
+	// Bit masks indicating which attributes have been modified by setters,
+	// respectively which attributes have not yet been retrieved from the native
+	// side yet. Allows for lazy communication with the native side.
+	private int modifiedAttributes;
+	private int missingAttributes;
+
+	final static int FOREGROUND = 1 << 0;
+	final static int BACKGROUND = 1 << 1;
+	final static int FONT = 1 << 2;
+	final static int LINE_STYLE = 1 << 3;
+	final static int LINE_CAP = 1 << 4;
+	final static int LINE_JOIN = 1 << 5;
+	final static int LINE_WIDTH = 1 << 6;
+	final static int LINE_MITERLIMIT = 1 << 7;
+	final static int DRAW_OFFSET = 1 << 8;	
+	final static int DRAW = FOREGROUND | LINE_WIDTH | LINE_STYLE  | LINE_CAP  | LINE_JOIN | LINE_MITERLIMIT | DRAW_OFFSET;
+	final static int FILL = BACKGROUND;
 
 GC() {
 }
@@ -150,9 +173,9 @@ public GC(Drawable drawable, int style) {
  * @noreference This method is not intended to be referenced by clients.
  */
 public static GC qt_new(long /*int*/ handle, GCData data) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	GC gc = new GC();
+	gc.init(null, data, handle);
+	return gc;
 }
 
 /**	 
@@ -173,9 +196,25 @@ public static GC qt_new(long /*int*/ handle, GCData data) {
  * @noreference This method is not intended to be referenced by clients.
  */
 public static GC qt_new(Drawable drawable, GCData data) {
+	GC gc = new GC();
+	long /*int*/ handle = drawable.internal_new_GC(data);
+	gc.init(drawable, data, handle);
+	return gc;
+}
+
+void checkGC (int mask) {
+	int toPush = modifiedAttributes & mask;
+	if ((toPush & mask) == 0) return;
+	modifiedAttributes &= ~toPush;
+
+	if ((toPush & FOREGROUND) != 0) {
+		QtColor color = data.foregroundColor;
+		QtGraphicsContext.setForegroundColor(handle, color.red, color.green, color.blue);
+		// TODO: pattern support!
+	}
+
 	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	QtUtils.partiallyImplemented();
 }
 
 /**
@@ -512,8 +551,18 @@ public void drawPolyline(int[] pointArray) {
  * </ul>
  */
 public void drawRectangle(int x, int y, int width, int height) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
+	checkGC(DRAW);
+	if (width < 0) {
+		x = x + width;
+		width = -width;
+	}
+	if (height < 0) {
+		y = y + height;
+		height = -height;
+	}
+
+	QtGraphicsContext.drawRectangle(handle, x, y, width, height);
 }
 
 /** 
@@ -533,8 +582,8 @@ public void drawRectangle(int x, int y, int width, int height) {
  * </ul>
  */
 public void drawRectangle(Rectangle rect) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	drawRectangle (rect.x, rect.y, rect.width, rect.height);
 }
 /** 
  * Draws the outline of the round-cornered rectangle specified by 
@@ -581,8 +630,7 @@ public void drawRoundRectangle(int x, int y, int width, int height, int arcWidth
  * </ul>
  */
 public void drawString (String string, int x, int y) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	drawString(string, x, y, false);
 }
 
 /** 
@@ -606,8 +654,8 @@ public void drawString (String string, int x, int y) {
  * </ul>
  */
 public void drawString(String string, int x, int y, boolean isTransparent) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkGC(FOREGROUND | FONT | (isTransparent ? 0 : BACKGROUND));
+	QtGraphicsContext.drawString(handle, x, y, string, isTransparent);
 }
 
 /** 
@@ -1446,6 +1494,17 @@ public int hashCode() {
 	return (int)/*64*/handle;
 }
 
+void init(Drawable drawable, GCData data, long /*int*/ handle) {
+	this.handle = handle;
+	this.drawable = drawable;
+	this.data = data;
+
+	missingAttributes = ~0;
+
+	// TODO: Implement!
+	QtUtils.partiallyImplemented();
+}
+
 /**
  * Returns <code>true</code> if the receiver has a clipping
  * region set into it, and <code>false</code> otherwise.
@@ -1779,8 +1838,12 @@ public void setFillRule(int rule) {
  * </ul>
  */
 public void setForeground(Color color) {	
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
+	if (color == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	if (color.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+	data.foregroundColor = color.handle;
+	data.foregroundPattern = null;
+	modifiedAttributes |= FOREGROUND;
 }
 
 /** 

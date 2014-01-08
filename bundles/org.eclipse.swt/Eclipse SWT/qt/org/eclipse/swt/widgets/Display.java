@@ -2170,11 +2170,11 @@ void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
 //	widget.haikuWidgetInvokedCallback(handle, selected, what);
 //}
 
-//private void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
-//	Widget widget = getWidget(handle);
-//	if (!(widget instanceof Control)) return;
-//	((Control)widget).haikuControlDrawCallback(handle, gcHandle, x, y, width, height);
-//}
+void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
+	Widget widget = getWidget(handle);
+	if (!(widget instanceof Control)) return;
+	((Control)widget).qtControlPaintCallback(handle, gcHandle, x, y, width, height);
+}
 
 boolean qtShellCloseRequested(long /*int*/ handle) {
 	Widget widget = getWidget(handle);
