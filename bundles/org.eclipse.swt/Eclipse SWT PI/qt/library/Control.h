@@ -38,10 +38,14 @@ public:
 	static	Control*			get(jintLong handle)
 									{ return getAs<Control>(handle); }
 
+	virtual	void				swtInit();
+
+	virtual	QSize				swtGetInitialSize();
+
 	virtual	QWidget*			swtGetQWidget() = 0;
 
 	virtual	QSize				swtGetPreferredSize(jint wHint, jint hHint) = 0;
-	virtual	QRect				swtGetRect() = 0;
+	virtual	QRect				swtGetGeometry() = 0;
 	virtual	void				swtMoveTo(const QPoint& point) = 0;
 	virtual	void				swtResizeTo(const QSize& size) = 0;
 

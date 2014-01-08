@@ -67,6 +67,13 @@ Shell::swtGetQWidget()
 }
 
 
+QSize
+Shell::swtGetInitialSize()
+{
+	return QSize(200, 100);
+}
+
+
 void
 Shell::swtSetStyle(jint style)
 {
@@ -108,7 +115,7 @@ Java_org_eclipse_swt_internal_qt_QtShell_create(
 {
 	SWT_QT_JNI_ENTER(env)
 
-	Shell* shell = new Shell;
+	Shell* shell = Widget::create<Shell>();
 	return shell->getHandle();
 
 	SWT_QT_JNI_EXIT(env, 0)

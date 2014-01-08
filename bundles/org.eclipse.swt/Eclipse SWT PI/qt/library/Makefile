@@ -89,6 +89,7 @@ SWTPI_OBJECTS = \
 	Control.o \
 	Display.o \
 	JNIContext.o \
+	Label.o \
 	OS.o \
 	Shell.o \
 	Utils.o \

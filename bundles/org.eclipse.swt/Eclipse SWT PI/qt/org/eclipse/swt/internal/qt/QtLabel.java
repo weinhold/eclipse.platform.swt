@@ -12,58 +12,12 @@
  * Contributors:
  *     Ingo Weinhold
  *******************************************************************************/
+package org.eclipse.swt.internal.qt;
 
+public class QtLabel {
+	public static native long /*int*/ create(long /*int*/ displayHandle);
 
-#include "Widget.h"
+	public static native void setAlignment(long /*int*/ handle, int alignment);
 
-#include "JNIContext.h"
-
-
-using namespace swt::qt;
-
-
-namespace swt {
-namespace qt {
-
-
-Widget::Widget()
-{
-}
-
-
-Widget::~Widget()
-{
-}
-
-
-void
-Widget::swtInit()
-{
-}
-
-
-void
-Widget::swtDelete()
-{
-	delete this;
-}
-
-
-}	// namespace qt
-}	// namespace swt
-
-
-// native methods
-
-
-extern "C" void
-Java_org_eclipse_swt_internal_qt_QtWidget_delete(
-	JNIEnv* env, jclass clazz, jintLong handle)
-{
-	SWT_QT_JNI_ENTER(env)
-
-	Widget* widget = Widget::get(handle);
-	widget->swtDelete();
-
-	SWT_QT_JNI_EXIT(env,)
+	public static native void setText(long /*int*/ handle, String text);
 }

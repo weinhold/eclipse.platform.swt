@@ -29,6 +29,9 @@ public:
 								Widget();
 	virtual						~Widget();
 
+	template<typename WidgetClass, typename... Arguments>
+	static	WidgetClass*		create(const Arguments... arguments);
+
 			jintLong			getHandle() const
 									{ return (jintLong)(size_t)this; }
 	static	Widget*				get(jintLong handle)
@@ -36,8 +39,24 @@ public:
 	template<typename Target>
 	static	Target*				getAs(jintLong handle);
 
+	virtual	void				swtInit();
 	virtual	void				swtDelete();
 };
+
+
+template<typename WidgetClass, typename... Arguments>
+/*static*/ WidgetClass*
+Widget::create(const Arguments... arguments)
+{
+	WidgetClass* widget = new WidgetClass(arguments...);
+	try {
+		widget->swtInit();
+		return widget;
+	} catch (...) {
+		delete widget;
+		throw;
+	}
+}
 
 
 template<typename Target>

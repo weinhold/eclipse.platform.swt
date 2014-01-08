@@ -40,6 +40,21 @@ Control::~Control()
 }
 
 
+void
+Control::swtInit()
+{
+	// resize the widget, so it doesn't change its size when made visible
+	swtResizeTo(swtGetInitialSize());
+}
+
+
+QSize
+Control::swtGetInitialSize()
+{
+	return QSize(1, 1);
+}
+
+
 }	// namespace qt
 }	// namespace swt
 
@@ -95,7 +110,7 @@ Java_org_eclipse_swt_internal_qt_QtControl_setAndGetBounds(
 
 	Control* control = Control::get(handle);
 
-	QRect oldRect = control->swtGetRect();
+	QRect oldRect = control->swtGetGeometry();
 	if (moveResize[0]) {
 		QPoint leftTop(frame[0], frame[1]);
 		if (leftTop != oldRect.topLeft())
@@ -112,7 +127,7 @@ Java_org_eclipse_swt_internal_qt_QtControl_setAndGetBounds(
 			moveResize[1] = false;
 	}
 
-	QRect newFrame = control->swtGetRect();
+	QRect newFrame = control->swtGetGeometry();
 
 	frame[0] = (jint)newFrame.left();
 	frame[1] = (jint)newFrame.top();

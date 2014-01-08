@@ -48,6 +48,8 @@ public:
 	// Control interface
 	virtual	QWidget*			swtGetQWidget();
 
+	virtual	QSize				swtGetInitialSize();
+
 	virtual	void				swtSetStyle(jint style);
 
 	// Composite interface
