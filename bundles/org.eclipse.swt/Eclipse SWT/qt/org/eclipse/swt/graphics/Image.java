@@ -16,6 +16,7 @@ import java.io.InputStream;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.internal.qt.QtImage;
 import org.eclipse.swt.internal.qt.QtUtils;
  
 /**
@@ -349,8 +350,11 @@ public Image(Device device, InputStream stream) {
  */
 public Image(Device device, String filename) {
 	super(device);
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+	handle = QtImage.load(filename);
+	if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
+	type = SWT.ICON;
+	init();
 }
 
 /**

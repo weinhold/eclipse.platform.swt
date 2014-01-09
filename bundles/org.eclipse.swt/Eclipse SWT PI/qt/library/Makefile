@@ -85,10 +85,12 @@ SWT_OBJECTS = swt.o c.o c_stats.o callback.o
 SWTPI_OBJECTS = \
 	swt.o \
 	Application.o \
+	Button.o \
 	Composite.o \
 	Control.o \
 	Display.o \
 	GraphicsContext.o \
+	Image.o \
 	JNIContext.o \
 	Label.o \
 	OS.o \

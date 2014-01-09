@@ -56,8 +56,8 @@ public:
 									const QPoint& newPosition);
 			void				callbackWidgetResized(Widget* widget,
 									const QSize& newSize);
-//			void				callbackWidgetInvoked(Button* button,
-//									bool selected, int what);
+			void				callbackWidgetSelected(Widget* widget,
+									bool selected);
 
 			void				callbackControlPaint(Control* control,
 									GraphicsContext* graphicsContext,
@@ -78,8 +78,8 @@ private:
 			jobject				fObject;
 			jmethodID			fWidgetMovedCallback;
 			jmethodID			fWidgetResizedCallback;
+			jmethodID			fWidgetSelectedCallback;
 			jmethodID			fControlPaintCallback;
-			jmethodID			fWidgetInvokedCallback;
 			jmethodID			fShellCloseRequestedCallback;
 };
 

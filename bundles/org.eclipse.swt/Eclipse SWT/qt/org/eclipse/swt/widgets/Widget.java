@@ -977,4 +977,7 @@ void qtWidgetMoved(long /*int*/ handle, int newX, int newY) {
 void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
 }
 
+void qtWidgetSelectedCallback(long /*int*/ handle, boolean selected) {
+}
+
 }

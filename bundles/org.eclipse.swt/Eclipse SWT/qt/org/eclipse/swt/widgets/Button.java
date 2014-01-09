@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.qt.QtButton;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -46,6 +47,9 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class Button extends Control {
+	private boolean grayed;
+	private String text;
+	private Image image;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -86,8 +90,22 @@ public class Button extends Control {
  * @see Widget#getStyle
  */
 public Button (Composite parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	super (parent, checkStyle (style));
+}
+
+static int checkStyle (int style) {
+	style = checkBits (style, SWT.PUSH, SWT.ARROW, SWT.CHECK, SWT.RADIO, SWT.TOGGLE, 0);
+	if ((style & (SWT.PUSH | SWT.TOGGLE)) != 0) {
+		return checkBits (style, SWT.CENTER, SWT.LEFT, SWT.RIGHT, 0, 0, 0);
+	}
+	if ((style & (SWT.CHECK | SWT.RADIO)) != 0) {
+		return checkBits (style, SWT.LEFT, SWT.RIGHT, SWT.CENTER, 0, 0, 0);
+	}
+	if ((style & SWT.ARROW) != 0) {
+		style |= SWT.NO_FOCUS;
+		return checkBits (style, SWT.UP, SWT.DOWN, SWT.LEFT, SWT.RIGHT, 0, 0);
+	}
+	return style;
 }
 
 /**
@@ -121,8 +139,35 @@ public Button (Composite parent, int style) {
  * @see SelectionEvent
  */
 public void addSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Selection,typedListener);
+	addListener (SWT.DefaultSelection,typedListener);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	if ((style & SWT.ARROW) != 0) {
+		handle = QtButton.createArrowButton(display.getDisplayHandle());
+	} else if ((style & SWT.CHECK) != 0) {
+		handle = QtButton.createCheckButton(display.getDisplayHandle());
+	} else if ((style & SWT.RADIO) != 0) {
+		handle = QtButton.createRadioButton(display.getDisplayHandle(),
+			(parent.style & SWT.NO_RADIO_GROUP) == 0);
+	} else if ((style & SWT.TOGGLE) != 0) {
+		handle = QtButton.createToggleButton(display.getDisplayHandle());
+	} else {
+		handle = QtButton.createPushButton(display.getDisplayHandle());
+	}
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+	_setAlignment(style);
+	if ((style & SWT.FLAT) != 0) QtButton.setFlat(handle, true);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	text = "";
 }
 
 /**
@@ -142,8 +187,17 @@ public void addSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public int getAlignment () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if ((style & SWT.ARROW) != 0) {
+		if ((style & SWT.UP) != 0) return SWT.UP;
+		if ((style & SWT.DOWN) != 0) return SWT.DOWN;
+		if ((style & SWT.LEFT) != 0) return SWT.LEFT;
+		if ((style & SWT.RIGHT) != 0) return SWT.RIGHT;
+		return SWT.UP;
+	}
+	if ((style & SWT.LEFT) != 0) return SWT.LEFT;
+	if ((style & SWT.CENTER) != 0) return SWT.CENTER;
+	if ((style & SWT.RIGHT) != 0) return SWT.RIGHT;
 	return SWT.LEFT;
 }
 
@@ -162,9 +216,9 @@ public int getAlignment () {
  * @since 3.4
  */
 public boolean getGrayed () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & SWT.CHECK) == 0) return false;
+	return grayed;
 }
 
 /**
@@ -179,9 +233,12 @@ public boolean getGrayed () {
  * </ul>
  */
 public Image getImage () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget ();
+	return image;
+}
+
+String getNameText () {
+	return getText ();
 }
 
 /**
@@ -201,9 +258,9 @@ public Image getImage () {
  * </ul>
  */
 public boolean getSelection () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	if ((style & (SWT.CHECK | SWT.RADIO | SWT.TOGGLE)) == 0) return false;
+	return QtButton.isSelected(handle);
 }
 
 /**
@@ -219,9 +276,15 @@ public boolean getSelection () {
  * </ul>
  */
 public String getText () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	if ((style & SWT.ARROW) != 0) return "";
+	return text;
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	image = null;
+	text = null;
 }
 
 /**
@@ -242,8 +305,11 @@ public String getText () {
  * @see #addSelectionListener
  */
 public void removeSelectionListener (SelectionListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Selection, listener);
+	eventTable.unhook (SWT.DefaultSelection,listener);	
 }
 
 /**
@@ -263,8 +329,24 @@ public void removeSelectionListener (SelectionListener listener) {
  * </ul>
  */
 public void setAlignment (int alignment) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	_setAlignment (alignment);
+}
+
+void _setAlignment (int alignment) {
+	int mask;
+	if ((style & SWT.ARROW) != 0) {
+		mask = SWT.UP | SWT.DOWN | SWT.LEFT | SWT.RIGHT | SWT.CENTER;
+		alignment = checkBits(alignment, SWT.UP, SWT.DOWN, SWT.LEFT, SWT.RIGHT, 0, 0);
+	} else {
+		mask = SWT.LEFT | SWT.RIGHT | SWT.CENTER;
+		alignment = checkBits(alignment, SWT.LEFT, SWT.RIGHT, SWT.CENTER, 0, 0, 0);
+	}
+	alignment &= mask;
+	if (alignment == 0) return;
+	style &= ~mask;
+	style |= alignment;
+	QtButton.setAlignmentStyle(handle, alignment);
 }
 
 /**
@@ -282,8 +364,10 @@ public void setAlignment (int alignment) {
  * @since 3.4
  */
 public void setGrayed (boolean grayed) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.CHECK) == 0) return;
+	this.grayed = grayed;
+	QtButton.setGrayed(handle, grayed);
 }
 
 /**
@@ -306,6 +390,16 @@ public void setGrayed (boolean grayed) {
  * </ul>
  */
 public void setImage (Image image) {
+	checkWidget ();
+	if ((style & SWT.ARROW) != 0) return;
+	if (image != null) {
+		if (image.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
+	}
+	QtButton.setImage(handle, image != null ? image.handle : 0);
+	this.image = image;
+}
+
+void setOrientation (boolean create) {
 	// TODO: Implement!
 	QtUtils.notImplemented();
 }
@@ -327,8 +421,9 @@ public void setImage (Image image) {
  * </ul>
  */
 public void setSelection (boolean selected) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO | SWT.TOGGLE)) == 0) return;
+	QtButton.setSelected(handle, selected);
 }
 
 /**
@@ -363,8 +458,16 @@ public void setSelection (boolean selected) {
  * </ul>
  */
 public void setText (String string) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.ARROW) != 0) return;
+	text = string;
+	QtButton.setText(handle, text);
+}
+
+void qtWidgetSelectedCallback(long /*int*/ handle, boolean selected) {
+	if (handle != this.handle) return;
+	sendSelectionEvent (SWT.Selection);
 }
 
 }

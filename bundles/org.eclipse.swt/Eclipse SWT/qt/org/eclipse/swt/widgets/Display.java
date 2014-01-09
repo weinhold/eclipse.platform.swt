@@ -2164,11 +2164,11 @@ void qtWidgetResized(long /*int*/ handle, int newWidth, int newHeight) {
 	widget.qtWidgetResized(handle, newWidth, newHeight);
 }
 
-//private void qtWidgetInvokedCallback(long /*int*/ handle, boolean selected, int what) {
-//	Widget widget = getWidget(handle);
-//	if (widget == null) return;
-//	widget.haikuWidgetInvokedCallback(handle, selected, what);
-//}
+void qtWidgetSelectedCallback(long /*int*/ handle, boolean selected) {
+	Widget widget = getWidget(handle);
+	if (widget == null) return;
+	widget.qtWidgetSelectedCallback(handle, selected);
+}
 
 void qtControlPaintCallback(long /*int*/ handle, long /*int*/ gcHandle, int x, int y, int width, int height) {
 	Widget widget = getWidget(handle);

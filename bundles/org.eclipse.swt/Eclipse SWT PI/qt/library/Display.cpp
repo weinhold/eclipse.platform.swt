@@ -38,8 +38,8 @@ Display::Display()
 	fObject(NULL),
 	fWidgetMovedCallback(NULL),
 	fWidgetResizedCallback(NULL),
+	fWidgetSelectedCallback(NULL),
 	fControlPaintCallback(NULL),
-	fWidgetInvokedCallback(NULL),
 	fShellCloseRequestedCallback(NULL)
 {
 }
@@ -88,15 +88,12 @@ Display::callbackWidgetResized(Widget* widget, const QSize& newSize)
 }
 
 
-#if 0
 void
-Display::callbackWidgetInvoked(Button* button, bool selected,
-	int what)
+Display::callbackWidgetSelected(Widget* widget, bool selected)
 {
 	JNIContext::getEnv()->CallVoidMethod(fObject,
-		fWidgetInvokedCallback, button->getHandle(), selected, (jint)what);
+		fWidgetSelectedCallback, widget->getHandle(), selected);
 }
-#endif
 
 
 void
@@ -139,10 +136,7 @@ Display::_init(jobject object)
 
 	GET_METHOD_ID(fWidgetMovedCallback, "qtWidgetMoved", "(" I_J "II)V");
 	GET_METHOD_ID(fWidgetResizedCallback, "qtWidgetResized", "(" I_J "II)V");
-#if 0
-	GET_METHOD_ID(fWidgetInvokedCallback, "qtWidgetInvokedCallback",
-		"(" I_J "ZI)V");
-#endif
+	GET_METHOD_ID(fWidgetSelectedCallback, "qtWidgetSelectedCallback", "(" I_J "Z)V");
 	GET_METHOD_ID(fControlPaintCallback, "qtControlPaintCallback", "(" I_J I_J "IIII)V");
 	GET_METHOD_ID(fShellCloseRequestedCallback, "qtShellCloseRequested", "(" I_J ")Z");
 
