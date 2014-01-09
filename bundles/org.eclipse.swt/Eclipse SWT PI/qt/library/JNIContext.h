@@ -23,7 +23,7 @@
 
 
 // define to enable tracing for JNI functions
-#define TRACE_QT_JNI
+//#define TRACE_QT_JNI
 
 #ifdef TRACE_QT_JNI
 #	define TRACE_QT_JNI_ONLY(...)	__VA_ARGS__
