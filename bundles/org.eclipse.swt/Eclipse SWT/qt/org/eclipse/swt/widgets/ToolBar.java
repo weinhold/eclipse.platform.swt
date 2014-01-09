@@ -11,10 +11,12 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.internal.qt.QtUtils;
+import org.eclipse.swt.internal.qt.QtToolBar;
 
 /**
  * Instances of this class support the layout of selectable
@@ -80,8 +82,36 @@ public class ToolBar extends Composite {
  * @see Widget#getStyle()
  */
 public ToolBar (Composite parent, int style) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	super (parent, checkStyle (style));
+}
+
+static int checkStyle (int style) {
+	/*
+	* Even though it is legal to create this widget
+	* with scroll bars, they serve no useful purpose
+	* because they do not automatically scroll the
+	* widget's client area.  The fix is to clear
+	* the SWT style.
+	*/
+	return style & ~(SWT.H_SCROLL | SWT.V_SCROLL);
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+}
+
+public Point computeSize (int wHint, int hHint, boolean changed) {
+	checkWidget();
+	if (wHint != SWT.DEFAULT && wHint < 0) wHint = 0;
+	if (hHint != SWT.DEFAULT && hHint < 0) hHint = 0;
+	return computeNativeSize (handle, wHint, hHint, changed);	
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	boolean horizontal = (style & SWT.VERTICAL) == 0;
+	handle = QtToolBar.create(display.getDisplayHandle(), horizontal);
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
 }
 
 /**
@@ -100,9 +130,9 @@ public ToolBar (Composite parent, int style) {
  * </ul>
  */
 public ToolItem getItem (int index) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (!(0 <= index && index < getItemCount())) error (SWT.ERROR_INVALID_RANGE);
+	return getItems()[index];
 }
 
 /**
@@ -122,8 +152,12 @@ public ToolItem getItem (int index) {
  * </ul>
  */
 public ToolItem getItem (Point point) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
+	ToolItem[] items = getItems();
+	for (int i=0; i<items.length; i++) {
+		if (items[i].getBounds().contains(point)) return items[i];
+	}
 	return null;
 }
 
@@ -138,9 +172,8 @@ public ToolItem getItem (Point point) {
  * </ul>
  */
 public int getItemCount () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return QtToolBar.getItemCount(handle);
 }
 
 /**
@@ -160,9 +193,19 @@ public int getItemCount () {
  * </ul>
  */
 public ToolItem [] getItems () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return _getItems ();
+}
+
+ToolItem [] _getItems () {
+	long[] /*int[]*/ itemHandles = QtToolBar.getItems(handle);
+	if (itemHandles == null || itemHandles.length == 0) return new ToolItem[0];
+	java.util.List<ToolItem> items = new ArrayList<>();
+	for (int i = 0; i < itemHandles.length; i++) {
+		Widget widget = display.getWidget(itemHandles[i]);
+		if (widget != null) items.add((ToolItem)widget);
+	}
+	return items.toArray(new ToolItem[items.size()]);
 }
 
 /**
@@ -179,8 +222,8 @@ public ToolItem [] getItems () {
  * </ul>
  */
 public int getRowCount () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	 /* On Qt, toolbars cannot wrap */
 	return 1;
 }
 
@@ -203,8 +246,12 @@ public int getRowCount () {
  * </ul>
  */
 public int indexOf (ToolItem item) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (item == null) error (SWT.ERROR_NULL_ARGUMENT);
+	ToolItem [] items = getItems ();
+	for (int i=0; i<items.length; i++) {
+		if (item == items[i]) return i;
+	}
 	return -1;
 }
 

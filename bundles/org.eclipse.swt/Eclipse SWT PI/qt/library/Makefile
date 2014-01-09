@@ -95,6 +95,8 @@ SWTPI_OBJECTS = \
 	Label.o \
 	OS.o \
 	Shell.o \
+	ToolItem.o \
+	ToolBar.o \
 	Utils.o \
 	Widget.o
 #CAIRO_OBJECTS = swt.o cairo.o cairo_structs.o cairo_stats.o

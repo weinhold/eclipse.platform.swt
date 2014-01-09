@@ -17,6 +17,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.qt.QtControl;
+import org.eclipse.swt.internal.qt.QtToolBar;
+import org.eclipse.swt.internal.qt.QtToolItem;
 import org.eclipse.swt.internal.qt.QtUtils;
 
 /**
@@ -40,6 +43,11 @@ import org.eclipse.swt.internal.qt.QtUtils;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ToolItem extends Item {
+	private ToolBar parent;
+	private Control control;
+	private long /*int*/ controlHandle;
+	private Image hotImage, disabledImage;
+	private String toolTipText;
 
 /**
  * Constructs a new instance of this class given its parent
@@ -76,9 +84,9 @@ public class ToolItem extends Item {
  * @see Widget#getStyle
  */
 public ToolItem (ToolBar parent, int style) {
-	// TODO: Implement!
-	super(parent, style);
-	QtUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	createWidget (parent.getItemCount ());
 }
 
 /**
@@ -118,9 +126,13 @@ public ToolItem (ToolBar parent, int style) {
  * @see Widget#getStyle
  */
 public ToolItem (ToolBar parent, int style, int index) {
-	// TODO: Implement!
-	super(parent, style);
-	QtUtils.notImplemented();
+	super (parent, checkStyle (style));
+	this.parent = parent;
+	int count = parent.getItemCount ();
+	if (!(0 <= index && index <= count)) {
+		error (SWT.ERROR_INVALID_RANGE);
+	}
+	createWidget (index);
 }
 
 /**
@@ -155,8 +167,63 @@ public ToolItem (ToolBar parent, int style, int index) {
  * @see SelectionEvent
  */
 public void addSelectionListener(SelectionListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	TypedListener typedListener = new TypedListener (listener);
+	addListener (SWT.Selection,typedListener);
+	addListener (SWT.DefaultSelection,typedListener);
+}
+
+static int checkStyle (int style) {
+	return checkBits (style, SWT.PUSH, SWT.CHECK, SWT.RADIO, SWT.SEPARATOR, SWT.DROP_DOWN, 0);
+}
+
+protected void checkSubclass () {
+	if (!isValidSubclass ()) error (SWT.ERROR_INVALID_SUBCLASS);
+}
+
+void createHandle (int index) {
+	state |= HANDLE;
+	int bits = SWT.SEPARATOR | SWT.RADIO | SWT.CHECK | SWT.PUSH | SWT.DROP_DOWN;
+	switch (style & bits) {
+		case SWT.SEPARATOR:
+			handle = QtToolItem.createSeparatorItem(display.getDisplayHandle());
+			break;
+		case SWT.DROP_DOWN:
+			handle = QtToolItem.createDropDownItem(display.getDisplayHandle());
+			break;
+		case SWT.RADIO:
+			handle = QtToolItem.createRadioItem(display.getDisplayHandle());
+			break;
+		case SWT.CHECK:
+			handle = QtToolItem.createCheckItem(display.getDisplayHandle());
+			break;
+		case SWT.PUSH:
+		default:
+			handle = QtToolItem.createPushItem(display.getDisplayHandle());
+			break;
+	}
+
+	if (handle == 0) error (SWT.ERROR_NO_HANDLES);
+
+	controlHandle = QtToolItem.getControl(handle);
+}
+
+void createWidget (int index) {
+	super.createWidget (index);
+	QtToolBar.addItem(parent.handle, handle, index);
+}
+
+void deregister () {
+	super.deregister();
+	if ((style & SWT.SEPARATOR) == 0) {
+		display.removeWidget(controlHandle);
+	}
+}
+
+public void dispose () {
+	if (isDisposed ()) return;
+	super.dispose ();
 }
 
 /**
@@ -171,9 +238,8 @@ public void addSelectionListener(SelectionListener listener) {
  * </ul>
  */
 public Rectangle getBounds () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return QtControl.getBounds(controlHandle);
 }
 
 /**
@@ -188,9 +254,8 @@ public Rectangle getBounds () {
  * </ul>
  */
 public Control getControl () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return control;
 }
 
 /**
@@ -208,9 +273,8 @@ public Control getControl () {
  * </ul>
  */
 public Image getDisabledImage () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return disabledImage;
 }
 
 /**
@@ -229,9 +293,8 @@ public Image getDisabledImage () {
  * @see #isEnabled
  */
 public boolean getEnabled () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget ();
+	return (state & DISABLED) == 0;
 }
 
 /**
@@ -249,9 +312,8 @@ public boolean getEnabled () {
  * </ul>
  */
 public Image getHotImage () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return hotImage;
 }
 
 /**
@@ -265,9 +327,9 @@ public Image getHotImage () {
  * </ul>
  */
 public ToolBar getParent () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	if (parent == null) error (SWT.ERROR_WIDGET_DISPOSED);
+	return parent;
 }
 
 /**
@@ -288,9 +350,9 @@ public ToolBar getParent () {
  * </ul>
  */
 public boolean getSelection () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return false;
+	return QtToolItem.isSelected(handle);
 }
 
 /**
@@ -304,9 +366,8 @@ public boolean getSelection () {
  * </ul>
  */
 public String getToolTipText () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return null;
+	checkWidget();
+	return toolTipText;
 }
 
 /**
@@ -320,9 +381,8 @@ public String getToolTipText () {
  * </ul>
  */
 public int getWidth () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return 0;
+	checkWidget();
+	return getBounds().width;
 }
 
 /**
@@ -341,9 +401,32 @@ public int getWidth () {
  * @see #getEnabled
  */
 public boolean isEnabled () {
-	// TODO: Implement!
-	QtUtils.notImplemented();
-	return false;
+	checkWidget();
+	return getEnabled () && parent.isEnabled ();
+}
+
+void register () {
+	super.register();
+	if ((style & SWT.SEPARATOR) == 0) {
+		display.addWidget(controlHandle, this);
+	}
+}
+
+void releaseHandle () {
+	super.releaseHandle ();
+	controlHandle = 0;
+}
+
+void releaseParent () {
+	QtToolBar.removeItem(parent.handle, handle);
+}
+
+void releaseWidget () {
+	super.releaseWidget ();
+	parent = null;
+	control = null;
+	hotImage = disabledImage = null;
+	toolTipText = null;
 }
 
 /**
@@ -364,8 +447,22 @@ public boolean isEnabled () {
  * @see #addSelectionListener
  */
 public void removeSelectionListener(SelectionListener listener) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (listener == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if (eventTable == null) return;
+	eventTable.unhook (SWT.Selection, listener);
+	eventTable.unhook (SWT.DefaultSelection,listener);	
+}
+
+void selectRadio () {
+	int index = 0;
+	ToolItem [] items = parent.getItems ();
+	while (index < items.length && items [index] != this) index++;
+	int i = index - 1;
+	while (i >= 0 && items [i].setRadioSelection (false)) --i;
+	int j = index + 1;
+	while (j < items.length && items [j].setRadioSelection (false)) j++;
+	setSelection (true);
 }
 
 /**
@@ -384,8 +481,18 @@ public void removeSelectionListener(SelectionListener listener) {
  * </ul>
  */
 public void setControl (Control control) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if (control != null) {
+		if (control.isDisposed()) error (SWT.ERROR_INVALID_ARGUMENT);
+		if (control.parent != parent) error (SWT.ERROR_INVALID_PARENT);
+	}
+	if ((style & SWT.SEPARATOR) == 0) return;
+	if (this.control == control) return;
+	this.control = control;
+	int index = QtToolBar.removeItem(parent.handle, handle);
+	QtToolItem.setControl(handle, control != null ? control.handle : 0);
+	controlHandle = QtToolItem.getControl(handle);
+	QtToolBar.addItem(parent.handle, handle, index);
 }
 
 /**
@@ -406,8 +513,10 @@ public void setControl (Control control) {
  * </ul>
  */
 public void setDisabledImage (Image image) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	disabledImage = image;
+	QtToolItem.setDisabledImage(handle, image != null ? image.handle : 0);
 }
 
 /**
@@ -427,8 +536,16 @@ public void setDisabledImage (Image image) {
  * </ul>
  */
 public void setEnabled (boolean enabled) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (((state & DISABLED) == 0) == enabled) return;
+	if (enabled) {
+		state &= ~DISABLED;
+	} else {
+		state |= DISABLED;
+	}
+	QtControl.setEnabled(controlHandle, enabled);
+	// TODO: Update focus.
+	QtUtils.missingFeature("update focus");
 }
 
 /**
@@ -449,8 +566,26 @@ public void setEnabled (boolean enabled) {
  * </ul>
  */
 public void setHotImage (Image image) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	hotImage = image;
+	QtToolItem.setHotImage(handle, image != null ? image.handle : 0);
+}
+
+public void setImage (Image image) {
+	checkWidget();
+	if ((style & SWT.SEPARATOR) != 0) return;
+	super.setImage (image);
+	QtToolItem.setImage(handle, image != null ? image.handle : 0);
+}
+
+boolean setRadioSelection (boolean value) {
+	if ((style & SWT.RADIO) == 0) return false;
+	if (getSelection () != value) {
+		setSelection (value);
+		sendSelectionEvent (SWT.Selection);
+	}
+	return true;
 }
 
 /**
@@ -469,8 +604,9 @@ public void setHotImage (Image image) {
  * </ul>
  */
 public void setSelection (boolean selected) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget ();
+	if ((style & (SWT.CHECK | SWT.RADIO)) == 0) return;
+	QtToolItem.setSelected(handle, selected);
 }
 
 /**
@@ -499,8 +635,14 @@ public void setSelection (boolean selected) {
  * </ul>
  */
 public void setText (String string) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (string == null) error (SWT.ERROR_NULL_ARGUMENT);
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if (string.equals(this.text)) return;
+	super.setText (string);
+	QtToolItem.setText(handle, string);
+	// TODO: Implement mnemonics support!
+	QtUtils.missingFeature("mnemonics");
 }
 
 /**
@@ -524,8 +666,10 @@ public void setText (String string) {
  * </ul>
  */
 public void setToolTipText (String string) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if (toolTipText == string || (toolTipText != null && toolTipText.equals(string))) return;
+	toolTipText = string;
+	QtToolItem.setToolTipText(handle, string);
 }
 
 /**
@@ -546,8 +690,28 @@ public void setToolTipText (String string) {
  * </ul>
  */
 public void setWidth (int width) {
-	// TODO: Implement!
-	QtUtils.notImplemented();
+	checkWidget();
+	if ((style & SWT.SEPARATOR) == 0) return;
+	if (width < 0) return;
+	QtControl.setBounds(controlHandle, 0, 0, width, getBounds().height, false, true);
+}
+
+void qtWidgetSelectedCallback(long /*int*/ handle, boolean selected) {
+	if ((style & SWT.SEPARATOR) != 0) return;
+	if (handle != this.handle) return;
+	Event event = new Event();
+	if ((style & SWT.DROP_DOWN) != 0) {
+		if (selected) {
+			event.detail = SWT.ARROW;
+			// TODO: Set x/y coordinates!
+			QtUtils.missingFeature("mouse coordinates");
+		}
+	} else if ((style & SWT.RADIO) != 0) {
+		if ((parent.getStyle () & SWT.NO_RADIO_GROUP) == 0) {
+			selectRadio ();
+		}
+	}
+	sendSelectionEvent (SWT.Selection, event, false);
 }
 
 }
