@@ -353,7 +353,7 @@ public Image(Device device, String filename) {
 	if (filename == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	handle = QtImage.load(filename);
 	if (handle == 0) SWT.error(SWT.ERROR_NO_HANDLES);
-	type = SWT.ICON;
+	type = SWT.BITMAP;
 	init();
 }
 

@@ -17,10 +17,12 @@
 #define INC_IMAGE_H
 
 
+#include <QPixmap>
+
 #include "swt.h"
 
 
-class QIcon;
+class QString;
 
 
 namespace swt {
@@ -29,7 +31,7 @@ namespace qt {
 
 class Image {
 public:
-								Image(const QIcon& icon);
+								Image(const QString& fileName);
 	virtual						~Image();
 
 			jintLong			getHandle() const
@@ -37,11 +39,11 @@ public:
 	static	Image*				get(jintLong handle)
 									{ return (Image*)(size_t)handle; }
 
-			QIcon*				getIcon() const
-									{ return fIcon; }
+			QPixmap&			getPixmap()
+									{ return fPixmap; }
 
 private:
-			QIcon*				fIcon;
+			QPixmap				fPixmap;
 };
 
 

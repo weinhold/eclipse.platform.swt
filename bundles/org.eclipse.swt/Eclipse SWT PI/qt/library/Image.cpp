@@ -17,7 +17,6 @@
 #include "Image.h"
 
 #include <QFile>
-#include <QIcon>
 
 #include "JNIContext.h"
 #include "Utils.h"
@@ -31,16 +30,15 @@ namespace swt {
 namespace qt {
 
 
-Image::Image(const QIcon& icon)
+Image::Image(const QString& fileName)
 	:
-	fIcon(new QIcon(icon))
+	fPixmap(fileName)
 {
 }
 
 
 Image::~Image()
 {
-	delete fIcon;
 }
 
 
@@ -63,13 +61,13 @@ Java_org_eclipse_swt_internal_qt_QtImage_load(
 		return 0;
 	}
 
-	QIcon icon(qFileName);
-	if (icon.isNull()) {
+	Image* image = new Image(qFileName);
+	if (image->getPixmap().isNull()) {
+		delete image;
 		Utils::throwSWTException(env, SWT_ERROR_UNSUPPORTED_FORMAT);
 		return 0;
 	}
 
-	Image* image = new Image(icon);
 	return image->getHandle();
 
 	SWT_QT_JNI_EXIT(env, 0)

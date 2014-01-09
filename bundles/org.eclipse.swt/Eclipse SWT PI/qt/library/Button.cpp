@@ -372,8 +372,8 @@ Java_org_eclipse_swt_internal_qt_QtButton_setImage(
 
 	Button* button = Button::get(handle);
 	Image* image = imageHandle != 0 ? Image::get(imageHandle) : NULL;
-	QIcon* icon = image != NULL ? image->getIcon() : NULL;
-	button->swtGetAbstractButton()->setIcon(icon != NULL ? *icon : QIcon());
+	QIcon icon(image != NULL ? image->getPixmap() : QPixmap());
+	button->swtGetAbstractButton()->setIcon(icon);
 
 	SWT_QT_JNI_EXIT(env,)
 }
